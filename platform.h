@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(__llvm__)
 #   if (_MSC_VER < 1800)
         typedef signed char         int8_t;
         typedef short               int16_t;
@@ -43,16 +43,18 @@
     }
     inline intptr_t __builtin_clzl(intptr_t bits)
     {
-#   if defined(_M_AMD64)
         unsigned long r = 0;
-        _BitScanReverse64(&r, bits);
-        return r ^ 63;
-#   else
-        unsigned long r = 0;
-        _BitScanReverse(&r, bits);
+        _BitScanReverse(&r, (long)bits);
         return r ^ 31;
-#   endif
     }
+#   if defined(_M_AMD64)
+    inline intptr_t __builtin_clzl(intptr_t bits)
+    {
+        unsigned long r = 0;
+        _BitScanReverse64(&r, (__int64)bits);
+        return r ^ 63;
+    }
+#   endif
 
 #   if (_MSC_VER < 1800)
 #       include <math.h>
@@ -115,6 +117,7 @@
         }
 #   endif
 #else
+#   include <stddef.h>
 #   include <stdint.h>
 #   define UNUSED __attribute__((unused))
 #   if defined(__APPLE__)
@@ -124,16 +127,20 @@
             posix_memalign(&ptr, size, alignment);
             return ptr;
         }
-#   else
-        inline void* _aligned_malloc(size_t size, size_t alignment)
-        {
-            return memalign(alignment, size);
-        }
-#   endif
         inline void _aligned_free(void* ptr)
         {
             free(ptr);
         }
+#   elif defined(__linux__)
+        inline void* _aligned_malloc(size_t size, size_t alignment)
+        {
+            return memalign(alignment, size);
+        }
+        inline void _aligned_free(void* ptr)
+        {
+            free(ptr);
+        }
+#   endif
 
 #   if defined(__LP64__)
         typedef __int128 int128_t;
@@ -150,6 +157,8 @@
             (*hi) = (int64_t)(hilo >> 64);
             return (int64_t)hilo;
         }
+#   elif defined(_MSC_VER)
+#       include <intrin.h>
 #   endif
 #endif
 
@@ -161,7 +170,7 @@ inline int32_t _mul64(int32_t a, int32_t b, int32_t* hi)
 }
 inline uint32_t _umul64(uint32_t a, uint32_t b, uint32_t* hi)
 {
-    uint64_t hilo =(uint64_t)a * b;
+    uint64_t hilo = (uint64_t)a * b;
     (*hi) = (uint32_t)(hilo >> 32);
     return (uint32_t)hilo;
 }

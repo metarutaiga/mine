@@ -97,8 +97,8 @@ public:
     intptr_t* Stack;
 
 public:
-    CPU ();
-    ~CPU ();
+    CPU();
+    ~CPU();
 
 public:
     void Execute(const void* code);

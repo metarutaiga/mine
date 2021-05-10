@@ -178,7 +178,7 @@ void CPU::CLO()
 void CPU::DCLZ()
 {
 #if (MIPS_BITS >= 64)
-    GPR[rd] = __builtin_clzl(GPR[rs]);
+    GPR[rd] = __builtin_clzll(GPR[rs]);
     MIPS_DEBUG("DCLZ", "GPR:%-2u:[%016zX] = GPR:%-2u", rd, GPR[rd], rs);
 #endif
 }
@@ -186,7 +186,7 @@ void CPU::DCLZ()
 void CPU::DCLO()
 {
 #if (MIPS_BITS >= 64)
-    GPR[rd] = __builtin_clzl(~GPR[rs]);
+    GPR[rd] = __builtin_clzll(~GPR[rs]);
     MIPS_DEBUG("DCLO", "GPR:%-2u:[%016zX] = GPR:%-2u", rd, GPR[rd], rs);
 #endif
 }
