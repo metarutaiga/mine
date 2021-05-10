@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <stddef.h>
 #include "riscv_instruction.h"
 
 struct riscv_cpu : protected riscv_instruction
@@ -15,9 +15,9 @@ struct riscv_cpu : protected riscv_instruction
     riscv_cpu();
     ~riscv_cpu();
 
-    void execute(const void* code);
+    void execute(const void* code, size_t size);
 
-protected:
+public:
     uintptr_t x[32];
     uintptr_t pc;
     uintptr_t* stack;

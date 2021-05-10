@@ -41,18 +41,22 @@ riscv_cpu::~riscv_cpu()
     delete[] stack;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::execute(const void* code)
+void riscv_cpu::execute(const void* code, size_t size)
 {
-    pc = (uintptr_t)code;
+    uintptr_t begin = (uintptr_t)code;
+    uintptr_t end = begin + size;
+    pc = begin;
     for (;;)
     {
-        format = *(int*)pc;
+        uintptr_t address = pc;
+        format = *(uint32_t*)address;
 
         instruction_pointer inst = map32[opcode];
         (this->*inst)();
 
-        pc += 4;
-        if (pc == 0)
+        if (pc == address)
+            pc += 4;
+        if (pc == end)
             break;
     }
 }

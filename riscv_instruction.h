@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 struct riscv_instruction
 {
     // Chapter 24
@@ -14,126 +16,126 @@ struct riscv_instruction
     union
     {
         // Format
-        unsigned int format;
+        uint32_t format;
         // R - Type
         // 31......25 24...20 19...15 14......12 11...7 6........0
         // [ funct7 ] [ rs2 ] [ rs1 ] [ funct3 ] [ rd ] [ opcode ]
         struct
         {
-            unsigned int opcode : 7;
-            unsigned int rd : 5;
-            unsigned int funct3 : 3;
-            unsigned int rs1 : 5;
-            unsigned int rs2 : 5;
-            unsigned int funct7 : 7;
+            uint32_t opcode : 7;
+            uint32_t rd : 5;
+            uint32_t funct3 : 3;
+            uint32_t rs1 : 5;
+            uint32_t rs2 : 5;
+            uint32_t funct7 : 7;
         };
         // I - Type
         // 31.........20 19...15 14......12 11...7 6........0
         // [ imm[11:0] ] [ rs1 ] [ funct3 ] [ rd ] [ opcode ]
         struct
         {
-            unsigned int _i_opcode : 7;
-            unsigned int _i_rd : 5;
-            unsigned int _i_funct3 : 3;
-            unsigned int _i_rs1 : 5;
-            unsigned int _i : 12;
+            uint32_t _i_opcode : 7;
+            uint32_t _i_rd : 5;
+            uint32_t _i_funct3 : 3;
+            uint32_t _i_rs1 : 5;
+            uint32_t _i : 12;
         };
         // S - Type
         // 31.........25 24...20 19...15 14......12 11.........7 6........0
         // [ imm[11:5] ] [ rs2 ] [ rs1 ] [ funct3 ] [ imm[4:0] ] [ opcode ]
         struct
         {
-            unsigned int _s_opcode : 7;
-            unsigned int _s : 5;
-            unsigned int _s_funct3 : 3;
-            unsigned int _s_rs1 : 5;
-            unsigned int _s_rs2 : 5;
-            unsigned int _ss : 7;
+            uint32_t _s_opcode : 7;
+            uint32_t _s : 5;
+            uint32_t _s_funct3 : 3;
+            uint32_t _s_rs1 : 5;
+            uint32_t _s_rs2 : 5;
+            uint32_t _ss : 7;
         };
         // B - Type
         // 31............25 24...20 19...15 14......12 11............7 6........0
         // [ imm[12:10:5] ] [ rs2 ] [ rs1 ] [ funct3 ] [ imm[4:1|11] ] [ opcode ]
         struct
         {
-            unsigned int _b_opcode : 7;
-            unsigned int _b : 1;
-            unsigned int _bb : 4;
-            unsigned int _b_funct3 : 3;
-            unsigned int _b_rs1 : 5;
-            unsigned int _b_rs2 : 5;
-            unsigned int _bbb : 6;
-            unsigned int _bbbb : 1;
+            uint32_t _b_opcode : 7;
+            uint32_t _b : 1;
+            uint32_t _bb : 4;
+            uint32_t _b_funct3 : 3;
+            uint32_t _b_rs1 : 5;
+            uint32_t _b_rs2 : 5;
+            uint32_t _bbb : 6;
+            uint32_t _bbbb : 1;
         };
         // U - Type
         // 31..........12 11...7 6........0
         // [ imm[31:12] ] [ rd ] [ opcode ]
         struct
         {
-            unsigned int _u_opcode : 7;
-            unsigned int _u_rd : 5;
-            unsigned int _u : 20;
+            uint32_t _u_opcode : 7;
+            uint32_t _u_rd : 5;
+            uint32_t _u : 20;
         };
         // J - Type
         // 31.....................12 11...7 6........0
         // [ imm[20|10:1|11|19:12] ] [ rd ] [ opcode ]
         struct
         {
-            unsigned int _j_opcode : 7;
-            unsigned int _j_rd : 5;
-            unsigned int _j : 8;
-            unsigned int _jj : 1;
-            unsigned int _jjj : 10;
-            unsigned int _jjjj : 1;
+            uint32_t _j_opcode : 7;
+            uint32_t _j_rd : 5;
+            uint32_t _j : 8;
+            uint32_t _jj : 1;
+            uint32_t _jjj : 10;
+            uint32_t _jjjj : 1;
         };
     };
 
-    unsigned int immI() const
+    uint32_t immI() const
     {
         return _i;
     }
 
-    unsigned int immS() const
+    uint32_t immS() const
     {
         return _s | _ss << 5;
     }
 
-    unsigned int immB() const
+    uint32_t immB() const
     {
         return _b << 11 | _bb << 1 | _bbb << 5 | _bbbb << 12;
     }
 
-    unsigned int immU() const
+    uint32_t immU() const
     {
         return _u << 12;
     }
 
-    unsigned int immJ() const
+    uint32_t immJ() const
     {
         return _j << 12 | _jj << 11 | _jjj << 1 | _jjjj << 20;
     }
 
-    int simmI() const
+    int32_t simmI() const
     {
-        return (int)immI() << 20 >> 20;
+        return (int32_t)immI() << 20 >> 20;
     }
 
-    int uimmS() const
+    int32_t simmS() const
     {
-        return (int)immS() << 20 >> 20;
+        return (int32_t)immS() << 20 >> 20;
     }
 
-    int simmB() const
+    int32_t simmB() const
     {
-        return (int)immB() << 19 >> 19;
+        return (int32_t)immB() << 19 >> 19;
     }
 
-    int simmU() const
+    int32_t simmU() const
     {
-        return (int)immU() << 20 >> 20;
+        return (int32_t)immU() << 20 >> 20;
     }
 
-    int simmJ() const
+    int32_t simmJ() const
     {
-        return (int)immJ() << 11 >> 11;
+        return (int32_t)immJ() << 11 >> 11;
     }
 };
