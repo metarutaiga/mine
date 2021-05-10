@@ -7,11 +7,7 @@
 
 #pragma once
 
-#if defined(_MSC_VER)
-#    include <crtdefs.h>
-#else
-#    include <stdint.h>
-#endif
+#include <stdint.h>
 #include "riscv_instruction.h"
 
 struct riscv_cpu : protected riscv_instruction
@@ -29,11 +25,6 @@ protected:
 protected:
     typedef void instruction();
     typedef void (riscv_cpu::*instruction_pointer)();
-
-    // Reserved
-    inline void ____()
-    {
-    }
 
     // RV32I Base Instruction Set
     instruction LUI;
@@ -214,4 +205,31 @@ protected:
     instruction FCVT_D_L;
     instruction FCVT_D_LU;
     instruction FMV_D_X;
+
+    // Reserved
+    inline void ____()
+    {
+    }
+
+    // Opcode
+    instruction LOAD;
+    instruction LOAD_FP;
+    instruction MISC_MEM;
+    instruction OP_IMM;
+    instruction OP_IMM_32;
+    instruction STORE;
+    instruction STORE_FP;
+    instruction AMO;
+    instruction OP;
+    instruction OP_32;
+    instruction MADD;
+    instruction MSUB;
+    instruction NMSUB;
+    instruction NMADD;
+    instruction OP_FP;
+    instruction BRANCH;
+    instruction SYSTEM;
+
+    // Opcode map
+    static const instruction_pointer map32[8 * 4];
 };

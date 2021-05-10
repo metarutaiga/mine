@@ -111,4 +111,29 @@ struct riscv_instruction
     {
         return _j << 12 | _jj << 11 | _jjj << 1 | _jjjj << 20;
     }
+
+    int simmI() const
+    {
+        return (int)immI() << 20 >> 20;
+    }
+
+    int uimmS() const
+    {
+        return (int)immS() << 20 >> 20;
+    }
+
+    int simmB() const
+    {
+        return (int)immB() << 19 >> 19;
+    }
+
+    int simmU() const
+    {
+        return (int)immU() << 20 >> 20;
+    }
+
+    int simmJ() const
+    {
+        return (int)immJ() << 11 >> 11;
+    }
 };
