@@ -213,9 +213,7 @@ protected:
     instruction FMV_D_X;
 
     // Reserved
-    inline void ____()
-    {
-    }
+    instruction ____;
 
     // Opcode
     instruction LOAD;

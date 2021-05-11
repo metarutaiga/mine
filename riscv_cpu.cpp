@@ -87,8 +87,11 @@ bool riscv_cpu::run()
             uintptr_t address = pc;
             format = *(uint32_t*)address;
 
-            instruction_pointer inst = map32[opcode >> 2];
-            (this->*inst)();
+            if ((opcode & 0b11) == 0b11)
+            {
+                instruction_pointer inst = map32[opcode >> 2];
+                (this->*inst)();
+            }
             x[0] = 0;
 
             if (pc == address)
@@ -112,8 +115,11 @@ bool riscv_cpu::runOnce()
             uintptr_t address = pc;
             format = *(uint32_t*)address;
 
-            instruction_pointer inst = map32[opcode >> 2];
-            (this->*inst)();
+            if ((opcode & 0b11) == 0b11)
+            {
+                instruction_pointer inst = map32[opcode >> 2];
+                (this->*inst)();
+            }
             x[0] = 0;
 
             if (pc == address)
@@ -124,6 +130,11 @@ bool riscv_cpu::runOnce()
     unregister_handler();
 
     return success;
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::____()
+{
+    
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::LOAD()
