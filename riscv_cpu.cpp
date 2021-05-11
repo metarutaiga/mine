@@ -5,6 +5,8 @@
 // December 13, 2019
 //==============================================================================
 
+#include <setjmp.h>
+#include <signal.h>
 #include "riscv_cpu.h"
 
 //------------------------------------------------------------------------------
@@ -24,15 +26,35 @@ const riscv_cpu::instruction_pointer riscv_cpu::map32[8 * 4] =
 #undef o
 #undef x
 //------------------------------------------------------------------------------
+static jmp_buf buf;
+static sig_t sigsegv;
+//------------------------------------------------------------------------------
+static void register_handler()
+{
+    sigsegv = signal(SIGSEGV, [](int){ longjmp(buf, 1); });
+}
+//------------------------------------------------------------------------------
+static int check_handler()
+{
+    return setjmp(buf);
+}
+//------------------------------------------------------------------------------
+static void unregister_handler()
+{
+    signal(SIGSEGV, sigsegv);
+}
+//------------------------------------------------------------------------------
 riscv_cpu::riscv_cpu()
 {
+    stack = new uintptr_t[8192];
     format = 0;
     for (int i = 0; i < 32; ++i)
     {
         x[i] = 0;
     }
     pc = 0;
-    stack = new uintptr_t[8192];
+    begin = 0;
+    end = 0;
     x[2] = (uintptr_t)&stack[8188];
 }
 //------------------------------------------------------------------------------
@@ -41,24 +63,67 @@ riscv_cpu::~riscv_cpu()
     delete[] stack;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::execute(const void* code, size_t size)
+void riscv_cpu::program(const void* code, size_t size)
 {
-    uintptr_t begin = (uintptr_t)code;
-    uintptr_t end = begin + size;
-    pc = begin;
-    for (;;)
+    format = 0;
+    for (int i = 0; i < 32; ++i)
     {
-        uintptr_t address = pc;
-        format = *(uint32_t*)address;
-
-        instruction_pointer inst = map32[opcode];
-        (this->*inst)();
-
-        if (pc == address)
-            pc += 4;
-        if (pc == end)
-            break;
+        x[i] = 0;
     }
+    pc = (uintptr_t)code;
+    begin = pc;
+    end = pc + size;
+    x[2] = (uintptr_t)&stack[8188];
+}
+//------------------------------------------------------------------------------
+bool riscv_cpu::run()
+{
+    bool success = false;
+    register_handler();
+    if (check_handler() == 0)
+    {
+        while (pc >= begin && pc < end)
+        {
+            uintptr_t address = pc;
+            format = *(uint32_t*)address;
+
+            instruction_pointer inst = map32[opcode >> 2];
+            (this->*inst)();
+            x[0] = 0;
+
+            if (pc == address)
+                pc += 4;
+        }
+        success = true;
+    }
+    unregister_handler();
+
+    return success;
+}
+//------------------------------------------------------------------------------
+bool riscv_cpu::runOnce()
+{
+    bool success = false;
+    register_handler();
+    if (check_handler() == 0)
+    {
+        if (pc >= begin && pc < end)
+        {
+            uintptr_t address = pc;
+            format = *(uint32_t*)address;
+
+            instruction_pointer inst = map32[opcode >> 2];
+            (this->*inst)();
+            x[0] = 0;
+
+            if (pc == address)
+                pc += 4;
+        }
+        success = true;
+    }
+    unregister_handler();
+
+    return success;
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::LOAD()

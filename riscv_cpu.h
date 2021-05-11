@@ -10,17 +10,23 @@
 #include <stddef.h>
 #include "riscv_instruction.h"
 
-struct riscv_cpu : protected riscv_instruction
+struct riscv_cpu : public riscv_instruction
 {
     riscv_cpu();
     ~riscv_cpu();
 
-    void execute(const void* code, size_t size);
+    void program(const void* code, size_t size);
+
+    bool run();
+    bool runOnce();
 
 public:
+    uintptr_t* stack;
     uintptr_t x[32];
     uintptr_t pc;
-    uintptr_t* stack;
+
+    uintptr_t begin;
+    uintptr_t end;
 
 protected:
     typedef void instruction();

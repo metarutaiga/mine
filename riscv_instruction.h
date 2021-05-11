@@ -131,7 +131,7 @@ struct riscv_instruction
 
     int32_t simmU() const
     {
-        return (int32_t)immU() << 20 >> 20;
+        return (int32_t)immU();
     }
 
     int32_t simmJ() const
