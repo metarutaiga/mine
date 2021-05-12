@@ -7,7 +7,10 @@
 
 #include <setjmp.h>
 #include <signal.h>
+#include <stdio.h>
 #include "riscv_cpu.h"
+
+#define HINT HINT
 
 //------------------------------------------------------------------------------
 #define o &riscv_cpu::
@@ -17,10 +20,10 @@
 //------------------------------------------------------------------------------
 const riscv_cpu::instruction_pointer riscv_cpu::map32[8 * 4] =
 {
-    o LOAD      x LOAD_FP   x ____  x MISC_MEM  x OP_IMM    x AUIPC x OP_IMM_32 x ____
-    x STORE     x STORE_FP  x ____  x AMO       x OP        x LUI   x OP_32     x ____
-    x MADD      x MSUB      x NMSUB x NMADD     x OP_FP     x ____  x ____      x ____
-    x BRANCH    x JALR      x ____  x JAL       x SYSTEM    x ____  x ____      x ____
+    o LOAD      x LOAD_FP   x HINT  x MISC_MEM  x OP_IMM    x AUIPC x OP_IMM_32 x HINT
+    x STORE     x STORE_FP  x HINT  x AMO       x OP        x LUI   x OP_32     x HINT
+    x MADD      x MSUB      x NMSUB x NMADD     x OP_FP     x HINT  x HINT      x HINT
+    x BRANCH    x JALR      x HINT  x JAL       x SYSTEM    x HINT  x HINT      x HINT
 };
 //------------------------------------------------------------------------------
 #undef o
@@ -47,15 +50,11 @@ static void unregister_handler()
 riscv_cpu::riscv_cpu()
 {
     stack = new uintptr_t[8192];
-    format = 0;
-    for (int i = 0; i < 32; ++i)
-    {
-        x[i] = 0;
-    }
-    pc = 0;
-    begin = 0;
-    end = 0;
-    x[2] = (uintptr_t)&stack[8188];
+
+    environmentCall = [](riscv_cpu&cpu) {};
+    environmentBreakpoint = [](riscv_cpu&cpu) {};
+
+    program(nullptr, 0);
 }
 //------------------------------------------------------------------------------
 riscv_cpu::~riscv_cpu()
@@ -66,14 +65,61 @@ riscv_cpu::~riscv_cpu()
 void riscv_cpu::program(const void* code, size_t size)
 {
     format = 0;
+
     for (int i = 0; i < 32; ++i)
     {
         x[i] = 0;
     }
+    x[2] = (uintptr_t)&stack[8188];
     pc = (uintptr_t)code;
+
     begin = pc;
     end = pc + size;
-    x[2] = (uintptr_t)&stack[8188];
+}
+//------------------------------------------------------------------------------
+bool riscv_cpu::issue()
+{
+    uintptr_t address = pc;
+    format = *(uint32_t*)address;
+
+    switch (__builtin_ctz(~opcode))
+    {
+    case 0:
+    case 1:
+    {
+        if (pc == address)
+            pc += 2;
+        break;
+    }
+    case 2:
+    case 3:
+    case 4:
+    {
+        instruction_pointer inst = map32[opcode >> 2];
+        (this->*inst)();
+
+        if (pc == address)
+            pc += 4;
+        break;
+    }
+    case 5:
+    {
+        if (pc == address)
+            pc += 6;
+        break;
+    }
+    case 6:
+    {
+        if (pc == address)
+            pc += 8;
+        break;
+    }
+    default:
+        return false;
+    }
+    x[0] = 0;
+
+    return true;
 }
 //------------------------------------------------------------------------------
 bool riscv_cpu::run()
@@ -84,18 +130,8 @@ bool riscv_cpu::run()
     {
         while (pc >= begin && pc < end)
         {
-            uintptr_t address = pc;
-            format = *(uint32_t*)address;
-
-            if ((opcode & 0b11) == 0b11)
-            {
-                instruction_pointer inst = map32[opcode >> 2];
-                (this->*inst)();
-            }
-            x[0] = 0;
-
-            if (pc == address)
-                pc += 4;
+            if (issue() == false)
+                break;
         }
         success = true;
     }
@@ -110,20 +146,11 @@ bool riscv_cpu::runOnce()
     register_handler();
     if (check_handler() == 0)
     {
-        if (pc >= begin && pc < end)
+        while (pc >= begin && pc < end)
         {
-            uintptr_t address = pc;
-            format = *(uint32_t*)address;
-
-            if ((opcode & 0b11) == 0b11)
-            {
-                instruction_pointer inst = map32[opcode >> 2];
-                (this->*inst)();
-            }
-            x[0] = 0;
-
-            if (pc == address)
-                pc += 4;
+            if (issue() == false)
+                break;
+            break;
         }
         success = true;
     }
@@ -132,7 +159,7 @@ bool riscv_cpu::runOnce()
     return success;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::____()
+void riscv_cpu::HINT()
 {
     
 }
@@ -147,8 +174,8 @@ void riscv_cpu::LOAD()
     case 0b011: return LD();
     case 0b100: return LBU();
     case 0b101: return LHU();
-    case 0b110: return ____();
-    case 0b111: return ____();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -186,15 +213,15 @@ void riscv_cpu::OP_IMM_32()
     {
     case 0b000: return ADDIW();
     case 0b001: return SLLIW();
-    case 0b010: return ____();
-    case 0b011: return ____();
-    case 0b100: return ____();
+    case 0b010: return HINT();
+    case 0b011: return HINT();
+    case 0b100: return HINT();
     case 0b101: if (funct7 == 0)
                     return SRLIW();
                 else
                     return SRAIW();
-    case 0b110: return ____();
-    case 0b111: return ____();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -206,10 +233,10 @@ void riscv_cpu::STORE()
     case 0b001: return SH();
     case 0b010: return SW();
     case 0b011: return SD();
-    case 0b100: return ____();
-    case 0b101: return ____();
-    case 0b110: return ____();
-    case 0b111: return ____();
+    case 0b100: return HINT();
+    case 0b101: return HINT();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -253,15 +280,15 @@ void riscv_cpu::OP_32()
                 else
                     return SUBW();
     case 0b001: return SLLW();
-    case 0b010: return ____();
-    case 0b011: return ____();
-    case 0b100: return ____();
+    case 0b010: return HINT();
+    case 0b011: return HINT();
+    case 0b100: return HINT();
     case 0b101: if (funct7 == 0)
                     return SRLW();
                 else
                     return SRAW();
-    case 0b110: return ____();
-    case 0b111: return ____();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -296,8 +323,8 @@ void riscv_cpu::BRANCH()
     {
     case 0b000: return BEQ();
     case 0b001: return BNE();
-    case 0b010: return ____();
-    case 0b011: return ____();
+    case 0b010: return HINT();
+    case 0b011: return HINT();
     case 0b100: return BLT();
     case 0b101: return BGE();
     case 0b110: return BLTU();
@@ -307,10 +334,19 @@ void riscv_cpu::BRANCH()
 //------------------------------------------------------------------------------
 void riscv_cpu::SYSTEM()
 {
-    switch (rs2)
+    switch (funct3)
     {
-    case 0: return ECALL();
-    case 1: return EBREAK();
+    case 0b000: if (immI() == 0)
+                    return ECALL();
+                else
+                    return EBREAK();
+    case 0b001: return CSRRW();
+    case 0b010: return CSRRS();
+    case 0b011: return CSRRC();
+    case 0b100: return HINT();
+    case 0b101: return CSRRWI();
+    case 0b110: return CSRRSI();
+    case 0b111: return CSRRCI();
     }
 }
 //------------------------------------------------------------------------------

@@ -129,6 +129,14 @@ typedef struct elf64_phdr {
 #define SHT_LOUSER      0x80000000
 #define SHT_HIUSER      0xffffffff
 
+/* sh_flags */
+#define SHF_WRITE           0x1
+#define SHF_ALLOC           0x2
+#define SHF_EXECINSTR       0x4
+#define SHF_RELA_LIVEPATCH  0x00100000
+#define SHF_RO_AFTER_INIT   0x00200000
+#define SHF_MASKPROC        0xf0000000
+
 typedef struct elf32_shdr {
     Elf32_Word      sh_name;
     Elf32_Word      sh_type;

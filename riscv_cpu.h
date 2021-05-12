@@ -17,6 +17,7 @@ struct riscv_cpu : public riscv_instruction
 
     void program(const void* code, size_t size);
 
+    bool issue();
     bool run();
     bool runOnce();
 
@@ -27,6 +28,10 @@ public:
 
     uintptr_t begin;
     uintptr_t end;
+
+    // Environment Call and Breakpoints
+    void (*environmentCall)(riscv_cpu& cpu);
+    void (*environmentBreakpoint)(riscv_cpu& cpu);
 
 protected:
     typedef void instruction();
@@ -212,10 +217,8 @@ protected:
     instruction FCVT_D_LU;
     instruction FMV_D_X;
 
-    // Reserved
-    instruction ____;
-
     // Opcode
+    instruction HINT;
     instruction LOAD;
     instruction LOAD_FP;
     instruction MISC_MEM;
