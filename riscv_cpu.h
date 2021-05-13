@@ -23,7 +23,7 @@ struct riscv_cpu : public riscv_instruction
 
 public:
     uintptr_t* stack;
-    uintptr_t x[32];
+    register_t x[32];
     uintptr_t pc;
 
     uintptr_t begin;

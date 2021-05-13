@@ -138,4 +138,26 @@ struct riscv_instruction
     {
         return (int32_t)immJ() << 11 >> 11;
     }
+
+    union register_t
+    {
+        uintptr_t value;
+        intptr_t s;
+        uintptr_t u;
+        int32_t s32;
+        uint32_t u32;
+        int16_t s16;
+        uint16_t u16;
+        int8_t s8;
+        uint8_t u8;
+        operator uintptr_t() const
+        {
+            return value;
+        }
+        register_t& operator = (const uintptr_t& other)
+        {
+            value = other;
+            return *this;
+        }
+    };
 };
