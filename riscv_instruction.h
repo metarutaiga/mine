@@ -144,6 +144,8 @@ struct riscv_instruction
         uintptr_t value;
         intptr_t s;
         uintptr_t u;
+        int64_t s64;
+        uint64_t u64;
         int32_t s32;
         uint32_t u32;
         int16_t s16;

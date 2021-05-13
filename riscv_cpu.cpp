@@ -66,6 +66,7 @@ void riscv_cpu::program(const void* code, size_t size)
 {
     format = 0;
 
+    reservation = 0;
     for (int i = 0; i < 32; ++i)
     {
         x[i] = 0;
@@ -261,7 +262,45 @@ void riscv_cpu::STORE_FP()
 //------------------------------------------------------------------------------
 void riscv_cpu::AMO()
 {
-    return HINT();
+    switch (funct3)
+    {
+    case 0b000: return HINT();
+    case 0b001: return HINT();
+    case 0b010: switch (funct7 >> 2)
+                {
+                case 0b00000: return AMOADD_W();
+                case 0b00001: return AMOSWAP_W();
+                case 0b00010: return LR_W();
+                case 0b00011: return SC_W();
+                case 0b00100: return AMOXOR_W();
+                case 0b01000: return AMOOR_W();
+                case 0b01100: return AMOAND_W();
+                case 0b10000: return AMOMIN_W();
+                case 0b10100: return AMOMAX_W();
+                case 0b11000: return AMOMINU_W();
+                case 0b11100: return AMOMAXU_W();
+                default:      return HINT();
+                }
+    case 0b011: switch (funct7 >> 2)
+                {
+                case 0b00000: return AMOADD_D();
+                case 0b00001: return AMOSWAP_D();
+                case 0b00010: return LR_D();
+                case 0b00011: return SC_D();
+                case 0b00100: return AMOXOR_D();
+                case 0b01000: return AMOOR_D();
+                case 0b01100: return AMOAND_D();
+                case 0b10000: return AMOMIN_D();
+                case 0b10100: return AMOMAX_D();
+                case 0b11000: return AMOMINU_D();
+                case 0b11100: return AMOMAXU_D();
+                default:      return HINT();
+                }
+    case 0b100: return HINT();
+    case 0b101: return HINT();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
+    }
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::OP()
