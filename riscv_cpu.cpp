@@ -174,19 +174,29 @@ void riscv_cpu::LOAD()
     case 0b011: return LD();
     case 0b100: return LBU();
     case 0b101: return LHU();
-    case 0b110: return HINT();
+    case 0b110: return LWU();
     case 0b111: return HINT();
     }
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::LOAD_FP()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::MISC_MEM()
 {
-    
+    switch (funct3)
+    {
+    case 0b000: return FENCE();
+    case 0b001: return FENCE_I();
+    case 0b010: return HINT();
+    case 0b011: return HINT();
+    case 0b100: return HINT();
+    case 0b101: return HINT();
+    case 0b110: return HINT();
+    case 0b111: return HINT();
+    }
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::OP_IMM()
@@ -198,10 +208,12 @@ void riscv_cpu::OP_IMM()
     case 0b010: return SLTI();
     case 0b011: return SLTIU();
     case 0b100: return XORI();
-    case 0b101: if (funct7 == 0)
-                    return SRLI();
-                else
-                    return SRAI();
+    case 0b101: switch (funct7)
+                {
+                case 0b0000000: return SRLI();
+                case 0b0100000: return SRAI();
+                default:        return HINT();
+                }
     case 0b110: return ORI();
     case 0b111: return ANDI();
     }
@@ -216,10 +228,12 @@ void riscv_cpu::OP_IMM_32()
     case 0b010: return HINT();
     case 0b011: return HINT();
     case 0b100: return HINT();
-    case 0b101: if (funct7 == 0)
-                    return SRLIW();
-                else
-                    return SRAIW();
+    case 0b101: switch (funct7)
+                {
+                case 0b0000000: return SRLIW();
+                case 0b0100000: return SRAIW();
+                default:        return HINT();
+                }
     case 0b110: return HINT();
     case 0b111: return HINT();
     }
@@ -242,12 +256,12 @@ void riscv_cpu::STORE()
 //------------------------------------------------------------------------------
 void riscv_cpu::STORE_FP()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::AMO()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::OP()
@@ -293,6 +307,8 @@ void riscv_cpu::OP()
         case 0b111: return HINT();
         }
         break;
+    default:
+        return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -339,32 +355,34 @@ void riscv_cpu::OP_32()
         case 0b111: return HINT();
         }
         break;
+    default:
+        return HINT();
     }
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::MADD()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::MSUB()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::NMSUB()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::NMADD()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::OP_FP()
 {
-    
+    return HINT();
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::BRANCH()
@@ -386,10 +404,12 @@ void riscv_cpu::SYSTEM()
 {
     switch (funct3)
     {
-    case 0b000: if (immI() == 0)
-                    return ECALL();
-                else
-                    return EBREAK();
+    case 0b000: switch (immI())
+                {
+                case 0b000000000000: return ECALL();
+                case 0b000000000001: return EBREAK();
+                default:             return HINT();
+                }
     case 0b001: return CSRRW();
     case 0b010: return CSRRS();
     case 0b011: return CSRRC();
