@@ -27,6 +27,9 @@ public:
     register_t x[32];
     uintptr_t pc;
 
+    register_t f[32];
+    register_t fcsr;
+
     uintptr_t begin;
     uintptr_t end;
 

@@ -139,11 +139,15 @@ struct riscv_instruction
         return (int32_t)immJ() << 11 >> 11;
     }
 
+    typedef double float64_t;
+    typedef float float32_t;
+    typedef _Float16 float16_t;
+
     union register_t
     {
-        uintptr_t value;
         intptr_t s;
         uintptr_t u;
+
         int64_t s64;
         uint64_t u64;
         int32_t s32;
@@ -152,13 +156,19 @@ struct riscv_instruction
         uint16_t u16;
         int8_t s8;
         uint8_t u8;
+
+        float64_t d;
+        float32_t f;
+        float16_t h;
+
         operator uintptr_t() const
         {
-            return value;
+            return u;
         }
+
         register_t& operator = (const uintptr_t& other)
         {
-            value = other;
+            u = other;
             return *this;
         }
     };
