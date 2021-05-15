@@ -16,13 +16,15 @@ void riscv_cpu::FCVT_L_S()
     if (f[rs1].f <= INT64_MIN || f[rs1].f == -INFINITY)
     {
         x[rd].s = int64_t(INT64_MIN);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     if (f[rs1].f >= INT64_MAX || (isfinite(f[rs1].f) == false))
     {
         x[rd].s = int64_t(INT64_MAX);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     float value = f[rs1].f;
@@ -63,13 +65,15 @@ void riscv_cpu::FCVT_LU_S()
     if (f[rs1].f <= -1.0f || f[rs1].f == -INFINITY)
     {
         x[rd].u = uint64_t(0);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     if (f[rs1].f >= UINT64_MAX || (isfinite(f[rs1].f) == false))
     {
         x[rd].u = uint64_t(UINT64_MAX);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     float value = f[rs1].f;

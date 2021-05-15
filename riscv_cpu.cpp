@@ -350,47 +350,43 @@ void riscv_cpu::OP()
 {
     switch (funct7)
     {
-    case 0b0000000:
-        switch (funct3)
-        {
-        case 0b000: return ADD();
-        case 0b001: return SLL();
-        case 0b010: return SLT();
-        case 0b011: return SLTU();
-        case 0b100: return XOR();
-        case 0b101: return SRL();
-        case 0b110: return OR();
-        case 0b111: return AND();
-        }
-        break;
-    case 0b0000001:
-        switch (funct3)
-        {
-        case 0b000: return MUL();
-        case 0b001: return MULH();
-        case 0b010: return MULHSU();
-        case 0b011: return MULHU();
-        case 0b100: return DIV();
-        case 0b101: return DIVU();
-        case 0b110: return REM();
-        case 0b111: return REMU();
-        }
-        break;
-    case 0b0100000:
-        switch (funct3)
-        {
-        case 0b000: return SUB();
-        case 0b001: return HINT();
-        case 0b010: return HINT();
-        case 0b011: return HINT();
-        case 0b100: return HINT();
-        case 0b101: return SRA();
-        case 0b110: return HINT();
-        case 0b111: return HINT();
-        }
-        break;
-    default:
-        return HINT();
+    case 0b0000000: switch (funct3)
+                    {
+                    case 0b000: return ADD();
+                    case 0b001: return SLL();
+                    case 0b010: return SLT();
+                    case 0b011: return SLTU();
+                    case 0b100: return XOR();
+                    case 0b101: return SRL();
+                    case 0b110: return OR();
+                    case 0b111: return AND();
+                    }
+                    break;
+    case 0b0000001: switch (funct3)
+                    {
+                    case 0b000: return MUL();
+                    case 0b001: return MULH();
+                    case 0b010: return MULHSU();
+                    case 0b011: return MULHU();
+                    case 0b100: return DIV();
+                    case 0b101: return DIVU();
+                    case 0b110: return REM();
+                    case 0b111: return REMU();
+                    }
+                    break;
+    case 0b0100000: switch (funct3)
+                    {
+                    case 0b000: return SUB();
+                    case 0b001: return HINT();
+                    case 0b010: return HINT();
+                    case 0b011: return HINT();
+                    case 0b100: return HINT();
+                    case 0b101: return SRA();
+                    case 0b110: return HINT();
+                    case 0b111: return HINT();
+                    }
+                    break;
+    default:        return HINT();
     }
 }
 //------------------------------------------------------------------------------
@@ -398,47 +394,43 @@ void riscv_cpu::OP_32()
 {
     switch (funct7)
     {
-    case 0b0000000:
-        switch (funct3)
-        {
-        case 0b000: return ADDW();
-        case 0b001: return SLLW();
-        case 0b010: return HINT();
-        case 0b011: return HINT();
-        case 0b100: return HINT();
-        case 0b101: return SRLW();
-        case 0b110: return HINT();
-        case 0b111: return HINT();
-        }
-        break;
-    case 0b0000001:
-        switch (funct3)
-        {
-        case 0b000: return MULW();
-        case 0b001: return HINT();
-        case 0b010: return HINT();
-        case 0b011: return HINT();
-        case 0b100: return DIVW();
-        case 0b101: return DIVUW();
-        case 0b110: return REMW();
-        case 0b111: return REMUW();
-        }
-        break;
-    case 0b0100000:
-        switch (funct3)
-        {
-        case 0b000: return SUBW();
-        case 0b001: return HINT();
-        case 0b010: return HINT();
-        case 0b011: return HINT();
-        case 0b100: return HINT();
-        case 0b101: return SRAW();
-        case 0b110: return HINT();
-        case 0b111: return HINT();
-        }
-        break;
-    default:
-        return HINT();
+    case 0b0000000: switch (funct3)
+                    {
+                    case 0b000: return ADDW();
+                    case 0b001: return SLLW();
+                    case 0b010: return HINT();
+                    case 0b011: return HINT();
+                    case 0b100: return HINT();
+                    case 0b101: return SRLW();
+                    case 0b110: return HINT();
+                    case 0b111: return HINT();
+                    }
+                    break;
+    case 0b0000001: switch (funct3)
+                    {
+                    case 0b000: return MULW();
+                    case 0b001: return HINT();
+                    case 0b010: return HINT();
+                    case 0b011: return HINT();
+                    case 0b100: return DIVW();
+                    case 0b101: return DIVUW();
+                    case 0b110: return REMW();
+                    case 0b111: return REMUW();
+                    }
+                    break;
+    case 0b0100000: switch (funct3)
+                    {
+                    case 0b000: return SUBW();
+                    case 0b001: return HINT();
+                    case 0b010: return HINT();
+                    case 0b011: return HINT();
+                    case 0b100: return HINT();
+                    case 0b101: return SRAW();
+                    case 0b110: return HINT();
+                    case 0b111: return HINT();
+                    }
+                    break;
+    default:        return HINT();
     }
 }
 //------------------------------------------------------------------------------

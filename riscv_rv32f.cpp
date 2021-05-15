@@ -136,13 +136,15 @@ void riscv_cpu::FCVT_W_S()
     if (f[rs1].f <= INT32_MIN || f[rs1].f == -INFINITY)
     {
         x[rd].s = int32_t(INT32_MIN);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     if (f[rs1].f >= INT32_MAX || (isfinite(f[rs1].f) == false))
     {
         x[rd].s = int32_t(INT32_MAX);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     float value = f[rs1].f;
@@ -183,13 +185,15 @@ void riscv_cpu::FCVT_WU_S()
     if (f[rs1].f <= -1.0f || f[rs1].f == -INFINITY)
     {
         x[rd].u = 0;
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     if (f[rs1].f >= UINT32_MAX || (isfinite(f[rs1].f) == false))
     {
         x[rd].u = int32_t(UINT32_MAX);
-        fcsr.fflags = 0x10;
+        fcsr.fflags = 0;
+        fcsr.nv = true;
         return;
     }
     float value = f[rs1].f;
