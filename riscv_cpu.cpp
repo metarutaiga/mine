@@ -5,6 +5,7 @@
 // December 13, 2019
 //==============================================================================
 
+#include <fenv.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdio.h>
@@ -167,6 +168,21 @@ bool riscv_cpu::runOnce()
     return success;
 }
 //------------------------------------------------------------------------------
+void riscv_cpu::fclearexcept()
+{
+    feclearexcept(FE_ALL_EXCEPT);
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::ftestexcept()
+{
+    int raised = fetestexcept(FE_ALL_EXCEPT);
+    fcsr.nv = (raised & FE_INVALID) != 0;
+    fcsr.dz = (raised & FE_DIVBYZERO) != 0;
+    fcsr.of = (raised & FE_OVERFLOW) != 0;
+    fcsr.uf = (raised & FE_UNDERFLOW) != 0;
+    fcsr.nx = (raised & FE_INEXACT) != 0;
+}
+//------------------------------------------------------------------------------
 void riscv_cpu::HINT()
 {
     
@@ -293,7 +309,7 @@ void riscv_cpu::AMO()
     {
     case 0b000: return HINT();
     case 0b001: return HINT();
-    case 0b010: switch (funct7 >> 2)
+    case 0b010: switch (funct5)
                 {
                 case 0b00000: return AMOADD_W();
                 case 0b00001: return AMOSWAP_W();
@@ -308,7 +324,7 @@ void riscv_cpu::AMO()
                 case 0b11100: return AMOMAXU_W();
                 default:      return HINT();
                 }
-    case 0b011: switch (funct7 >> 2)
+    case 0b011: switch (funct5)
                 {
                 case 0b00000: return AMOADD_D();
                 case 0b00001: return AMOSWAP_D();
@@ -428,7 +444,7 @@ void riscv_cpu::OP_32()
 //------------------------------------------------------------------------------
 void riscv_cpu::MADD()
 {
-    switch (funct7 & 0b11)
+    switch (fmt)
     {
     case 0b00: return FMADD_S();
     case 0b01: return HINT();
@@ -439,9 +455,9 @@ void riscv_cpu::MADD()
 //------------------------------------------------------------------------------
 void riscv_cpu::MSUB()
 {
-    switch (funct7 & 0b11)
+    switch (fmt)
     {
-    case 0b00: return FSUB_S();
+    case 0b00: return FMSUB_S();
     case 0b01: return HINT();
     case 0b10: return HINT();
     case 0b11: return HINT();
@@ -450,7 +466,7 @@ void riscv_cpu::MSUB()
 //------------------------------------------------------------------------------
 void riscv_cpu::NMSUB()
 {
-    switch (funct7 & 0b11)
+    switch (fmt)
     {
     case 0b00: return FNMSUB_S();
     case 0b01: return HINT();
@@ -461,7 +477,7 @@ void riscv_cpu::NMSUB()
 //------------------------------------------------------------------------------
 void riscv_cpu::NMADD()
 {
-    switch (funct7 & 0b11)
+    switch (fmt)
     {
     case 0b00: return FNMADD_S();
     case 0b01: return HINT();
@@ -472,15 +488,22 @@ void riscv_cpu::NMADD()
 //------------------------------------------------------------------------------
 void riscv_cpu::OP_FP()
 {
-    switch (funct7 & 0b11)
+    switch (fmt)
     {
-    case 0b00: switch (funct7 >> 2)
+    case 0b00: switch (funct5)
                {
                case 0b00000: return FADD_S();
                case 0b00001: return FSUB_S();
                case 0b00010: return FMUL_S();
                case 0b00011: return FDIV_S();
-               case 0b00100: return FSGNJ_S();
+               case 0b00100: switch (funct3)
+                             {
+                             case 0b000: return FSGNJ_S();
+                             case 0b001: return FSGNJN_S();
+                             case 0b010: return FSGNJX_S();
+                             default:    return HINT();
+                             }
+                             break;
                case 0b00101: switch (funct3)
                              {
                              case 0b000: return FMIN_S();
@@ -488,6 +511,7 @@ void riscv_cpu::OP_FP()
                              default:    return HINT();
                              }
                              break;
+               case 0b01011: return FSQRT_S();
                case 0b10100: switch (funct3)
                              {
                              case 0b000: return FLE_S();
@@ -500,6 +524,8 @@ void riscv_cpu::OP_FP()
                              {
                              case 0b00000: return FCVT_W_S();
                              case 0b00001: return FCVT_WU_S();
+                             case 0b00010: return FCVT_L_S();
+                             case 0b00011: return FCVT_LU_S();
                              default:      return HINT();
                              }
                              break;
@@ -507,6 +533,8 @@ void riscv_cpu::OP_FP()
                              {
                              case 0b00000: return FCVT_S_W();
                              case 0b00001: return FCVT_S_WU();
+                             case 0b00010: return FCVT_S_L();
+                             case 0b00011: return FCVT_S_LU();
                              default:      return HINT();
                              }
                              break;

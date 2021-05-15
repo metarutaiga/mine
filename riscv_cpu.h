@@ -29,6 +29,8 @@ public:
 
     register_t f[32];
     register_t fcsr;
+    void fclearexcept();
+    void ftestexcept();
 
     uintptr_t begin;
     uintptr_t end;

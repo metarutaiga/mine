@@ -87,6 +87,24 @@ struct riscv_instruction
             uint32_t _jjj : 10;
             uint32_t _jjjj : 1;
         };
+        // F - Type
+        // 31...27 26...25 24...20 19...15 14......12 11...7 6........0
+        // [ rs3 ] [ fmt ] [ rs2 ] [ rs1 ] [ funct3 ] [ rd ] [ opcode ]
+        struct
+        {
+            uint32_t _f_opcode : 7;
+            uint32_t _f_rd : 5;
+            uint32_t _f_funct3 : 3;
+            uint32_t _f_rs1 : 5;
+            uint32_t _f_rs2 : 5;
+            uint32_t fmt : 2;
+            uint32_t rs3 : 5;
+        };
+        struct
+        {
+            uint32_t _f_dummy : 27;
+            uint32_t funct5 : 5;
+        };
     };
 
     uint32_t immI() const
@@ -160,6 +178,20 @@ struct riscv_instruction
         float64_t d;
         float32_t f;
         float16_t h;
+
+        struct
+        {
+            uint32_t fflags : 5;
+            uint32_t frm : 3;
+        };
+        struct
+        {
+            uint32_t nx : 1;
+            uint32_t uf : 1;
+            uint32_t of : 1;
+            uint32_t dz : 1;
+            uint32_t nv : 1;
+        };
 
         operator uintptr_t() const
         {
