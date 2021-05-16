@@ -11,23 +11,23 @@
 #include "riscv_cpu.h"
 
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_L_S()
+void riscv_cpu::FCVT_L_D()
 {
-    if (f[rs1].f <= INT64_MIN || f[rs1].f == -INFINITY)
+    if (f[rs1].d <= INT64_MIN || f[rs1].d == -INFINITY)
     {
         x[rd].s = int64_t(INT64_MIN);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].f >= INT64_MAX || f[rs1].f == INFINITY || isnan(f[rs1].f))
+    if (f[rs1].d >= INT64_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
     {
         x[rd].s = int64_t(INT64_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    float value = f[rs1].f;
+    double value = f[rs1].d;
     int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
@@ -60,23 +60,23 @@ void riscv_cpu::FCVT_L_S()
     fesetround(round);
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_LU_S()
+void riscv_cpu::FCVT_LU_D()
 {
-    if (f[rs1].f <= -1.0f || f[rs1].f == -INFINITY)
+    if (f[rs1].d <= -1.0f || f[rs1].d == -INFINITY)
     {
         x[rd].u = uint64_t(0);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].f >= UINT64_MAX || f[rs1].f == INFINITY || isnan(f[rs1].f))
+    if (f[rs1].d >= UINT64_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
     {
         x[rd].u = uint64_t(UINT64_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    float value = f[rs1].f;
+    double value = f[rs1].d;
     int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
@@ -109,13 +109,13 @@ void riscv_cpu::FCVT_LU_S()
     fesetround(round);
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_S_L()
+void riscv_cpu::FCVT_D_L()
 {
-    f[rd].f = x[rs1].s64;
+    f[rd].d = x[rs1].s64;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_S_LU()
+void riscv_cpu::FCVT_D_LU()
 {
-    f[rd].f = x[rs1].u64;
+    f[rd].d = x[rs1].u64;
 }
 //------------------------------------------------------------------------------

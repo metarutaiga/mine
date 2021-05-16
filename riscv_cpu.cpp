@@ -210,7 +210,7 @@ void riscv_cpu::LOAD_FP()
     case 0b000: return HINT();
     case 0b001: return HINT();
     case 0b010: return FLW();
-    case 0b011: return HINT();
+    case 0b011: return FLD();
     case 0b100: return HINT();
     case 0b101: return HINT();
     case 0b110: return HINT();
@@ -295,7 +295,7 @@ void riscv_cpu::STORE_FP()
     case 0b000: return HINT();
     case 0b001: return HINT();
     case 0b010: return FSW();
-    case 0b011: return HINT();
+    case 0b011: return FSD();
     case 0b100: return HINT();
     case 0b101: return HINT();
     case 0b110: return HINT();
@@ -439,7 +439,7 @@ void riscv_cpu::MADD()
     switch (fmt)
     {
     case 0b00: return FMADD_S();
-    case 0b01: return HINT();
+    case 0b01: return FMADD_D();
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -450,7 +450,7 @@ void riscv_cpu::MSUB()
     switch (fmt)
     {
     case 0b00: return FMSUB_S();
-    case 0b01: return HINT();
+    case 0b01: return FMSUB_D();
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -461,7 +461,7 @@ void riscv_cpu::NMSUB()
     switch (fmt)
     {
     case 0b00: return FNMSUB_S();
-    case 0b01: return HINT();
+    case 0b01: return FNMSUB_D();
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -472,7 +472,7 @@ void riscv_cpu::NMADD()
     switch (fmt)
     {
     case 0b00: return FNMADD_S();
-    case 0b01: return HINT();
+    case 0b01: return FNMADD_D();
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -503,6 +503,7 @@ void riscv_cpu::OP_FP()
                              default:    return HINT();
                              }
                              break;
+               case 0b01000: return FCVT_S_D();
                case 0b01011: return FSQRT_S();
                case 0b10100: switch (funct3)
                              {
@@ -545,7 +546,70 @@ void riscv_cpu::OP_FP()
                              break;
                }
                break;
-    case 0b01: return HINT();
+    case 0b01: switch (funct5)
+               {
+               case 0b00000: return FADD_D();
+               case 0b00001: return FSUB_D();
+               case 0b00010: return FMUL_D();
+               case 0b00011: return FDIV_D();
+               case 0b00100: switch (funct3)
+                             {
+                             case 0b000: return FSGNJ_D();
+                             case 0b001: return FSGNJN_D();
+                             case 0b010: return FSGNJX_D();
+                             default:    return HINT();
+                             }
+                             break;
+               case 0b00101: switch (funct3)
+                             {
+                             case 0b000: return FMIN_D();
+                             case 0b001: return FMAX_D();
+                             default:    return HINT();
+                             }
+                             break;
+               case 0b01000: return FCVT_D_S();
+               case 0b01011: return FSQRT_D();
+               case 0b10100: switch (funct3)
+                             {
+                             case 0b000: return FLE_D();
+                             case 0b001: return FLT_D();
+                             case 0b010: return FEQ_D();
+                             default:    return HINT();
+                             }
+                             break;
+               case 0b11000: switch (rs2)
+                             {
+                             case 0b00000: return FCVT_W_D();
+                             case 0b00001: return FCVT_WU_D();
+                             case 0b00010: return FCVT_L_D();
+                             case 0b00011: return FCVT_LU_D();
+                             default:      return HINT();
+                             }
+                             break;
+               case 0b11010: switch (rs2)
+                             {
+                             case 0b00000: return FCVT_D_W();
+                             case 0b00001: return FCVT_D_WU();
+                             case 0b00010: return FCVT_D_L();
+                             case 0b00011: return FCVT_D_LU();
+                             default:      return HINT();
+                             }
+                             break;
+               case 0b11100: switch (funct3)
+                             {
+                             case 0b000: return FMV_X_D();
+                             case 0b001: return FCLASS_D();
+                             default:    return HINT();
+                             }
+                             break;
+               case 0b11110: switch (funct3)
+                             {
+                             case 0b000: return FMV_D_X();
+                             default:    return HINT();
+                             }
+                             break;
+               }
+               break;
     case 0b10: return HINT();
     case 0b11: return HINT();
     }

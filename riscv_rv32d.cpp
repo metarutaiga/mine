@@ -10,131 +10,187 @@
 #include <float.h>
 #include "riscv_cpu.h"
 
-#define isnormal(f32) isnormal((float)f32)
-static bool issignaling(float f32)
+#define isnormal(d64) isnormal((double)d64)
+static bool issignaling(double d64)
 {
-    int u32 = (int&)f32;
-    return (u32 > 0x7f800000 && u32 < 0x7fc00000) || (u32 > 0xff800000 && u32 < 0xffc00000);
+    uint64_t u64 = (uint64_t&)d64;
+    return (u64 > 0x7ff0000000000000ull && u64 < 0x7ff8000000000000ull) || (u64 > 0xfff0000000000000ull && u64 < 0xfff8000000000000ull);
 }
-static bool issubnormal(float f32)
+static bool issubnormal(double d64)
 {
-    int u32 = (int&)f32;
-    return (u32 > 0x00000000 && u32 < 0x00800000) || (u32 > 0x80000000 && u32 < 0x80800000);
+    uint64_t u64 = (uint64_t&)d64;
+    return (u64 > 0x0000000000000000ull && u64 < 0x0010000000000000ull) || (u64 > 0x8000000000000000ull && u64 < 0x8010000000000000ull);
 }
 
 //------------------------------------------------------------------------------
-void riscv_cpu::FLW()
+void riscv_cpu::FLD()
 {
-    f[rd].f = *(float*)(x[rs1] + simmI());
+    f[rd].d = *(double*)(x[rs1] + simmI());
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FSW()
+void riscv_cpu::FSD()
 {
-    *(uint32_t*)(x[rs1] + simmS()) = f[rs2].u32;
+    *(uint64_t*)(x[rs1] + simmS()) = f[rs2].u64;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMADD_S()
+void riscv_cpu::FMADD_D()
 {
     fclearexcept();
-    f[rd].f = (f[rs1].f * f[rs2].f) + f[rs3].f;
+    f[rd].d = (f[rs1].d * f[rs2].d) + f[rs3].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMSUB_S()
+void riscv_cpu::FMSUB_D()
 {
     fclearexcept();
-    f[rd].f = (f[rs1].f * f[rs2].f) - f[rs3].f;
+    f[rd].d = (f[rs1].d * f[rs2].d) - f[rs3].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FNMSUB_S()
+void riscv_cpu::FNMSUB_D()
 {
     fclearexcept();
-    f[rd].f = -(f[rs1].f * f[rs2].f) + f[rs3].f;
+    f[rd].d = -(f[rs1].d * f[rs2].d) + f[rs3].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
-
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FNMADD_S()
+void riscv_cpu::FNMADD_D()
 {
     fclearexcept();
-    f[rd].f = -(f[rs1].f * f[rs2].f) - f[rs3].f;
+    f[rd].d = -(f[rs1].d * f[rs2].d) - f[rs3].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FADD_S()
+void riscv_cpu::FADD_D()
 {
     fclearexcept();
-    f[rd].f = f[rs1].f + f[rs2].f;
+    f[rd].d = f[rs1].d + f[rs2].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FSUB_S()
+void riscv_cpu::FSUB_D()
 {
     fclearexcept();
-    f[rd].f = f[rs1].f - f[rs2].f;
+    f[rd].d = f[rs1].d - f[rs2].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMUL_S()
+void riscv_cpu::FMUL_D()
 {
     fclearexcept();
-    f[rd].f = f[rs1].f * f[rs2].f;
+    f[rd].d = f[rs1].d * f[rs2].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FDIV_S()
+void riscv_cpu::FDIV_D()
 {
     fclearexcept();
-    f[rd].f = f[rs1].f / f[rs2].f;
+    f[rd].d = f[rs1].d / f[rs2].d;
     ftestexcept();
-    if (isnan(f[rd].f))
+    if (isnan(f[rd].d))
     {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FSQRT_S()
+void riscv_cpu::FSQRT_D()
 {
     fclearexcept();
-    f[rd].f = sqrtf(f[rs1].f);
+    f[rd].d = sqrt(f[rs1].d);
     ftestexcept();
+    if (isnan(f[rd].d))
+    {
+        f[rd].d = NAN;
+        return;
+    }
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FSGNJ_D()
+{
+    f[rd].u = (f[rs1].u & ~0x8000000000000000ull) | (f[rs2].u & 0x8000000000000000ull);
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FSGNJN_D()
+{
+    f[rd].u = (f[rs1].u & ~0x8000000000000000ull) | ((f[rs2].u & 0x8000000000000000ull) ^ 0x8000000000000000ull);
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FSGNJX_D()
+{
+    f[rd].u = f[rs1].u ^ (f[rs2].u & 0x8000000000000000ull);
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FMIN_D()
+{
+    if (f[rs1].d == 0.0 && f[rs2].d == 0.0)
+    {
+        f[rd].d = f[rs1].d * f[rs2].d;
+        return;
+    }
+    f[rd].d = fmin(f[rs1].d, f[rs2].d);
+    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
+    if (isnan(f[rd].d))
+    {
+        f[rd].d = NAN;
+        return;
+    }
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FMAX_D()
+{
+    if (f[rs1].d == 0.0 && f[rs2].d == 0.0)
+    {
+        f[rd].d = f[rs1].d * f[rs2].d * -1.0;
+        return;
+    }
+    f[rd].d = fmax(f[rs1].d, f[rs2].d);
+    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
+    if (isnan(f[rd].d))
+    {
+        f[rd].d = NAN;
+        return;
+    }
+}
+//------------------------------------------------------------------------------
+void riscv_cpu::FCVT_S_D()
+{
+    f[rd].f = f[rs1].d;
     if (isnan(f[rd].f))
     {
         f[rd].f = NAN;
@@ -142,76 +198,33 @@ void riscv_cpu::FSQRT_S()
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FSGNJ_S()
+void riscv_cpu::FCVT_D_S()
 {
-    float32_t value; value = (float)f[rs1].f;
-    float32_t sign; sign = (float)f[rs2].f;
-    f[rd].u = (value.u & ~0x80000000ull) | (sign.u & 0x80000000ull);
-}
-//------------------------------------------------------------------------------
-void riscv_cpu::FSGNJN_S()
-{
-    float32_t value; value = (float)f[rs1].f;
-    float32_t sign; sign = (float)f[rs2].f;
-    f[rd].u = (value.u & ~0x80000000ull) | ((sign.u & 0x80000000ull) ^ 0x80000000ull);
-}
-//------------------------------------------------------------------------------
-void riscv_cpu::FSGNJX_S()
-{
-    float32_t value; value = (float)f[rs1].f;
-    float32_t sign; sign = (float)f[rs2].f;
-    f[rd].u = value.u ^ (sign.u & 0x80000000ull);
-}
-//------------------------------------------------------------------------------
-void riscv_cpu::FMIN_S()
-{
-    if (f[rs1].f == 0.0f && f[rs2].f == 0.0f)
+    f[rd].d = f[rs1].f;
+    if (isnan(f[rd].d))
     {
-        f[rd].f = f[rs1].f * f[rs2].f;
-        return;
-    }
-    f[rd].f = fminf(f[rs1].f, f[rs2].f);
-    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
-    if (isnan(f[rd].f))
-    {
-        f[rd].f = NAN;
+        f[rd].d = NAN;
         return;
     }
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMAX_S()
+void riscv_cpu::FCVT_W_D()
 {
-    if (f[rs1].f == 0.0f && f[rs2].f == 0.0f)
-    {
-        f[rd].f = f[rs1].f * f[rs2].f * -1.0f;
-        return;
-    }
-    f[rd].f = fmaxf(f[rs1].f, f[rs2].f);
-    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
-    if (isnan(f[rd].f))
-    {
-        f[rd].f = NAN;
-        return;
-    }
-}
-//------------------------------------------------------------------------------
-void riscv_cpu::FCVT_W_S()
-{
-    if (f[rs1].f <= INT32_MIN || f[rs1].f == -INFINITY)
+    if (f[rs1].d <= INT32_MIN || f[rs1].d == -INFINITY)
     {
         x[rd].s = int32_t(INT32_MIN);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].f >= INT32_MAX || f[rs1].f == INFINITY || isnan(f[rs1].f))
+    if (f[rs1].d >= INT32_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
     {
         x[rd].s = int32_t(INT32_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    float value = f[rs1].f;
+    float value = f[rs1].d;
     int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
@@ -244,23 +257,23 @@ void riscv_cpu::FCVT_W_S()
     fesetround(round);
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_WU_S()
+void riscv_cpu::FCVT_WU_D()
 {
-    if (f[rs1].f <= -1.0f || f[rs1].f == -INFINITY)
+    if (f[rs1].d <= -1.0 || f[rs1].d == -INFINITY)
     {
         x[rd].u = 0;
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].f >= UINT32_MAX || f[rs1].f == INFINITY || isnan(f[rs1].f))
+    if (f[rs1].d >= UINT32_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
     {
         x[rd].u = int32_t(UINT32_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    float value = f[rs1].f;
+    float value = f[rs1].d;
     int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
@@ -293,65 +306,65 @@ void riscv_cpu::FCVT_WU_S()
     fesetround(round);
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMV_X_W()
+void riscv_cpu::FMV_X_D()
 {
     if ((f[rs1].u64 & 0xFFFFFFFF00000000ull) == 0xFFFFFFFF00000000ull)
     {
         if (isnan(f[rs1].f))
         {
-            x[rd].u = int32_t(f[rs1].u & 0xFFC00000);
+            x[rd].u = f[rs1].u64 & 0xFFFFFFFFFFC00000ull;
             return;
         }
     }
-    x[rd].s = f[rs1].s32;
+    x[rd].u = f[rs1].u64;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FEQ_S()
+void riscv_cpu::FEQ_D()
 {
-    x[rd].u = (f[rs1].f == f[rs2].f);
-    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
+    x[rd].u = (f[rs1].d == f[rs2].d);
+    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FLT_S()
+void riscv_cpu::FLT_D()
 {
-    x[rd].u = (f[rs1].f < f[rs2].f);
-    fcsr.nv = (isnan(f[rs1].f) || isnan(f[rs2].f));
+    x[rd].u = (f[rs1].d < f[rs2].d);
+    fcsr.nv = (isnan(f[rs1].d) || isnan(f[rs2].d));
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FLE_S()
+void riscv_cpu::FLE_D()
 {
-    x[rd].u = (f[rs1].f <= f[rs2].f);
-    fcsr.nv = (isnan(f[rs1].f) || isnan(f[rs2].f));
+    x[rd].u = (f[rs1].d <= f[rs2].d);
+    fcsr.nv = (isnan(f[rs1].d) || isnan(f[rs2].d));
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCLASS_S()
+void riscv_cpu::FCLASS_D()
 {
     int fclass = 0;
-    fclass |= (f[rs1].f == -INFINITY) << 0;
-    fclass |= (f[rs1].f < 0.0f && isnormal(f[rs1].f) == true) << 1;
-    fclass |= (f[rs1].f < 0.0f && issubnormal(f[rs1].f) == true) << 2;
-    fclass |= (f[rs1].f == 0.0f && (f[rs1].u32 & 0x80000000)) << 3;
-    fclass |= (f[rs1].f == 0.0f && ((f[rs1].u32 & 0x80000000) == 0)) << 4;
-    fclass |= (f[rs1].f > 0.0f && issubnormal(f[rs1].f) == true) << 5;
-    fclass |= (f[rs1].f > 0.0f && isnormal(f[rs1].f) == true) << 6;
-    fclass |= (f[rs1].f == INFINITY) << 7;
-    fclass |= (isnan(f[rs1].f) && issignaling(f[rs1].f) == true) << 8;
-    fclass |= (isnan(f[rs1].f) && issignaling(f[rs1].f) == false) << 9;
+    fclass |= (f[rs1].d == -INFINITY) << 0;
+    fclass |= (f[rs1].d < 0.0 && isnormal(f[rs1].d) == true) << 1;
+    fclass |= (f[rs1].d < 0.0 && issubnormal(f[rs1].d) == true) << 2;
+    fclass |= (f[rs1].d == 0.0 && (f[rs1].u64 & 0x8000000000000000ull)) << 3;
+    fclass |= (f[rs1].d == 0.0 && ((f[rs1].u64 & 0x8000000000000000ull) == 0)) << 4;
+    fclass |= (f[rs1].d > 0.0 && issubnormal(f[rs1].d) == true) << 5;
+    fclass |= (f[rs1].d > 0.0 && isnormal(f[rs1].d) == true) << 6;
+    fclass |= (f[rs1].d == INFINITY) << 7;
+    fclass |= (isnan(f[rs1].d) && issignaling(f[rs1].d) == true) << 8;
+    fclass |= (isnan(f[rs1].d) && issignaling(f[rs1].d) == false) << 9;
     x[rd].u = fclass;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_S_W()
+void riscv_cpu::FCVT_D_W()
 {
-    f[rd].f = x[rs1].s32;
+    f[rd].d = x[rs1].s32;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FCVT_S_WU()
+void riscv_cpu::FCVT_D_WU()
 {
-    f[rd].f = x[rs1].u32;
+    f[rd].d = x[rs1].u32;
 }
 //------------------------------------------------------------------------------
-void riscv_cpu::FMV_W_X()
+void riscv_cpu::FMV_D_X()
 {
-    f[rd].f = (float&)x[rs1].s32;
+    f[rd].u64 = x[rs1].u64;
 }
 //------------------------------------------------------------------------------

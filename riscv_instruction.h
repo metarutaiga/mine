@@ -157,9 +157,44 @@ struct riscv_instruction
         return (int32_t)immJ() << 11 >> 11;
     }
 
-    typedef double float64_t;
-    typedef float float32_t;
-    typedef _Float16 float16_t;
+    union float64_t
+    {
+        uint64_t u;
+        double d;
+        float f;
+
+        operator double() const
+        {
+            if ((u & (UINT64_MAX << 32)) == (UINT64_MAX << 32))
+                return f;
+            return d;
+        }
+        float64_t& operator = (double other)
+        {
+            d = other;
+            return *this;
+        }
+    };
+
+    union float32_t
+    {
+        uint64_t u;
+        double d;
+        float f;
+
+        operator float() const
+        {
+            if ((u & (UINT64_MAX << 32)) == (UINT64_MAX << 32))
+                return f;
+            return d;
+        }
+        float32_t& operator = (float other)
+        {
+            u = (UINT64_MAX << 32);
+            f = other;
+            return *this;
+        }
+    };
 
     union register_t
     {
@@ -177,7 +212,6 @@ struct riscv_instruction
 
         float64_t d;
         float32_t f;
-        float16_t h;
 
         struct
         {
@@ -197,7 +231,6 @@ struct riscv_instruction
         {
             return u;
         }
-
         register_t& operator = (const uintptr_t& other)
         {
             u = other;
