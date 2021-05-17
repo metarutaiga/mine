@@ -8,10 +8,7 @@
 #include "riscv_cpu.h"
 
 //------------------------------------------------------------------------------
-#if defined(__i386__) || defined(__amd64__)
-__attribute__((optnone))
-#endif
-void riscv_cpu::MULW()
+void riscv_cpu::MULW() __attribute__((optnone))
 {
     x[rd] = (int32_t)(x[rs1].s32 * x[rs2].s32);
 }

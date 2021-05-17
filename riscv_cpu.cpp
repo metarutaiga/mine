@@ -209,8 +209,12 @@ void riscv_cpu::LOAD_FP()
     {
     case 0b000: return HINT();
     case 0b001: return HINT();
+#if RISCV_HAVE_SINGLE
     case 0b010: return FLW();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b011: return FLD();
+#endif
     case 0b100: return HINT();
     case 0b101: return HINT();
     case 0b110: return HINT();
@@ -294,8 +298,12 @@ void riscv_cpu::STORE_FP()
     {
     case 0b000: return HINT();
     case 0b001: return HINT();
+#if RISCV_HAVE_SINGLE
     case 0b010: return FSW();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b011: return FSD();
+#endif
     case 0b100: return HINT();
     case 0b101: return HINT();
     case 0b110: return HINT();
@@ -438,8 +446,12 @@ void riscv_cpu::MADD()
 {
     switch (fmt)
     {
+#if RISCV_HAVE_SINGLE
     case 0b00: return FMADD_S();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b01: return FMADD_D();
+#endif
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -449,8 +461,12 @@ void riscv_cpu::MSUB()
 {
     switch (fmt)
     {
+#if RISCV_HAVE_SINGLE
     case 0b00: return FMSUB_S();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b01: return FMSUB_D();
+#endif
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -460,8 +476,12 @@ void riscv_cpu::NMSUB()
 {
     switch (fmt)
     {
+#if RISCV_HAVE_SINGLE
     case 0b00: return FNMSUB_S();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b01: return FNMSUB_D();
+#endif
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -471,8 +491,12 @@ void riscv_cpu::NMADD()
 {
     switch (fmt)
     {
+#if RISCV_HAVE_SINGLE
     case 0b00: return FNMADD_S();
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b01: return FNMADD_D();
+#endif
     case 0b10: return HINT();
     case 0b11: return HINT();
     }
@@ -482,6 +506,7 @@ void riscv_cpu::OP_FP()
 {
     switch (fmt)
     {
+#if RISCV_HAVE_SINGLE
     case 0b00: switch (funct5)
                {
                case 0b00000: return FADD_S();
@@ -503,7 +528,9 @@ void riscv_cpu::OP_FP()
                              default:    return HINT();
                              }
                              break;
+#if RISCV_HAVE_DOUBLE
                case 0b01000: return FCVT_S_D();
+#endif
                case 0b01011: return FSQRT_S();
                case 0b10100: switch (funct3)
                              {
@@ -546,6 +573,8 @@ void riscv_cpu::OP_FP()
                              break;
                }
                break;
+#endif
+#if RISCV_HAVE_DOUBLE
     case 0b01: switch (funct5)
                {
                case 0b00000: return FADD_D();
@@ -610,6 +639,7 @@ void riscv_cpu::OP_FP()
                              break;
                }
                break;
+#endif
     case 0b10: return HINT();
     case 0b11: return HINT();
     }

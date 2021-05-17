@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 
+#define RISCV_HAVE_SINGLE   1
+#define RISCV_HAVE_DOUBLE   0
+
 struct riscv_instruction
 {
     // Chapter 24
@@ -157,6 +160,37 @@ struct riscv_instruction
         return (int32_t)immJ() << 11 >> 11;
     }
 
+#if RISCV_HAVE_SINGLE
+    union float32_t
+    {
+#if RISCV_HAVE_DOUBLE
+        uint64_t u;
+        double d;
+#else
+        uint32_t u;
+#endif
+        float f;
+
+        operator float() const
+        {
+#if RISCV_HAVE_DOUBLE
+            if ((u & (UINT64_MAX << 32)) != (UINT64_MAX << 32))
+                return d;
+#endif
+            return f;
+        }
+        float32_t& operator = (float other)
+        {
+#if RISCV_HAVE_DOUBLE
+            u = (UINT64_MAX << 32);
+#endif
+            f = other;
+            return *this;
+        }
+    };
+#endif
+
+#if RISCV_HAVE_DOUBLE
     union float64_t
     {
         uint64_t u;
@@ -165,9 +199,9 @@ struct riscv_instruction
 
         operator double() const
         {
-            if ((u & (UINT64_MAX << 32)) == (UINT64_MAX << 32))
-                return f;
-            return d;
+            if ((u & (UINT64_MAX << 32)) != (UINT64_MAX << 32))
+                return d;
+            return f;
         }
         float64_t& operator = (double other)
         {
@@ -175,26 +209,7 @@ struct riscv_instruction
             return *this;
         }
     };
-
-    union float32_t
-    {
-        uint64_t u;
-        double d;
-        float f;
-
-        operator float() const
-        {
-            if ((u & (UINT64_MAX << 32)) == (UINT64_MAX << 32))
-                return f;
-            return d;
-        }
-        float32_t& operator = (float other)
-        {
-            u = (UINT64_MAX << 32);
-            f = other;
-            return *this;
-        }
-    };
+#endif
 
     union register_t
     {
@@ -210,8 +225,12 @@ struct riscv_instruction
         int8_t s8;
         uint8_t u8;
 
-        float64_t d;
+#if RISCV_HAVE_SINGLE
         float32_t f;
+#endif
+#if RISCV_HAVE_DOUBLE
+        float64_t d;
+#endif
 
         struct
         {

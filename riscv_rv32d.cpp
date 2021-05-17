@@ -10,18 +10,13 @@
 #include <float.h>
 #include "riscv_cpu.h"
 
-#define isnormal(d64) isnormal((double)d64)
+#if RISCV_HAVE_DOUBLE
+//------------------------------------------------------------------------------
 static bool issignaling(double d64)
 {
     uint64_t u64 = (uint64_t&)d64;
     return (u64 > 0x7ff0000000000000ull && u64 < 0x7ff8000000000000ull) || (u64 > 0xfff0000000000000ull && u64 < 0xfff8000000000000ull);
 }
-static bool issubnormal(double d64)
-{
-    uint64_t u64 = (uint64_t&)d64;
-    return (u64 > 0x0000000000000000ull && u64 < 0x0010000000000000ull) || (u64 > 0x8000000000000000ull && u64 < 0x8010000000000000ull);
-}
-
 //------------------------------------------------------------------------------
 void riscv_cpu::FLD()
 {
@@ -163,13 +158,26 @@ void riscv_cpu::FMIN_D()
         f[rd].d = f[rs1].d * f[rs2].d;
         return;
     }
-    f[rd].d = fmin(f[rs1].d, f[rs2].d);
-    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
-    if (isnan(f[rd].d))
+    if (isnan(f[rs1].d) || isnan(f[rs2].d))
     {
-        f[rd].d = NAN;
-        return;
+        if (isnan(f[rs1].d) && isnan(f[rs2].d))
+        {
+            f[rd].d = NAN;
+        }
+        else if (isnan(f[rs1].d))
+        {
+            f[rd].d = f[rs2].d;
+        }
+        else
+        {
+            f[rd].d = f[rs1].d;
+        }
     }
+    else
+    {
+        f[rd].d = fmin(f[rs1].d, f[rs2].d);
+    }
+    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FMAX_D()
@@ -179,13 +187,26 @@ void riscv_cpu::FMAX_D()
         f[rd].d = f[rs1].d * f[rs2].d * -1.0;
         return;
     }
-    f[rd].d = fmax(f[rs1].d, f[rs2].d);
-    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
-    if (isnan(f[rd].d))
+    if (isnan(f[rs1].d) || isnan(f[rs2].d))
     {
-        f[rd].d = NAN;
-        return;
+        if (isnan(f[rs1].d) && isnan(f[rs2].d))
+        {
+            f[rd].d = NAN;
+        }
+        else if (isnan(f[rs1].d))
+        {
+            f[rd].d = f[rs2].d;
+        }
+        else
+        {
+            f[rd].d = f[rs1].d;
+        }
     }
+    else
+    {
+        f[rd].d = fmax(f[rs1].d, f[rs2].d);
+    }
+    fcsr.nv = (issignaling(f[rs1].d) || issignaling(f[rs2].d));
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FCVT_S_D()
@@ -339,17 +360,21 @@ void riscv_cpu::FLE_D()
 //------------------------------------------------------------------------------
 void riscv_cpu::FCLASS_D()
 {
+    float64_t value; value = f[rs1].d;
+    uint64_t binary = uint64_t(value.u);
     int fclass = 0;
-    fclass |= (f[rs1].d == -INFINITY) << 0;
-    fclass |= (f[rs1].d < 0.0 && isnormal(f[rs1].d) == true) << 1;
-    fclass |= (f[rs1].d < 0.0 && issubnormal(f[rs1].d) == true) << 2;
-    fclass |= (f[rs1].d == 0.0 && (f[rs1].u64 & 0x8000000000000000ull)) << 3;
-    fclass |= (f[rs1].d == 0.0 && ((f[rs1].u64 & 0x8000000000000000ull) == 0)) << 4;
-    fclass |= (f[rs1].d > 0.0 && issubnormal(f[rs1].d) == true) << 5;
-    fclass |= (f[rs1].d > 0.0 && isnormal(f[rs1].d) == true) << 6;
-    fclass |= (f[rs1].d == INFINITY) << 7;
-    fclass |= (isnan(f[rs1].d) && issignaling(f[rs1].d) == true) << 8;
-    fclass |= (isnan(f[rs1].d) && issignaling(f[rs1].d) == false) << 9;
+    if (binary <= 0xFFFFFFFFFFFFFFFFull)    fclass = (1 << 9);
+    if (binary <  0xFFF8000000000000ull)    fclass = (1 << 8);
+    if (binary == 0xFFF0000000000000ull)    fclass = (1 << 0);
+    if (binary <  0xFFF0000000000000ull)    fclass = (1 << 1);
+    if (binary <  0x8010000000000000ull)    fclass = (1 << 2);
+    if (binary == 0x8000000000000000ull)    fclass = (1 << 3);
+    if (binary <= 0x7FFFFFFFFFFFFFFFull)    fclass = (1 << 9);
+    if (binary <  0x7FF8000000000000ull)    fclass = (1 << 8);
+    if (binary == 0x7FF0000000000000ull)    fclass = (1 << 7);
+    if (binary <  0x7FF0000000000000ull)    fclass = (1 << 6);
+    if (binary <  0x0010000000000000ull)    fclass = (1 << 5);
+    if (binary == 0x0000000000000000ull)    fclass = (1 << 4);
     x[rd].u = fclass;
 }
 //------------------------------------------------------------------------------
@@ -368,3 +393,4 @@ void riscv_cpu::FMV_D_X()
     f[rd].u64 = x[rs1].u64;
 }
 //------------------------------------------------------------------------------
+#endif

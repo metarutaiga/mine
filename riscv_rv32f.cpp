@@ -10,18 +10,13 @@
 #include <float.h>
 #include "riscv_cpu.h"
 
-#define isnormal(f32) isnormal((float)f32)
+#if RISCV_HAVE_SINGLE
+//------------------------------------------------------------------------------
 static bool issignaling(float f32)
 {
     int u32 = (int&)f32;
     return (u32 > 0x7f800000 && u32 < 0x7fc00000) || (u32 > 0xff800000 && u32 < 0xffc00000);
 }
-static bool issubnormal(float f32)
-{
-    int u32 = (int&)f32;
-    return (u32 > 0x00000000 && u32 < 0x00800000) || (u32 > 0x80000000 && u32 < 0x80800000);
-}
-
 //------------------------------------------------------------------------------
 void riscv_cpu::FLW()
 {
@@ -170,13 +165,26 @@ void riscv_cpu::FMIN_S()
         f[rd].f = f[rs1].f * f[rs2].f;
         return;
     }
-    f[rd].f = fminf(f[rs1].f, f[rs2].f);
-    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
-    if (isnan(f[rd].f))
+    if (isnan(f[rs1].f) || isnan(f[rs2].f))
     {
-        f[rd].f = NAN;
-        return;
+        if (isnan(f[rs1].f) && isnan(f[rs2].f))
+        {
+            f[rd].f = NAN;
+        }
+        else if (isnan(f[rs1].f))
+        {
+            f[rd].f = f[rs2].f;
+        }
+        else
+        {
+            f[rd].f = f[rs1].f;
+        }
     }
+    else
+    {
+        f[rd].f = fminf(f[rs1].f, f[rs2].f);
+    }
+    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FMAX_S()
@@ -186,13 +194,26 @@ void riscv_cpu::FMAX_S()
         f[rd].f = f[rs1].f * f[rs2].f * -1.0f;
         return;
     }
-    f[rd].f = fmaxf(f[rs1].f, f[rs2].f);
-    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
-    if (isnan(f[rd].f))
+    if (isnan(f[rs1].f) || isnan(f[rs2].f))
     {
-        f[rd].f = NAN;
-        return;
+        if (isnan(f[rs1].f) && isnan(f[rs2].f))
+        {
+            f[rd].f = NAN;
+        }
+        else if (isnan(f[rs1].f))
+        {
+            f[rd].f = f[rs2].f;
+        }
+        else
+        {
+            f[rd].f = f[rs1].f;
+        }
     }
+    else
+    {
+        f[rd].f = fmaxf(f[rs1].f, f[rs2].f);
+    }
+    fcsr.nv = (issignaling(f[rs1].f) || issignaling(f[rs2].f));
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FCVT_W_S()
@@ -295,6 +316,7 @@ void riscv_cpu::FCVT_WU_S()
 //------------------------------------------------------------------------------
 void riscv_cpu::FMV_X_W()
 {
+#if RISCV_HAVE_DOUBLE
     if ((f[rs1].u64 & 0xFFFFFFFF00000000ull) == 0xFFFFFFFF00000000ull)
     {
         if (isnan(f[rs1].f))
@@ -303,6 +325,7 @@ void riscv_cpu::FMV_X_W()
             return;
         }
     }
+#endif
     x[rd].s = f[rs1].s32;
 }
 //------------------------------------------------------------------------------
@@ -326,17 +349,21 @@ void riscv_cpu::FLE_S()
 //------------------------------------------------------------------------------
 void riscv_cpu::FCLASS_S()
 {
+    float32_t value; value = f[rs1].f;
+    uint32_t binary = uint32_t(value.u);
     int fclass = 0;
-    fclass |= (f[rs1].f == -INFINITY) << 0;
-    fclass |= (f[rs1].f < 0.0f && isnormal(f[rs1].f) == true) << 1;
-    fclass |= (f[rs1].f < 0.0f && issubnormal(f[rs1].f) == true) << 2;
-    fclass |= (f[rs1].f == 0.0f && (f[rs1].u32 & 0x80000000)) << 3;
-    fclass |= (f[rs1].f == 0.0f && ((f[rs1].u32 & 0x80000000) == 0)) << 4;
-    fclass |= (f[rs1].f > 0.0f && issubnormal(f[rs1].f) == true) << 5;
-    fclass |= (f[rs1].f > 0.0f && isnormal(f[rs1].f) == true) << 6;
-    fclass |= (f[rs1].f == INFINITY) << 7;
-    fclass |= (isnan(f[rs1].f) && issignaling(f[rs1].f) == true) << 8;
-    fclass |= (isnan(f[rs1].f) && issignaling(f[rs1].f) == false) << 9;
+    if (binary <= 0xFFFFFFFF)   fclass = (1 << 9);
+    if (binary <  0xFFC00000)   fclass = (1 << 8);
+    if (binary == 0xFF800000)   fclass = (1 << 0);
+    if (binary <  0xFF800000)   fclass = (1 << 1);
+    if (binary <  0x80800000)   fclass = (1 << 2);
+    if (binary == 0x80000000)   fclass = (1 << 3);
+    if (binary <= 0x7FFFFFFF)   fclass = (1 << 9);
+    if (binary <  0x7FC00000)   fclass = (1 << 8);
+    if (binary == 0x7F800000)   fclass = (1 << 7);
+    if (binary <  0x7F800000)   fclass = (1 << 6);
+    if (binary <  0x00800000)   fclass = (1 << 5);
+    if (binary == 0x00000000)   fclass = (1 << 4);
     x[rd].u = fclass;
 }
 //------------------------------------------------------------------------------
@@ -355,3 +382,4 @@ void riscv_cpu::FMV_W_X()
     f[rd].f = (float&)x[rs1].s32;
 }
 //------------------------------------------------------------------------------
+#endif
