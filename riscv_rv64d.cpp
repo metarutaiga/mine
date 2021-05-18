@@ -5,50 +5,46 @@
 // December 13, 2019
 //==============================================================================
 
-#include <fenv.h>
-#include <math.h>
-#include <float.h>
 #include "riscv_cpu.h"
+#include "riscv_float.h"
 
 #if RISCV_HAVE_DOUBLE
 //------------------------------------------------------------------------------
 void riscv_cpu::FCVT_L_D()
 {
-    if (f[rs1].d <= INT64_MIN || f[rs1].d == -INFINITY)
+    double value = f[rs1].d;
+    if (value <= INT64_MIN || value == -INFINITY)
     {
         x[rd].s = int64_t(INT64_MIN);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].d >= INT64_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
+    if (value >= INT64_MAX || value == INFINITY || isnan(value))
     {
         x[rd].s = int64_t(INT64_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    double value = f[rs1].d;
-    int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
     switch (frm)
     {
     case 0b000:
-        fesetround(FE_TONEAREST);
+        x[rd].s = fromfp(value, FP_INT_TONEAREST, 64);
         break;
     case 0b001:
-        fesetround(FE_TOWARDZERO);
+        x[rd].s = fromfp(value, FP_INT_TOWARDZERO, 64);
         break;
     case 0b010:
-        fesetround(FE_DOWNWARD);
+        x[rd].s = fromfp(value, FP_INT_DOWNWARD, 64);
         break;
     case 0b011:
-        fesetround(FE_UPWARD);
+        x[rd].s = fromfp(value, FP_INT_UPWARD, 64);
         break;
     case 0b100:
-        fesetround(FE_TOWARDZERO);
-        value += 0.5f;
+        x[rd].s = fromfp(value, FP_INT_TONEARESTFROMZERO, 64);
         break;
     case 0b101:
     case 0b110:
@@ -56,48 +52,44 @@ void riscv_cpu::FCVT_L_D()
         HINT();
         break;
     }
-    x[rd].s = int64_t(lrint(value));
     ftestexcept();
-    fesetround(round);
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FCVT_LU_D()
 {
-    if (f[rs1].d <= -1.0f || f[rs1].d == -INFINITY)
+    double value = f[rs1].d;
+    if (value <= -1.0f || value == -INFINITY)
     {
         x[rd].u = uint64_t(0);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    if (f[rs1].d >= UINT64_MAX || f[rs1].d == INFINITY || isnan(f[rs1].d))
+    if (value >= UINT64_MAX || value == INFINITY || isnan(value))
     {
         x[rd].u = uint64_t(UINT64_MAX);
         fcsr.fflags = 0;
         fcsr.nv = true;
         return;
     }
-    double value = f[rs1].d;
-    int round = fegetround();
     fclearexcept();
     int frm = (funct3 == 0b111) ? fcsr.frm : funct3;
     switch (frm)
     {
     case 0b000:
-        fesetround(FE_TONEAREST);
+        x[rd].u = ufromfp(value, FP_INT_TONEAREST, 64);
         break;
     case 0b001:
-        fesetround(FE_TOWARDZERO);
+        x[rd].u = ufromfp(value, FP_INT_TOWARDZERO, 64);
         break;
     case 0b010:
-        fesetround(FE_DOWNWARD);
+        x[rd].u = ufromfp(value, FP_INT_DOWNWARD, 64);
         break;
     case 0b011:
-        fesetround(FE_UPWARD);
+        x[rd].u = ufromfp(value, FP_INT_UPWARD, 64);
         break;
     case 0b100:
-        fesetround(FE_TOWARDZERO);
-        value += 0.5f;
+        x[rd].u = ufromfp(value, FP_INT_TONEARESTFROMZERO, 64);
         break;
     case 0b101:
     case 0b110:
@@ -105,9 +97,7 @@ void riscv_cpu::FCVT_LU_D()
         HINT();
         break;
     }
-    x[rd].u = uint64_t(lrint(value));
     ftestexcept();
-    fesetround(round);
 }
 //------------------------------------------------------------------------------
 void riscv_cpu::FCVT_D_L()
