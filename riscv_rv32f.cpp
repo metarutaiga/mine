@@ -29,7 +29,7 @@ void riscv_cpu::FSW()
 void riscv_cpu::FMADD_S()
 {
     fclearexcept();
-    f[rd].f = (f[rs1].f * f[rs2].f) + f[rs3].f;
+    f[rd].f = fmaf(f[rs1].f, f[rs2].f, f[rs3].f);
     ftestexcept();
     if (isnan(f[rd].f))
     {
@@ -41,7 +41,7 @@ void riscv_cpu::FMADD_S()
 void riscv_cpu::FMSUB_S()
 {
     fclearexcept();
-    f[rd].f = (f[rs1].f * f[rs2].f) - f[rs3].f;
+    f[rd].f = fmaf(f[rs1].f, f[rs2].f, -f[rs3].f);
     ftestexcept();
     if (isnan(f[rd].f))
     {
@@ -53,7 +53,7 @@ void riscv_cpu::FMSUB_S()
 void riscv_cpu::FNMSUB_S()
 {
     fclearexcept();
-    f[rd].f = -(f[rs1].f * f[rs2].f) + f[rs3].f;
+    f[rd].f = -fmaf(f[rs1].f, f[rs2].f, -f[rs3].f);;
     ftestexcept();
     if (isnan(f[rd].f))
     {
@@ -66,7 +66,7 @@ void riscv_cpu::FNMSUB_S()
 void riscv_cpu::FNMADD_S()
 {
     fclearexcept();
-    f[rd].f = -(f[rs1].f * f[rs2].f) - f[rs3].f;
+    f[rd].f = -fmaf(f[rs1].f, f[rs2].f, f[rs3].f);
     ftestexcept();
     if (isnan(f[rd].f))
     {
