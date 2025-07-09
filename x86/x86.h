@@ -25,23 +25,28 @@ struct x86 : public miCPU
         uint32_t flags;
         struct
         {
-            uint32_t _c:1;  // Carry
-            uint32_t _1:1;
-            uint32_t _p:1;  // Parity
-            uint32_t _3:1;
-            uint32_t _a:1;  // Auxiliary
-            uint32_t _5:1;
-            uint32_t _z:1;  // Zero
-            uint32_t _s:1;  // Sign
-            uint32_t _t:1;  // Trap
-            uint32_t _i:1;  // Interrupt ?
-            uint32_t _d:1;  // Direction ?
-            uint32_t _o:1;  // Overflow
+            uint32_t _c:1;  // Carry Flag
+            uint32_t _01:1; // 1
+            uint32_t _p:1;  // Parity Flag
+            uint32_t _03:1; // 0
+            uint32_t _a:1;  // Auxiliary Carry
+            uint32_t _05:1; // 0
+            uint32_t _z:1;  // Zero Flag
+            uint32_t _s:1;  // Sign Flag
+            uint32_t _t:1;  // Trap Flag
+            uint32_t _i:1;  // Interrupt Enable
+            uint32_t _d:1;  // Direction Flag
+            uint32_t _o:1;  // Overflow Flag
+            uint32_t _l:2;  // I/O Privilege Level
+            uint32_t _n:1;  // Nested Task Flag
+            uint32_t _15:1; // 0
+            uint32_t _r:1;  // Resume Flag
+            uint32_t _v:1;  // Virtual 8086 Mode
         };
     };
     register_t empty = {};
     register_t regs[16] = {};
-    flags_t eflags = {};
+    flags_t eflags = { 0b10 };
     uint32_t eip = 0;
 
     uint8_t* opcode = nullptr;
@@ -50,17 +55,20 @@ struct x86 : public miCPU
     uint8_t* memory = nullptr;
     uint8_t* stack = nullptr;
 
-    std::string* disasm = nullptr;
-
+public:
     virtual ~x86();
     bool Initialize(size_t space, const void* program, size_t size) override;
     bool Step() override;
+
+public:
+    std::string* disasm = nullptr;
+
     std::string Disassemble(int count) override;
 
 protected:
     struct Format
     {
-        struct Addressing
+        struct Operand
         {
             bool imm = false;
             bool reg = false;
@@ -70,12 +78,13 @@ protected:
             int base = -1;
             int32_t displacement = 0;
 
+            uint32_t address = 0;
             uint8_t* memory = nullptr;
         };
         int size = 0;
         int length = 0;
         const char* instruction = "";
-        Addressing addressing[2] = {};
+        Operand operand[2] = {};
     };
     Format      Decode(int offset, const char* instruction, int direction, int operand_size, int immediate_size);
     void        Disasm(const Format& format);
@@ -106,10 +115,10 @@ protected:
     instruction OS;     // Operand-size override
 //  instruction AS;     // Address-size override
 
-    instruction AAA;    // ASCII Adjust after Addition
-    instruction AAD;    // ASCII Adjust AX before Division
-    instruction AAM;    // ASCII Adjust AX after Multiply
-    instruction AAS;    // ASCII Adjust AL after Subtraction
+//  instruction AAA;    // ASCII Adjust after Addition
+//  instruction AAD;    // ASCII Adjust AX before Division
+//  instruction AAM;    // ASCII Adjust AX after Multiply
+//  instruction AAS;    // ASCII Adjust AL after Subtraction
     instruction ADC;    // Add with Carry
     instruction ADD;    // Add
     instruction AND;    // Logical AND
@@ -124,36 +133,36 @@ protected:
     instruction CALL;   // Call Procedure
     instruction CLC;    // Clear Carry Flag
     instruction CLD;    // Clear Direction Flag
-    instruction CLI;    // Clear Interrupt Flag
+//  instruction CLI;    // Clear Interrupt Flag
 //  instruction CLTS;   // Clear Task-Switched Flag in CR0
     instruction CMC;    // Complement Carry Flag
     instruction CMP;    // Compare Two Operands
     instruction CMPS;   // Compare String Operands
     instruction Cxx;    // Convert Byte to Word/Convert Word to Doubleword/Convert Doubleword to Quadword
-    instruction DAA;    // Decimal Adjust AL after Addition
-    instruction DAS;    // Decimal Adjust AL after Subtraction
+//  instruction DAA;    // Decimal Adjust AL after Addition
+//  instruction DAS;    // Decimal Adjust AL after Subtraction
     instruction DEC;    // Decrement by 1
     instruction DIV;    // Unsigned Divide
     instruction ENTER;  // Make Stack Frame for Procedure Parameters
-    instruction HLT;    // Halt
+//  instruction HLT;    // Halt
     instruction IDIV;   // Signed Divide
     instruction IMUL;   // Signed Multiply
-    instruction IN;     // Input from Port
+//  instruction IN;     // Input from Port
     instruction INC;    // Increment by 1
-    instruction INS;    // Input from Port to String
-    instruction INT;    // Call to Interrupt Procedure
-    instruction IRET;   // Interrupt Return
+//  instruction INS;    // Input from Port to String
+//  instruction INT;    // Call to Interrupt Procedure
+//  instruction IRET;   // Interrupt Return
     instruction Jcc;    // Jump if Condition is Met
     instruction JMP;    // Jump
     instruction LAHF;   // Load Flags into AH Register
-    instruction LAR;    // Load Access Rights Byte
+//  instruction LAR;    // Load Access Rights Byte
     instruction LEA;    // Load Effective Address
     instruction LEAVE;  // High Level Procedure Exit
 //  instruction LxDT;   // Load Global/Interrupt Descriptor Table Register
 //  instruction LxS;    // Load Full Pointer
 //  instruction LLDT;   // Load Local Descriptor Table Register
 //  instruction LMSW;   // Load Machine Status Word
-    instruction LOCK;   // Assert LOCK# Signal Prefix
+//  instruction LOCK;   // Assert LOCK# Signal Prefix
     instruction LODS;   // Load String Operand
     instruction LOOP;   // Loop Control with CX Counter
 //  instruction LSL;    // Load Segment Limit
@@ -167,8 +176,8 @@ protected:
     instruction NOP;    // No Operation
     instruction NOT;    // One's Complement Negation
     instruction OR;     // Logical Inclusive OR
-    instruction OUT;    // Output to Port
-    instruction OUTS;   // Output String to Port
+//  instruction OUT;    // Output to Port
+//  instruction OUTS;   // Output String to Port
     instruction POP;    // Pop a Word from the Stack
     instruction POPA;   // Pop all General Registers
     instruction POPF;   // Pop Stack into FLAGS or EFLAGS Register
@@ -190,7 +199,7 @@ protected:
 //  instruction SMSW;   // Store Machine Status Word
     instruction STC;    // Set Carry Flag
     instruction STD;    // Set Direction Flag
-    instruction STI;    // Set Interrupt Flag
+//  instruction STI;    // Set Interrupt Flag
     instruction STOS;   // Store String Data
 //  instruction STR;    // Store Task Register
     instruction SUB;    // Integer Subtraction
