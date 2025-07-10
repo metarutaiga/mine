@@ -14,23 +14,23 @@
 // One-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86::instruction_pointer x86::one[256] =
-{      // 0       1      2      3      4      5      6      7      8       9       A      B      C       D      E      F
-/* 0 */ o ADD   x ADD  x ADD  x ADD  x ADD  x ADD  x PUSH x POP  x OR    x OR    x OR   x OR   x OR    x OR   x PUSH x two
-/* 1 */ x ADC   x ADC  x ADC  x ADC  x ADC  x ADC  x PUSH x POP  x SBB   x SBB   x SBB  x SBB  x SBB   x SBB  x PUSH x POP
-/* 2 */ x AND   x AND  x AND  x AND  x AND  x AND  x ___  x ___  x SUB   x SUB   x SUB  x SUB  x SUB   x SUB  x ___  x ___
-/* 3 */ x XOR   x XOR  x XOR  x XOR  x XOR  x XOR  x ___  x ___  x CMP   x CMP   x CMP  x CMP  x CMP   x CMP  x ___  x ___
-/* 4 */ x INC   x INC  x INC  x INC  x INC  x INC  x INC  x INC  x DEC   x DEC   x DEC  x DEC  x DEC   x DEC  x DEC  x DEC
-/* 5 */ x PUSH  x PUSH x PUSH x PUSH x PUSH x PUSH x PUSH x PUSH x POP   x POP   x POP  x POP  x POP   x POP  x POP  x POP
-/* 6 */ x PUSHA x POPA x ___  x ___  x ___  x ___  x OS   x ___  x PUSH  x IMUL  x PUSH x IMUL x ___   x ___  x ___  x ___
-/* 7 */ x Jcc   x Jcc  x Jcc  x Jcc  x Jcc  x Jcc  x Jcc  x Jcc  x Jcc   x Jcc   x Jcc  x Jcc  x Jcc   x Jcc  x Jcc  x Jcc
-/* 8 */ x grp1  x grp1 x ___  x grp1 x TEST x TEST x XCHG x XCHG x MOV   x MOV   x MOV  x MOV  x MOV   x LEA  x MOV  x POP
-/* 9 */ x XCHG  x XCHG x XCHG x XCHG x XCHG x XCHG x XCHG x XCHG x Cxx   x Cxx   x CALL x WAIT x PUSHF x POPF x SAHF x LAHF
-/* A */ x MOV   x MOV  x MOV  x MOV  x MOVS x MOVS x CMPS x CMPS x TEST  x TEST  x STOS x STOS x LODS  x LODS x SCAS x SCAS
-/* B */ x MOV   x MOV  x MOV  x MOV  x MOV  x MOV  x MOV  x MOV  x MOV   x MOV   x MOV  x MOV  x MOV   x MOV  x MOV  x MOV
-/* C */ x grp2  x grp2 x RET  x RET  x ___  x ___  x MOV  x MOV  x ENTER x LEAVE x RET  x RET  x ___   x ___  x ___  x ___
-/* D */ x grp2  x grp2 x grp2 x grp2 x ___  x ___  x ___  x XLAT x esc   x esc   x esc  x esc  x esc   x esc  x esc  x esc
-/* E */ x LOOP  x LOOP x LOOP x Jcc  x ___  x ___  x ___  x ___  x CALL  x Jcc   x Jcc  x Jcc  x ___   x ___  x ___  x ___
-/* F */ x ___   x ___  x REP  x REP  x ___  x CMC  x grp3 x grp3 x CLC   x STC   x ___  x ___  x CLD   x STD  x grp4 x grp5
+{      // 0        1       2      3      4       5       6       7       8       9       A       B       C        D       E       F
+/* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x PUSH  x POP   x OR    x OR    x OR    x OR    x OR     x OR    x PUSH  x two
+/* 1 */ x ADC    x ADC   x ADC  x ADC  x ADC   x ADC   x PUSH  x POP   x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x PUSH  x POP
+/* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x ___   x ___   x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x ___   x ___
+/* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x ___   x ___   x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x ___   x ___
+/* 4 */ x INC    x INC   x INC  x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC    x DEC   x DEC   x DEC
+/* 5 */ x PUSH   x PUSH  x PUSH x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
+/* 6 */ x PUSHAD x POPAD x ___  x ___  x ___   x ___   x OS    x ___   x PUSH  x IMUL  x PUSH  x IMUL  x ___    x ___   x ___   x ___
+/* 7 */ x Jcc    x Jcc   x Jcc  x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
+/* 8 */ x grp1   x grp1  x ___  x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
+/* 9 */ x XCHG   x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x ___   x ___   x PUSHFD x POPFD x SAHF  x LAHF
+/* A */ x ___    x ___   x ___  x ___  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
+/* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
+/* C */ x grp2   x grp2  x RET  x RET  x ___   x ___   x MOV   x MOV   x ENTER x LEAVE x ___   x ___   x ___    x ___   x ___   x ___
+/* D */ x grp2   x grp2  x grp2 x grp2 x ___   x ___   x ___   x XLAT  x esc   x esc   x esc   x esc   x esc    x esc   x esc   x esc
+/* E */ x LOOP   x LOOP  x LOOP x Jcc  x ___   x ___   x ___   x ___   x CALL  x Jcc   x Jcc   x Jcc   x ___    x ___   x ___   x ___
+/* F */ x ___    x ___   x REP  x REP  x ___   x CMC   x grp3  x grp3  x CLC   x STC   x ___   x ___   x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
 const x86::instruction_pointer x86::group[16][8] =
@@ -164,10 +164,17 @@ std::string x86::Disassemble(int count)
 #define BH              regs[3].h
 #define BX              regs[3].w
 #define EBX             regs[3].d
+#define BP              regs[4].w
 #define EBP             regs[4].d
+#define SI              regs[5].w
 #define ESI             regs[5].d
+#define DI              regs[6].w
 #define EDI             regs[6].d
+#define SP              regs[7].w
 #define ESP             regs[7].d
+#define EIP             eip
+#define EFLAGS          eflags.d
+#define FLAGS           eflags.w
 #define CF              eflags._c
 #define PF              eflags._p
 #define AF              eflags._a
@@ -175,14 +182,20 @@ std::string x86::Disassemble(int count)
 #define SF              eflags._s
 #define DF              eflags._d
 #define OF              eflags._o
-#define EIP             eip
+#define REG(reg)        ((int)((&reg - &EAX) / (&ECX - &EAX)))
 #define IMM8(m,i)       (*(int8_t*)(m+i))
 #define IMM16(m,i)      (*(int16_t*)(m+i))
 #define IMM32(m,i)      (*(int32_t*)(m+i))
 #define Push(reg)       { stack -= sizeof(uint32_t); *(uint32_t*)stack = reg; }
 #define Pop()           (*(uint32_t*)((stack += sizeof(uint32_t)) - sizeof(uint32_t)))
 //------------------------------------------------------------------------------
-#define BEGIN_OPERATION ; \
+#define BEGIN_OPERATION(line) ; \
+    EIP += format.length; \
+    if (disasm) { \
+        (*disasm) += line; \
+        (*disasm) += '\n'; \
+        return; \
+    } \
     auto operation = [=, this](auto& DEST, auto SRC)
 #define END_OPERATION ; \
     switch (format.size) { \
@@ -293,59 +306,60 @@ x86::Format x86::Decode(int offset, const char* instruction, int direction, int 
     return format;
 }
 //------------------------------------------------------------------------------
-void x86::Disasm(const Format& format)
+std::string x86::Disasm(const Format& format)
 {
-    if (disasm) {
-        auto hex = [](auto imm) {
-            uint64_t value = std::abs((int64_t)imm);
-            if (value > 0xFFFF) return std::format("{}{:08X}", imm < 0 ? "-" : "", value);
-            if (value > 0xFF) return std::format("{}{:04X}", imm < 0 ? "-" : "", value);
-            return std::format("{}{:02X}", imm < 0 ? "-" : "", value);
-        };
+    auto hex = [](auto imm) {
+        uint64_t value = std::abs((int64_t)imm);
+        if (value > 0xFFFF) return std::format("{}{:08X}", imm < 0 ? "-" : "", value);
+        if (value > 0xFF) return std::format("{}{:04X}", imm < 0 ? "-" : "", value);
+        return std::format("{}{:02X}", imm < 0 ? "-" : "", value);
+    };
 
-        (*disasm) += format.instruction;
-        for (int i = 0; i < 2; ++i) {
-            if (i) (*disasm) += ',';
-            (*disasm) += ' ';
-            if (format.operand[i].imm) {
-                (*disasm) += hex(format.operand[i].displacement);
-            }
-            else if (format.operand[i].reg) {
-                switch (format.size) {
-                case 8:     (*disasm) += REG8[format.operand[i].base];   break;
-                case 16:    (*disasm) += REG16[format.operand[i].base];  break;
-                case 32:    (*disasm) += REG32[format.operand[i].base];  break;
-                }
-            }
-            else {
-                switch (format.size) {
-                case 8:     (*disasm) += "BYTE PTR"; break;
-                case 16:    (*disasm) += "WORD PTR"; break;
-                case 32:    (*disasm) += "DWORD PTR"; break;
-                }
-                (*disasm) += ' ';
-                (*disasm) += '[';
-                if (format.operand[i].scale > 0) {
-                    (*disasm) += REG32[format.operand[i].index];
-                    (*disasm) += '*';
-                    (*disasm) += std::to_string(format.operand[i].scale);
-                }
-                if (format.operand[i].base >= 0) {
-                    if ((*disasm).back() != '[')
-                        (*disasm) += '+';
-                    (*disasm) += REG32[format.operand[i].base];
-                }
-                if (format.operand[i].displacement) {
-                    if ((*disasm).back() != '[')
-                        (*disasm) += '+';
-                    (*disasm) += hex(format.operand[i].displacement);
-                }
-                if ((*disasm).back() == '[')
-                    (*disasm) += '0';
-                (*disasm) += ']';
+    std::string disasm;
+    disasm += format.instruction;
+    for (int i = 0; i < 2; ++i) {
+        if (i) disasm += ',';
+        disasm += ' ';
+        if (format.operand[i].imm) {
+            disasm += hex(format.operand[i].displacement);
+        }
+        else if (format.operand[i].reg) {
+            switch (format.size) {
+            case 8:     disasm += REG8[format.operand[i].base];   break;
+            case 16:    disasm += REG16[format.operand[i].base];  break;
+            case 32:    disasm += REG32[format.operand[i].base];  break;
             }
         }
+        else {
+            switch (format.size) {
+            case 8:     disasm += "BYTE PTR"; break;
+            case 16:    disasm += "WORD PTR"; break;
+            case 32:    disasm += "DWORD PTR"; break;
+            }
+            disasm += ' ';
+            disasm += '[';
+            if (format.operand[i].scale > 0) {
+                disasm += REG32[format.operand[i].index];
+                disasm += '*';
+                disasm += std::to_string(format.operand[i].scale);
+            }
+            if (format.operand[i].base >= 0) {
+                if (disasm.back() != '[')
+                    disasm += '+';
+                disasm += REG32[format.operand[i].base];
+            }
+            if (format.operand[i].displacement) {
+                if (disasm.back() != '[')
+                    disasm += '+';
+                disasm += hex(format.operand[i].displacement);
+            }
+            if (disasm.back() == '[')
+                disasm += '0';
+            disasm += ']';
+        }
     }
+
+    return disasm;
 }
 //------------------------------------------------------------------------------
 void x86::Fixup(Format& format)
@@ -464,15 +478,7 @@ void x86::ADC()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         UpdateEFlags(DEST, DEST + SRC + CF);
     } END_OPERATION;
 }
@@ -493,15 +499,7 @@ void x86::ADD()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         UpdateEFlags(DEST, DEST + SRC);
     } END_OPERATION;
 }
@@ -522,15 +520,7 @@ void x86::AND()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         UpdateEFlags(DEST, DEST & SRC);
         CF = 0;
         OF = 0;
@@ -542,15 +532,7 @@ void x86::BSF()
     Format format = Decode(2, "BSF", 0, 1, 0);
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         ZF = 1;
         if (SRC) {
             ZF = 0;
@@ -564,15 +546,7 @@ void x86::BSR()
     Format format = Decode(2, "BSR", 0, 1, 0);
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         ZF = 1;
         if (SRC) {
             ZF = 0;
@@ -590,15 +564,7 @@ void x86::BT()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
     } END_OPERATION;
 }
@@ -612,15 +578,7 @@ void x86::BTC()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
         DEST = (DEST ^ (1 << SRC));
     } END_OPERATION;
@@ -635,15 +593,7 @@ void x86::BTR()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
         DEST = (DEST & ~(1 << SRC));
     } END_OPERATION;
@@ -658,15 +608,7 @@ void x86::BTS()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
         DEST = (DEST | (1 << SRC));
     } END_OPERATION;
@@ -681,15 +623,7 @@ void x86::CALL()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         Push(EIP);
         if (format.operand[0].imm)
             EIP += format.operand[0].displacement;
@@ -698,43 +632,46 @@ void x86::CALL()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
+void x86::CDQ()
+{
+    Format format;
+    format.size = operand_size_override ? 16 : 32;
+    format.length = 1;
+    format.instruction = operand_size_override ? "CWD" : "CDQ";
+
+    BEGIN_OPERATION(format.instruction) {
+        if (format.size == 16)
+            DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
+        else
+            EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
+    } END_OPERATION;
+}
+//------------------------------------------------------------------------------
 void x86::CLC()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "CLC";
-        (*disasm) += '\n';
-        return;
-    }
-
-    CF = 0;
+    BEGIN_OPERATION("CLC") {
+        CF = 0;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::CLD()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "CLD";
-        (*disasm) += '\n';
-        return;
-    }
-
-    DF = 0;
+    BEGIN_OPERATION("CLD") {
+        DF = 0;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::CMC()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "CMC";
-        (*disasm) += '\n';
-        return;
-    }
-
-    CF = !CF;
+    BEGIN_OPERATION("CMC") {
+        CF = !CF;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::CMP()
@@ -753,63 +690,43 @@ void x86::CMP()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         auto TEMP = DEST;
         UpdateEFlags(TEMP, TEMP - SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::CMPS()
-{
-}
-//------------------------------------------------------------------------------
-void x86::Cxx()
+void x86::CMPSx()
 {
     Format format;
     switch (opcode[0]) {
-    case 0x98:
-        format.size = operand_size_override ? 16 : 32;
-        format.length = 1;
-        format.instruction = operand_size_override ? "CBW" : "CWDE";
-        break;
-    case 0x99:
-        format.size = operand_size_override ? 16 : 32;
-        format.length = 1;
-        format.instruction = operand_size_override ? "CWD" : "CDQ";
-        break;
+    case 0xA6:  format = Decode(0, "CMPSB", 0, 0, 0);                                   break;
+    case 0xA7:  format = Decode(0, operand_size_override ? "CMPSW" : "CMPSD", 0, 1, 0); break;
     }
+    format.operand[0].base = REG(EDI);
+    format.operand[1].base = REG(ESI);
+    Fixup(format);
 
-    EIP += format.length;
+    BEGIN_OPERATION(Disasm(format)) {
+        auto TEMP = DEST;
+        UpdateEFlags(TEMP, TEMP - SRC);
+        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
+        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+    } END_OPERATION;
+}
+//------------------------------------------------------------------------------
+void x86::CWDE()
+{
+    Format format;
+    format.size = operand_size_override ? 16 : 32;
+    format.length = 1;
+    format.instruction = operand_size_override ? "CBW" : "CWDE";
 
-    if (disasm) {
-        (*disasm) += format.instruction;
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
-        switch (opcode[0]) {
-        case 0x98:
-            if (format.size == 16)
-                AX = (int8_t)AL;
-            else
-                EAX = (int16_t)AX;
-            break;
-        case 0x99:
-            if (format.size == 16)
-                DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
-            else
-                EAX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
-            break;
-        }
+    BEGIN_OPERATION(format.instruction) {
+        if (format.size == 16)
+            AX = (int8_t)AL;
+        else
+            EAX = (int16_t)AX;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -823,15 +740,7 @@ void x86::DEC()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         UpdateEFlags(DEST, DEST - 1);
     } END_OPERATION;
 }
@@ -845,15 +754,7 @@ void x86::DIV()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         DEST = DEST / SRC;
     } END_OPERATION;
 }
@@ -864,15 +765,7 @@ void x86::ENTER()
     format.length += 1;
     format.operand[1].displacement = IMM8(opcode, 2);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         int level = format.operand[1].displacement % 32;
         Push(ESP);
         if (level > 0) {
@@ -896,15 +789,7 @@ void x86::IDIV()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
         DEST = dest / src;
@@ -923,15 +808,7 @@ void x86::IMUL()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
         DEST = dest * src;
@@ -948,15 +825,7 @@ void x86::INC()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         UpdateEFlags(DEST, DEST + 1);
     } END_OPERATION;
 }
@@ -1005,15 +874,7 @@ void x86::Jcc()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         // TODO
     } END_OPERATION;
 }
@@ -1028,15 +889,7 @@ void x86::JMP()
     }
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         if (format.operand[0].imm)
             EIP += format.operand[0].displacement;
         else
@@ -1046,15 +899,11 @@ void x86::JMP()
 //------------------------------------------------------------------------------
 void x86::LAHF()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "LAHF";
-        (*disasm) += '\n';
-        return;
-    }
-
-    AH = eflags.flags;
+    BEGIN_OPERATION("LAHF") {
+        AH = FLAGS;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::LEA()
@@ -1062,99 +911,315 @@ void x86::LEA()
     Format format = Decode(1, "LEA", 0, 0, 0);
     Fixup(format);
 
-    EIP += format.length;
-
-    if (disasm) {
-        Disasm(format);
-        (*disasm) += '\n';
-        return;
-    }
-
-    BEGIN_OPERATION {
+    BEGIN_OPERATION(Disasm(format)) {
         DEST = format.operand[0].address;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::LEAVE()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "LEAVE";
-        (*disasm) += '\n';
-        return;
-    }
-
-    ESP = EBP;
-    EBP = Pop();
+    BEGIN_OPERATION("LEAVE") {
+        ESP = EBP;
+        EBP = Pop();
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::LODS()
+void x86::LODSx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xAC:  format = Decode(0, "LODSB", 0, 0, 0);                                   break;
+    case 0xAD:  format = Decode(0, operand_size_override ? "LODSW" : "LODSD", 0, 1, 0); break;
+    }
+    format.operand[0].reg = true;
+    format.operand[0].base = REG(EAX);
+    format.operand[1].base = REG(ESI);
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = SRC;
+        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::LOOP()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xE0:  format = Decode(0, "LOOPNZ", 0, 1, 8);  break;
+    case 0xE1:  format = Decode(0, "LOOPZ", 0, 1, 8);   break;
+    case 0xE2:  format = Decode(0, "LOOP", 0, 1, 8);    break;
+    }
+
+    BEGIN_OPERATION(Disasm(format)) {
+        uint32_t CountReg = (format.size == 16) ? CX : ECX;
+        if (CountReg) {
+            ECX = ECX - 1;
+            bool BranchCond = true;
+            switch (opcode[0]) {
+                case 0xE0:  BranchCond = (ZF == 0); break;
+                case 0xE1:  BranchCond = (ZF != 0); break;
+            }
+            if (BranchCond) {
+                EIP += format.operand[1].displacement;
+            }
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::MOV()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x88:
+    case 0x89:
+    case 0x8A:
+    case 0x8B:  format = Decode(1, "MOV", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0xB0:
+    case 0xB1:
+    case 0xB2:
+    case 0xB3:
+    case 0xB4:
+    case 0xB5:
+    case 0xB6:
+    case 0xB7:  format = Decode(0, "MOV", 0, 0, -1);
+                format.operand[0].reg = true;
+                format.operand[0].base = opcode[0] & 0b111; break;
+    case 0xB8:
+    case 0xB9:
+    case 0xBA:
+    case 0xBB:
+    case 0xBC:
+    case 0xBD:
+    case 0xBE:
+    case 0xBF:  format = Decode(0, "MOV", 0, 1, -1);
+                format.operand[0].reg = true;
+                format.operand[0].base = opcode[0] & 0b111; break;
+    case 0xC6:  format = Decode(1, "MOV", 0, 0, -1);        break;
+    case 0xC7:  format = Decode(1, "MOV", 0, 1, -1);        break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = SRC;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::MOVS()
+void x86::MOVSx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xA4:  format = Decode(0, "MOVSB", 0, 0, 0);                                   break;
+    case 0xA5:  format = Decode(0, operand_size_override ? "MOVSW" : "MOVSD", 0, 1, 0); break;
+    }
+    format.operand[0].base = REG(EDI);
+    format.operand[1].base = REG(ESI);
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = SRC;
+        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
+        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::MOVSX()
 {
+    Format format;
+    switch (opcode[1]) {
+    case 0xBE:
+    case 0xBF:  format = Decode(2, "MOVSX", 0, opcode[1] & 0b01, 0);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        switch (format.size) {
+        case 8:
+            (uint16_t&)DEST = SRC;
+            break;
+        case 16:
+            (uint32_t&)DEST = SRC;
+            break;
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::MOVZX()
 {
+    Format format;
+    switch (opcode[1]) {
+    case 0xB6:
+    case 0xB7:  format = Decode(2, "MOVZX", 0, opcode[1] & 0b01, 0);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        switch (format.size) {
+        case 8:
+            (uint16_t&)DEST = SRC;
+            break;
+        case 16:
+            (uint32_t&)DEST = SRC;
+            break;
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::MUL()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xF6:
+    case 0xF7:  format = Decode(1, "MUL", 0, opcode[0] & 0b01, 0);  break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = DEST / SRC;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::NEG()
 {
+    Format format;
+    switch (opcode[1]) {
+    case 0xF6:
+    case 0xF7:  format = Decode(1, "NEG", 0, opcode[1] & 0b01, 0);  break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        CF = (DEST == 0) ? 0 : 1;
+        DEST = -DEST;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::NOP()
 {
+    Format format;
+
+    BEGIN_OPERATION("NOP") {
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::NOT()
 {
+    Format format;
+    switch (opcode[1]) {
+    case 0xF6:
+    case 0xF7:  format = Decode(1, "NOT", 0, opcode[1] & 0b01, 0);  break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = !DEST;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::OR()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x08:
+    case 0x09:
+    case 0x0A:
+    case 0x0B:  format = Decode(1, "OR", opcode[0] & 0b10, opcode[0] & 0b01, 0);    break;
+    case 0x0C:
+    case 0x0D:  format = Decode(0, "OR",             0b00, opcode[0] & 0b01, -1);   break;
+    case 0x80:
+    case 0x81:  format = Decode(1, "OR",             0b00, opcode[0] & 0b01, -1);   break;
+    case 0x83:  format = Decode(1, "OR",             0b00, opcode[0] & 0b01, 8);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        UpdateEFlags(DEST, DEST | SRC);
+        CF = 0;
+        OF = 0;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::POP()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x58:  format = Decode(1, "POP", 0, 1, 0); break;
+    case 0x8F:  format = Decode(1, "POP", 0, 1, 0); break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = Pop();
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::POPA()
+void x86::POPAD()
 {
+    Format format = Decode(0, "POPAD", 0, 1, 0);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        EDI = Pop();
+        ESI = Pop();
+        EBP = Pop();
+        Pop();
+        EBX = Pop();
+        EDX = Pop();
+        ECX = Pop();
+        EAX = Pop();
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::POPF()
+void x86::POPFD()
 {
+    Format format = Decode(0, "POPFD", 0, 1, 0);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        EFLAGS = Pop();
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::PUSH()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x50:  format = Decode(1, "PUSH", 0, 1, 0);    break;
+    case 0x68:  format = Decode(0, "PUSH", 0, 1, -1);   break;
+    case 0x6A:  format = Decode(0, "PUSH", 0, 1, 8);    break;
+    case 0xFF:  format = Decode(1, "PUSh", 0, 1, 0);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        Push(DEST);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::PUSHA()
+void x86::PUSHAD()
 {
+    Format format = Decode(0, "PUSHAD", 0, 1, 0);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        auto Temp = ESP;
+        Push(EAX);
+        Push(ECX);
+        Push(EDX);
+        Push(EBX);
+        Push(Temp);
+        Push(EBP);
+        Push(ESI);
+        Push(EDI);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::PUSHF()
+void x86::PUSHFD()
 {
+    Format format = Decode(0, "PUSHFD", 0, 1, 0);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        Push(EFLAGS);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::Rxx()
@@ -1181,7 +1246,7 @@ void x86::SBB()
 {
 }
 //------------------------------------------------------------------------------
-void x86::SCAS()
+void x86::SCASx()
 {
 }
 //------------------------------------------------------------------------------
@@ -1205,7 +1270,7 @@ void x86::STD()
 {
 }
 //------------------------------------------------------------------------------
-void x86::STOS()
+void x86::STOSx()
 {
 }
 //------------------------------------------------------------------------------
@@ -1214,10 +1279,6 @@ void x86::SUB()
 }
 //------------------------------------------------------------------------------
 void x86::TEST()
-{
-}
-//------------------------------------------------------------------------------
-void x86::WAIT()
 {
 }
 //------------------------------------------------------------------------------

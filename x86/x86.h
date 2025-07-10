@@ -22,7 +22,8 @@ struct x86 : public miCPU
     };
     union flags_t
     {
-        uint32_t flags;
+        uint32_t d;
+        uint16_t w;
         struct
         {
             uint32_t _c:1;  // Carry Flag
@@ -82,12 +83,12 @@ protected:
             uint8_t* memory = nullptr;
         };
         int size = 0;
-        int length = 0;
+        int length = 1;
         const char* instruction = "";
         Operand operand[2] = {};
     };
     Format      Decode(int offset, const char* instruction, int direction, int operand_size, int immediate_size);
-    void        Disasm(const Format& format);
+    std::string Disasm(const Format& format);
     void        Fixup(Format& format);
 
     template<typename A, typename B>
@@ -131,14 +132,15 @@ protected:
     instruction BTR;    // Bit Test and Reset
     instruction BTS;    // Bit Test and Set
     instruction CALL;   // Call Procedure
+    instruction CDQ;    // Convert Word to Doubleword/Convert Doubleword to Quadword
     instruction CLC;    // Clear Carry Flag
     instruction CLD;    // Clear Direction Flag
 //  instruction CLI;    // Clear Interrupt Flag
 //  instruction CLTS;   // Clear Task-Switched Flag in CR0
     instruction CMC;    // Complement Carry Flag
     instruction CMP;    // Compare Two Operands
-    instruction CMPS;   // Compare String Operands
-    instruction Cxx;    // Convert Byte to Word/Convert Word to Doubleword/Convert Doubleword to Quadword
+    instruction CMPSx;  // Compare String Operands
+    instruction CWDE;   // Convert Byte to Word/Convert Word to Doubleword
 //  instruction DAA;    // Decimal Adjust AL after Addition
 //  instruction DAS;    // Decimal Adjust AL after Subtraction
     instruction DEC;    // Decrement by 1
@@ -163,12 +165,12 @@ protected:
 //  instruction LLDT;   // Load Local Descriptor Table Register
 //  instruction LMSW;   // Load Machine Status Word
 //  instruction LOCK;   // Assert LOCK# Signal Prefix
-    instruction LODS;   // Load String Operand
+    instruction LODSx;  // Load String Operand
     instruction LOOP;   // Loop Control with CX Counter
 //  instruction LSL;    // Load Segment Limit
 //  instruction LTR;    // Load Task Register
     instruction MOV;    // Move Data
-    instruction MOVS;   // Move Data from String to String
+    instruction MOVSx;  // Move Data from String to String
     instruction MOVSX;  // Move with Sign-Extend
     instruction MOVZX;  // Move with Zero-Extend
     instruction MUL;    // Unsigned Multiplication of AL or AX
@@ -179,18 +181,18 @@ protected:
 //  instruction OUT;    // Output to Port
 //  instruction OUTS;   // Output String to Port
     instruction POP;    // Pop a Word from the Stack
-    instruction POPA;   // Pop all General Registers
-    instruction POPF;   // Pop Stack into FLAGS or EFLAGS Register
+    instruction POPAD;  // Pop all General Registers
+    instruction POPFD;  // Pop Stack into FLAGS or EFLAGS Register
     instruction PUSH;   // Push Operand onto the Stack
-    instruction PUSHA;  // Push all General Registers
-    instruction PUSHF;  // Push Flags Register onto the Stack
+    instruction PUSHAD; // Push all General Registers
+    instruction PUSHFD; // Push Flags Register onto the Stack
     instruction Rxx;    // Rotate
     instruction REP;    // Repeat Following String Operation
     instruction RET;    // Return from Procedure
     instruction SAHF;   // Store AH into Flags
     instruction Sxx;    // Shift Instructions
     instruction SBB;    // Integer Subtraction with Borrow
-    instruction SCAS;   // Compare String Data
+    instruction SCASx;  // Compare String Data
     instruction SETcc;  // Byte Set on Condition
 //  instruction SxDT;   // Store Global/Interrupt Descriptor Table Register
     instruction SHLD;   // Double Precision Shift Left
@@ -200,12 +202,12 @@ protected:
     instruction STC;    // Set Carry Flag
     instruction STD;    // Set Direction Flag
 //  instruction STI;    // Set Interrupt Flag
-    instruction STOS;   // Store String Data
+    instruction STOSx;  // Store String Data
 //  instruction STR;    // Store Task Register
     instruction SUB;    // Integer Subtraction
     instruction TEST;   // Logical Compare
 //  instruction VERx;   // Verify a Segment for Reading or Writing
-    instruction WAIT;   // Wait until BUSY# Pin is Inactive (HIGH)
+//  instruction WAIT;   // Wait until BUSY# Pin is Inactive (HIGH)
     instruction XCHG;   // Exchange Register/Memory with Register
     instruction XLAT;   // Table Look-up Translation
     instruction XOR;    // Logical Exclusive OR
