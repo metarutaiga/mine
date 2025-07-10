@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 const x86::instruction_pointer x86::one[256] =
 {      // 0        1       2      3      4       5       6       7       8       9       A       B       C        D       E       F
-/* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x PUSH  x POP   x OR    x OR    x OR    x OR    x OR     x OR    x PUSH  x two
+/* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x PUSH  x POP   x OR    x OR    x OR    x OR    x OR     x OR    x PUSH  x TWO
 /* 1 */ x ADC    x ADC   x ADC  x ADC  x ADC   x ADC   x PUSH  x POP   x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x PUSH  x POP
 /* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x ___   x ___   x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x ___   x ___
 /* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x ___   x ___   x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x ___   x ___
@@ -28,22 +28,46 @@ const x86::instruction_pointer x86::one[256] =
 /* A */ x ___    x ___   x ___  x ___  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
 /* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x grp2   x grp2  x RET  x RET  x ___   x ___   x MOV   x MOV   x ENTER x LEAVE x ___   x ___   x ___    x ___   x ___   x ___
-/* D */ x grp2   x grp2  x grp2 x grp2 x ___   x ___   x ___   x XLAT  x esc   x esc   x esc   x esc   x esc    x esc   x esc   x esc
-/* E */ x LOOP   x LOOP  x LOOP x Jcc  x ___   x ___   x ___   x ___   x CALL  x Jcc   x Jcc   x Jcc   x ___    x ___   x ___   x ___
+/* D */ x grp2   x grp2  x grp2 x grp2 x ___   x ___   x ___   x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
+/* E */ x LOOP   x LOOP  x LOOP x Jcc  x ___   x ___   x ___   x ___   x CALL  x Jcc   x ___   x Jcc   x ___    x ___   x ___   x ___
 /* F */ x ___    x ___   x REP  x REP  x ___   x CMC   x grp3  x grp3  x CLC   x STC   x ___   x ___   x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
+// Two-Byte Opcode Map
+//------------------------------------------------------------------------------
+const x86::instruction_pointer x86::two[256] =
+{      // 0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
+/* 0 */ o grp6  x grp7  x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 1 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 2 */ x MOV   x MOV   x MOV   x MOV   x MOV   x ___   x MOV   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 3 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 4 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 5 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 6 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 7 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 8 */ x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
+/* 9 */ x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
+/* A */ x ___   x ___   x ___   x BT    x SHLD  x SHLD  x ___   x ___   x ___   x ___   x ___   x BTS   x SHRD  x SHRD  x ___   x IMUL
+/* B */ x ___   x ___   x ___   x BTR   x ___   x ___   x MOVZX x MOVZX x ___   x ___   x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
+/* C */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* D */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* E */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* F */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+};
+//------------------------------------------------------------------------------
+// Opcodes determined by bits 5,4,3 of modR/M byte
+//------------------------------------------------------------------------------
 const x86::instruction_pointer x86::group[16][8] =
-{        // 0      1     2      3      4     5      6      7
-/* 0 */ { o ___  x ___ x ___ x  ___  x ___ x ___  x ___  x ___  },
-/* 1 */ { o ADD  x OR  x ADC  x SBB  x AND x SUB  x XOR  x CMP  },
-/* 2 */ { o Rxx  x Rxx x Rxx  x Rxx  x Sxx x Sxx  x ___  x Sxx  },
-/* 3 */ { o TEST x ___ x NOT  x NEG  x MUL x IMUL x DIV  x IDIV },
-/* 4 */ { o INC  x DEC x ___  x ___  x ___ x ___  x ___  x ___  },
-/* 5 */ { o INC  x DEC x CALL x CALL x JMP x JMP  x PUSH x ___  },
-/* 6 */ { o ___  x ___ x ___ x  ___  x ___ x ___  x ___  x ___  },
-/* 7 */ { o ___  x ___ x ___ x  ___  x ___ x ___  x ___  x ___  },
-/* 8 */ { o ___  x ___ x ___ x  ___  x BT  x BTS  x BTR  x BTC  },
+{        // 0      1     2      3     4     5      6      7
+/* 0 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
+/* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
+/* 2 */ { o Rxx  x Rxx x Rxx  x Rxx x Sxx x Sxx  x ___  x Sxx  },
+/* 3 */ { o TEST x ___ x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
+/* 4 */ { o INC  x DEC x ___  x ___ x ___ x ___  x ___  x ___  },
+/* 5 */ { o INC  x DEC x CALL x ___ x JMP x ___  x PUSH x ___  },
+/* 6 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
+/* 7 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
+/* 8 */ { o ___  x ___ x ___  x ___ x BT  x BTS  x BTR  x BTC  },
 };
 //------------------------------------------------------------------------------
 #undef o
@@ -402,9 +426,16 @@ void x86::UpdateEFlags(A& DEST, B TEMP)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86::esc()
+void x86::ESC()
 {
 }
+//------------------------------------------------------------------------------
+void x86::TWO()
+{
+    (this->*two[opcode[1]])();
+}
+//------------------------------------------------------------------------------
+//
 //------------------------------------------------------------------------------
 void x86::grp1()
 {
@@ -436,8 +467,22 @@ void x86::grp5()
     (this->*group[5][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86::two()
+void x86::grp6()
 {
+    int nnn = (opcode[1] >> 3) & 0b111;
+    (this->*group[6][nnn])();
+}
+//------------------------------------------------------------------------------
+void x86::grp7()
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    (this->*group[7][nnn])();
+}
+//------------------------------------------------------------------------------
+void x86::grp8()
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    (this->*group[8][nnn])();
 }
 //------------------------------------------------------------------------------
 void x86::___()

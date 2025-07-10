@@ -98,13 +98,17 @@ protected:
     typedef void instruction();
     typedef void (x86::*instruction_pointer)();
 
-    instruction esc;
+    instruction ESC;
+    instruction TWO;
+
     instruction grp1;
     instruction grp2;
     instruction grp3;
     instruction grp4;
     instruction grp5;
-    instruction two;
+    instruction grp6;
+    instruction grp7;
+    instruction grp8;
     instruction ___;
 
 //  instruction CS;     // CS segment override prefix
@@ -213,5 +217,6 @@ protected:
     instruction XOR;    // Logical Exclusive OR
 
     static const instruction_pointer one[256];
+    static const instruction_pointer two[256];
     static const instruction_pointer group[16][8];
 };
