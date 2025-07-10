@@ -52,6 +52,7 @@ struct x86 : public miCPU
 
     uint8_t* opcode = nullptr;
     bool operand_size_override = false;
+    bool repeat_string_operation = false;
 
     uint8_t* memory = nullptr;
     uint8_t* stack = nullptr;
@@ -85,10 +86,10 @@ protected:
         int size = 0;
         int length = 1;
         const char* instruction = "";
-        Operand operand[2] = {};
+        Operand operand[3] = {};
     };
     Format      Decode(int offset, const char* instruction, int direction, int operand_size, int immediate_size);
-    std::string Disasm(const Format& format);
+    std::string Disasm(const Format& format, int operand = 2);
     void        Fixup(Format& format);
 
     template<typename A, typename B>
@@ -199,8 +200,7 @@ protected:
     instruction SCASx;  // Compare String Data
     instruction SETcc;  // Byte Set on Condition
 //  instruction SxDT;   // Store Global/Interrupt Descriptor Table Register
-    instruction SHLD;   // Double Precision Shift Left
-    instruction SHRD;   // Double Precision Shift Right
+    instruction SHxD;   // Double Precision Shift
 //  instruction SLDT;   // Store Local Descriptor Table Register
 //  instruction SMSW;   // Store Machine Status Word
     instruction STC;    // Set Carry Flag

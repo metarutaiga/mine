@@ -47,7 +47,7 @@ const x86::instruction_pointer x86::two[256] =
 /* 7 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* 8 */ x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
 /* 9 */ x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
-/* A */ x ___   x ___   x ___   x BT    x SHLD  x SHLD  x ___   x ___   x ___   x ___   x ___   x BTS   x SHRD  x SHRD  x ___   x IMUL
+/* A */ x ___   x ___   x ___   x BT    x SHxD  x SHxD  x ___   x ___   x ___   x ___   x ___   x BTS   x SHxD  x SHxD  x ___   x IMUL
 /* B */ x ___   x ___   x ___   x BTR   x ___   x ___   x MOVZX x MOVZX x ___   x ___   x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
 /* C */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* D */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
@@ -124,6 +124,7 @@ bool x86::Step()
             break;
         default:
             operand_size_override = false;
+            repeat_string_operation = false;
             break;
         }
         break;
@@ -330,7 +331,7 @@ x86::Format x86::Decode(int offset, const char* instruction, int direction, int 
     return format;
 }
 //------------------------------------------------------------------------------
-std::string x86::Disasm(const Format& format)
+std::string x86::Disasm(const Format& format, int operand)
 {
     auto hex = [](auto imm) {
         uint64_t value = std::abs((int64_t)imm);
@@ -341,7 +342,7 @@ std::string x86::Disasm(const Format& format)
 
     std::string disasm;
     disasm += format.instruction;
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < operand; ++i) {
         if (i) disasm += ',';
         disasm += ' ';
         if (format.operand[i].imm) {
@@ -487,13 +488,10 @@ void x86::grp8()
 //------------------------------------------------------------------------------
 void x86::___()
 {
-    EIP += 1;
+    Format format;
 
-    if (disasm) {
-        (*disasm) += "UNKNOWN";
-        (*disasm) += '\n';
-        return;
-    }
+    BEGIN_OPERATION("UNKNOWN") {
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 //
@@ -1269,73 +1267,386 @@ void x86::PUSHFD()
 //------------------------------------------------------------------------------
 void x86::Rxx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xC0:
+    case 0xC1:
+        switch (opcode[1] >> 3 & 7) {
+        case 0: format = Decode(1, "ROL", 0, opcode[0] & 0b01, 8);  break;
+        case 1: format = Decode(1, "ROR", 0, opcode[0] & 0b01, 8);  break;
+        case 2: format = Decode(1, "RCL", 0, opcode[0] & 0b01, 8);  break;
+        case 3: format = Decode(1, "RCR", 0, opcode[0] & 0b01, 8);  break;
+        }
+        break;
+    case 0xD0:
+    case 0xD1:
+        switch (opcode[1] >> 3 & 7) {
+        case 0: format = Decode(1, "ROL", 0, opcode[0] & 0b01, 0);  break;
+        case 1: format = Decode(1, "ROR", 0, opcode[0] & 0b01, 0);  break;
+        case 2: format = Decode(1, "RCL", 0, opcode[0] & 0b01, 0);  break;
+        case 3: format = Decode(1, "RCR", 0, opcode[0] & 0b01, 0);  break;
+        }
+        format.operand[1].imm = true;
+        format.operand[1].displacement = 1;
+        break;
+    case 0xD2:
+    case 0xD3:
+        switch (opcode[1] >> 3 & 7) {
+        case 0: format = Decode(1, "ROL", 0, opcode[0] & 0b01, 0);  break;
+        case 1: format = Decode(1, "ROR", 0, opcode[0] & 0b01, 0);  break;
+        case 2: format = Decode(1, "RCL", 0, opcode[0] & 0b01, 0);  break;
+        case 3: format = Decode(1, "RCR", 0, opcode[0] & 0b01, 0);  break;
+        }
+        format.operand[1].reg = true;
+        format.operand[1].base = REG(ECX);
+        break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        switch (opcode[1] >> 3 & 7) {
+        case 0:
+            if (sizeof(DEST) == 1)  DEST = __builtin_rotateleft8(DEST, SRC);
+            if (sizeof(DEST) == 2)  DEST = __builtin_rotateleft16(DEST, SRC);
+            if (sizeof(DEST) == 4)  DEST = __builtin_rotateleft32(DEST, SRC);
+            break;
+        case 1:
+            if (sizeof(DEST) == 1)  DEST = __builtin_rotateright8(DEST, SRC);
+            if (sizeof(DEST) == 2)  DEST = __builtin_rotateright16(DEST, SRC);
+            if (sizeof(DEST) == 4)  DEST = __builtin_rotateright32(DEST, SRC);
+            break;
+        case 2: // TODO
+            if (sizeof(DEST) == 1)  DEST = __builtin_rotateleft8(DEST, SRC);
+            if (sizeof(DEST) == 2)  DEST = __builtin_rotateleft16(DEST, SRC);
+            if (sizeof(DEST) == 4)  DEST = __builtin_rotateleft32(DEST, SRC);
+            break;
+        case 3: // TODO
+            if (sizeof(DEST) == 1)  DEST = __builtin_rotateright8(DEST, SRC);
+            if (sizeof(DEST) == 2)  DEST = __builtin_rotateright16(DEST, SRC);
+            if (sizeof(DEST) == 4)  DEST = __builtin_rotateright32(DEST, SRC);
+            break;
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::REP()
 {
+    EIP += 1;
+
+    repeat_string_operation = true;
 }
 //------------------------------------------------------------------------------
 void x86::RET()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xC2:  format = Decode(0, "RET", 0, 0, 16);    break;
+    case 0xC3:  format = Decode(0, "RET", 0, 0, 0);     break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        EIP = Pop();
+        ESP = ESP + format.operand[0].displacement;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::SAHF()
 {
+    Format format;
+
+    BEGIN_OPERATION("SAHF") {
+        FLAGS = AH;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::Sxx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xC0:
+    case 0xC1:
+        switch (opcode[1] >> 3 & 7) {
+        case 4: format = Decode(1, "SHL", 0, opcode[0] & 0b01, 8);  break;
+        case 5: format = Decode(1, "SHR", 0, opcode[0] & 0b01, 8);  break;
+        case 6: format = Decode(1, "SAL", 0, opcode[0] & 0b01, 8);  break;
+        case 7: format = Decode(1, "SAR", 0, opcode[0] & 0b01, 8);  break;
+        }
+        break;
+    case 0xD0:
+    case 0xD1:
+        switch (opcode[1] >> 3 & 7) {
+        case 4: format = Decode(1, "SHL", 0, opcode[0] & 0b01, 0);  break;
+        case 5: format = Decode(1, "SHR", 0, opcode[0] & 0b01, 0);  break;
+        case 6: format = Decode(1, "SAL", 0, opcode[0] & 0b01, 0);  break;
+        case 7: format = Decode(1, "SAR", 0, opcode[0] & 0b01, 0);  break;
+        }
+        format.operand[1].imm = true;
+        format.operand[1].displacement = 1;
+        break;
+    case 0xD2:
+    case 0xD3:
+        switch (opcode[1] >> 3 & 7) {
+        case 4: format = Decode(1, "SHL", 0, opcode[0] & 0b01, 0);  break;
+        case 5: format = Decode(1, "SHR", 0, opcode[0] & 0b01, 0);  break;
+        case 6: format = Decode(1, "SAL", 0, opcode[0] & 0b01, 0);  break;
+        case 7: format = Decode(1, "SAR", 0, opcode[0] & 0b01, 0);  break;
+        }
+        format.operand[1].reg = true;
+        format.operand[1].base = REG(ECX);
+        break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+        switch (opcode[1] >> 3 & 7) {
+        case 4: DEST = DEST << SRC; break;
+        case 5: DEST = DEST >> SRC; break;
+        case 6: DEST = dest << SRC; break;
+        case 7: DEST = dest >> SRC; break;
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::SBB()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:  format = Decode(1, "SBB", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x1C:
+    case 0x1D:  format = Decode(0, "SBB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x80:
+    case 0x81:  format = Decode(1, "SBB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x83:  format = Decode(1, "SBB",             0b00, opcode[0] & 0b01, 8);   break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        UpdateEFlags(DEST, DEST - (SRC + CF));
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::SCASx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xAE:  format = Decode(0, "SCASB", 0, 0, 0);                                   break;
+    case 0xAF:  format = Decode(0, operand_size_override ? "SCASW" : "SCASD", 0, 1, 0); break;
+    }
+    format.operand[0].base = REG(EDI);
+    format.operand[1].base = REG(EAX);
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        auto TEMP = DEST;
+        UpdateEFlags(TEMP, SRC - TEMP);
+        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::SETcc()
 {
+    Format format;
+    switch (opcode[1]) {
+    case 0x90:  format = Decode(2, "SETO", 0, 0, 0);    break;
+    case 0x91:  format = Decode(2, "SETNO", 0, 0, 0);   break;
+    case 0x92:  format = Decode(2, "SETC", 0, 0, 0);    break;
+    case 0x93:  format = Decode(2, "SETNC", 0, 0, 0);   break;
+    case 0x94:  format = Decode(2, "SETZ", 0, 0, 0);    break;
+    case 0x95:  format = Decode(2, "SETNZ", 0, 0, 0);   break;
+    case 0x96:  format = Decode(2, "SETBE", 0, 0, 0);   break;
+    case 0x97:  format = Decode(2, "SETA", 0, 0, 0);    break;
+    case 0x98:  format = Decode(2, "SETS", 0, 0, 0);    break;
+    case 0x99:  format = Decode(2, "SETNS", 0, 0, 0);   break;
+    case 0x9A:  format = Decode(2, "SETPE", 0, 0, 0);   break;
+    case 0x9B:  format = Decode(2, "SETPO", 0, 0, 0);   break;
+    case 0x9C:  format = Decode(2, "SETL", 0, 0, 0);    break;
+    case 0x9D:  format = Decode(2, "SETGE", 0, 0, 0);   break;
+    case 0x9E:  format = Decode(2, "SETLE", 0, 0, 0);   break;
+    case 0x9F:  format = Decode(2, "SETG", 0, 0, 0);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        // TODO
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86::SHLD()
+void x86::SHxD()
 {
-}
-//------------------------------------------------------------------------------
-void x86::SHRD()
-{
+    Format format;
+    switch (opcode[1]) {
+    case 0xA4:
+        format = Decode(2, "SHLD", 0, 1, 0);
+        format.length += 1;
+        format.operand[2].imm = true;
+        format.operand[2].displacement = IMM8(opcode, 3);
+        break;
+    case 0xA5:
+        format = Decode(2, "SHLD", 0, 1, 0);
+        format.operand[2].reg = true;
+        format.operand[2].base = REG(ECX);
+        break;
+    case 0xAC:
+        format = Decode(2, "SHRD", 0, 1, 0);
+        format.length += 1;
+        format.operand[2].imm = true;
+        format.operand[2].displacement = IMM8(opcode, 3);
+        break;
+    case 0xAD:
+        format = Decode(2, "SHRD", 0, 1, 0);
+        format.operand[2].reg = true;
+        format.operand[2].base = REG(ECX);
+        break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format, 3)) {
+        // TODO
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::STC()
 {
+    Format format;
+
+    BEGIN_OPERATION("STC") {
+        CF = 1;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::STD()
 {
+    Format format;
+
+    BEGIN_OPERATION("STD") {
+        DF = 1;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::STOSx()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0xAA:  format = Decode(0, "STOSB", 0, 0, 0);                                   break;
+    case 0xAB:  format = Decode(0, operand_size_override ? "STOSW" : "STOSD", 0, 1, 0); break;
+    }
+    format.operand[0].reg = true;
+    format.operand[0].base = REG(EDI);
+    format.operand[1].base = REG(EAX);
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        DEST = SRC;
+        EDI = DF == 0 ? EDI + sizeof(SRC) : EDI + sizeof(SRC);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::SUB()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x28:
+    case 0x29:
+    case 0x2A:
+    case 0x2B:  format = Decode(1, "SUB", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x2C:
+    case 0x2D:  format = Decode(0, "SUB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x80:
+    case 0x81:  format = Decode(1, "SUB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x83:  format = Decode(1, "SUB",             0b00, opcode[0] & 0b01, 8);   break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        UpdateEFlags(DEST, DEST - SRC);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::TEST()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x84:
+    case 0x85:  format = Decode(1, "TEST", 0, opcode[0] & 0b01, 0);     break;
+    case 0xA8:
+    case 0xA9:  format = Decode(0, "TEST", 0, opcode[0] & 0b01, -1);    break;
+    case 0xF6:
+    case 0xF7:  format = Decode(1, "TEST", 0, opcode[0] & 0b01, -1);    break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        auto TEMP = DEST;
+        UpdateEFlags(TEMP, TEMP & SRC);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::XCHG()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x90:
+    case 0x91:
+    case 0x92:
+    case 0x93:
+    case 0x94:
+    case 0x95:
+    case 0x96:
+    case 0x97:
+        format = Decode(0, "XCHG", 0, 1, 0);
+        format.operand[0].reg = true;
+        format.operand[0].base = REG(EAX);
+        format.operand[1].reg = true;
+        format.operand[1].base = (opcode[0] & 0b111);
+        break;
+    case 0x86:
+    case 0x87:
+        format = Decode(1, "XCHG", 0, opcode[0] & 0b01, 0);
+        break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        auto TEMP = DEST;
+        DEST = SRC;
+        SRC = TEMP;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::XLAT()
 {
+    Format format;
+
+    BEGIN_OPERATION("XLAT") {
+        AL = *(memory + EBX + AL);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86::XOR()
 {
+    Format format;
+    switch (opcode[0]) {
+    case 0x30:
+    case 0x31:
+    case 0x32:
+    case 0x33:  format = Decode(1, "XOR", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x34:
+    case 0x35:  format = Decode(0, "XOR",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x80:
+    case 0x81:  format = Decode(1, "XOR",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x83:  format = Decode(1, "XOR",             0b00, opcode[0] & 0b01, 8);   break;
+    }
+    Fixup(format);
+
+    BEGIN_OPERATION(Disasm(format)) {
+        UpdateEFlags(DEST, DEST ^ SRC);
+        CF = 0;
+        OF = 0;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
