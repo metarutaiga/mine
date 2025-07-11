@@ -25,12 +25,8 @@
 		D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
 		D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
-		F5C2520D2D8D179C005D23CD /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F5C2520C2D8D179C005D23CD /* libz.tbd */; };
-		F5E5B18F2D6C5FEB008E0D21 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
-		F5E5B19B2D6C6261008E0D21 /* Runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19A2D6C6261008E0D21 /* Runtime.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
-		F5E5B19F2D6C65A8008E0D21 /* Runtime.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19E2D6C65A8008E0D21 /* Runtime.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
 		F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5E5B1A22D6C65EC008E0D21 /* except.cpp */; };
 /* End PBXBuildFile section */
@@ -102,7 +98,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */,
-				F5E5B19F2D6C65A8008E0D21 /* Runtime.dll in Frameworks */,
 				F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,10 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F5C2520D2D8D179C005D23CD /* libz.tbd in Frameworks */,
 				F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */,
-				F5E5B19B2D6C6261008E0D21 /* Runtime.dylib in Frameworks */,
-				F5E5B18F2D6C5FEB008E0D21 /* Metal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

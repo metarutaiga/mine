@@ -74,7 +74,11 @@ const x86::instruction_pointer x86::group[16][8] =
 //------------------------------------------------------------------------------
 x86::~x86()
 {
+#if defined(_UCRT)
+    _aligned_free(memory);
+#else
     free(memory);
+#endif
 }
 //------------------------------------------------------------------------------
 bool x86::Initialize(size_t space, const void* program, size_t size)
@@ -87,7 +91,11 @@ bool x86::Initialize(size_t space, const void* program, size_t size)
         printf("space %zd is less than %zd\n", space, 1024 + size + 65536);
         return false;
     }
+#if defined(_UCRT)
+    memory = (uint8_t*)_aligned_malloc(1024, space);
+#else
     memory = (uint8_t*)aligned_alloc(1024, space);
+#endif
     if (memory == nullptr) {
         printf("memory allocation is failed\n");
         return false;
