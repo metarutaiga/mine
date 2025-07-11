@@ -5,7 +5,6 @@
 // https://github.com/metarutaiga/miCPU
 //==============================================================================
 #include "x86.h"
-#include <format>
 
 //------------------------------------------------------------------------------
 #define o &x86::
@@ -146,19 +145,25 @@ std::string x86::Disassemble(int count)
     disasm = &output;
 
     for (int i = 0; i < count; ++i) {
+        char temp[64];
+
         uint32_t address = eip;
-        output += std::format("{:08X}", address) + " : ";
+        snprintf(temp, 64, "%08X", address);
+        output += temp;
+        output += ' ';
+        output += ':';
+        output += ' ';
         size_t insert = output.size();
 
         Step();
 
         for (uint32_t i = 0; i < 16; ++i) {
             if (address + i >= eip) {
-                output.insert(insert, "  ");
+                output.insert(insert, 2, ' ');
                 continue;;
             }
-            std::string byte = std::format("{:02X}", memory[address + i]);
-            output.insert(insert, byte);
+            snprintf(temp, 64, "%02X", memory[address + i]);
+            output.insert(insert, temp);
             insert += 2;
         }
     }
@@ -229,9 +234,9 @@ std::string x86::Disassemble(int count)
     case 32:    operation(*(uint32_t*)format.operand[0].memory, *(uint32_t*)format.operand[1].memory);  break; \
     }
 //------------------------------------------------------------------------------
-static const std::string REG8[8] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
-static const std::string REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
-static const std::string REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
+static const char* const REG8[8] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
+static const char* const REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
+static const char* const REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
@@ -334,10 +339,12 @@ x86::Format x86::Decode(int offset, const char* instruction, int direction, int 
 std::string x86::Disasm(const Format& format, int operand)
 {
     auto hex = [](auto imm) {
-        uint64_t value = std::abs((int64_t)imm);
-        if (value > 0xFFFF) return std::format("{}{:08X}", imm < 0 ? "-" : "", value);
-        if (value > 0xFF) return std::format("{}{:04X}", imm < 0 ? "-" : "", value);
-        return std::format("{}{:02X}", imm < 0 ? "-" : "", value);
+        char temp[64];
+        unsigned long long value = std::abs((int64_t)imm);
+        if (value > 0xFFFF) snprintf(temp, 64, "%s%08llX", imm < 0 ? "-" : "", value);
+        else if (value > 0xFF) snprintf(temp, 64, "%s%04llX", imm < 0 ? "-" : "", value);
+        else snprintf(temp, 64, "%s%02llX", imm < 0 ? "-" : "", value);
+        return std::string(temp);
     };
 
     std::string disasm;
@@ -1230,7 +1237,7 @@ void x86::PUSH()
     case 0x50:  format = Decode(1, "PUSH", 0, 1, 0);    break;
     case 0x68:  format = Decode(0, "PUSH", 0, 1, -1);   break;
     case 0x6A:  format = Decode(0, "PUSH", 0, 1, 8);    break;
-    case 0xFF:  format = Decode(1, "PUSh", 0, 1, 0);    break;
+    case 0xFF:  format = Decode(1, "PUSH", 0, 1, 0);    break;
     }
     Fixup(format);
 
