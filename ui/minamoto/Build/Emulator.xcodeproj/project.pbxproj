@@ -112,6 +112,14 @@
 		D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */; };
 		D6D759362E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */; };
 		D6D759372E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */; };
+		D6D759412E24F98E00E5C09D /* x86_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759402E24F98E00E5C09D /* x86_instruction.cpp */; };
+		D6D759422E24F98E00E5C09D /* x86_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759402E24F98E00E5C09D /* x86_instruction.cpp */; };
+		D6D759432E24F98E00E5C09D /* x86_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759402E24F98E00E5C09D /* x86_instruction.cpp */; };
+		D6D759442E24F98E00E5C09D /* x86_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759402E24F98E00E5C09D /* x86_instruction.cpp */; };
+		D6D7594C2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
+		D6D7594D2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
+		D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
+		D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
@@ -190,6 +198,12 @@
 		D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64m.cpp; sourceTree = "<group>"; };
 		D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_zicsr.cpp; sourceTree = "<group>"; };
 		D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_zifencei.cpp; sourceTree = "<group>"; };
+		D6D759382E24ED3B00E5C09D /* x86_register.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_register.h; sourceTree = "<group>"; };
+		D6D7593E2E24F6F500E5C09D /* x86_format.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_format.h; sourceTree = "<group>"; };
+		D6D7593F2E24F98E00E5C09D /* x86_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_instruction.h; sourceTree = "<group>"; };
+		D6D759402E24F98E00E5C09D /* x86_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_instruction.cpp; sourceTree = "<group>"; };
+		D6D7594A2E25044F00E5C09D /* x86_i86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i86.h; sourceTree = "<group>"; };
+		D6D7594B2E25044F00E5C09D /* x86_i86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i86.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -300,6 +314,12 @@
 			children = (
 				D6909FBA2E1AC68C0023F7B5 /* x86.h */,
 				D6909FBB2E1AC68C0023F7B5 /* x86.cpp */,
+				D6D7593E2E24F6F500E5C09D /* x86_format.h */,
+				D6D7594A2E25044F00E5C09D /* x86_i86.h */,
+				D6D7594B2E25044F00E5C09D /* x86_i86.cpp */,
+				D6D7593F2E24F98E00E5C09D /* x86_instruction.h */,
+				D6D759402E24F98E00E5C09D /* x86_instruction.cpp */,
+				D6D759382E24ED3B00E5C09D /* x86_register.h */,
 			);
 			name = x86;
 			path = ../../../x86;
@@ -484,6 +504,7 @@
 			files = (
 				D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */,
 				D6D758E22E23F59700E5C09D /* special.cpp in Sources */,
+				D6D7594D2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
@@ -493,6 +514,7 @@
 				D6D758E92E23F59700E5C09D /* opcode.cpp in Sources */,
 				D6D758EA2E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7592B2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D759412E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D7592C2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D7592D2E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
@@ -536,7 +558,9 @@
 				D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */,
+				D6D759432E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D758E12E23F59700E5C09D /* special3.cpp in Sources */,
+				D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */,
 				F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
@@ -553,6 +577,7 @@
 			files = (
 				D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */,
 				D6D758EB2E23F59700E5C09D /* special.cpp in Sources */,
+				D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
@@ -562,6 +587,7 @@
 				D6D758F22E23F59700E5C09D /* opcode.cpp in Sources */,
 				D6D758F32E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D759112E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D759422E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D759122E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D759132E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
@@ -585,6 +611,7 @@
 			files = (
 				D6909FBC2E1AC68C0023F7B5 /* x86.cpp in Sources */,
 				D6D758D02E23F59700E5C09D /* special.cpp in Sources */,
+				D6D7594C2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
@@ -594,6 +621,7 @@
 				D6D758D72E23F59700E5C09D /* opcode.cpp in Sources */,
 				D6D758D82E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7591E2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D759442E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D7591F2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D759202E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,

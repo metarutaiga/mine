@@ -1,61 +1,40 @@
 //==============================================================================
-// 80386 Programmer's Reference Manual
+// The 8086 Family Users Manual
+// October 1979
 //
-// INTEL CORPORATION 1987
+// Intel Corporation 1978, 1979
 //==============================================================================
-#include "x86.h"
+#include "x86_i86.h"
 
 //------------------------------------------------------------------------------
-#define o (x86_instruction::instruction_pointer)&x86::
+#define o (x86_instruction::instruction_pointer)&x86_i86::
 #define x , o
 //------------------------------------------------------------------------------
 // One-Byte Opcode Map
 //------------------------------------------------------------------------------
-const x86_instruction::instruction_pointer x86::one[256] =
+const x86_instruction::instruction_pointer x86_i86::one[256] =
 {      // 0        1       2      3      4       5       6       7       8       9       A       B       C        D       E       F
-/* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x ___   x ___   x OR    x OR    x OR    x OR    x OR     x OR    x ___   x TWO
-/* 1 */ x ADC    x ADC   x ADC  x ADC  x ADC   x ADC   x ___   x ___   x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x ___   x ___
-/* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x ___   x ___   x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x ___   x ___
-/* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x ___   x ___   x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x ___   x ___
+/* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x PUSH  x POP   x OR    x OR    x OR    x OR    x OR     x OR    x PUSH  x ___
+/* 1 */ x ADC    x ADC   x ADC  x ADC  x ADC   x ADC   x PUSH  x POP   x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x PUSH  x POP
+/* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x ES    x ___   x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x CS    x ___
+/* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x SS    x ___   x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x DS    x ___
 /* 4 */ x INC    x INC   x INC  x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC    x DEC   x DEC   x DEC
 /* 5 */ x PUSH   x PUSH  x PUSH x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
-/* 6 */ x PUSHAD x POPAD x ___  x ___  x ___   x ___   x OS    x ___   x PUSH  x IMUL  x PUSH  x IMUL  x ___    x ___   x ___   x ___
+/* 6 */ x ___    x ___   x ___  x ___  x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___    x ___   x ___   x ___
 /* 7 */ x Jcc    x Jcc   x Jcc  x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
 /* 8 */ x grp1   x grp1  x ___  x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
 /* 9 */ x XCHG   x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x ___   x ___   x PUSHFD x POPFD x SAHF  x LAHF
 /* A */ x ___    x ___   x ___  x ___  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
 /* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
-/* C */ x grp2   x grp2  x RET  x RET  x ___   x ___   x MOV   x MOV   x ENTER x LEAVE x ___   x ___   x ___    x ___   x ___   x ___
+/* C */ x ___    x ___   x RET  x RET  x ___   x ___   x MOV   x MOV   x ___   x ___   x ___   x ___   x ___    x ___   x ___   x ___
 /* D */ x grp2   x grp2  x grp2 x grp2 x ___   x ___   x ___   x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
 /* E */ x LOOP   x LOOP  x LOOP x Jcc  x ___   x ___   x ___   x ___   x CALL  x Jcc   x ___   x Jcc   x ___    x ___   x ___   x ___
 /* F */ x ___    x ___   x REP  x REP  x ___   x CMC   x grp3  x grp3  x CLC   x STC   x ___   x ___   x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
-// Two-Byte Opcode Map
-//------------------------------------------------------------------------------
-const x86_instruction::instruction_pointer x86::two[256] =
-{      // 0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ o grp6  x grp7  x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 1 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 2 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 3 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 4 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 5 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 6 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 7 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 8 */ x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
-/* 9 */ x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
-/* A */ x ___   x ___   x ___   x BT    x SHxD  x SHxD  x ___   x ___   x ___   x ___   x ___   x BTS   x SHxD  x SHxD  x ___   x IMUL
-/* B */ x ___   x ___   x ___   x BTR   x ___   x ___   x MOVZX x MOVZX x ___   x ___   x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
-/* C */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* D */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* E */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* F */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-};
-//------------------------------------------------------------------------------
 // Opcodes determined by bits 5,4,3 of modR/M byte
 //------------------------------------------------------------------------------
-const x86_instruction::instruction_pointer x86::group[16][8] =
+const x86_instruction::instruction_pointer x86_i86::group[16][8] =
 {        // 0      1     2      3     4     5      6      7
 /* 0 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
 /* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
@@ -63,17 +42,14 @@ const x86_instruction::instruction_pointer x86::group[16][8] =
 /* 3 */ { o TEST x ___ x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
 /* 4 */ { o INC  x DEC x ___  x ___ x ___ x ___  x ___  x ___  },
 /* 5 */ { o INC  x DEC x CALL x ___ x JMP x ___  x PUSH x ___  },
-/* 6 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
-/* 7 */ { o ___  x ___ x ___  x ___ x ___ x ___  x ___  x ___  },
-/* 8 */ { o ___  x ___ x ___  x ___ x BT  x BTS  x BTR  x BTC  },
 };
 //------------------------------------------------------------------------------
 #undef o
 #undef x
 //------------------------------------------------------------------------------
-#define EIP             rip.d
+#define IP              rip.w
 //------------------------------------------------------------------------------
-x86::~x86()
+x86_i86::~x86_i86()
 {
 #if defined(_UCRT)
     _aligned_free(memory);
@@ -82,7 +58,7 @@ x86::~x86()
 #endif
 }
 //------------------------------------------------------------------------------
-bool x86::Initialize(size_t space, const void* program, size_t size)
+bool x86_i86::Initialize(size_t space, const void* program, size_t size)
 {
     if (space & (1024 - 1)) {
         printf("space %zd is not aligned 1024\n", space);
@@ -104,19 +80,19 @@ bool x86::Initialize(size_t space, const void* program, size_t size)
     memset(memory, 0, space);
     stack = memory + space - 16;
 
-    EIP = 1024;
-    memcpy(memory + EIP, program, size);
+    IP = 1024;
+    memcpy(memory + IP, program, size);
 
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86::Step()
+bool x86_i86::Step()
 {
-    operand_size = 32;
+    operand_size = 16;
     repeat_string_operation = false;
 
     for (;;) {
-        opcode = memory + EIP;
+        opcode = memory + IP;
         (this->*one[opcode[0]])();
 
         switch (opcode[0]) {
@@ -124,17 +100,13 @@ bool x86::Step()
         case 0x2E:
         case 0x36:
         case 0x3E:
-        case 0x64:
-        case 0x65:
-        case 0x66:
-        case 0x67:
         case 0xF0:
         case 0xF2:
         case 0xF3:
             continue;
             break;
         default:
-            operand_size = 32;
+            operand_size = 16;
             repeat_string_operation = false;
             break;
         }
@@ -144,22 +116,22 @@ bool x86::Step()
     return true;
 }
 //------------------------------------------------------------------------------
-std::string x86::Disassemble(int count)
+std::string x86_i86::Disassemble(int count)
 {
     std::string output;
 
-    x86 backup;
+    x86_i86 backup;
     for (int i = 0; i < 8; ++i)
         backup.regs[i] = regs[i];
     backup.eflags = eflags;
-    backup.EIP = EIP;
+    backup.IP = IP;
 
     disasm = &output;
 
     for (int i = 0; i < count; ++i) {
         char temp[64];
 
-        uint32_t address = EIP;
+        uint32_t address = IP;
         snprintf(temp, 64, "%08X", address);
         output += temp;
         output += ' ';
@@ -170,7 +142,7 @@ std::string x86::Disassemble(int count)
         Step();
 
         for (uint32_t i = 0; i < 16; ++i) {
-            if (address + i >= EIP) {
+            if (address + i >= IP) {
                 output.insert(insert, 2, ' ');
                 continue;;
             }
@@ -185,78 +157,46 @@ std::string x86::Disassemble(int count)
     for (int i = 0; i < 8; ++i)
         regs[i] = backup.regs[i];
     eflags = backup.eflags;
-    EIP = backup.EIP;
+    IP = backup.IP;
 
     return output;
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86::ESC()
+void x86_i86::ESC()
 {
-}
-//------------------------------------------------------------------------------
-void x86::TWO()
-{
-    (this->*two[opcode[1]])();
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86::grp1()
+void x86_i86::grp1()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
     (this->*group[1][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86::grp2()
+void x86_i86::grp2()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
     (this->*group[2][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86::grp3()
+void x86_i86::grp3()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
     (this->*group[3][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86::grp4()
+void x86_i86::grp4()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
     (this->*group[4][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86::grp5()
+void x86_i86::grp5()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
     (this->*group[5][nnn])();
-}
-//------------------------------------------------------------------------------
-void x86::grp6()
-{
-    int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[6][nnn])();
-}
-//------------------------------------------------------------------------------
-void x86::grp7()
-{
-    int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[7][nnn])();
-}
-//------------------------------------------------------------------------------
-void x86::grp8()
-{
-    int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[8][nnn])();
-}
-//------------------------------------------------------------------------------
-//
-//------------------------------------------------------------------------------
-void x86::OS()
-{
-    EIP += 1;
-
-    operand_size = 16;
 }
 //------------------------------------------------------------------------------
