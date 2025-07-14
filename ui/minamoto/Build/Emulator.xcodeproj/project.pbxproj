@@ -24,6 +24,94 @@
 		D6909FBD2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
 		D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
 		D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
+		D6D758D02E23F59700E5C09D /* special.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CC2E23F59700E5C09D /* special.cpp */; };
+		D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C42E23F59700E5C09D /* cpu.cpp */; };
+		D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C92E23F59700E5C09D /* pcrel.cpp */; };
+		D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CB2E23F59700E5C09D /* regimm.cpp */; };
+		D6D758D42E23F59700E5C09D /* cop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C22E23F59700E5C09D /* cop.cpp */; };
+		D6D758D52E23F59700E5C09D /* fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C62E23F59700E5C09D /* fpu.cpp */; };
+		D6D758D62E23F59700E5C09D /* sysctl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CF2E23F59700E5C09D /* sysctl.cpp */; };
+		D6D758D72E23F59700E5C09D /* opcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C82E23F59700E5C09D /* opcode.cpp */; };
+		D6D758D82E23F59700E5C09D /* special3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CD2E23F59700E5C09D /* special3.cpp */; };
+		D6D758D92E23F59700E5C09D /* special.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CC2E23F59700E5C09D /* special.cpp */; };
+		D6D758DA2E23F59700E5C09D /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C42E23F59700E5C09D /* cpu.cpp */; };
+		D6D758DB2E23F59700E5C09D /* pcrel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C92E23F59700E5C09D /* pcrel.cpp */; };
+		D6D758DC2E23F59700E5C09D /* regimm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CB2E23F59700E5C09D /* regimm.cpp */; };
+		D6D758DD2E23F59700E5C09D /* cop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C22E23F59700E5C09D /* cop.cpp */; };
+		D6D758DE2E23F59700E5C09D /* fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C62E23F59700E5C09D /* fpu.cpp */; };
+		D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CF2E23F59700E5C09D /* sysctl.cpp */; };
+		D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C82E23F59700E5C09D /* opcode.cpp */; };
+		D6D758E12E23F59700E5C09D /* special3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CD2E23F59700E5C09D /* special3.cpp */; };
+		D6D758E22E23F59700E5C09D /* special.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CC2E23F59700E5C09D /* special.cpp */; };
+		D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C42E23F59700E5C09D /* cpu.cpp */; };
+		D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C92E23F59700E5C09D /* pcrel.cpp */; };
+		D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CB2E23F59700E5C09D /* regimm.cpp */; };
+		D6D758E62E23F59700E5C09D /* cop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C22E23F59700E5C09D /* cop.cpp */; };
+		D6D758E72E23F59700E5C09D /* fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C62E23F59700E5C09D /* fpu.cpp */; };
+		D6D758E82E23F59700E5C09D /* sysctl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CF2E23F59700E5C09D /* sysctl.cpp */; };
+		D6D758E92E23F59700E5C09D /* opcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C82E23F59700E5C09D /* opcode.cpp */; };
+		D6D758EA2E23F59700E5C09D /* special3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CD2E23F59700E5C09D /* special3.cpp */; };
+		D6D758EB2E23F59700E5C09D /* special.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CC2E23F59700E5C09D /* special.cpp */; };
+		D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C42E23F59700E5C09D /* cpu.cpp */; };
+		D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C92E23F59700E5C09D /* pcrel.cpp */; };
+		D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CB2E23F59700E5C09D /* regimm.cpp */; };
+		D6D758EF2E23F59700E5C09D /* cop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C22E23F59700E5C09D /* cop.cpp */; };
+		D6D758F02E23F59700E5C09D /* fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C62E23F59700E5C09D /* fpu.cpp */; };
+		D6D758F12E23F59700E5C09D /* sysctl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CF2E23F59700E5C09D /* sysctl.cpp */; };
+		D6D758F22E23F59700E5C09D /* opcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C82E23F59700E5C09D /* opcode.cpp */; };
+		D6D758F32E23F59700E5C09D /* special3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CD2E23F59700E5C09D /* special3.cpp */; };
+		D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */; };
+		D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */; };
+		D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */; };
+		D6D759072E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */; };
+		D6D759082E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */; };
+		D6D759092E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */; };
+		D6D7590A2E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */; };
+		D6D7590B2E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */; };
+		D6D7590C2E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */; };
+		D6D7590D2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */; };
+		D6D7590E2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */; };
+		D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */; };
+		D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */; };
+		D6D759112E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */; };
+		D6D759122E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */; };
+		D6D759132E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */; };
+		D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */; };
+		D6D759152E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */; };
+		D6D759162E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */; };
+		D6D759172E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */; };
+		D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */; };
+		D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */; };
+		D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */; };
+		D6D7591B2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */; };
+		D6D7591C2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */; };
+		D6D7591D2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */; };
+		D6D7591E2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */; };
+		D6D7591F2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */; };
+		D6D759202E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */; };
+		D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */; };
+		D6D759222E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */; };
+		D6D759232E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */; };
+		D6D759242E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */; };
+		D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */; };
+		D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */; };
+		D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */; };
+		D6D759282E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */; };
+		D6D759292E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */; };
+		D6D7592A2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */; };
+		D6D7592B2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */; };
+		D6D7592C2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */; };
+		D6D7592D2E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */; };
+		D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */; };
+		D6D7592F2E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */; };
+		D6D759302E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */; };
+		D6D759312E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */; };
+		D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */; };
+		D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */; };
+		D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */; };
+		D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */; };
+		D6D759362E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */; };
+		D6D759372E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
@@ -71,6 +159,37 @@
 		D6909FB82E1AA1F10023F7B5 /* miCPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = miCPU.h; path = ../../../miCPU.h; sourceTree = SOURCE_ROOT; };
 		D6909FBA2E1AC68C0023F7B5 /* x86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86.h; sourceTree = "<group>"; };
 		D6909FBB2E1AC68C0023F7B5 /* x86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86.cpp; sourceTree = "<group>"; };
+		D6D758C12E23F59700E5C09D /* cop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
+		D6D758C22E23F59700E5C09D /* cop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cop.cpp; sourceTree = "<group>"; };
+		D6D758C32E23F59700E5C09D /* cpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpu.h; sourceTree = "<group>"; };
+		D6D758C42E23F59700E5C09D /* cpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cpu.cpp; sourceTree = "<group>"; };
+		D6D758C52E23F59700E5C09D /* fpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fpu.h; sourceTree = "<group>"; };
+		D6D758C62E23F59700E5C09D /* fpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fpu.cpp; sourceTree = "<group>"; };
+		D6D758C72E23F59700E5C09D /* instr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = instr.h; sourceTree = "<group>"; };
+		D6D758C82E23F59700E5C09D /* opcode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = opcode.cpp; sourceTree = "<group>"; };
+		D6D758C92E23F59700E5C09D /* pcrel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pcrel.cpp; sourceTree = "<group>"; };
+		D6D758CA2E23F59700E5C09D /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
+		D6D758CB2E23F59700E5C09D /* regimm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = regimm.cpp; sourceTree = "<group>"; };
+		D6D758CC2E23F59700E5C09D /* special.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = special.cpp; sourceTree = "<group>"; };
+		D6D758CD2E23F59700E5C09D /* special3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = special3.cpp; sourceTree = "<group>"; };
+		D6D758CE2E23F59700E5C09D /* sysctl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sysctl.h; sourceTree = "<group>"; };
+		D6D758CF2E23F59700E5C09D /* sysctl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sysctl.cpp; sourceTree = "<group>"; };
+		D6D758F42E23F5AC00E5C09D /* riscv_cpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = riscv_cpu.h; sourceTree = "<group>"; };
+		D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_cpu.cpp; sourceTree = "<group>"; };
+		D6D758F62E23F5AC00E5C09D /* riscv_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = riscv_float.h; sourceTree = "<group>"; };
+		D6D758F72E23F5AC00E5C09D /* riscv_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = riscv_instruction.h; sourceTree = "<group>"; };
+		D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv32a.cpp; sourceTree = "<group>"; };
+		D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv32d.cpp; sourceTree = "<group>"; };
+		D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv32f.cpp; sourceTree = "<group>"; };
+		D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv32i.cpp; sourceTree = "<group>"; };
+		D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv32m.cpp; sourceTree = "<group>"; };
+		D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64a.cpp; sourceTree = "<group>"; };
+		D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64d.cpp; sourceTree = "<group>"; };
+		D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64f.cpp; sourceTree = "<group>"; };
+		D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64i.cpp; sourceTree = "<group>"; };
+		D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_rv64m.cpp; sourceTree = "<group>"; };
+		D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_zicsr.cpp; sourceTree = "<group>"; };
+		D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = riscv_zifencei.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -155,6 +274,8 @@
 			isa = PBXGroup;
 			children = (
 				CE999BD325D21EB300351116 /* Configs */,
+				D6D758BF2E23F56800E5C09D /* mips */,
+				D6D758C02E23F56F00E5C09D /* riscv */,
 				D6909FB92E1AC6650023F7B5 /* x86 */,
 				F5E5B0C62D6C5669008E0D21 /* ui */,
 				D6909FB82E1AA1F10023F7B5 /* miCPU.h */,
@@ -182,6 +303,53 @@
 			);
 			name = x86;
 			path = ../../../x86;
+			sourceTree = "<group>";
+		};
+		D6D758BF2E23F56800E5C09D /* mips */ = {
+			isa = PBXGroup;
+			children = (
+				D6D758C12E23F59700E5C09D /* cop.h */,
+				D6D758C22E23F59700E5C09D /* cop.cpp */,
+				D6D758C32E23F59700E5C09D /* cpu.h */,
+				D6D758C42E23F59700E5C09D /* cpu.cpp */,
+				D6D758C52E23F59700E5C09D /* fpu.h */,
+				D6D758C62E23F59700E5C09D /* fpu.cpp */,
+				D6D758C72E23F59700E5C09D /* instr.h */,
+				D6D758C82E23F59700E5C09D /* opcode.cpp */,
+				D6D758C92E23F59700E5C09D /* pcrel.cpp */,
+				D6D758CA2E23F59700E5C09D /* platform.h */,
+				D6D758CB2E23F59700E5C09D /* regimm.cpp */,
+				D6D758CC2E23F59700E5C09D /* special.cpp */,
+				D6D758CD2E23F59700E5C09D /* special3.cpp */,
+				D6D758CE2E23F59700E5C09D /* sysctl.h */,
+				D6D758CF2E23F59700E5C09D /* sysctl.cpp */,
+			);
+			name = mips;
+			path = ../../../mips;
+			sourceTree = "<group>";
+		};
+		D6D758C02E23F56F00E5C09D /* riscv */ = {
+			isa = PBXGroup;
+			children = (
+				D6D758F42E23F5AC00E5C09D /* riscv_cpu.h */,
+				D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */,
+				D6D758F62E23F5AC00E5C09D /* riscv_float.h */,
+				D6D758F72E23F5AC00E5C09D /* riscv_instruction.h */,
+				D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */,
+				D6D758F92E23F5AC00E5C09D /* riscv_rv32d.cpp */,
+				D6D758FA2E23F5AC00E5C09D /* riscv_rv32f.cpp */,
+				D6D758FB2E23F5AC00E5C09D /* riscv_rv32i.cpp */,
+				D6D758FC2E23F5AC00E5C09D /* riscv_rv32m.cpp */,
+				D6D758FD2E23F5AC00E5C09D /* riscv_rv64a.cpp */,
+				D6D758FE2E23F5AC00E5C09D /* riscv_rv64d.cpp */,
+				D6D758FF2E23F5AC00E5C09D /* riscv_rv64f.cpp */,
+				D6D759002E23F5AC00E5C09D /* riscv_rv64i.cpp */,
+				D6D759012E23F5AC00E5C09D /* riscv_rv64m.cpp */,
+				D6D759022E23F5AC00E5C09D /* riscv_zicsr.cpp */,
+				D6D759032E23F5AC00E5C09D /* riscv_zifencei.cpp */,
+			);
+			name = riscv;
+			path = ../../../riscv;
 			sourceTree = "<group>";
 		};
 		F5E5B0C62D6C5669008E0D21 /* ui */ = {
@@ -315,6 +483,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6D758E22E23F59700E5C09D /* special.cpp in Sources */,
+				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
+				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
+				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
+				D6D758E62E23F59700E5C09D /* cop.cpp in Sources */,
+				D6D758E72E23F59700E5C09D /* fpu.cpp in Sources */,
+				D6D758E82E23F59700E5C09D /* sysctl.cpp in Sources */,
+				D6D758E92E23F59700E5C09D /* opcode.cpp in Sources */,
+				D6D758EA2E23F59700E5C09D /* special3.cpp in Sources */,
+				D6D7592B2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D7592C2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
+				D6D7592D2E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
+				D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				D6D7592F2E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
+				D6D759302E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
+				D6D759312E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
+				D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
+				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
+				D6D759362E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
+				D6D759372E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6909FB62E1A9D530023F7B5 /* Debugger.cpp in Sources */,
 				D6909FB02E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 			);
@@ -325,6 +515,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6909FB72E1A9D530023F7B5 /* Debugger.cpp in Sources */,
+				D6D758D92E23F59700E5C09D /* special.cpp in Sources */,
+				D6D758DA2E23F59700E5C09D /* cpu.cpp in Sources */,
+				D6D758DB2E23F59700E5C09D /* pcrel.cpp in Sources */,
+				D6D758DC2E23F59700E5C09D /* regimm.cpp in Sources */,
+				D6D758DD2E23F59700E5C09D /* cop.cpp in Sources */,
+				D6D758DE2E23F59700E5C09D /* fpu.cpp in Sources */,
+				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
+				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
+				D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
+				D6D759072E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				D6D759082E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
+				D6D759092E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
+				D6D7590A2E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
+				D6D7590B2E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				D6D7590C2E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
+				D6D7590D2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				D6D7590E2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
+				D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
+				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
+				D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */,
+				D6D758E12E23F59700E5C09D /* special3.cpp in Sources */,
 				D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */,
 				F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
@@ -340,6 +552,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6D758EB2E23F59700E5C09D /* special.cpp in Sources */,
+				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
+				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
+				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
+				D6D758EF2E23F59700E5C09D /* cop.cpp in Sources */,
+				D6D758F02E23F59700E5C09D /* fpu.cpp in Sources */,
+				D6D758F12E23F59700E5C09D /* sysctl.cpp in Sources */,
+				D6D758F22E23F59700E5C09D /* opcode.cpp in Sources */,
+				D6D758F32E23F59700E5C09D /* special3.cpp in Sources */,
+				D6D759112E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D759122E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
+				D6D759132E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
+				D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				D6D759152E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
+				D6D759162E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
+				D6D759172E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
+				D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
+				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				D6D7591B2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
+				D6D7591C2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
+				D6D7591D2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6909FB42E1A9D530023F7B5 /* Debugger.cpp in Sources */,
 				D6909FB12E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 			);
@@ -350,6 +584,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6909FBC2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6D758D02E23F59700E5C09D /* special.cpp in Sources */,
+				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,
+				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
+				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
+				D6D758D42E23F59700E5C09D /* cop.cpp in Sources */,
+				D6D758D52E23F59700E5C09D /* fpu.cpp in Sources */,
+				D6D758D62E23F59700E5C09D /* sysctl.cpp in Sources */,
+				D6D758D72E23F59700E5C09D /* opcode.cpp in Sources */,
+				D6D758D82E23F59700E5C09D /* special3.cpp in Sources */,
+				D6D7591E2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
+				D6D7591F2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
+				D6D759202E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
+				D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				D6D759222E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
+				D6D759232E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
+				D6D759242E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
+				D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
+				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				D6D759282E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
+				D6D759292E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
+				D6D7592A2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6909FB52E1A9D530023F7B5 /* Debugger.cpp in Sources */,
 				D6909FAE2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 			);

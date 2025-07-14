@@ -38,7 +38,7 @@ const x86::instruction_pointer x86::two[256] =
 {      // 0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
 /* 0 */ o grp6  x grp7  x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* 1 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
-/* 2 */ x MOV   x MOV   x MOV   x MOV   x MOV   x ___   x MOV   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
+/* 2 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* 3 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* 4 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
 /* 5 */ x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___   x ___
