@@ -5,6 +5,8 @@
 // Intel Corporation 1978, 1979
 //==============================================================================
 #include "x86_i86.h"
+#include "x86_register.h"
+#include "x86_register.inl"
 
 //------------------------------------------------------------------------------
 #define o (x86_instruction::instruction_pointer)&x86_i86::
@@ -47,8 +49,6 @@ const x86_instruction::instruction_pointer x86_i86::group[16][8] =
 #undef o
 #undef x
 //------------------------------------------------------------------------------
-#define IP              rip.w
-//------------------------------------------------------------------------------
 x86_i86::~x86_i86()
 {
 #if defined(_UCRT)
@@ -88,12 +88,69 @@ bool x86_i86::Initialize(size_t space, const void* program, size_t size)
 //------------------------------------------------------------------------------
 bool x86_i86::Step()
 {
+    Format format = StepInternal();
+    format.operation(format, format.operand[0].memory, format.operand[1].memory);
+    return true;
+}
+//------------------------------------------------------------------------------
+std::string x86_i86::Disassemble(int count)
+{
+    std::string output;
+
+    x86_i86 backup;
+    for (int i = 0; i < 8; ++i)
+        backup.regs[i] = regs[i];
+    backup.flags = flags;
+    backup.IP = IP;
+
+    disasm = &output;
+
+    for (int i = 0; i < count; ++i) {
+        char temp[64];
+
+        uint32_t address = IP;
+        snprintf(temp, 64, "%08X", address);
+        output += temp;
+        output += ' ';
+        output += ':';
+        output += ' ';
+        size_t insert = output.size();
+
+        Format format = StepInternal();
+        output += format.disassembly;
+        output += '\n';
+
+        for (uint32_t i = 0; i < 16; ++i) {
+            if (address + i >= IP) {
+                output.insert(insert, 2, ' ');
+                continue;;
+            }
+            snprintf(temp, 64, "%02X", memory[address + i]);
+            output.insert(insert, temp);
+            insert += 2;
+        }
+    }
+
+    disasm = nullptr;
+
+    for (int i = 0; i < 8; ++i)
+        regs[i] = backup.regs[i];
+    flags = backup.flags;
+    IP = backup.IP;
+
+    return output;
+}
+//------------------------------------------------------------------------------
+x86_format::Format x86_i86::StepInternal()
+{
+    Format format;
+
     operand_size = 16;
     repeat_string_operation = false;
 
     for (;;) {
         opcode = memory + IP;
-        (this->*one[opcode[0]])();
+        format = (this->*one[opcode[0]])();
 
         switch (opcode[0]) {
         case 0x26:
@@ -113,90 +170,45 @@ bool x86_i86::Step()
         break;
     }
 
-    return true;
-}
-//------------------------------------------------------------------------------
-std::string x86_i86::Disassemble(int count)
-{
-    std::string output;
-
-    x86_i86 backup;
-    for (int i = 0; i < 8; ++i)
-        backup.regs[i] = regs[i];
-    backup.eflags = eflags;
-    backup.IP = IP;
-
-    disasm = &output;
-
-    for (int i = 0; i < count; ++i) {
-        char temp[64];
-
-        uint32_t address = IP;
-        snprintf(temp, 64, "%08X", address);
-        output += temp;
-        output += ' ';
-        output += ':';
-        output += ' ';
-        size_t insert = output.size();
-
-        Step();
-
-        for (uint32_t i = 0; i < 16; ++i) {
-            if (address + i >= IP) {
-                output.insert(insert, 2, ' ');
-                continue;;
-            }
-            snprintf(temp, 64, "%02X", memory[address + i]);
-            output.insert(insert, temp);
-            insert += 2;
-        }
-    }
-
-    disasm = nullptr;
-
-    for (int i = 0; i < 8; ++i)
-        regs[i] = backup.regs[i];
-    eflags = backup.eflags;
-    IP = backup.IP;
-
-    return output;
+    return format;
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i86::ESC()
+x86_format::Format x86_i86::ESC()
 {
+    return Format();
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i86::grp1()
+x86_format::Format x86_i86::grp1()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[1][nnn])();
+    return (this->*group[1][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp2()
+x86_format::Format x86_i86::grp2()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[2][nnn])();
+    return (this->*group[2][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp3()
+x86_format::Format x86_i86::grp3()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[3][nnn])();
+    return (this->*group[3][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp4()
+x86_format::Format x86_i86::grp4()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[4][nnn])();
+    return (this->*group[4][nnn])();
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp5()
+x86_format::Format x86_i86::grp5()
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[5][nnn])();
+    return (this->*group[5][nnn])();
 }
 //------------------------------------------------------------------------------

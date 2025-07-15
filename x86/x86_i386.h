@@ -1,5 +1,6 @@
 //==============================================================================
 // 80386 Programmer's Reference Manual
+// 1986
 //
 // INTEL CORPORATION 1987
 //==============================================================================
@@ -9,14 +10,17 @@
 
 #include "x86_instruction.h"
 
-struct x86 : public miCPU
-           , public x86_instruction
+struct x86_i386 : public miCPU
+                , public x86_instruction
 {
 public:
-    virtual ~x86();
+    virtual ~x86_i386();
     bool Initialize(size_t space, const void* program, size_t size) override;
     bool Step() override;
     std::string Disassemble(int count) override;
+
+protected:
+    Format StepInternal();
 
 protected:
     instruction ESC;
@@ -31,8 +35,8 @@ protected:
     instruction grp7;
     instruction grp8;
 
-    instruction OS;     // Operand-size override
-//  instruction AS;     // Address-size override
+    instruction OSIZE;  // Operand-size override
+//  instruction ASIZE;  // Address-size override
 
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];

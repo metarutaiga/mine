@@ -16,7 +16,7 @@ protected:
 protected:
     std::string* disasm = nullptr;
 
-    Format      Decode(int offset, const char* instruction, int direction, int have_operand_size, int immediate_size);
+    void        Decode(Format& format, int offset, const char* instruction, int direction, int have_operand_size, int immediate_size);
     std::string Disasm(const Format& format, int operand = 2);
     void        Fixup(Format& format);
 
@@ -24,8 +24,8 @@ protected:
     void UpdateEFlags(A& DEST, B TEMP);
 
 protected:
-    typedef void instruction();
-    typedef void (x86_instruction::*instruction_pointer)();
+    typedef Format instruction();
+    typedef Format (x86_instruction::*instruction_pointer)();
 
     instruction ___;
 

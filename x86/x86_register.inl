@@ -1,0 +1,37 @@
+#pragma once
+
+#define AL              regs[0].l
+#define AH              regs[0].h
+#define AX              regs[0].w
+#define EAX             regs[0].d
+#define CL              regs[1].l
+#define CH              regs[1].h
+#define CX              regs[1].w
+#define ECX             regs[1].d
+#define DL              regs[2].l
+#define DH              regs[2].h
+#define DX              regs[2].w
+#define EDX             regs[2].d
+#define BL              regs[3].l
+#define BH              regs[3].h
+#define BX              regs[3].w
+#define EBX             regs[3].d
+#define BP              regs[4].w
+#define EBP             regs[4].d
+#define SI              regs[5].w
+#define ESI             regs[5].d
+#define DI              regs[6].w
+#define EDI             regs[6].d
+#define SP              regs[7].w
+#define ESP             regs[7].d
+#define IP              ip.w
+#define EIP             ip.d
+#define EFLAGS          flags.d
+#define FLAGS           flags.w
+#define CF              flags.CF
+#define PF              flags.PF
+#define AF              flags.AF
+#define ZF              flags.ZF
+#define SF              flags.SF
+#define DF              flags.DF
+#define OF              flags.OF

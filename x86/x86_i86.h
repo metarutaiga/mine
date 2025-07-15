@@ -20,6 +20,9 @@ public:
     std::string Disassemble(int count) override;
 
 protected:
+    Format StepInternal();
+
+protected:
     instruction ESC;
 
     instruction grp1;

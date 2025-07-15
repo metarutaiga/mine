@@ -20,10 +20,10 @@
 		D6909FB52E1A9D530023F7B5 /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FB32E1A9D500023F7B5 /* Debugger.cpp */; };
 		D6909FB62E1A9D530023F7B5 /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FB32E1A9D500023F7B5 /* Debugger.cpp */; };
 		D6909FB72E1A9D530023F7B5 /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FB32E1A9D500023F7B5 /* Debugger.cpp */; };
-		D6909FBC2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
-		D6909FBD2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
-		D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
-		D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86.cpp */; };
+		D6909FBC2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */; };
+		D6909FBD2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */; };
+		D6909FBE2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */; };
+		D6909FBF2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */; };
 		D6D758D02E23F59700E5C09D /* special.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758CC2E23F59700E5C09D /* special.cpp */; };
 		D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C42E23F59700E5C09D /* cpu.cpp */; };
 		D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D758C92E23F59700E5C09D /* pcrel.cpp */; };
@@ -165,8 +165,9 @@
 		D6909FB22E1A9D310023F7B5 /* Debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Debugger.h; sourceTree = "<group>"; };
 		D6909FB32E1A9D500023F7B5 /* Debugger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Debugger.cpp; sourceTree = "<group>"; };
 		D6909FB82E1AA1F10023F7B5 /* miCPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = miCPU.h; path = ../../../miCPU.h; sourceTree = SOURCE_ROOT; };
-		D6909FBA2E1AC68C0023F7B5 /* x86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86.h; sourceTree = "<group>"; };
-		D6909FBB2E1AC68C0023F7B5 /* x86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86.cpp; sourceTree = "<group>"; };
+		D6909FBA2E1AC68C0023F7B5 /* x86_i386.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i386.h; sourceTree = "<group>"; };
+		D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i386.cpp; sourceTree = "<group>"; };
+		D6BF74512E262F6D00FAF8BD /* x86_register.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86_register.inl; sourceTree = "<group>"; };
 		D6D758C12E23F59700E5C09D /* cop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
 		D6D758C22E23F59700E5C09D /* cop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cop.cpp; sourceTree = "<group>"; };
 		D6D758C32E23F59700E5C09D /* cpu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cpu.h; sourceTree = "<group>"; };
@@ -312,14 +313,15 @@
 		D6909FB92E1AC6650023F7B5 /* x86 */ = {
 			isa = PBXGroup;
 			children = (
-				D6909FBA2E1AC68C0023F7B5 /* x86.h */,
-				D6909FBB2E1AC68C0023F7B5 /* x86.cpp */,
 				D6D7593E2E24F6F500E5C09D /* x86_format.h */,
-				D6D7594A2E25044F00E5C09D /* x86_i86.h */,
 				D6D7594B2E25044F00E5C09D /* x86_i86.cpp */,
-				D6D7593F2E24F98E00E5C09D /* x86_instruction.h */,
+				D6D7594A2E25044F00E5C09D /* x86_i86.h */,
+				D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */,
+				D6909FBA2E1AC68C0023F7B5 /* x86_i386.h */,
 				D6D759402E24F98E00E5C09D /* x86_instruction.cpp */,
+				D6D7593F2E24F98E00E5C09D /* x86_instruction.h */,
 				D6D759382E24ED3B00E5C09D /* x86_register.h */,
+				D6BF74512E262F6D00FAF8BD /* x86_register.inl */,
 			);
 			name = x86;
 			path = ../../../x86;
@@ -502,7 +504,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6909FBF2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6909FBF2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758E22E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594D2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
@@ -566,7 +568,7 @@
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
-				D6909FBD2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6909FBD2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -575,7 +577,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6909FBE2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6909FBE2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758EB2E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
@@ -609,7 +611,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6909FBC2E1AC68C0023F7B5 /* x86.cpp in Sources */,
+				D6909FBC2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758D02E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594C2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,

@@ -5,7 +5,7 @@
 // https://github.com/metarutaiga/miCPU
 //==============================================================================
 #include "EmulatorPCH.h"
-#include "x86/x86.h"
+#include "x86/x86_i386.h"
 #include "Debugger.h"
 
 //------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         {
             disasm.clear();
 
-            x86 x86;
+            x86_i386 x86;
             x86.Initialize(1048576, sampleX86, sizeof(sampleX86));
             disasm = x86.Disassemble(countX86);
         }

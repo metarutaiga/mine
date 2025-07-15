@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <functional>
+#include <string>
 
 struct x86_format
 {
@@ -9,21 +11,24 @@ protected:
     {
         struct Operand
         {
-            bool adr = false;
-            bool imm = false;
-            bool reg = false;
+            bool adr;
+            bool imm;
+            bool reg;
 
-            int scale = 0;
-            int index = 0;
-            int base = -1;
-            int32_t displacement = 0;
+            int scale;
+            int index;
+            int base;
+            int32_t displacement;
 
-            uint64_t address = 0;
-            uint8_t* memory = nullptr;
+            uint64_t address;
+            uint8_t* memory;
         };
         int size = 0;
         int length = 1;
         const char* instruction = "";
         Operand operand[3] = {};
+
+        std::string disassembly;
+        std::function<void(const Format&, void*, const void*)> operation;
     };
 };
