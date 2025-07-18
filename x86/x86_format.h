@@ -4,16 +4,15 @@
 #include <functional>
 #include <string>
 
+struct x86_instruction;
 struct x86_format
 {
-protected:
     struct Format
     {
         struct Operand
         {
-            bool adr;
-            bool imm;
-            bool reg;
+            enum Type { NOP, ADR, IMM, REG };
+            Type type = NOP;
 
             int scale;
             int index;
@@ -23,12 +22,11 @@ protected:
             uint64_t address;
             uint8_t* memory;
         };
-        int size = 0;
+        int size = 8;
         int length = 1;
         const char* instruction = "";
-        Operand operand[3] = {};
+        Operand operand[3];
 
-        std::string disassembly;
-        std::function<void(const Format&, void*, const void*)> operation;
+        void (*operation)(x86_instruction&, const Format&, void*, const void*);
     };
 };

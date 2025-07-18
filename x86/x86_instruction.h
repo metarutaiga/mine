@@ -8,6 +8,8 @@
 struct x86_instruction : public x86_format
                        , public x86_register
 {
+    x86_instruction& x86 = (*this);
+
 protected:
     uint8_t* memory = nullptr;
     uint8_t* opcode = nullptr;
@@ -21,13 +23,13 @@ protected:
     void        Fixup(Format& format);
 
     template<typename A, typename B>
-    void UpdateEFlags(A& DEST, B TEMP);
+    static void UpdateFlags(x86_instruction& x86, A& DEST, B TEMP);
 
 protected:
     typedef Format instruction();
     typedef Format (x86_instruction::*instruction_pointer)();
 
-    instruction ___;
+    instruction _;
 
     instruction CS;     // CS segment override prefix
     instruction SS;     // SS segment override prefix
@@ -40,6 +42,9 @@ protected:
 //  instruction AAD;    // ASCII Adjust AX before Division
 //  instruction AAM;    // ASCII Adjust AX after Multiply
 //  instruction AAS;    // ASCII Adjust AL after Subtraction
+//  instruction DAA;    // Decimal Adjust AL after Addition
+//  instruction DAS;    // Decimal Adjust AL after Subtraction
+
     instruction ADC;    // Add with Carry
     instruction ADD;    // Add
     instruction AND;    // Logical AND
@@ -61,8 +66,6 @@ protected:
     instruction CMP;    // Compare Two Operands
     instruction CMPSx;  // Compare String Operands
     instruction CWDE;   // Convert Byte to Word/Convert Word to Doubleword
-//  instruction DAA;    // Decimal Adjust AL after Addition
-//  instruction DAS;    // Decimal Adjust AL after Subtraction
     instruction DEC;    // Decrement by 1
     instruction DIV;    // Unsigned Divide
     instruction ENTER;  // Make Stack Frame for Procedure Parameters

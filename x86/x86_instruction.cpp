@@ -7,34 +7,27 @@
 #define IMM8(m,i)       (*(int8_t*)(m+i))
 #define IMM16(m,i)      (*(int16_t*)(m+i))
 #define IMM32(m,i)      (*(int32_t*)(m+i))
-#define Push(reg)       { stack -= sizeof(uint32_t); *(uint32_t*)stack = reg; }
-#define Pop()           (*(uint32_t*)((stack += sizeof(uint32_t)) - sizeof(uint32_t)))
+#define Push(reg)       { x86.stack -= sizeof(uint32_t); *(uint32_t*)x86.stack = reg; }
+#define Pop()           (*(uint32_t*)((x86.stack += sizeof(uint32_t)) - sizeof(uint32_t)))
 //------------------------------------------------------------------------------
-#define BEGIN_OPERATION(line) ; \
+template<typename T>
+static auto specialize(auto lambda) {
+    static const auto static_lambda = lambda;
+    return [](x86_instruction& x86, const x86_format::Format& format, void* dest, const void* src) {
+        return static_lambda(x86, format, *(T*)dest, *(T*)src);
+    };
+}
+//------------------------------------------------------------------------------
+#define BEGIN_OPERATION(line) { \
     EIP += format.length; \
-    if (disasm) { \
-        format.disassembly = line; \
-    } \
-    auto operation = [this](const Format& format, auto& DEST, auto SRC) {
+    auto operation = [](x86_instruction& x86, const Format& format, auto& DEST, auto SRC) {
 #define END_OPERATION }; \
     switch (format.size) { \
-    case 8: \
-        format.operation = [operation](const Format& format, void* dest, const void* src) { \
-            operation(format, *(uint8_t*)dest, *(uint8_t*)src); \
-        }; \
-        break; \
-    case 16: \
-        format.operation = [operation](const Format& format, void* dest, const void* src) { \
-            operation(format, *(uint16_t*)dest, *(uint16_t*)src); \
-        }; \
-        break; \
-    case 32: \
-        format.operation = [operation](const Format& format, void* dest, const void* src) { \
-            operation(format, *(uint32_t*)dest, *(uint32_t*)src); \
-        }; \
-        break; \
+    case 8:     format.operation = specialize<uint8_t>(operation);  break; \
+    case 16:    format.operation = specialize<uint16_t>(operation); break; \
+    case 32:    format.operation = specialize<uint32_t>(operation); break; \
     } \
-    return format;
+    return format; }
 //------------------------------------------------------------------------------
 static const char* const REG8[8] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
 static const char* const REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
@@ -63,14 +56,15 @@ void x86_instruction::Decode(Format& format, int offset, const char* instruction
         switch (opcode[offset] & 0b11111000) {
         case 0b00100000:
             format.length += 1;
-            format.operand[MODRM].adr = true;
+            format.operand[MODRM].type = Format::Operand::ADR;
             format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
             format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
             format.operand[MODRM].base = (BASE == 0b101) ? -1 : BASE;
+            format.operand[MODRM].displacement = 0;
             break;
         case 0b01100000:
             format.length += 2;
-            format.operand[MODRM].adr = true;
+            format.operand[MODRM].type = Format::Operand::ADR;
             format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
             format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
             format.operand[MODRM].base = BASE;
@@ -78,7 +72,7 @@ void x86_instruction::Decode(Format& format, int offset, const char* instruction
             break;
         case 0b10100000:
             format.length += 5;
-            format.operand[MODRM].adr = true;
+            format.operand[MODRM].type = Format::Operand::ADR;
             format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
             format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
             format.operand[MODRM].base = BASE;
@@ -87,35 +81,42 @@ void x86_instruction::Decode(Format& format, int offset, const char* instruction
         default:
             switch (MOD) {
             case 0b00:
-                format.operand[MODRM].adr = true;
+                format.operand[MODRM].type = Format::Operand::ADR;
+                format.operand[MODRM].scale = 0;
+                format.operand[MODRM].index = -1;
                 format.operand[MODRM].base = RM;
+                format.operand[MODRM].displacement = 0;
                 break;
             case 0b01:
                 format.length += 1;
-                format.operand[MODRM].adr = true;
+                format.operand[MODRM].type = Format::Operand::ADR;
+                format.operand[MODRM].scale = 0;
+                format.operand[MODRM].index = -1;
                 format.operand[MODRM].base = RM;
                 format.operand[MODRM].displacement = IMM8(opcode, format.length - 1);
                 break;
             case 0b10:
                 format.length += 4;
-                format.operand[MODRM].adr = true;
+                format.operand[MODRM].type = Format::Operand::ADR;
+                format.operand[MODRM].scale = 0;
+                format.operand[MODRM].index = -1;
                 format.operand[MODRM].base = RM;
                 format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
                 break;
             case 0b11:
-                format.operand[MODRM].reg = true;
+                format.operand[MODRM].type = Format::Operand::REG;
                 format.operand[MODRM].base = RM;
                 break;
             }
             break;
         }
-        format.operand[OPREG].reg = true;
+        format.operand[OPREG].type = Format::Operand::REG;
         format.operand[OPREG].base = REG;
     }
     else {
-        format.operand[MODRM].reg = true;
+        format.operand[MODRM].type = Format::Operand::REG;
         format.operand[MODRM].base = 0;
-        format.operand[OPREG].reg = true;
+        format.operand[OPREG].type = Format::Operand::REG;
         format.operand[OPREG].base = 0;
     }
 
@@ -125,17 +126,17 @@ void x86_instruction::Decode(Format& format, int offset, const char* instruction
         switch (immediate_size) {
         case 8:
             format.length += 1;
-            format.operand[OPREG].imm = true;
+            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM8(opcode, format.length - 1);
             break;
         case 16:
             format.length += 2;
-            format.operand[OPREG].imm = true;
+            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM16(opcode, format.length - 2);
             break;
         case 32:
             format.length += 4;
-            format.operand[OPREG].imm = true;
+            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM32(opcode, format.length - 4);
             break;
         }
@@ -161,7 +162,8 @@ std::string x86_instruction::Disasm(const Format& format, int operand)
     for (int i = 0; i < operand; ++i) {
         if (i) disasm += ',';
         disasm += ' ';
-        if (format.operand[i].adr) {
+        switch (format.operand[i].type) {
+        case Format::Operand::ADR:
             switch (format.size) {
             case 8:     disasm += "BYTE PTR";   break;
             case 16:    disasm += "WORD PTR";   break;
@@ -188,19 +190,20 @@ std::string x86_instruction::Disasm(const Format& format, int operand)
             if (disasm.back() == '[')
                 disasm += '0';
             disasm += ']';
-        }
-        else if (format.operand[i].imm) {
+            break;
+        case Format::Operand::IMM:
             disasm += hex(format.operand[i].displacement);
-        }
-        else if (format.operand[i].reg) {
+            break;
+        case Format::Operand::REG:
             switch (format.size) {
             case 8:     disasm += REG8[format.operand[i].base];   break;
             case 16:    disasm += REG16[format.operand[i].base];  break;
             case 32:    disasm += REG32[format.operand[i].base];  break;
             case 64:    disasm += REG64[format.operand[i].base];  break;
             }
-        }
-        else {
+            break;
+        default:
+            if (i) disasm.pop_back();
             disasm.pop_back();
             break;
         }
@@ -209,33 +212,37 @@ std::string x86_instruction::Disasm(const Format& format, int operand)
     return disasm;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::Fixup(Format& format)
+void x86_instruction::Fixup(Format& format) __attribute__((optnone))
 {
     for (int i = 0; i < 2; ++i) {
-        if (format.operand[i].adr) {
+        switch (format.operand[i].type) {
+        case Format::Operand::ADR:
             format.operand[i].address = 0;
             format.operand[i].address += regs[format.operand[i].index].d * format.operand[i].scale;
             format.operand[i].address += regs[format.operand[i].base].d;
             format.operand[i].address += format.operand[i].displacement;
             format.operand[i].memory = memory + format.operand[i].address;
-        }
-        else if (format.operand[i].imm) {
+            break;
+        case Format::Operand::IMM:
             format.operand[i].memory = nullptr;
             format.operand[i].memory += format.operand[i].displacement;
-        }
-        else if (format.operand[i].reg) {
+            break;
+        case Format::Operand::REG:
             if (format.size != 8 || format.operand[i].base < 4) {
                 format.operand[i].memory = &regs[format.operand[i].base].l;
             }
             else {
                 format.operand[i].memory = &regs[format.operand[i].base - 4].h;
             }
+            break;
+        default:
+            break;
         }
     }
 }
 //------------------------------------------------------------------------------
 template<typename A, typename B>
-void x86_instruction::UpdateEFlags(A& DEST, B TEMP)
+void x86_instruction::UpdateFlags(x86_instruction& x86, A& DEST, B TEMP)
 {
     int bits = sizeof(A) * 8;
     CF = ((DEST ^ TEMP) &  (1 << (bits - 1))) ? 1 : 0;
@@ -247,7 +254,7 @@ void x86_instruction::UpdateEFlags(A& DEST, B TEMP)
     DEST = TEMP;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::___()
+x86_format::Format x86_instruction::_()
 {
     Format format;
 
@@ -318,7 +325,7 @@ x86_format::Format x86_instruction::ADC()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST + SRC + CF);
+        UpdateFlags(x86, DEST, DEST + SRC + CF);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -339,7 +346,7 @@ x86_format::Format x86_instruction::ADD()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST + SRC);
+        UpdateFlags(x86, DEST, DEST + SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -360,7 +367,7 @@ x86_format::Format x86_instruction::AND()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST & SRC);
+        UpdateFlags(x86, DEST, DEST & SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -466,7 +473,7 @@ x86_format::Format x86_instruction::CALL()
 
     BEGIN_OPERATION(Disasm(format)) {
         Push(EIP);
-        if (format.operand[0].imm)
+        if (format.operand[0].type == Format::Operand::IMM)
             EIP += format.operand[0].displacement;
         else
             EIP = *(uint32_t*)format.operand[0].memory;
@@ -533,7 +540,7 @@ x86_format::Format x86_instruction::CMP()
 
     BEGIN_OPERATION(Disasm(format)) {
         auto TEMP = DEST;
-        UpdateEFlags(TEMP, TEMP - SRC);
+        UpdateFlags(x86, TEMP, TEMP - SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -550,7 +557,7 @@ x86_format::Format x86_instruction::CMPSx()
 
     BEGIN_OPERATION(Disasm(format)) {
         auto TEMP = DEST;
-        UpdateEFlags(TEMP, TEMP - SRC);
+        UpdateFlags(x86, TEMP, TEMP - SRC);
         ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
@@ -582,7 +589,7 @@ x86_format::Format x86_instruction::DEC()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST - 1);
+        UpdateFlags(x86, DEST, DEST - 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -668,7 +675,7 @@ x86_format::Format x86_instruction::INC()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST + 1);
+        UpdateFlags(x86, DEST, DEST + 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -732,7 +739,7 @@ x86_format::Format x86_instruction::JMP()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        if (format.operand[0].imm)
+        if (format.operand[0].type == Format::Operand::IMM)
             EIP += format.operand[0].displacement;
         else
             EIP = *(uint32_t*)format.operand[0].memory;
@@ -776,7 +783,7 @@ x86_format::Format x86_instruction::LODSx()
     case 0xAC:  Decode(format, 0, "LODSB", 0, 0, 0);                                   break;
     case 0xAD:  Decode(format, 0, (operand_size == 16) ? "LODSW" : "LODSD", 0, 1, 0);  break;
     }
-    format.operand[0].reg = true;
+    format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = REG(EAX);
     format.operand[1].base = REG(ESI);
     Fixup(format);
@@ -801,7 +808,7 @@ x86_format::Format x86_instruction::LOOP()
         if (CountReg) {
             ECX = ECX - 1;
             bool BranchCond = true;
-            switch (opcode[0]) {
+            switch (x86.opcode[0]) {
                 case 0xE0:  BranchCond = (ZF == 0); break;
                 case 0xE1:  BranchCond = (ZF != 0); break;
             }
@@ -828,7 +835,7 @@ x86_format::Format x86_instruction::MOV()
     case 0xB5:
     case 0xB6:
     case 0xB7:  Decode(format, 0, "MOV", 0, 0, -1);
-                format.operand[0].reg = true;
+                format.operand[0].type = Format::Operand::REG;
                 format.operand[0].base = opcode[0] & 0b111; break;
     case 0xB8:
     case 0xB9:
@@ -838,7 +845,7 @@ x86_format::Format x86_instruction::MOV()
     case 0xBD:
     case 0xBE:
     case 0xBF:  Decode(format, 0, "MOV", 0, 1, -1);
-                format.operand[0].reg = true;
+                format.operand[0].type = Format::Operand::REG;
                 format.operand[0].base = opcode[0] & 0b111; break;
     case 0xC6:  Decode(format, 1, "MOV", 0, 0, -1);        break;
     case 0xC7:  Decode(format, 1, "MOV", 0, 1, -1);        break;
@@ -978,7 +985,7 @@ x86_format::Format x86_instruction::OR()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST | SRC);
+        UpdateFlags(x86, DEST, DEST | SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -1090,7 +1097,7 @@ x86_format::Format x86_instruction::Rxx()
         case 2: Decode(format, 1, "RCL", 0, opcode[0] & 0b01, 0);  break;
         case 3: Decode(format, 1, "RCR", 0, opcode[0] & 0b01, 0);  break;
         }
-        format.operand[1].imm = true;
+        format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
@@ -1101,14 +1108,14 @@ x86_format::Format x86_instruction::Rxx()
         case 2: Decode(format, 1, "RCL", 0, opcode[0] & 0b01, 0);  break;
         case 3: Decode(format, 1, "RCR", 0, opcode[0] & 0b01, 0);  break;
         }
-        format.operand[1].reg = true;
+        format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = REG(ECX);
         break;
     }
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        switch (opcode[1] >> 3 & 7) {
+        switch (x86.opcode[1] >> 3 & 7) {
         case 0:
             if (sizeof(DEST) == 1)  DEST = __builtin_rotateleft8(DEST, SRC);
             if (sizeof(DEST) == 2)  DEST = __builtin_rotateleft16(DEST, SRC);
@@ -1187,7 +1194,7 @@ x86_format::Format x86_instruction::Sxx()
         case 6: Decode(format, 1, "SAL", 0, opcode[0] & 0b01, 0);  break;
         case 7: Decode(format, 1, "SAR", 0, opcode[0] & 0b01, 0);  break;
         }
-        format.operand[1].imm = true;
+        format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
@@ -1198,7 +1205,7 @@ x86_format::Format x86_instruction::Sxx()
         case 6: Decode(format, 1, "SAL", 0, opcode[0] & 0b01, 0);  break;
         case 7: Decode(format, 1, "SAR", 0, opcode[0] & 0b01, 0);  break;
         }
-        format.operand[1].reg = true;
+        format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = REG(ECX);
         break;
     }
@@ -1206,7 +1213,7 @@ x86_format::Format x86_instruction::Sxx()
 
     BEGIN_OPERATION(Disasm(format)) {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        switch (opcode[1] >> 3 & 7) {
+        switch (x86.opcode[1] >> 3 & 7) {
         case 4: DEST = DEST << SRC; break;
         case 5: DEST = DEST >> SRC; break;
         case 6: DEST = dest << SRC; break;
@@ -1232,7 +1239,7 @@ x86_format::Format x86_instruction::SBB()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST - (SRC + CF));
+        UpdateFlags(x86, DEST, DEST - (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -1249,7 +1256,7 @@ x86_format::Format x86_instruction::SCASx()
 
     BEGIN_OPERATION(Disasm(format)) {
         auto TEMP = DEST;
-        UpdateEFlags(TEMP, SRC - TEMP);
+        UpdateFlags(x86, TEMP, SRC - TEMP);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
 }
@@ -1289,23 +1296,23 @@ x86_format::Format x86_instruction::SHxD()
     case 0xA4:
         Decode(format, 2, "SHLD", 0, 1, 0);
         format.length += 1;
-        format.operand[2].imm = true;
+        format.operand[2].type = Format::Operand::IMM;
         format.operand[2].displacement = IMM8(opcode, 3);
         break;
     case 0xA5:
         Decode(format, 2, "SHLD", 0, 1, 0);
-        format.operand[2].reg = true;
+        format.operand[2].type = Format::Operand::REG;
         format.operand[2].base = REG(ECX);
         break;
     case 0xAC:
         Decode(format, 2, "SHRD", 0, 1, 0);
         format.length += 1;
-        format.operand[2].imm = true;
+        format.operand[2].type = Format::Operand::IMM;
         format.operand[2].displacement = IMM8(opcode, 3);
         break;
     case 0xAD:
         Decode(format, 2, "SHRD", 0, 1, 0);
-        format.operand[2].reg = true;
+        format.operand[2].type = Format::Operand::REG;
         format.operand[2].base = REG(ECX);
         break;
     }
@@ -1341,7 +1348,7 @@ x86_format::Format x86_instruction::STOSx()
     case 0xAA:  Decode(format, 0, "STOSB", 0, 0, 0);                                   break;
     case 0xAB:  Decode(format, 0, (operand_size == 16) ? "STOSW" : "STOSD", 0, 1, 0);  break;
     }
-    format.operand[0].reg = true;
+    format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(EAX);
     Fixup(format);
@@ -1369,7 +1376,7 @@ x86_format::Format x86_instruction::SUB()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST - SRC);
+        UpdateFlags(x86, DEST, DEST - SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -1388,7 +1395,7 @@ x86_format::Format x86_instruction::TEST()
 
     BEGIN_OPERATION(Disasm(format)) {
         auto TEMP = DEST;
-        UpdateEFlags(TEMP, TEMP & SRC);
+        UpdateFlags(x86, TEMP, TEMP & SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -1405,9 +1412,9 @@ x86_format::Format x86_instruction::XCHG()
     case 0x96:
     case 0x97:
         Decode(format, 0, "XCHG", 0, 1, 0);
-        format.operand[0].reg = true;
+        format.operand[0].type = Format::Operand::REG;
         format.operand[0].base = REG(EAX);
-        format.operand[1].reg = true;
+        format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = (opcode[0] & 0b111);
         break;
     case 0x86:
@@ -1429,7 +1436,7 @@ x86_format::Format x86_instruction::XLAT()
     Format format;
 
     BEGIN_OPERATION("XLAT") {
-        AL = *(memory + EBX + AL);
+        AL = *(x86.memory + EBX + AL);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -1450,7 +1457,7 @@ x86_format::Format x86_instruction::XOR()
     Fixup(format);
 
     BEGIN_OPERATION(Disasm(format)) {
-        UpdateEFlags(DEST, DEST ^ SRC);
+        UpdateFlags(x86, DEST, DEST ^ SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;

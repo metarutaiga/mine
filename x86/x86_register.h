@@ -4,7 +4,6 @@
 
 struct x86_register
 {
-protected:
     union register_t
     {
         uint64_t q;
