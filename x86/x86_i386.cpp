@@ -176,6 +176,7 @@ x86_format::Format x86_i386::StepInternal()
     for (;;) {
         opcode = memory + ip.d;
         format = (this->*one[opcode[0]])();
+        EIP += format.length;
 
         switch (opcode[0]) {
         case 0x26:
@@ -268,8 +269,6 @@ x86_format::Format x86_i386::grp8()
 //------------------------------------------------------------------------------
 x86_format::Format x86_i386::OSIZE()
 {
-    EIP += 1;
-
     operand_size = 16;
 
     return Format();

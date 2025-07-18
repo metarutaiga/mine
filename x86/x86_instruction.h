@@ -38,12 +38,18 @@ protected:
     instruction FS;     // FS segment override prefix
     instruction GS;     // GS segment override prefix
 
-//  instruction AAA;    // ASCII Adjust after Addition
-//  instruction AAD;    // ASCII Adjust AX before Division
-//  instruction AAM;    // ASCII Adjust AX after Multiply
-//  instruction AAS;    // ASCII Adjust AL after Subtraction
-//  instruction DAA;    // Decimal Adjust AL after Addition
-//  instruction DAS;    // Decimal Adjust AL after Subtraction
+    instruction AAA;    // ASCII Adjust after Addition
+    instruction AAD;    // ASCII Adjust AX before Division
+    instruction AAM;    // ASCII Adjust AX after Multiply
+    instruction AAS;    // ASCII Adjust AL after Subtraction
+    instruction DAA;    // Decimal Adjust AL after Addition
+    instruction DAS;    // Decimal Adjust AL after Subtraction
+
+    instruction CMPSx;  // Compare String Operands
+    instruction LODSx;  // Load String Operand
+    instruction MOVSx;  // Move Data from String to String
+    instruction SCASx;  // Compare String Data
+    instruction STOSx;  // Store String Data
 
     instruction ADC;    // Add with Carry
     instruction ADD;    // Add
@@ -64,7 +70,6 @@ protected:
 //  instruction CLTS;   // Clear Task-Switched Flag in CR0
     instruction CMC;    // Complement Carry Flag
     instruction CMP;    // Compare Two Operands
-    instruction CMPSx;  // Compare String Operands
     instruction CWDE;   // Convert Byte to Word/Convert Word to Doubleword
     instruction DEC;    // Decrement by 1
     instruction DIV;    // Unsigned Divide
@@ -88,12 +93,10 @@ protected:
 //  instruction LLDT;   // Load Local Descriptor Table Register
 //  instruction LMSW;   // Load Machine Status Word
 //  instruction LOCK;   // Assert LOCK# Signal Prefix
-    instruction LODSx;  // Load String Operand
     instruction LOOP;   // Loop Control with CX Counter
 //  instruction LSL;    // Load Segment Limit
 //  instruction LTR;    // Load Task Register
     instruction MOV;    // Move Data
-    instruction MOVSx;  // Move Data from String to String
     instruction MOVSX;  // Move with Sign-Extend
     instruction MOVZX;  // Move with Zero-Extend
     instruction MUL;    // Unsigned Multiplication of AL or AX
@@ -115,7 +118,6 @@ protected:
     instruction SAHF;   // Store AH into Flags
     instruction Sxx;    // Shift Instructions
     instruction SBB;    // Integer Subtraction with Borrow
-    instruction SCASx;  // Compare String Data
     instruction SETcc;  // Byte Set on Condition
 //  instruction SxDT;   // Store Global/Interrupt Descriptor Table Register
     instruction SHxD;   // Double Precision Shift
@@ -124,7 +126,6 @@ protected:
     instruction STC;    // Set Carry Flag
     instruction STD;    // Set Direction Flag
 //  instruction STI;    // Set Interrupt Flag
-    instruction STOSx;  // Store String Data
 //  instruction STR;    // Store Task Register
     instruction SUB;    // Integer Subtraction
     instruction TEST;   // Logical Compare

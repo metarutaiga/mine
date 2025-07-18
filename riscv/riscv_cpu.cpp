@@ -11,6 +11,10 @@
 #include <stdio.h>
 #include "riscv_cpu.h"
 
+#if defined(_UCRT)
+#define sig_t _crt_signal_t
+#endif
+
 #define HINT HINT
 
 //------------------------------------------------------------------------------

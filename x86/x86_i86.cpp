@@ -151,6 +151,7 @@ x86_format::Format x86_i86::StepInternal()
     for (;;) {
         opcode = memory + ip.w;
         format = (this->*one[opcode[0]])();
+        IP += format.length;
 
         switch (opcode[0]) {
         case 0x26:
