@@ -12,6 +12,10 @@
 		D6169D0A2BB17E3100E5490C /* new.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D092BB17E3100E5490C /* new.cpp */; };
 		D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D0B2BB17E4900E5490C /* ucrt.cpp */; };
 		D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */; };
+		D67A58C72E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
+		D67A58C82E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
+		D67A58C92E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
+		D67A58CA2E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
 		D6909FAE2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
 		D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
 		D6909FB02E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
@@ -188,6 +192,8 @@
 		D6169D0B2BB17E4900E5490C /* ucrt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ucrt.cpp; path = "../../../../ClangPlatform/windows-msvc/ucrt.cpp"; sourceTree = "<group>"; };
 		D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dllmain.cpp; path = "../../../../ClangPlatform/windows-msvc/dllmain.cpp"; sourceTree = "<group>"; };
 		D644A041231ED82900B75B77 /* Emulator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Emulator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D67A58C52E30C9670010D73D /* coff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = coff.h; sourceTree = "<group>"; };
+		D67A58C62E3231970010D73D /* coff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coff.cpp; sourceTree = "<group>"; };
 		D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EmulatorEntry.cpp; sourceTree = "<group>"; };
 		D6909FAD2E1A7FFD0023F7B5 /* EmulatorPCH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmulatorPCH.h; sourceTree = "<group>"; };
 		D6909FB22E1A9D310023F7B5 /* Debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Debugger.h; sourceTree = "<group>"; };
@@ -325,6 +331,7 @@
 			isa = PBXGroup;
 			children = (
 				CE999BD325D21EB300351116 /* Configs */,
+				D67A58C32E30C9000010D73D /* format */,
 				D6D758BF2E23F56800E5C09D /* mips */,
 				D6D758C02E23F56F00E5C09D /* riscv */,
 				D6909FB92E1AC6650023F7B5 /* x86 */,
@@ -344,6 +351,24 @@
 				30A9A7CC25ADC7D3000FA104 /* libEmulator.so */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D67A58C32E30C9000010D73D /* format */ = {
+			isa = PBXGroup;
+			children = (
+				D67A58C42E30C9280010D73D /* coff */,
+			);
+			name = format;
+			sourceTree = "<group>";
+		};
+		D67A58C42E30C9280010D73D /* coff */ = {
+			isa = PBXGroup;
+			children = (
+				D67A58C62E3231970010D73D /* coff.cpp */,
+				D67A58C52E30C9670010D73D /* coff.h */,
+			);
+			name = coff;
+			path = ../../../format/coff;
 			sourceTree = "<group>";
 		};
 		D6909FB92E1AC6650023F7B5 /* x86 */ = {
@@ -556,6 +581,7 @@
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3D2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
+				D67A58C72E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758E62E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758E72E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758E82E23F59700E5C09D /* sysctl.cpp in Sources */,
@@ -612,6 +638,7 @@
 				D6D7590B2E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				D6D7590C2E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7590D2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				D67A58CA2E3231D70010D73D /* coff.cpp in Sources */,
 				D6D7590E2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
@@ -643,6 +670,7 @@
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE402E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
+				D67A58C82E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758EF2E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758F02E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758F12E23F59700E5C09D /* sysctl.cpp in Sources */,
@@ -684,6 +712,7 @@
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3F2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
+				D67A58C92E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758D42E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758D52E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758D62E23F59700E5C09D /* sysctl.cpp in Sources */,

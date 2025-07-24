@@ -21,7 +21,7 @@ x86_format::Format x86_instruction::ADC()
     Fixup(format);
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST + SRC + CF);
+        UpdateFlags(x86, DEST, DEST + (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
