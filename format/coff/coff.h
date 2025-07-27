@@ -100,6 +100,7 @@ struct COFF
         uint16_t        f_opthdr;   /* sizeof(optional hdr) */
         uint16_t        f_flags;    /* flags */
     };
+    static_assert(sizeof(FileHeader) == 20);
 
     struct SectionHeader
     {
@@ -114,6 +115,7 @@ struct COFF
         uint16_t        s_nlnno;    /* number of line number entries */
         int32_t         s_flags;    /* flags */
     };
+    static_assert(sizeof(SectionHeader) == 40);
 
     static const char* GetMagic(uint16_t magic);
 };
