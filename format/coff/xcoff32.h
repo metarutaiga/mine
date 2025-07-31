@@ -38,9 +38,9 @@ struct XCOFF32 : public COFF
     struct SectionHeader
     {
         char            s_name[8];  /* section name */
-        uint32_t        s_paddr;    /* physical address */
-        uint32_t        s_vaddr;    /* virtual address */
-        uint32_t        s_size;     /* section size */
+        int32_t         s_paddr;    /* physical address */
+        int32_t         s_vaddr;    /* virtual address */
+        int32_t         s_size;     /* section size */
         int32_t         s_scnptr;   /* file ptr to raw data for section */
         int32_t         s_relptr;   /* file ptr to relocation */
         int32_t         s_lnnoptr;  /* file ptr to line numbers */

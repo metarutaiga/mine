@@ -71,15 +71,49 @@ struct ECOFF64 : public ECOFF
 
     struct FileHeader
     {
-        uint16_t        f_magic;    /* magic number */
-        uint16_t        f_nscns;    /* number of sections */
-        int32_t         f_timdat;   /* time & date stamp */
-        int64_t         f_symptr;   /* file pointer to symtab */
-        int32_t         f_nsyms;    /* number of symtab entries */
-        uint16_t        f_opthdr;   /* sizeof(optional hdr) */
-        uint16_t        f_flags;    /* flags */
+        uint16_t        f_magic;    /* File magic number. Used for identification. */
+        uint16_t        f_nscns;    /* Number of section headers in the object file. */
+        int32_t         f_timdat;   /* Time and date stamp. */
+        int64_t         f_symptr;   /* File offset to symbolic header. */
+        int32_t         f_nsyms;    /* Size of symbolic header (in bytes). */
+        uint16_t        f_opthdr;   /* Size of a.out header (in bytes). */
+        uint16_t        f_flags;    /* Flags that describe the object file. */
     };
     static_assert(sizeof(FileHeader) == 24);
+
+    struct OptionalHeader
+    {
+        int16_t         magic;      /* Object-file magic numbers */
+        int16_t         vstamp;     /* Object file version stamp. */
+        int16_t         bldrev;     /* Revision of system build tools. */
+        int16_t         padcell;
+        int64_t         tsize;      /* Text segment size (in bytes) padded to 16-byte boundary; set to zero if there is no text segment. */
+        int64_t         dsize;      /* Data segment size (in bytes) padded to 16-byte boundary; set to zero if there is no data segment. */
+        int64_t         bsize;      /* Bss segment size (in bytes) padded to 16-byte boundary; set to zero if there is no bss segment. */
+        int64_t         entry;      /* Virtual address of program entry point. */
+        int64_t         text_start; /* Base address of text segments. */
+        int64_t         data_start; /* Base address of data segments. */
+        int64_t         bss_start;  /* Base address of bss segments. */
+        int32_t         gprmask;
+        int16_t         fprmask;
+        int64_t         gp_value;   /* The initial GP (Global Pointer) value used for this object. */
+    };
+    static_assert(sizeof(OptionalHeader) == 80);
+
+    struct SectionHeader
+    {
+        char            s_name[8];  /* Section name */
+        int64_t         s_paddr;    /* Base virtual address of section in the image. */
+        int64_t         s_vaddr;    /* Base virtual address of a loadable section in the image. */
+        int64_t         s_size;     /* Section size rounded to 16-byte multiple. */
+        int64_t         s_scnptr;   /* File offset to beginning of raw data for the section. */
+        int64_t         s_relptr;   /* File offset to relocations for the section */
+        int64_t         s_lnnoptr;  /* In .lita section header */
+        uint16_t        s_nreloc;   /* Number of relocation entries; 0xffff if number of entries overflows size of this field */
+        uint16_t        s_nlnno;
+        int32_t         s_flags;    /* Flags identifying the section */
+    };
+    static_assert(sizeof(SectionHeader) == 64);
 
     static const char* GetMagic(uint16_t magic);
 };

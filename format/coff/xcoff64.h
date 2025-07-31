@@ -29,9 +29,9 @@ struct XCOFF64 : public XCOFF32
     struct SectionHeader
     {
         char            s_name[8];  /* section name */
-        uint64_t        s_paddr;    /* physical address */
-        uint64_t        s_vaddr;    /* virtual address */
-        uint64_t        s_size;     /* section size */
+        int64_t         s_paddr;    /* physical address */
+        int64_t         s_vaddr;    /* virtual address */
+        int64_t         s_size;     /* section size */
         int64_t         s_scnptr;   /* file ptr to raw data for section */
         int64_t         s_relptr;   /* file ptr to relocation */
         int64_t         s_lnnoptr;  /* file ptr to line numbers */

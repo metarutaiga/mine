@@ -73,5 +73,14 @@ struct ECOFF : public COFF
         STYP_INIT       = 0x80000000,   /* Section initialization text only. */
     };
 
+    struct OptionalHeader : public COFF::OptionalHeader
+    {
+        int32_t     bss_start;  /* Base of bss used for this file. */
+        int32_t     gprmask;    /* General purpose register mask. */
+        int32_t     cprmask[4]; /* Co-processor register masks. */
+        int32_t     gp_value;   /* The gp value used for this object. */
+    };
+    static_assert(sizeof(OptionalHeader) == 56);
+
     static const char* GetMagic(uint16_t magic);
 };

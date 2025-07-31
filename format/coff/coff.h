@@ -109,6 +109,19 @@ struct COFF
     };
     static_assert(sizeof(FileHeader) == 20);
 
+    struct OptionalHeader
+    {
+        int16_t         magic;      /* see magic.h */
+        int16_t         vstamp;     /* version stamp */
+        int32_t         tsize;      /* text size in bytes, padded to FW bdry */
+        int32_t         dsize;      /* initialized data */
+        int32_t         bsize;      /* uninitialized data */
+        int32_t         entry;      /* entry pt. */
+        int32_t         text_start; /* base of text used for this file */
+        int32_t         data_start; /* base of data used for this file */
+    };
+    static_assert(sizeof(OptionalHeader) == 28);
+
     struct SectionHeader
     {
         char            s_name[8];  /* section name */
