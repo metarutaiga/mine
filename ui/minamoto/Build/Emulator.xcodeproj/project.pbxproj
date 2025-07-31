@@ -173,6 +173,10 @@
 		F5F1B2A32E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
 		F5F1B2A42E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
 		F5F1B2A52E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
+		F5F1B2A82E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
+		F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
+		F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
+		F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -283,6 +287,8 @@
 		F5E5B1A22D6C65EC008E0D21 /* except.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = except.cpp; path = "../../../../ClangPlatform/windows-msvc/except.cpp"; sourceTree = SOURCE_ROOT; };
 		F5F1B2A02E38C5BC00D2FF10 /* ecoff64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff64.h; sourceTree = "<group>"; };
 		F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff64.cpp; sourceTree = "<group>"; };
+		F5F1B2A62E3B181300D2FF10 /* pe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pe.h; sourceTree = "<group>"; };
+		F5F1B2A72E3B185900D2FF10 /* pe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pe.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -394,6 +400,8 @@
 				F5BE8CCE2E37C8B900DBB83A /* ecoff.h */,
 				F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */,
 				F5F1B2A02E38C5BC00D2FF10 /* ecoff64.h */,
+				F5F1B2A72E3B185900D2FF10 /* pe.cpp */,
+				F5F1B2A62E3B181300D2FF10 /* pe.h */,
 				D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */,
 				D67A58CB2E35F07A0010D73D /* xcoff32.h */,
 				D67A58D22E3609220010D73D /* xcoff64.cpp */,
@@ -625,6 +633,7 @@
 				D6D7592D2E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D67A58D42E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2A22E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4F2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58CE2E35F0B00010D73D /* xcoff32.cpp in Sources */,
@@ -666,6 +675,7 @@
 				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
 				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
+				F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */,
 				D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D6D759072E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
 				D6D759082E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
@@ -722,6 +732,7 @@
 				D6D759132E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D67A58D62E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				F5F1B2A82E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2A42E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4C2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58D02E35F0B00010D73D /* xcoff32.cpp in Sources */,
@@ -768,6 +779,7 @@
 				D6D759202E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				D67A58D32E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
+				F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2A32E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4E2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58CD2E35F0B00010D73D /* xcoff32.cpp in Sources */,

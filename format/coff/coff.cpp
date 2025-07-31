@@ -32,6 +32,8 @@ const char* COFF::GetMagic(uint16_t magic)
     case _B(0211):
     case _B(0521):  return "Motorola 68000 (Readonly shareable text segments)";
     case _B(0522):  return "Motorola 68000 (Demand paged text segments)";
+    case _B(0526):  return "Motorola 68000 (Bull dpx/2)";
+    case _B(0627):  return "Apollo 68000";
     case _L(0524):  return "National Semiconductor 32000 (Writeable text segments)";
 //  case _L(0524):  return "National Semiconductor 32000 (Readonly shareable text segments)";
     case _L(0525):  return "National Semiconductor 32000 (Module table magic)";
@@ -42,18 +44,22 @@ const char* COFF::GetMagic(uint16_t magic)
     case _L(0531):  return "Amdahl 470/580 (Writable text segments)";
     case _L(0534):  return "Amdahl 470/580 (Readonly sharable text segments)";
     case _L(0540):  return "XL";
+    case _B(0540):  return "Motorola 88000 (88k BCS executable)";
+    case _B(0541):  return "Motorola 88000 (DG/UX executable)";
+    case _B(0555):  return "Motorola 88000 (Object file)";
     case _B(0544):  return "Zilog Z8000, no TV";
     case _B(0545):  return "Zilog Z8000 with TV";
     case _L(0550):  return "Western Electric 3B20, no TV";
     case _L(0551):  return "Western Electric 3B20 with TV";
     case _B(0554):  return "Motorola 68030 (UniSoft UNIX System V/68 3.2)";
     case _B(0x666): return "Motorola 68040 (AT&T UNIX System V/68 4.0)";
-    case _B(0555):  return "Motorola 88000";
     case _L(0560):  return "Western Electric 32000, no TV";
     case _L(0561):  return "Western Electric 32000 with TV";
     case _L(0562):  return "Western Electric 32000 (Reserved)";
     case _L(0570):  return "DEC VAX-11 (Writable text segments)";
-    case _L(0571):  return "DEC VAX-11 (Readonly sharable text segments)";
+    case _L(0575):  return "DEC VAX-11 (Readonly sharable text segments)";
+    case _B(0572):  return "AMD Am29000 (Byte 0 is MSB)";
+    case _L(0573):  return "AMD Am29000 (Byte 0 is LSB)";
     }
 
     return "Unknown";

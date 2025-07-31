@@ -37,6 +37,8 @@ struct COFF
         MC68TVMAGIC     = 0521,
         MC68KROMAGIC    = 0521,     /* readonly shareable text segments */
         MC68KPGMAGIC    = 0522,     /* demand paged text segments */
+        MC68KBCSMAGIC   = 0526,     /* Bull dpx/2 */
+        APOLLOM68KMAGIC = 0627,
         /* NSC */
         NS32WRMAGIC     = 0524,     /* writeable text segments    */
         NS32ROMAGIC     = 0524,     /* readonly shareable text segments */
@@ -50,6 +52,10 @@ struct COFF
         AMDROMAGIC      = 0534,     /* readonly sharable text segments */
         /* XL */
         XLMAGIC         = 0540,
+        /* Motorola 88000 */
+        MC88MAGIC       = 0540,     /* M88000 BCS executable */
+        MC88DMAGIC      = 0541,     /* M88000 DG/UX executable */
+        MC88OMAGIC      = 0555,     /* M88000 normal file */
         /* Zilog */
         Z8KMAGIC        = 0544,     /* Z8000 executable, no TV */
         Z8KTVMAGIC      = 0545,     /* Z8000 executable with TV */
@@ -60,8 +66,6 @@ struct COFF
         /* Motorola 68020/68030/68040 */
         MC68MAGICV3     = 0554,     /* UniSoft UNIX System V/68 3.2 */
         MC68MAGICV4     = 03146,    /* AT&T UNIX System V/68 4.0 */
-        /* Motorola 88000 */
-        MC88MAGIC       = 0555,     /* M88000 normal file */
         /* MAC-32, 3B15, 3B5 */
         WE32MAGIC       = 0560,     /* WE 32000, no TV */
         FBOMAGIC        = 0560,     /* WE 32000, no TV */
@@ -70,6 +74,9 @@ struct COFF
         /* VAX 11/780 and VAX 11/750 */
         VAXWRMAGIC      = 0570,     /* writeable text segments */
         VAXROMAGIC      = 0575,     /* readonly sharable text segments */
+        /* Am29000 */
+        SIPFBOMAGIC     = 0572,     /* Am29000 (Byte 0 is MSB) */
+        SIPRBOMAGIC     = 0573,     /* Am29000 (Byte 0 is LSB) */
     };
 
     enum Flags
