@@ -11,7 +11,7 @@ struct x86_format
     {
         struct Operand
         {
-            enum Type { NOP, ADR, IMM, REG };
+            enum Type { NOP, ADR, IMM, REG, REL };
             Type type = NOP;
 
             int scale;

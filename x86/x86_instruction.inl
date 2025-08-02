@@ -17,12 +17,12 @@ static auto specialize(auto lambda) {
 }
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
-    auto operation = [](x86_instruction& x86, const Format& format, auto& DEST, auto SRC) {
+        auto operation = [](x86_instruction& x86, const Format& format, auto& DEST, auto SRC) {
 #define END_OPERATION }; \
-    switch (format.size) { \
-    case 8:     format.operation = specialize<uint8_t>(operation);  break; \
-    case 16:    format.operation = specialize<uint16_t>(operation); break; \
-    case 32:    format.operation = specialize<uint32_t>(operation); break; \
-    } \
-    return format; }
+        switch (format.size) { \
+        case 8:     format.operation = specialize<uint8_t>(operation);  break; \
+        case 16:    format.operation = specialize<uint16_t>(operation); break; \
+        case 32:    format.operation = specialize<uint32_t>(operation); break; \
+        } \
+    }
 //------------------------------------------------------------------------------

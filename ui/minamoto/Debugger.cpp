@@ -5,6 +5,7 @@
 // https://github.com/metarutaiga/miCPU
 //==============================================================================
 #include "EmulatorPCH.h"
+#include "format/coff/pe.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 
@@ -47,6 +48,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     ImGui::SetNextWindowSize(ImVec2(1280.0f, 768.0f), ImGuiCond_Appearing);
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
     {
+        std::string file;
+
         if (ImGui::Button("Disasm"))
         {
             disasm.clear();
@@ -54,6 +57,33 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             x86_i386 x86;
             x86.Initialize(1048576, sampleX86, sizeof(sampleX86));
             disasm = x86.Disassemble(countX86);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Test"))
+        {
+            file = xxGetExecutablePath();
+            file += "/../../../../../SDK/miCPU/format/sample/pe.x86/printf.exe";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("x86"))
+        {
+            file = xxGetExecutablePath();
+            file += "/../../../../../SDK/miCPU/format/sample/pe.x86/x86.dll";
+        }
+        if (file.empty() == false)
+        {
+            x86_i386 x86;
+            x86.Initialize(16777216);
+
+            PE pe;
+            uint32_t entry = pe.Load(file.c_str(), [](uint32_t base, uint32_t size, void* userdata) -> uint8_t*
+            {
+                miCPU* cpu = (miCPU*)userdata;
+                return cpu->Memory(base, size);
+            }, &x86);
+
+            x86.Jump(entry);
+            disasm = x86.Disassemble(64);
         }
         ImGui::InputTextMultiline("", disasm, ImVec2(960.0f, 640.0f), ImGuiInputTextFlags_ReadOnly);
     }

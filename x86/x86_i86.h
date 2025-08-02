@@ -15,12 +15,14 @@ struct x86_i86 : public miCPU
 {
 public:
     virtual ~x86_i86();
-    bool Initialize(size_t space, const void* program, size_t size) override;
+    bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) override;
     bool Step() override;
+    bool Jump(size_t address) override;
+    uint8_t* Memory(size_t base, size_t size) override;
     std::string Disassemble(int count) override;
 
 protected:
-    Format StepInternal();
+    void StepInternal(Format& format);
 
 protected:
     instruction ESC;

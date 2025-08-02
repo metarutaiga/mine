@@ -4,16 +4,21 @@
 #include "x86_register.inl"
 
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::CMPSx()
+void x86_instruction::CMPSx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0xA6:  Decode(format, 0, "CMPSB", 0, 0, 0);                                   break;
-    case 0xA7:  Decode(format, 0, (operand_size == 16) ? "CMPSW" : "CMPSD", 0, 1, 0);  break;
+    case 0xA6:  format.size = 8;            break;
+    case 0xA7:  format.size = operand_size; break;
     }
+    switch (format.size) {
+    case 8:     format.instruction = "CMPSB";   break;
+    case 16:    format.instruction = "CMPSW";   break;
+    case 32:    format.instruction = "CMPSD";   break;
+    }
+    format.operand[0].type = Format::Operand::ADR;
+    format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(ESI);
-    Fixup(format);
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
@@ -23,17 +28,21 @@ x86_format::Format x86_instruction::CMPSx()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::LODSx()
+void x86_instruction::LODSx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0xAC:  Decode(format, 0, "LODSB", 0, 0, 0);                                   break;
-    case 0xAD:  Decode(format, 0, (operand_size == 16) ? "LODSW" : "LODSD", 0, 1, 0);  break;
+    case 0xAC:  format.size = 8;            break;
+    case 0xAD:  format.size = operand_size; break;
+    }
+    switch (format.size) {
+    case 8:     format.instruction = "LODSB";   break;
+    case 16:    format.instruction = "LODSW";   break;
+    case 32:    format.instruction = "LODSD";   break;
     }
     format.operand[0].type = Format::Operand::REG;
+    format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EAX);
     format.operand[1].base = REG(ESI);
-    Fixup(format);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -41,16 +50,21 @@ x86_format::Format x86_instruction::LODSx()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::MOVSx()
+void x86_instruction::MOVSx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0xA4:  Decode(format, 0, "MOVSB", 0, 0, 0);                                   break;
-    case 0xA5:  Decode(format, 0, (operand_size == 16) ? "MOVSW" : "MOVSD", 0, 1, 0);  break;
+    case 0xA4:  format.size = 8;            break;
+    case 0xA5:  format.size = operand_size; break;
     }
+    switch (format.size) {
+    case 8:     format.instruction = "MOVSB";   break;
+    case 16:    format.instruction = "MOVSW";   break;
+    case 32:    format.instruction = "MOVSD";   break;
+    }
+    format.operand[0].type = Format::Operand::ADR;
+    format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(ESI);
-    Fixup(format);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -59,16 +73,21 @@ x86_format::Format x86_instruction::MOVSx()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::SCASx()
+void x86_instruction::SCASx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0xAE:  Decode(format, 0, "SCASB", 0, 0, 0);                                   break;
-    case 0xAF:  Decode(format, 0, (operand_size == 16) ? "SCASW" : "SCASD", 0, 1, 0);  break;
+    case 0xAE:  format.size = 8;            break;
+    case 0xAF:  format.size = operand_size; break;
     }
+    switch (format.size) {
+    case 8:     format.instruction = "SCASB";   break;
+    case 16:    format.instruction = "SCASW";   break;
+    case 32:    format.instruction = "SCASD";   break;
+    }
+    format.operand[0].type = Format::Operand::ADR;
+    format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(EAX);
-    Fixup(format);
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
@@ -77,17 +96,21 @@ x86_format::Format x86_instruction::SCASx()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::STOSx()
+void x86_instruction::STOSx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0xAA:  Decode(format, 0, "STOSB", 0, 0, 0);                                   break;
-    case 0xAB:  Decode(format, 0, (operand_size == 16) ? "STOSW" : "STOSD", 0, 1, 0);  break;
+    case 0xAA:  format.size = 8;            break;
+    case 0xAB:  format.size = operand_size; break;
     }
-    format.operand[0].type = Format::Operand::REG;
+    switch (format.size) {
+    case 8:     format.instruction = "STOSB";   break;
+    case 16:    format.instruction = "STOSW";   break;
+    case 32:    format.instruction = "STOSD";   break;
+    }
+    format.operand[0].type = Format::Operand::ADR;
+    format.operand[1].type = Format::Operand::REG;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(EAX);
-    Fixup(format);
 
     BEGIN_OPERATION() {
         DEST = SRC;

@@ -11,6 +11,7 @@ struct x86_instruction : public x86_format
     x86_instruction& x86 = (*this);
 
 protected:
+    size_t memory_size = 0;
     uint8_t* memory = nullptr;
     uint8_t* opcode = nullptr;
     uint8_t* stack = nullptr;
@@ -18,16 +19,25 @@ protected:
 protected:
     std::string* disasm = nullptr;
 
-    void        Decode(Format& format, int offset, const char* instruction, int direction, int have_operand_size, int immediate_size);
-    std::string Disasm(const Format& format, int operand = 2);
+    enum
+    {
+        OPERAND_SIZE    = 0b00001,
+        DIRECTION       = 0b00010,
+        IMMEDIATE       = 0b00100,
+        INDIRECT        = 0b01000,
+        RELATIVE        = 0b10000,
+    };
+
+    void        Decode(Format& format, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
+    std::string Disasm(const Format& format);
     void        Fixup(Format& format);
 
     template<typename A, typename B>
     static void UpdateFlags(x86_instruction& x86, A& DEST, B TEMP);
 
 protected:
-    typedef Format instruction();
-    typedef Format (x86_instruction::*instruction_pointer)();
+    typedef void instruction(Format&);
+    typedef void (x86_instruction::*instruction_pointer)(Format&);
 
     instruction _;
 

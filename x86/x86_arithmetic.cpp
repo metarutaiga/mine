@@ -4,85 +4,75 @@
 #include "x86_register.inl"
 
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::ADC()
+void x86_instruction::ADC(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0x10:
     case 0x11:
     case 0x12:
-    case 0x13:  Decode(format, 1, "ADC", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x13:  Decode(format, "ADC", 1,  0, opcode[0] & 0b11); break;
     case 0x14:
-    case 0x15:  Decode(format, 0, "ADC",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x15:  Decode(format, "ADC", 0, -1, opcode[0] & 0b01); break;
     case 0x80:
-    case 0x81:  Decode(format, 1, "ADC",             0b00, opcode[0] & 0b01, -1);  break;
-    case 0x83:  Decode(format, 1, "ADC",             0b00, opcode[0] & 0b01, 8);   break;
+    case 0x81:  Decode(format, "ADC", 1, -1, opcode[0] & 0b01); break;
+    case 0x83:  Decode(format, "ADC", 1,  8, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST + (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::ADD()
+void x86_instruction::ADD(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0x00:
     case 0x01:
     case 0x02:
-    case 0x03:  Decode(format, 1, "ADD", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x03:  Decode(format, "ADD", 1,  0, opcode[0] & 0b11); break;
     case 0x04:
-    case 0x05:  Decode(format, 0, "ADD",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x05:  Decode(format, "ADD", 0, -1, opcode[0] & 0b01); break;
     case 0x80:
-    case 0x81:  Decode(format, 1, "ADD",             0b00, opcode[0] & 0b01, -1);  break;
-    case 0x83:  Decode(format, 1, "ADD",             0b00, opcode[0] & 0b01, 8);   break;
+    case 0x81:  Decode(format, "ADD", 1, -1, opcode[0] & 0b01); break;
+    case 0x83:  Decode(format, "ADD", 1,  8, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST + SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::DEC()
+void x86_instruction::DEC(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0x48:  Decode(format, 0, "DEC", 0,             0b01, 0);  break;
+    case 0x48:  Decode(format, "DEC", 0, 0,             0b01);  break;
     case 0xFE:
-    case 0xFF:  Decode(format, 1, "DEC", 0, opcode[0] & 0b01, 0);  break;
+    case 0xFF:  Decode(format, "DEC", 1, 0, opcode[0] & 0b01);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST - 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::DIV()
+void x86_instruction::DIV(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, 1, "DIV", 0, opcode[0] & 0b01, 0);  break;
+    case 0xF7:  Decode(format, "DIV", 1, 0, opcode[0] & 0b01);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         DEST = DEST / SRC;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::IDIV()
+void x86_instruction::IDIV(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, 1, "IDIV", 0, opcode[0] & 0b01, 0);  break;
+    case 0xF7:  Decode(format, "IDIV", 1, 0, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
@@ -91,17 +81,15 @@ x86_format::Format x86_instruction::IDIV()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::IMUL()
+void x86_instruction::IMUL(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0x0F:  Decode(format, 2, "IMUL", 0,             0b01, 0);     break;
-    case 0x69:  Decode(format, 1, "IMUL", 0,             0b01, -1);    break;
-    case 0x6B:  Decode(format, 1, "IMUL", 0,             0b01, 8);     break;
+    case 0x0F:  Decode(format, "IMUL", 2, 0,             0b01); break;
+    case 0x69:  Decode(format, "IMUL", 1, -1,            0b01); break;
+    case 0x6B:  Decode(format, "IMUL", 1, 8,             0b01); break;
     case 0xF6:
-    case 0xF7:  Decode(format, 1, "IMUL", 0, opcode[0] & 0b01, 0);     break;
+    case 0xF7:  Decode(format, "IMUL", 1, 0, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
@@ -110,43 +98,37 @@ x86_format::Format x86_instruction::IMUL()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::INC()
+void x86_instruction::INC(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
-    case 0x40:  Decode(format, 0, "INC", 0,             0b01, 0);  break;
+    case 0x40:  Decode(format, "INC", 0, 0,             0b01);  break;
     case 0xFE:
-    case 0xFF:  Decode(format, 1, "INC", 0, opcode[0] & 0b01, 0);  break;
+    case 0xFF:  Decode(format, "INC", 1, 0, opcode[0] & 0b01);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST + 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::MUL()
+void x86_instruction::MUL(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, 1, "MUL", 0, opcode[0] & 0b01, 0);  break;
+    case 0xF7:  Decode(format, "MUL", 1, 0, opcode[0] & 0b01);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         DEST = DEST / SRC;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::NEG()
+void x86_instruction::NEG(Format& format)
 {
-    Format format;
     switch (opcode[1]) {
     case 0xF6:
-    case 0xF7:  Decode(format, 1, "NEG", 0, opcode[1] & 0b01, 0);  break;
+    case 0xF7:  Decode(format, "NEG", 1, 0, opcode[1] & 0b01);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         CF = (DEST == 0) ? 0 : 1;
@@ -154,42 +136,38 @@ x86_format::Format x86_instruction::NEG()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::SBB()
+void x86_instruction::SBB(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0x18:
     case 0x19:
     case 0x1A:
-    case 0x1B:  Decode(format, 1, "SBB", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x1B:  Decode(format, "SBB", 1,  0, opcode[0] & 0b11); break;
     case 0x1C:
-    case 0x1D:  Decode(format, 0, "SBB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x1D:  Decode(format, "SBB", 0, -1, opcode[0] & 0b01); break;
     case 0x80:
-    case 0x81:  Decode(format, 1, "SBB",             0b00, opcode[0] & 0b01, -1);  break;
-    case 0x83:  Decode(format, 1, "SBB",             0b00, opcode[0] & 0b01, 8);   break;
+    case 0x81:  Decode(format, "SBB", 1, -1, opcode[0] & 0b01); break;
+    case 0x83:  Decode(format, "SBB", 1,  8, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST - (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::SUB()
+void x86_instruction::SUB(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0x28:
     case 0x29:
     case 0x2A:
-    case 0x2B:  Decode(format, 1, "SUB", opcode[0] & 0b10, opcode[0] & 0b01, 0);   break;
+    case 0x2B:  Decode(format, "SUB", 1,  0, opcode[0] & 0b11); break;
     case 0x2C:
-    case 0x2D:  Decode(format, 0, "SUB",             0b00, opcode[0] & 0b01, -1);  break;
+    case 0x2D:  Decode(format, "SUB", 0, -1, opcode[0] & 0b01); break;
     case 0x80:
-    case 0x81:  Decode(format, 1, "SUB",             0b00, opcode[0] & 0b01, -1);  break;
-    case 0x83:  Decode(format, 1, "SUB",             0b00, opcode[0] & 0b01, 8);   break;
+    case 0x81:  Decode(format, "SUB", 1, -1, opcode[0] & 0b01); break;
+    case 0x83:  Decode(format, "SUB", 1,  8, opcode[0] & 0b01); break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         UpdateFlags(x86, DEST, DEST - SRC);

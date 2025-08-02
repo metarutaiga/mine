@@ -177,6 +177,7 @@
 		F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
 		F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
 		F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
+		F5F1B2AC2E3CA6D900D2FF10 /* Runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19A2D6C6261008E0D21 /* Runtime.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -319,6 +320,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5F1B2AC2E3CA6D900D2FF10 /* Runtime.dylib in Frameworks */,
 				F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

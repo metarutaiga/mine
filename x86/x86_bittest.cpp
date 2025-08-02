@@ -4,28 +4,24 @@
 #include "x86_register.inl"
 
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::BT()
+void x86_instruction::BT(Format& format)
 {
-    Format format;
     switch (opcode[1]) {
-    case 0xA3:  Decode(format, 2, "BT", 0, 1, 0);  break;
-    case 0xBA:  Decode(format, 2, "BT", 0, 1, -1); break;
+    case 0xA3:  Decode(format, "BT", 2, 0, OPERAND_SIZE);  break;
+    case 0xBA:  Decode(format, "BT", 2, 8, OPERAND_SIZE);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::BTC()
+void x86_instruction::BTC(Format& format)
 {
-    Format format;
     switch (opcode[1]) {
-    case 0xBA:  Decode(format, 2, "BTC", 0, 1, -1);    break;
-    case 0xBB:  Decode(format, 2, "BTC", 0, 1, 0);     break;
+    case 0xBB:  Decode(format, "BTC", 2, 0, OPERAND_SIZE);  break;
+    case 0xBA:  Decode(format, "BTC", 2, 8, OPERAND_SIZE);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
@@ -33,14 +29,12 @@ x86_format::Format x86_instruction::BTC()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::BTR()
+void x86_instruction::BTR(Format& format)
 {
-    Format format;
     switch (opcode[1]) {
-    case 0xB3:  Decode(format, 2, "BTR", 0, 1, 0);     break;
-    case 0xBA:  Decode(format, 2, "BTR", 0, 1, -1);    break;
+    case 0xB3:  Decode(format, "BTR", 2, 0, OPERAND_SIZE);  break;
+    case 0xBA:  Decode(format, "BTR", 2, 8, OPERAND_SIZE);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         CF = (DEST & (1 << SRC)) ? 1 : 0;
@@ -48,14 +42,12 @@ x86_format::Format x86_instruction::BTR()
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::BTS()
+void x86_instruction::BTS(Format& format)
 {
-    Format format;
     switch (opcode[1]) {
-    case 0xAB:  Decode(format, 2, "BTS", 0, 1, 0);     break;
-    case 0xBA:  Decode(format, 2, "BTS", 0, 1, -1);    break;
+    case 0xAB:  Decode(format, "BTS", 2, 0, OPERAND_SIZE);  break;
+    case 0xBA:  Decode(format, "BTS", 2, 8, OPERAND_SIZE);  break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         CF = (DEST & (1 << SRC)) ? 1 : 0;

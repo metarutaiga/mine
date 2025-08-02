@@ -4,26 +4,25 @@
 #include "x86_register.inl"
 
 //------------------------------------------------------------------------------
-x86_format::Format x86_instruction::Rxx()
+void x86_instruction::Rxx(Format& format)
 {
-    Format format;
     switch (opcode[0]) {
     case 0xC0:
     case 0xC1:
         switch (opcode[1] >> 3 & 7) {
-        case 0: Decode(format, 1, "ROL", 0, opcode[0] & 0b01, 8);  break;
-        case 1: Decode(format, 1, "ROR", 0, opcode[0] & 0b01, 8);  break;
-        case 2: Decode(format, 1, "RCL", 0, opcode[0] & 0b01, 8);  break;
-        case 3: Decode(format, 1, "RCR", 0, opcode[0] & 0b01, 8);  break;
+        case 0: Decode(format, "ROL", 1, 8, opcode[0] & 0b01);  break;
+        case 1: Decode(format, "ROR", 1, 8, opcode[0] & 0b01);  break;
+        case 2: Decode(format, "RCL", 1, 8, opcode[0] & 0b01);  break;
+        case 3: Decode(format, "RCR", 1, 8, opcode[0] & 0b01);  break;
         }
         break;
     case 0xD0:
     case 0xD1:
         switch (opcode[1] >> 3 & 7) {
-        case 0: Decode(format, 1, "ROL", 0, opcode[0] & 0b01, 0);  break;
-        case 1: Decode(format, 1, "ROR", 0, opcode[0] & 0b01, 0);  break;
-        case 2: Decode(format, 1, "RCL", 0, opcode[0] & 0b01, 0);  break;
-        case 3: Decode(format, 1, "RCR", 0, opcode[0] & 0b01, 0);  break;
+        case 0: Decode(format, "ROL", 1, 0, opcode[0] & 0b01);  break;
+        case 1: Decode(format, "ROR", 1, 0, opcode[0] & 0b01);  break;
+        case 2: Decode(format, "RCL", 1, 0, opcode[0] & 0b01);  break;
+        case 3: Decode(format, "RCR", 1, 0, opcode[0] & 0b01);  break;
         }
         format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
@@ -31,16 +30,15 @@ x86_format::Format x86_instruction::Rxx()
     case 0xD2:
     case 0xD3:
         switch (opcode[1] >> 3 & 7) {
-        case 0: Decode(format, 1, "ROL", 0, opcode[0] & 0b01, 0);  break;
-        case 1: Decode(format, 1, "ROR", 0, opcode[0] & 0b01, 0);  break;
-        case 2: Decode(format, 1, "RCL", 0, opcode[0] & 0b01, 0);  break;
-        case 3: Decode(format, 1, "RCR", 0, opcode[0] & 0b01, 0);  break;
+        case 0: Decode(format, "ROL", 1, 0, opcode[0] & 0b01);  break;
+        case 1: Decode(format, "ROR", 1, 0, opcode[0] & 0b01);  break;
+        case 2: Decode(format, "RCL", 1, 0, opcode[0] & 0b01);  break;
+        case 3: Decode(format, "RCR", 1, 0, opcode[0] & 0b01);  break;
         }
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = REG(ECX);
         break;
     }
-    Fixup(format);
 
     BEGIN_OPERATION() {
         switch (x86.opcode[1] >> 3 & 7) {
