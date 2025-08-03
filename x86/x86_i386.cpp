@@ -22,7 +22,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 /* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x _     x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x _     x _
 /* 4 */ x INC    x INC   x INC  x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC    x DEC   x DEC   x DEC
 /* 5 */ x PUSH   x PUSH  x PUSH x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
-/* 6 */ x PUSHAD x POPAD x _    x _    x _     x _     x OSIZE x _     x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
+/* 6 */ x PUSHAD x POPAD x _    x _    x _     x _     x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
 /* 7 */ x Jcc    x Jcc   x Jcc  x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
 /* 8 */ x grp1   x grp1  x _    x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
 /* 9 */ x NOP    x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x _     x _     x PUSHFD x POPFD x SAHF  x LAHF
@@ -30,7 +30,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 /* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x grp2   x grp2  x RET  x RET  x _     x _     x MOV   x MOV   x ENTER x LEAVE x _     x _     x _      x _     x _     x _
 /* D */ x grp2   x grp2  x grp2 x grp2 x _     x _     x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
-/* E */ x LOOP   x LOOP  x LOOP x Jcc  x _     x _     x _     x _     x CALL  x Jcc   x _     x Jcc   x _      x _     x _     x _
+/* E */ x LOOP   x LOOP  x LOOP x Jcc  x _     x _     x _     x _     x CALL  x JMP   x _     x JMP   x _      x _     x _     x _
 /* F */ x _      x _     x REP  x REP  x _     x CMC   x grp3  x grp3  x CLC   x STC   x _     x _     x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
@@ -103,11 +103,12 @@ bool x86_i386::Initialize(size_t space, const void* program, size_t size)
         return false;
     }
     memset(memory, 0, space);
-    stack = memory + space - 16;
     memory_size = space;
 
     EIP = 1024;
+    ESP = (uint32_t)space - 16;
     memcpy(memory + EIP, program, size);
+    stack = memory + ESP;
 
     return true;
 }
@@ -117,23 +118,51 @@ bool x86_i386::Step()
     Format format;
     StepInternal(format);
     Fixup(format);
-    format.operation(*this, format, format.operand[0].memory, format.operand[1].memory);
+    format.operation(*this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     return true;
 }
 //------------------------------------------------------------------------------
 bool x86_i386::Jump(size_t address)
 {
-    if (address >= memory_size)
+    if (address > memory_size)
         return false;
     EIP = (uint32_t)address;
     return true;
 }
 //------------------------------------------------------------------------------
+size_t x86_i386::Stack()
+{
+    return ESP;
+}
+//------------------------------------------------------------------------------
 uint8_t* x86_i386::Memory(size_t base, size_t size)
 {
-    if (base + size >= memory_size)
+    if (base + size > memory_size)
         return nullptr;
     return memory + base;
+}
+//------------------------------------------------------------------------------
+std::string x86_i386::Status()
+{
+    std::string output;
+
+    char temp[32];
+    for (int i = 0; i < 8; ++i) {
+        snprintf(temp, 32, "%-8s%08X", REG32[i], regs[i].d);
+        output += temp;
+        output += '\n';
+    }
+
+    output += '\n';
+    snprintf(temp, 32, "%-8s%08X", "EIP", ip.d);
+    output += temp;
+    output += '\n';
+
+    output += '\n';
+    snprintf(temp, 32, "%-8s%08X", "EFLAGS", flags.d);
+    output += temp;
+
+    return output;
 }
 //------------------------------------------------------------------------------
 std::string x86_i386::Disassemble(int count)
@@ -145,8 +174,6 @@ std::string x86_i386::Disassemble(int count)
         backup.regs[i] = regs[i];
     backup.flags = flags;
     backup.ip = ip;
-
-    disasm = &output;
 
     for (int i = 0; i < count; ++i) {
         char temp[64];
@@ -175,8 +202,6 @@ std::string x86_i386::Disassemble(int count)
         }
     }
 
-    disasm = nullptr;
-
     for (int i = 0; i < 8; ++i)
         regs[i] = backup.regs[i];
     flags = backup.flags;
@@ -187,35 +212,15 @@ std::string x86_i386::Disassemble(int count)
 //------------------------------------------------------------------------------
 void x86_i386::StepInternal(Format& format)
 {
-    operand_size = 32;
-    repeat_string_operation = false;
+    format.width = 32;
+    format.repeat = false;
 
     for (;;) {
         opcode = memory + EIP;
         (this->*one[opcode[0]])(format);
         EIP += format.length;
-
-        switch (opcode[0]) {
-        case 0x26:
-        case 0x2E:
-        case 0x36:
-        case 0x3E:
-        case 0x64:
-        case 0x65:
-        case 0x66:
-        case 0x67:
-        case 0xF0:
-        case 0xF2:
-        case 0xF3:
-            format = Format();
-            continue;
+        if (format.operation)
             break;
-        default:
-            operand_size = 32;
-            repeat_string_operation = false;
-            break;
-        }
-        break;
     }
 }
 //------------------------------------------------------------------------------
@@ -284,6 +289,11 @@ void x86_i386::grp8(Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::OSIZE(Format& format)
 {
-    operand_size = 16;
+    format.width = 16;
+}
+//------------------------------------------------------------------------------
+void x86_i386::ASIZE(Format& format)
+{
+    format.address = 16;
 }
 //------------------------------------------------------------------------------

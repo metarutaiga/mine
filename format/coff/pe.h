@@ -182,6 +182,23 @@ struct PE : public COFF
         DataDirectory   DataDirectory[16];
     };
 
+    struct ExportDirectory
+    {
+        uint32_t        Characteristics;
+        uint32_t        TimeDateStamp;
+        uint16_t        MajorVersion;
+        uint16_t        MinorVersion;
+        uint32_t        Name;
+        uint32_t        Base;
+        uint32_t        NumberOfFunctions;
+        uint32_t        NumberOfNames;
+        uint32_t        AddressOfFunctions;
+        uint32_t        AddressOfNames;
+        uint32_t        AddressOfNameOrdinals;
+    };
+
     static const char* GetMagic(uint16_t magic);
-    static uint32_t Load(const char* path, uint8_t*(*mmap)(uint32_t, uint32_t, void*), void* userdata);
+    static bool Load(const char* path,
+                     uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
+                     size_t(*sym)(const char*, size_t, void*), void* sym_data);
 };

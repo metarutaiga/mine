@@ -22,11 +22,13 @@ struct x86_format
             uint64_t address;
             uint8_t* memory;
         };
-        int size = 0;
+        int width = 0;
         int length = 1;
+        int address = 0;
+        bool repeat = false;
         const char* instruction = "";
-        Operand operand[3];
+        Operand operand[3] = {};
 
-        void (*operation)(x86_instruction&, const Format&, void*, const void*) = nullptr;
+        void (*operation)(x86_instruction&, const Format&, void*, const void*, const void*) = nullptr;
     };
 };

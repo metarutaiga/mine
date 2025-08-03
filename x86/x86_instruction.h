@@ -17,15 +17,15 @@ protected:
     uint8_t* stack = nullptr;
 
 protected:
-    std::string* disasm = nullptr;
 
     enum
     {
-        OPERAND_SIZE    = 0b00001,
-        DIRECTION       = 0b00010,
-        IMMEDIATE       = 0b00100,
-        INDIRECT        = 0b01000,
-        RELATIVE        = 0b10000,
+        OPERAND_SIZE    = 0b000001,
+        DIRECTION       = 0b000010,
+        IMMEDIATE       = 0b000100,
+        INDIRECT        = 0b001000,
+        RELATIVE        = 0b010000,
+        THREE_OPERAND   = 0b100000,
     };
 
     void        Decode(Format& format, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);

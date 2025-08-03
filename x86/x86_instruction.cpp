@@ -4,22 +4,17 @@
 #include "x86_register.inl"
 
 //------------------------------------------------------------------------------
-static const char* const REG8[8] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
-static const char* const REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
-static const char* const REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
-static const char* const REG64[8] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI" };
-//------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
 void x86_instruction::Decode(Format& format, const char* instruction, int offset, int immediate_size, int flags)
 {
-    format.size = (flags & OPERAND_SIZE) ? operand_size : 8;
+    format.width = (flags & OPERAND_SIZE) ? format.width : 8;
     format.length = offset;
     format.instruction = instruction;
 
     if (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
         if (immediate_size < 0)
-            immediate_size = format.size;
+            immediate_size = format.width;
         if (flags & IMMEDIATE)  format.operand[0].type = Format::Operand::IMM;
         if (flags & INDIRECT)   format.operand[0].type = Format::Operand::ADR;
         if (flags & RELATIVE)   format.operand[0].type = Format::Operand::REL;
@@ -88,6 +83,11 @@ void x86_instruction::Decode(Format& format, const char* instruction, int offset
                 format.operand[MODRM].index = -1;
                 format.operand[MODRM].base = RM;
                 format.operand[MODRM].displacement = 0;
+                if (RM == 0b101) {
+                    format.length += 4;
+                    format.operand[MODRM].base = -1;
+                    format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+                }
                 break;
             case 0b01:
                 format.length += 1;
@@ -114,6 +114,9 @@ void x86_instruction::Decode(Format& format, const char* instruction, int offset
         }
         format.operand[OPREG].type = Format::Operand::REG;
         format.operand[OPREG].base = REG;
+        if (flags & THREE_OPERAND) {
+            OPREG = 2;
+        }
     }
     else {
         format.operand[MODRM].type = Format::Operand::REG;
@@ -124,7 +127,7 @@ void x86_instruction::Decode(Format& format, const char* instruction, int offset
 
     if (immediate_size) {
         if (immediate_size < 0)
-            immediate_size = format.size;
+            immediate_size = format.width;
         switch (immediate_size) {
         case 8:
             format.length += 1;
@@ -166,7 +169,7 @@ std::string x86_instruction::Disasm(const Format& format)
         disasm += ' ';
         switch (format.operand[i].type) {
         case Format::Operand::ADR:
-            switch (format.size) {
+            switch (format.width) {
             case 8:     disasm += "BYTE PTR";   break;
             case 16:    disasm += "WORD PTR";   break;
             case 32:    disasm += "DWORD PTR";  break;
@@ -197,7 +200,7 @@ std::string x86_instruction::Disasm(const Format& format)
             disasm += hex(format.operand[i].displacement);
             break;
         case Format::Operand::REG:
-            switch (format.size) {
+            switch (format.width) {
             case 8:     disasm += REG8[format.operand[i].base];   break;
             case 16:    disasm += REG16[format.operand[i].base];  break;
             case 32:    disasm += REG32[format.operand[i].base];  break;
@@ -219,8 +222,12 @@ std::string x86_instruction::Disasm(const Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::Fixup(Format& format)
 {
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 3; ++i) {
         switch (format.operand[i].type) {
+        case Format::Operand::NOP:
+            format.operand[i].address = 0;
+            format.operand[i].memory = (uint8_t*)&format.operand[i].address;
+            break;
         case Format::Operand::ADR:
             format.operand[i].address = 0;
             if (format.operand[i].scale > 0) {
@@ -233,11 +240,11 @@ void x86_instruction::Fixup(Format& format)
             format.operand[i].memory = memory + format.operand[i].address;
             break;
         case Format::Operand::IMM:
-            format.operand[i].memory = nullptr;
-            format.operand[i].memory += format.operand[i].displacement;
+            format.operand[i].address = format.operand[i].displacement;
+            format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         case Format::Operand::REG:
-            if (format.size != 8 || format.operand[i].base < 4) {
+            if (format.width != 8 || format.operand[i].base < 4) {
                 format.operand[i].memory = &regs[format.operand[i].base].l;
             }
             else {
@@ -245,7 +252,7 @@ void x86_instruction::Fixup(Format& format)
             }
             break;
         case Format::Operand::REL:
-            format.operand[i].memory = nullptr;
+            format.operand[i].memory = memory;
             format.operand[i].memory += x86.ip.q;
             format.operand[i].memory += format.operand[i].displacement;
             break;
@@ -335,11 +342,12 @@ void x86_instruction::CALL(Format& format)
     switch (opcode[0]) {
     case 0xE8:  Decode(format, "CALL", 1, -1, OPERAND_SIZE | RELATIVE);             break;
     case 0xFF:
-        switch (opcode[1] & 0b00000111) {
-        case 0b00000010:    Decode(format, "CALL", 1,  0, OPERAND_SIZE);            break;
-        case 0b00000011:    Decode(format, "CALL", 2, -1, OPERAND_SIZE | INDIRECT); break;
+        switch (opcode[1] & 0b00111000) {
+        case 0b00010000:    Decode(format, "CALL", 1,  0, OPERAND_SIZE);            break;
+//      case 0b00011000:    Decode(format, "CALL", 2, -1, OPERAND_SIZE | INDIRECT); break;
         }
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         Push(EIP);
@@ -352,12 +360,10 @@ void x86_instruction::CALL(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::CDQ(Format& format)
 {
-    format.size = operand_size;
-    format.length = 1;
-    format.instruction = (operand_size == 16) ? "CWD" : "CDQ";
+    format.instruction = (format.width == 16) ? "CWD" : "CDQ";
 
     BEGIN_OPERATION() {
-        if (format.size == 16)
+        if (format.width == 16)
             DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
         else
             EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
@@ -413,12 +419,10 @@ void x86_instruction::CMP(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::CWDE(Format& format)
 {
-    format.size = operand_size;
-    format.length = 1;
-    format.instruction = (operand_size == 16) ? "CBW" : "CWDE";
+    format.instruction = (format.width == 16) ? "CBW" : "CWDE";
 
     BEGIN_OPERATION() {
-        if (format.size == 16)
+        if (format.width == 16)
             AX = (int8_t)AL;
         else
             EAX = (int16_t)AX;
@@ -452,41 +456,41 @@ void x86_instruction::ENTER(Format& format)
 void x86_instruction::Jcc(Format& format)
 {
     switch (opcode[0]) {
-    case 0x70:  Decode(format, "JO", 0, 8);     break;
-    case 0x71:  Decode(format, "JNO", 0, 8);    break;
-    case 0x72:  Decode(format, "JC", 0, 8);     break;
-    case 0x73:  Decode(format, "JNC", 0, 8);    break;
-    case 0x74:  Decode(format, "JZ", 0, 8);     break;
-    case 0x75:  Decode(format, "JNZ", 0, 8);    break;
-    case 0x76:  Decode(format, "JBE", 0, 8);    break;
-    case 0x77:  Decode(format, "JA", 0, 8);     break;
-    case 0x78:  Decode(format, "JS", 0, 8);     break;
-    case 0x79:  Decode(format, "JNS", 0, 8);    break;
-    case 0x7A:  Decode(format, "JPE", 0, 8);    break;
-    case 0x7B:  Decode(format, "JPO", 0, 8);    break;
-    case 0x7C:  Decode(format, "JL", 0, 8);     break;
-    case 0x7D:  Decode(format, "JGE", 0, 8);    break;
-    case 0x7E:  Decode(format, "JLE", 0, 8);    break;
-    case 0x7F:  Decode(format, "JG", 0, 8);     break;
-    case 0xE3:  Decode(format, (operand_size == 16) ? "JCXZ" : "JECXZ", 0, 8);   break;
+    case 0x70:  Decode(format, "JO",  1, 8, RELATIVE);  break;
+    case 0x71:  Decode(format, "JNO", 1, 8, RELATIVE);  break;
+    case 0x72:  Decode(format, "JC",  1, 8, RELATIVE);  break;
+    case 0x73:  Decode(format, "JNC", 1, 8, RELATIVE);  break;
+    case 0x74:  Decode(format, "JZ",  1, 8, RELATIVE);  break;
+    case 0x75:  Decode(format, "JNZ", 1, 8, RELATIVE);  break;
+    case 0x76:  Decode(format, "JBE", 1, 8, RELATIVE);  break;
+    case 0x77:  Decode(format, "JA",  1, 8, RELATIVE);  break;
+    case 0x78:  Decode(format, "JS",  1, 8, RELATIVE);  break;
+    case 0x79:  Decode(format, "JNS", 1, 8, RELATIVE);  break;
+    case 0x7A:  Decode(format, "JPE", 1, 8, RELATIVE);  break;
+    case 0x7B:  Decode(format, "JPO", 1, 8, RELATIVE);  break;
+    case 0x7C:  Decode(format, "JL",  1, 8, RELATIVE);  break;
+    case 0x7D:  Decode(format, "JGE", 1, 8, RELATIVE);  break;
+    case 0x7E:  Decode(format, "JLE", 1, 8, RELATIVE);  break;
+    case 0x7F:  Decode(format, "JG",  1, 8, RELATIVE);  break;
+    case 0xE3:  Decode(format, (format.address == 16) ? "JCXZ" : "JECXZ", 1, 8, RELATIVE); break;
     case 0x0F:
         switch (opcode[1]) {
-        case 0x80:  Decode(format, "JO", 0, -1);    break;
-        case 0x81:  Decode(format, "JNO", 0, -1);   break;
-        case 0x82:  Decode(format, "JC", 0, -1);    break;
-        case 0x83:  Decode(format, "JNC", 0, -1);   break;
-        case 0x84:  Decode(format, "JZ", 0, -1);    break;
-        case 0x85:  Decode(format, "JNZ", 0, -1);   break;
-        case 0x86:  Decode(format, "JBE", 0, -1);   break;
-        case 0x87:  Decode(format, "JA", 0, -1);    break;
-        case 0x88:  Decode(format, "JS", 0, -1);    break;
-        case 0x89:  Decode(format, "JNS", 0, -1);   break;
-        case 0x8A:  Decode(format, "JPE", 0, -1);   break;
-        case 0x8B:  Decode(format, "JPO", 0, -1);   break;
-        case 0x8C:  Decode(format, "JL", 0, -1);    break;
-        case 0x8D:  Decode(format, "JGE", 0, -1);   break;
-        case 0x8E:  Decode(format, "JLE", 0, -1);   break;
-        case 0x8F:  Decode(format, "JG", 0, -1);    break;
+        case 0x80:  Decode(format, "JO",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x81:  Decode(format, "JNO", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x82:  Decode(format, "JC",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x83:  Decode(format, "JNC", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x84:  Decode(format, "JZ",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x85:  Decode(format, "JNZ", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x86:  Decode(format, "JBE", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x87:  Decode(format, "JA",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x88:  Decode(format, "JS",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x89:  Decode(format, "JNS", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8A:  Decode(format, "JPE", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8B:  Decode(format, "JPO", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8C:  Decode(format, "JL",  2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8D:  Decode(format, "JGE", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8E:  Decode(format, "JLE", 2, -1, OPERAND_SIZE | RELATIVE);  break;
+        case 0x8F:  Decode(format, "JG",  2, -1, OPERAND_SIZE | RELATIVE);  break;
         }
         break;
     }
@@ -500,13 +504,14 @@ void x86_instruction::JMP(Format& format)
 {
     switch (opcode[0]) {
     case 0xE9:  Decode(format, "JMP", 1, -1, OPERAND_SIZE | RELATIVE);              break;
-    case 0xEB:  Decode(format, "JMP", 1, 8, RELATIVE);                              break;
+    case 0xEB:  Decode(format, "JMP", 1,  8, RELATIVE);                             break;
     case 0xFF:
-        switch (opcode[1] & 0b00000111) {
-        case 0b00000100:    Decode(format, "JMP", 1, 0, OPERAND_SIZE);              break;
-        case 0b00000101:    Decode(format, "JMP", 2, -1, OPERAND_SIZE | INDIRECT);  break;
+        switch (opcode[1] & 0b00111000) {
+        case 0b00100000:    Decode(format, "JMP", 1, 0, OPERAND_SIZE);              break;
+//      case 0b00101000:    Decode(format, "JMP", 2, -1, OPERAND_SIZE | INDIRECT);  break;
         }
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::REL)
@@ -527,7 +532,7 @@ void x86_instruction::LAHF(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::LEA(Format& format)
 {
-    Decode(format, "LEA", 1);
+    Decode(format, "LEA", 1, 0, OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST = (decltype(DEST))format.operand[0].address;
@@ -547,19 +552,19 @@ void x86_instruction::LEAVE(Format& format)
 void x86_instruction::LOOP(Format& format)
 {
     switch (opcode[0]) {
-    case 0xE0:  Decode(format, "LOOPNZ", 0, 8, OPERAND_SIZE);   break;
-    case 0xE1:  Decode(format, "LOOPZ", 0, 8, OPERAND_SIZE);    break;
-    case 0xE2:  Decode(format, "LOOP", 0, 8, OPERAND_SIZE);     break;
+    case 0xE0:  Decode(format, "LOOPNZ", 1, 8, RELATIVE);   break;
+    case 0xE1:  Decode(format, "LOOPZ", 1, 8, RELATIVE);    break;
+    case 0xE2:  Decode(format, "LOOP", 1, 8, RELATIVE);     break;
     }
 
     BEGIN_OPERATION() {
-        uint32_t CountReg = (format.size == 16) ? CX : ECX;
+        uint32_t CountReg = (format.width == 16) ? CX : ECX;
         if (CountReg) {
             ECX = ECX - 1;
             bool BranchCond = true;
             switch (x86.opcode[0]) {
-                case 0xE0:  BranchCond = (ZF == 0); break;
-                case 0xE1:  BranchCond = (ZF != 0); break;
+            case 0xE0:  BranchCond = (ZF == 0); break;
+            case 0xE1:  BranchCond = (ZF != 0); break;
             }
             if (BranchCond) {
                 EIP += format.operand[1].displacement;
@@ -582,7 +587,7 @@ void x86_instruction::MOV(Format& format)
     case 0xB4:
     case 0xB5:
     case 0xB6:
-    case 0xB7:  Decode(format, "MOV", 0, -1);
+    case 0xB7:  Decode(format, "MOV", 0, 8);
                 format.operand[0].type = Format::Operand::REG;
                 format.operand[0].base = opcode[0] & 0b111;     break;
     case 0xB8:
@@ -595,7 +600,7 @@ void x86_instruction::MOV(Format& format)
     case 0xBF:  Decode(format, "MOV", 0, -1, OPERAND_SIZE);
                 format.operand[0].type = Format::Operand::REG;
                 format.operand[0].base = opcode[0] & 0b111;     break;
-    case 0xC6:  Decode(format, "MOV", 1, -1);                   break;
+    case 0xC6:  Decode(format, "MOV", 1, 8);                    break;
     case 0xC7:  Decode(format, "MOV", 1, -1, OPERAND_SIZE);     break;
     }
 
@@ -608,11 +613,11 @@ void x86_instruction::MOVSX(Format& format)
 {
     switch (opcode[1]) {
     case 0xBE:
-    case 0xBF:  Decode(format, "MOVSX", 2, 0, opcode[1] & 0b01);    break;
+    case 0xBF:  Decode(format, "MOVSX", 2, 0, opcode[1] & 0b11);    break;
     }
 
     BEGIN_OPERATION() {
-        switch (format.size) {
+        switch (format.width) {
         case 8:
             (uint16_t&)DEST = SRC;
             break;
@@ -627,11 +632,11 @@ void x86_instruction::MOVZX(Format& format)
 {
     switch (opcode[1]) {
     case 0xB6:
-    case 0xB7:  Decode(format, "MOVZX", 2, 0, opcode[1] & 0b01);    break;
+    case 0xB7:  Decode(format, "MOVZX", 2, 0, opcode[1] & 0b11);    break;
     }
 
     BEGIN_OPERATION() {
-        switch (format.size) {
+        switch (format.width) {
         case 8:
             (uint16_t&)DEST = SRC;
             break;
@@ -648,6 +653,8 @@ void x86_instruction::NOP(Format& format)
     case 0x90:  Decode(format, "NOP");                          break;
     case 0x0F:  Decode(format, "NOP", 2, 0, opcode[1] & 0b11);  break;
     }
+    format.operand[0].type = Format::Operand::NOP;
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
     } END_OPERATION;
@@ -656,9 +663,19 @@ void x86_instruction::NOP(Format& format)
 void x86_instruction::POP(Format& format)
 {
     switch (opcode[0]) {
-    case 0x58:  Decode(format, "POP", 1, 0, OPERAND_SIZE);  break;
+    case 0x58:
+    case 0x59:
+    case 0x5A:
+    case 0x5B:
+    case 0x5C:
+    case 0x5D:
+    case 0x5E:
+    case 0x5F:  Decode(format, "POP", 0, 0, OPERAND_SIZE);
+                format.operand[0].type = Format::Operand::REG;
+                format.operand[0].base = opcode[0] & 0b111; break;
     case 0x8F:  Decode(format, "POP", 1, 0, OPERAND_SIZE);  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         DEST = Pop();
@@ -667,7 +684,7 @@ void x86_instruction::POP(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::POPAD(Format& format)
 {
-    Decode(format, "POPAD", 0, 0, OPERAND_SIZE);
+    format.instruction = "POPAD";
 
     BEGIN_OPERATION() {
         EDI = Pop();
@@ -683,7 +700,7 @@ void x86_instruction::POPAD(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::POPFD(Format& format)
 {
-    Decode(format, "POPFD", 0, 0, OPERAND_SIZE);
+    format.instruction = "POPFD";
 
     BEGIN_OPERATION() {
         EFLAGS = Pop();
@@ -693,11 +710,21 @@ void x86_instruction::POPFD(Format& format)
 void x86_instruction::PUSH(Format& format)
 {
     switch (opcode[0]) {
-    case 0x50:  Decode(format, "PUSH", 1,  0, OPERAND_SIZE);                break;
+    case 0x50:
+    case 0x51:
+    case 0x52:
+    case 0x53:
+    case 0x54:
+    case 0x55:
+    case 0x56:
+    case 0x57:  Decode(format, "PUSH", 0,  0, OPERAND_SIZE);
+                format.operand[0].type = Format::Operand::REG;
+                format.operand[0].base = opcode[0] & 0b111;                 break;
     case 0x68:  Decode(format, "PUSH", 1, -1, OPERAND_SIZE | IMMEDIATE);    break;
     case 0x6A:  Decode(format, "PUSH", 1,  8, OPERAND_SIZE | IMMEDIATE);    break;
     case 0xFF:  Decode(format, "PUSH", 1,  0, OPERAND_SIZE);                break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         Push(DEST);
@@ -706,7 +733,7 @@ void x86_instruction::PUSH(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::PUSHAD(Format& format)
 {
-    Decode(format, "PUSHAD", 0, 0, OPERAND_SIZE);
+    format.instruction = "PUSHAD";
 
     BEGIN_OPERATION() {
         auto Temp = ESP;
@@ -723,7 +750,7 @@ void x86_instruction::PUSHAD(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::PUSHFD(Format& format)
 {
-    Decode(format, "PUSHFD", 0, 0, OPERAND_SIZE);
+    format.instruction = "PUSHFD";
 
     BEGIN_OPERATION() {
         Push(EFLAGS);
@@ -732,7 +759,7 @@ void x86_instruction::PUSHFD(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::REP(Format& format)
 {
-    repeat_string_operation = true;
+    format.repeat = true;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RET(Format& format)
@@ -740,6 +767,7 @@ void x86_instruction::RET(Format& format)
     format.instruction = "RET";
     switch (opcode[0]) {
     case 0xC2:
+        format.length += 2;
         format.operand[0].type = Format::Operand::IMM;
         format.operand[0].displacement = IMM16(opcode, 1);
         break;
@@ -782,6 +810,7 @@ void x86_instruction::SETcc(Format& format)
     case 0x9E:  Decode(format, "SETLE", 2);   break;
     case 0x9F:  Decode(format, "SETG", 2);    break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         // TODO

@@ -14,6 +14,8 @@ struct miCPU
     virtual bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) = 0;
     virtual bool Step() = 0;
     virtual bool Jump(size_t address) = 0;
-    virtual uint8_t* Memory(size_t base, size_t size) = 0;
+    virtual size_t Stack() = 0;
+    virtual uint8_t* Memory(size_t base = 0, size_t size = 0) = 0;
+    virtual std::string Status() = 0;
     virtual std::string Disassemble(int count) = 0;
 };

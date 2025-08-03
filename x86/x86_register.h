@@ -56,6 +56,8 @@ struct x86_register
     flags_t flags = { 0b10 };
     uint16_t segments = {};
 
-    int operand_size = 0;
-    bool repeat_string_operation = false;
+    static const char* const REG8[8];
+    static const char* const REG16[8];
+    static const char* const REG32[8];
+    static const char* const REG64[8];
 };

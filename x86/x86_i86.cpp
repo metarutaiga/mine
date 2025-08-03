@@ -30,7 +30,7 @@ const x86_instruction::instruction_pointer x86_i86::one[256] =
 /* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x _      x _     x RET  x RET  x _     x _     x MOV   x MOV   x _     x _     x _     x _     x _      x _     x _     x _
 /* D */ x grp2   x grp2  x grp2 x grp2 x _     x _     x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
-/* E */ x LOOP   x LOOP  x LOOP x Jcc  x _     x _     x _     x _     x CALL  x Jcc   x _     x Jcc   x _      x _     x _     x _
+/* E */ x LOOP   x LOOP  x LOOP x Jcc  x _     x _     x _     x _     x CALL  x JMP   x _     x JMP   x _      x _     x _     x _
 /* F */ x _      x _     x REP  x REP  x _     x CMC   x grp3  x grp3  x CLC   x STC   x _     x _     x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
@@ -78,11 +78,12 @@ bool x86_i86::Initialize(size_t space, const void* program, size_t size)
         return false;
     }
     memset(memory, 0, space);
-    stack = memory + space - 16;
     memory_size = space;
 
     IP = 1024;
+    SP = (uint16_t)space - 16;
     memcpy(memory + IP, program, size);
+    stack = memory + SP;
 
     return true;
 }
@@ -92,23 +93,51 @@ bool x86_i86::Step()
     Format format;
     StepInternal(format);
     Fixup(format);
-    format.operation(*this, format, format.operand[0].memory, format.operand[1].memory);
+    format.operation(*this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     return true;
 }
 //------------------------------------------------------------------------------
 bool x86_i86::Jump(size_t address)
 {
-    if (address >= memory_size)
+    if (address > memory_size)
         return false;
     IP = (uint16_t)address;
     return true;
 }
 //------------------------------------------------------------------------------
+size_t x86_i86::Stack()
+{
+    return SP;
+}
+//------------------------------------------------------------------------------
 uint8_t* x86_i86::Memory(size_t base, size_t size)
 {
-    if (base + size >= memory_size)
+    if (base + size > memory_size)
         return nullptr;
     return memory + base;
+}
+//------------------------------------------------------------------------------
+std::string x86_i86::Status()
+{
+    std::string output;
+
+    char temp[32];
+    for (int i = 0; i < 8; ++i) {
+        snprintf(temp, 32, "%-8s%08X", REG16[i], regs[i].w);
+        output += temp;
+        output += '\n';
+    }
+
+    output += '\n';
+    snprintf(temp, 32, "%-8s%08X", "IP", ip.w);
+    output += temp;
+    output += '\n';
+
+    output += '\n';
+    snprintf(temp, 32, "%-8s%08X", "FLAGS", flags.w);
+    output += temp;
+
+    return output;
 }
 //------------------------------------------------------------------------------
 std::string x86_i86::Disassemble(int count)
@@ -120,8 +149,6 @@ std::string x86_i86::Disassemble(int count)
         backup.regs[i] = regs[i];
     backup.flags = flags;
     backup.ip = ip;
-
-    disasm = &output;
 
     for (int i = 0; i < count; ++i) {
         char temp[64];
@@ -150,8 +177,6 @@ std::string x86_i86::Disassemble(int count)
         }
     }
 
-    disasm = nullptr;
-
     for (int i = 0; i < 8; ++i)
         regs[i] = backup.regs[i];
     flags = backup.flags;
@@ -162,31 +187,15 @@ std::string x86_i86::Disassemble(int count)
 //------------------------------------------------------------------------------
 void x86_i86::StepInternal(Format& format)
 {
-    operand_size = 16;
-    repeat_string_operation = false;
+    format.width = 16;
+    format.repeat = false;
 
     for (;;) {
         opcode = memory + IP;
         (this->*one[opcode[0]])(format);
         IP += format.length;
-
-        switch (opcode[0]) {
-        case 0x26:
-        case 0x2E:
-        case 0x36:
-        case 0x3E:
-        case 0xF0:
-        case 0xF2:
-        case 0xF3:
-            format = Format();
-            continue;
+        if (format.operation)
             break;
-        default:
-            operand_size = 16;
-            repeat_string_operation = false;
-            break;
-        }
-        break;
     }
 }
 //------------------------------------------------------------------------------

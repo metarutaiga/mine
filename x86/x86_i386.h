@@ -18,7 +18,9 @@ public:
     bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) override;
     bool Step() override;
     bool Jump(size_t address) override;
-    uint8_t* Memory(size_t base, size_t size) override;
+    size_t Stack() override;
+    uint8_t* Memory(size_t base = 0, size_t size = 0) override;
+    std::string Status() override;
     std::string Disassemble(int count) override;
 
 protected:
@@ -38,7 +40,7 @@ protected:
     instruction grp8;
 
     instruction OSIZE;  // Operand-size override
-//  instruction ASIZE;  // Address-size override
+    instruction ASIZE;  // Address-size override
 
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];

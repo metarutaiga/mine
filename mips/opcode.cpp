@@ -535,7 +535,7 @@ void CPU::LW()
     signed int load;
     memcpy(&load, (void*)address, sizeof(int));
     GPR[rt] = load;
-    MIPS_DEBUG("LW", "GPR:%-2u[%016zX] = GPR:%-2u[%016zX] + IMM:%X[%016zX]", rt, GPR[rt], rs, GPR[rs], immediate, nAddress);
+    MIPS_DEBUG("LW", "GPR:%-2u[%016zX] = GPR:%-2u[%016zX] + IMM:%X[%016zX]", rt, GPR[rt], rs, GPR[rs], immediate, address);
 }
 //------------------------------------------------------------------------------
 void CPU::LBU()
@@ -605,7 +605,7 @@ void CPU::LD()
     intptr_t load;
     memcpy (&load, (void*)address, sizeof (intptr_t));
     GPR[rt] = load;
-    MIPS_DEBUG("LD", "GPR:%-2u[%016zX] = GPR:%-2u[%016zX] + IMM:%X[%016zX]", rt, GPR[rt], rs, GPR[rs], immediate, nAddress);
+    MIPS_DEBUG("LD", "GPR:%-2u[%016zX] = GPR:%-2u[%016zX] + IMM:%X[%016zX]", rt, GPR[rt], rs, GPR[rs], immediate, address);
 #endif
 }
 //------------------------------------------------------------------------------

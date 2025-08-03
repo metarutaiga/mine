@@ -55,10 +55,7 @@ void x86_instruction::SHxD(Format& format)
 {
     switch (opcode[1]) {
     case 0xA4:
-        Decode(format, "SHLD", 2, 0, OPERAND_SIZE);
-        format.length += 1;
-        format.operand[2].type = Format::Operand::IMM;
-        format.operand[2].displacement = IMM8(opcode, 3);
+        Decode(format, "SHLD", 2, 8, OPERAND_SIZE | THREE_OPERAND);
         break;
     case 0xA5:
         Decode(format, "SHLD", 2, 0, OPERAND_SIZE);
@@ -66,10 +63,7 @@ void x86_instruction::SHxD(Format& format)
         format.operand[2].base = REG(ECX);
         break;
     case 0xAC:
-        Decode(format, "SHRD", 2, 0, OPERAND_SIZE);
-        format.length += 1;
-        format.operand[2].type = Format::Operand::IMM;
-        format.operand[2].displacement = IMM8(opcode, 3);
+        Decode(format, "SHRD", 2, 8, OPERAND_SIZE | THREE_OPERAND);
         break;
     case 0xAD:
         Decode(format, "SHRD", 2, 0, OPERAND_SIZE);

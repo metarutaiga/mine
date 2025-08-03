@@ -45,7 +45,18 @@ void x86_instruction::ADD(Format& format)
 void x86_instruction::DEC(Format& format)
 {
     switch (opcode[0]) {
-    case 0x48:  Decode(format, "DEC", 0, 0,             0b01);  break;
+    case 0x48:
+    case 0x49:
+    case 0x4A:
+    case 0x4B:
+    case 0x4C:
+    case 0x4D:
+    case 0x4E:
+    case 0x4F:
+        format.instruction = "DEC";
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = opcode[0] - 0x48;
+        break;
     case 0xFE:
     case 0xFF:  Decode(format, "DEC", 1, 0, opcode[0] & 0b01);  break;
     }
@@ -59,7 +70,11 @@ void x86_instruction::DIV(Format& format)
 {
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, "DIV", 1, 0, opcode[0] & 0b01);  break;
+    case 0xF7:
+        Decode(format, "DIV", 1, 0, opcode[0] & 0b11);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = REG(EAX);
+        break;
     }
 
     BEGIN_OPERATION() {
@@ -71,7 +86,11 @@ void x86_instruction::IDIV(Format& format)
 {
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, "IDIV", 1, 0, opcode[0] & 0b01); break;
+    case 0xF7:
+        Decode(format, "IDIV", 1, 0, opcode[0] & 0b11);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = REG(EAX);
+        break;
     }
 
     BEGIN_OPERATION() {
@@ -84,11 +103,15 @@ void x86_instruction::IDIV(Format& format)
 void x86_instruction::IMUL(Format& format)
 {
     switch (opcode[0]) {
-    case 0x0F:  Decode(format, "IMUL", 2, 0,             0b01); break;
-    case 0x69:  Decode(format, "IMUL", 1, -1,            0b01); break;
-    case 0x6B:  Decode(format, "IMUL", 1, 8,             0b01); break;
+    case 0x0F:  Decode(format, "IMUL", 2,  0, OPERAND_SIZE | DIRECTION);                    break;
+    case 0x69:  Decode(format, "IMUL", 1, -1, OPERAND_SIZE | DIRECTION | THREE_OPERAND);    break;
+    case 0x6B:  Decode(format, "IMUL", 1,  8, OPERAND_SIZE | DIRECTION | THREE_OPERAND);    break;
     case 0xF6:
-    case 0xF7:  Decode(format, "IMUL", 1, 0, opcode[0] & 0b01); break;
+    case 0xF7:
+        Decode(format, "IMUL", 1, 0, opcode[0] & 0b11);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = REG(EAX);
+        break;
     }
 
     BEGIN_OPERATION() {
@@ -101,7 +124,18 @@ void x86_instruction::IMUL(Format& format)
 void x86_instruction::INC(Format& format)
 {
     switch (opcode[0]) {
-    case 0x40:  Decode(format, "INC", 0, 0,             0b01);  break;
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x43:
+    case 0x44:
+    case 0x45:
+    case 0x46:
+    case 0x47:
+        format.instruction = "INC";
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = opcode[0] - 0x40;
+        break;
     case 0xFE:
     case 0xFF:  Decode(format, "INC", 1, 0, opcode[0] & 0b01);  break;
     }
@@ -115,20 +149,29 @@ void x86_instruction::MUL(Format& format)
 {
     switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, "MUL", 1, 0, opcode[0] & 0b01);  break;
+    case 0xF7:
+        Decode(format, "MUL", 1, 0, opcode[0] & 0b11);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].base = REG(EAX);
+        break;
     }
 
     BEGIN_OPERATION() {
-        DEST = DEST / SRC;
+        switch (sizeof(SRC)) {
+        case sizeof(uint8_t):   { auto TEMP = AL * uint16_t(SRC);   AX = uint16_t(TEMP);                                break; }
+        case sizeof(uint16_t):  { auto TEMP = AX * uint32_t(SRC);   AX = uint16_t(TEMP);  DX = uint16_t(TEMP >> 16);    break; }
+        case sizeof(uint32_t):  { auto TEMP = EAX * uint64_t(SRC);  EAX = uint32_t(TEMP); EDX = uint32_t(TEMP >> 32);   break; }
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::NEG(Format& format)
 {
-    switch (opcode[1]) {
+    switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, "NEG", 1, 0, opcode[1] & 0b01);  break;
+    case 0xF7:  Decode(format, "NEG", 1, 0, opcode[0] & 0b01);  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         CF = (DEST == 0) ? 0 : 1;

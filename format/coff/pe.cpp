@@ -54,14 +54,16 @@ const char* PE::GetMagic(uint16_t magic)
     return "Unknown";
 }
 
-uint32_t PE::Load(const char* path, uint8_t*(*mmap)(uint32_t, uint32_t, void*), void* userdata)
+bool PE::Load(const char* path,
+              uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
+              size_t(*sym)(const char*, size_t, void*), void* sym_data)
 {
     if (path == nullptr)
-        return 0;
+        return false;
 
     FILE* file = fopen(path, "rb");
     if (file == nullptr)
-        return 0;
+        return false;
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
@@ -72,7 +74,7 @@ uint32_t PE::Load(const char* path, uint8_t*(*mmap)(uint32_t, uint32_t, void*), 
     fread(mz, 4, 16, file);
     uint32_t lfanew = mz[15];
 
-    uint32_t entry = 0;
+    bool succeed = false;
     SectionHeader* sections = nullptr;
     switch (NULL) case NULL: {
         if (lfanew >= size || fseek(file, lfanew, SEEK_SET) != 0) {
@@ -133,8 +135,16 @@ uint32_t PE::Load(const char* path, uint8_t*(*mmap)(uint32_t, uint32_t, void*), 
         printf("%-8s : 0x%08x\n", "Base", base);
         printf("%-8s : 0x%x\n", "Size", size);
 
+        // Entry
+        if (optionalHeader.AddressOfEntryPoint) {
+            sym("Entry", optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint, sym_data);
+        }
+        else {
+            sym("Entry", optionalHeader.ImageBase + optionalHeader.BaseOfCode, sym_data);
+        }
+
         // Load sections to memory
-        uint8_t* memory = mmap(base, size, userdata);
+        uint8_t* memory = mmap(base, size, mmap_data);
         if (memory) {
             memset(memory, 0, size);
             for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
@@ -150,18 +160,24 @@ uint32_t PE::Load(const char* path, uint8_t*(*mmap)(uint32_t, uint32_t, void*), 
                     }
                 }
             }
+
+            // Export
+            if (optionalHeader.DataDirectory[0].Size) {
+                auto& directory = *(ExportDirectory*)(memory + optionalHeader.DataDirectory[0].VirtualAddress - min);
+                for (uint32_t i = 0; i < directory.NumberOfFunctions; ++i) {
+                    uint32_t address = *(uint32_t*)(memory + directory.AddressOfFunctions + sizeof(uint32_t) * i - min);
+                    uint32_t pointer = *(uint32_t*)(memory + directory.AddressOfNames + sizeof(uint32_t) * i - min);
+                    auto* name = (const char*)(memory + pointer - min);
+                    sym(name, optionalHeader.ImageBase + address, sym_data);
+                }
+            }
         }
 
+        succeed = true;
         printf("succeed\n");
-        if (optionalHeader.AddressOfEntryPoint) {
-            entry = optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint;
-        }
-        else {
-            entry = optionalHeader.ImageBase + optionalHeader.BaseOfCode;
-        }
     }
 
     delete[] sections;
     fclose(file);
-    return entry;
+    return succeed;
 }

@@ -27,10 +27,11 @@ void x86_instruction::AND(Format& format)
 //------------------------------------------------------------------------------
 void x86_instruction::NOT(Format& format)
 {
-    switch (opcode[1]) {
+    switch (opcode[0]) {
     case 0xF6:
-    case 0xF7:  Decode(format, "NOT", 1, 0, opcode[1] & 0b01);  break;
+    case 0xF7:  Decode(format, "NOT", 1, 0, opcode[0] & 0b01);  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         DEST = !DEST;

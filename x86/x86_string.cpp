@@ -7,10 +7,10 @@
 void x86_instruction::CMPSx(Format& format)
 {
     switch (opcode[0]) {
-    case 0xA6:  format.size = 8;            break;
-    case 0xA7:  format.size = operand_size; break;
+    case 0xA6:  format.width = 8;               break;
+    case 0xA7:  format.width = format.width;    break;
     }
-    switch (format.size) {
+    switch (format.width) {
     case 8:     format.instruction = "CMPSB";   break;
     case 16:    format.instruction = "CMPSW";   break;
     case 32:    format.instruction = "CMPSD";   break;
@@ -31,10 +31,10 @@ void x86_instruction::CMPSx(Format& format)
 void x86_instruction::LODSx(Format& format)
 {
     switch (opcode[0]) {
-    case 0xAC:  format.size = 8;            break;
-    case 0xAD:  format.size = operand_size; break;
+    case 0xAC:  format.width = 8;               break;
+    case 0xAD:  format.width = format.width;    break;
     }
-    switch (format.size) {
+    switch (format.width) {
     case 8:     format.instruction = "LODSB";   break;
     case 16:    format.instruction = "LODSW";   break;
     case 32:    format.instruction = "LODSD";   break;
@@ -53,10 +53,10 @@ void x86_instruction::LODSx(Format& format)
 void x86_instruction::MOVSx(Format& format)
 {
     switch (opcode[0]) {
-    case 0xA4:  format.size = 8;            break;
-    case 0xA5:  format.size = operand_size; break;
+    case 0xA4:  format.width = 8;               break;
+    case 0xA5:  format.width = format.width;    break;
     }
-    switch (format.size) {
+    switch (format.width) {
     case 8:     format.instruction = "MOVSB";   break;
     case 16:    format.instruction = "MOVSW";   break;
     case 32:    format.instruction = "MOVSD";   break;
@@ -76,10 +76,10 @@ void x86_instruction::MOVSx(Format& format)
 void x86_instruction::SCASx(Format& format)
 {
     switch (opcode[0]) {
-    case 0xAE:  format.size = 8;            break;
-    case 0xAF:  format.size = operand_size; break;
+    case 0xAE:  format.width = 8;               break;
+    case 0xAF:  format.width = format.width;    break;
     }
-    switch (format.size) {
+    switch (format.width) {
     case 8:     format.instruction = "SCASB";   break;
     case 16:    format.instruction = "SCASW";   break;
     case 32:    format.instruction = "SCASD";   break;
@@ -99,10 +99,10 @@ void x86_instruction::SCASx(Format& format)
 void x86_instruction::STOSx(Format& format)
 {
     switch (opcode[0]) {
-    case 0xAA:  format.size = 8;            break;
-    case 0xAB:  format.size = operand_size; break;
+    case 0xAA:  format.width = 8;               break;
+    case 0xAB:  format.width = format.width;    break;
     }
-    switch (format.size) {
+    switch (format.width) {
     case 8:     format.instruction = "STOSB";   break;
     case 16:    format.instruction = "STOSW";   break;
     case 32:    format.instruction = "STOSD";   break;
