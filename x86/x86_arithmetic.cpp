@@ -1,7 +1,7 @@
-#include "x86_instruction.h"
-#include "x86_instruction.inl"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 void x86_instruction::ADC(Format& format)
@@ -19,7 +19,7 @@ void x86_instruction::ADC(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST + (SRC + CF));
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST + (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ void x86_instruction::ADD(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST + SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST + SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void x86_instruction::DEC(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST - 1);
+        UpdateFlags<1, 1, 1, 1, 1, 0>(x86, DEST, DEST - 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ void x86_instruction::IMUL(Format& format)
     BEGIN_OPERATION() {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
-        DEST = dest * src;
+        UpdateFlags<1, 0, 0, 0, 0, 1>(x86, DEST, dest * src);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void x86_instruction::INC(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST + 1);
+        UpdateFlags<1, 1, 1, 1, 1, 0>(x86, DEST, DEST + 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -162,6 +162,7 @@ void x86_instruction::MUL(Format& format)
         case sizeof(uint16_t):  { auto TEMP = AX * uint32_t(SRC);   AX = uint16_t(TEMP);  DX = uint16_t(TEMP >> 16);    break; }
         case sizeof(uint32_t):  { auto TEMP = EAX * uint64_t(SRC);  EAX = uint32_t(TEMP); EDX = uint32_t(TEMP >> 32);   break; }
         }
+        UpdateFlags<1, 0, 0, 0, 0, 1>(x86, DEST, DEST);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ void x86_instruction::NEG(Format& format)
 
     BEGIN_OPERATION() {
         CF = (DEST == 0) ? 0 : 1;
-        DEST = -DEST;
+        UpdateFlags<1, 1, 1, 1, 1, 0>(x86, DEST, -DEST);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -194,7 +195,7 @@ void x86_instruction::SBB(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST - (SRC + CF));
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST - (SRC + CF));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ void x86_instruction::SUB(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST - SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST - SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

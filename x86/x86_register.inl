@@ -28,10 +28,10 @@
 #define EIP             x86.ip.d
 #define EFLAGS          x86.flags.d
 #define FLAGS           x86.flags.w
-#define CF              x86.flags.CF
-#define PF              x86.flags.PF
-#define AF              x86.flags.AF
-#define ZF              x86.flags.ZF
-#define SF              x86.flags.SF
-#define DF              x86.flags.DF
-#define OF              x86.flags.OF
+#define CF              x86.flags._CF
+#define PF              x86.flags._PF
+#define AF              x86.flags._AF
+#define ZF              x86.flags._ZF
+#define SF              x86.flags._SF
+#define DF              x86.flags._DF
+#define OF              x86.flags._OF

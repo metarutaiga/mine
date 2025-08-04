@@ -10,7 +10,6 @@ struct x86_instruction : public x86_format
 {
     x86_instruction& x86 = (*this);
 
-protected:
     size_t memory_size = 0;
     uint8_t* memory = nullptr;
     uint8_t* opcode = nullptr;
@@ -32,8 +31,10 @@ protected:
     std::string Disasm(const Format& format);
     void        Fixup(Format& format);
 
-    template<typename A, typename B>
-    static void UpdateFlags(x86_instruction& x86, A& DEST, B TEMP);
+    void (*ExceptionCallback)(size_t index, void* memory, void* stack) = [](size_t, void*, void*){};
+
+    template<int O, int S, int Z, int A, int P, int C, typename L, typename R>
+    static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP);
 
 protected:
     typedef void instruction(Format&);
@@ -139,6 +140,7 @@ protected:
 //  instruction STR;    // Store Task Register
     instruction SUB;    // Integer Subtraction
     instruction TEST;   // Logical Compare
+    instruction UD;     // Undefined Instruction
 //  instruction VERx;   // Verify a Segment for Reading or Writing
 //  instruction WAIT;   // Wait until BUSY# Pin is Inactive (HIGH)
     instruction XCHG;   // Exchange Register/Memory with Register

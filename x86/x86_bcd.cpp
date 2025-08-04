@@ -1,12 +1,13 @@
-#include "x86_instruction.h"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 void x86_instruction::AAA(Format& format)
 {
     format.instruction = "AAA";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         if ((AL & 0x0F) > 9 || AF == 1) {
             AL = AL + 6;
             AL = AL & 0x0F;
@@ -24,25 +25,27 @@ void x86_instruction::AAA(Format& format)
 void x86_instruction::AAD(Format& format)
 {
     format.instruction = "AAD";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         AL = AH * 10 + AL;
         AH = 0;
+        UpdateFlags<0, 1, 1, 0, 1, 0>(x86, AX, AX);
     };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::AAM(Format& format)
 {
     format.instruction = "AAM";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         AH = AL / 10;
         AL = AL % 10;
+        UpdateFlags<0, 1, 1, 0, 1, 0>(x86, AX, AX);
     };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::AAS(Format& format)
 {
     format.instruction = "AAS";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         if ((AL & 0x0F) > 9 || AF == 1) {
             AL = AL - 6;
             AL = AL & 0x0F;
@@ -60,7 +63,7 @@ void x86_instruction::AAS(Format& format)
 void x86_instruction::DAA(Format& format)
 {
     format.instruction = "DAA";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         if ((AL & 0x0F) > 9 || AF == 1) {
             AL = AL + 6;
             AF = 1;
@@ -75,13 +78,14 @@ void x86_instruction::DAA(Format& format)
         else {
             CF = 0;
         }
+        UpdateFlags<0, 1, 1, 0, 1, 0>(x86, AL, AL);
     };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::DAS(Format& format)
 {
     format.instruction = "DAS";
-    format.operation = [](x86_instruction& x86, const Format&, void*, const void*, const void*) {
+    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         if ((AL & 0x0F) > 9 || AF == 1) {
             AL = AL - 6;
             AF = 1;
@@ -96,6 +100,7 @@ void x86_instruction::DAS(Format& format)
         else {
             CF = 0;
         }
+        UpdateFlags<0, 1, 1, 0, 1, 0>(x86, AL, AL);
     };
 }
 //------------------------------------------------------------------------------

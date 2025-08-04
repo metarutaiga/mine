@@ -8,16 +8,18 @@
 
 #include "miCPU.h"
 
-#include "x86_instruction.h"
+#include "x87_instruction.h"
 
 struct x86_i386 : public miCPU
-                , public x86_instruction
+                , public x87_instruction
 {
 public:
     virtual ~x86_i386();
     bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) override;
+    bool Run() override;
     bool Step() override;
     bool Jump(size_t address) override;
+    void Exception(void(*callback)(size_t, void*, void*)) override;
     size_t Stack() override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) override;
     std::string Status() override;
@@ -45,4 +47,6 @@ protected:
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];
     static const instruction_pointer group[16][8];
+
+    static const instruction_pointer esc[512];
 };

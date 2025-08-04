@@ -183,6 +183,10 @@
 		F5F1B2B12E3F306000D2FF10 /* x86_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */; };
 		F5F1B2B22E3F306000D2FF10 /* x86_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */; };
 		F5F1B2B32E3F306000D2FF10 /* x86_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */; };
+		F5F1B2B72E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
+		F5F1B2B82E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
+		F5F1B2B92E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
+		F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -297,6 +301,10 @@
 		F5F1B2A72E3B185900D2FF10 /* pe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pe.cpp; sourceTree = "<group>"; };
 		F5F1B2AD2E3E57AB00D2FF10 /* Runtime.dll */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = Runtime.dll; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_register.cpp; sourceTree = "<group>"; };
+		F5F1B2B42E41024700D2FF10 /* x87_register.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x87_register.h; sourceTree = "<group>"; };
+		F5F1B2B52E41030400D2FF10 /* x87_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x87_instruction.h; sourceTree = "<group>"; };
+		F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_instruction.cpp; sourceTree = "<group>"; };
+		F5F1B2BB2E41076400D2FF10 /* x87_register.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_register.inl; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -443,6 +451,10 @@
 				D6C5FE502E2D535000A8E110 /* x86_rotate.cpp */,
 				D6C5FE512E2D535000A8E110 /* x86_shift.cpp */,
 				D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */,
+				F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */,
+				F5F1B2B52E41030400D2FF10 /* x87_instruction.h */,
+				F5F1B2B42E41024700D2FF10 /* x87_register.h */,
+				F5F1B2BB2E41076400D2FF10 /* x87_register.inl */,
 			);
 			name = x86;
 			path = ../../../x86;
@@ -631,6 +643,7 @@
 				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE482E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
+				F5F1B2B82E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3D2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C72E3231D70010D73D /* coff.cpp in Sources */,
@@ -687,6 +700,7 @@
 				D6D758DE2E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6C5FE472E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
+				F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */,
@@ -732,6 +746,7 @@
 				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE492E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
+				F5F1B2B72E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE402E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C82E3231D70010D73D /* coff.cpp in Sources */,
@@ -780,6 +795,7 @@
 				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE4A2E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
+				F5F1B2B92E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3F2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C92E3231D70010D73D /* coff.cpp in Sources */,

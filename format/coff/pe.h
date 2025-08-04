@@ -197,8 +197,18 @@ struct PE : public COFF
         uint32_t        AddressOfNameOrdinals;
     };
 
+    struct ImportDirectory
+    {
+        uint32_t        OriginalFirstThunk;
+        uint32_t        TimeDateStamp;
+        uint32_t        ForwarderChain;
+        uint32_t        Name;
+        uint32_t        FirstThunk;
+    };
+
     static const char* GetMagic(uint16_t magic);
     static bool Load(const char* path,
                      uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
-                     size_t(*sym)(const char*, size_t, void*), void* sym_data);
+                     size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
+                     int(*log)(const char*, ...));
 };

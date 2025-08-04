@@ -5,6 +5,8 @@
 #include <string>
 
 struct x86_instruction;
+struct x87_instruction;
+
 struct x86_format
 {
     struct Format
@@ -29,6 +31,6 @@ struct x86_format
         const char* instruction = "";
         Operand operand[3] = {};
 
-        void (*operation)(x86_instruction&, const Format&, void*, const void*, const void*) = nullptr;
+        void (*operation)(x86_instruction&, x87_instruction&, const Format&, void*, const void*, const void*) = nullptr;
     };
 };

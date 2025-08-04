@@ -1,7 +1,7 @@
-#include "x86_instruction.h"
-#include "x86_instruction.inl"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 //
@@ -262,19 +262,6 @@ void x86_instruction::Fixup(Format& format)
     }
 }
 //------------------------------------------------------------------------------
-template<typename A, typename B>
-void x86_instruction::UpdateFlags(x86_instruction& x86, A& DEST, B TEMP)
-{
-    int bits = sizeof(A) * 8;
-    CF = ((DEST ^ TEMP) &  (1 << (bits - 1))) ? 1 : 0;
-    PF = ((       TEMP) &  (1              )) ? 1 : 0;
-    AF = ((DEST ^ TEMP) &  (1              )) ? 1 : 0;
-    ZF = ((       TEMP) == (0              )) ? 1 : 0;
-    SF = ((       TEMP) &  (1 << (bits - 1))) ? 1 : 0;
-    OF = ((DEST ^ TEMP) &  (1 << (bits - 2))) ? 1 : 0;
-    DEST = TEMP;
-}
-//------------------------------------------------------------------------------
 void x86_instruction::_(Format& format)
 {
     format.instruction = "UNKNOWN";
@@ -413,7 +400,7 @@ void x86_instruction::CMP(Format& format)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags(x86, TEMP, TEMP - SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP - SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -848,7 +835,19 @@ void x86_instruction::TEST(Format& format)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags(x86, TEMP, TEMP & SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP & SRC);
+    } END_OPERATION;
+}
+//------------------------------------------------------------------------------
+void x86_instruction::UD(Format& format)
+{
+    switch (opcode[1]) {
+    case 0x0B:  format.instruction = "UD2"; break;
+    case 0xB9:  format.instruction = "UD1"; break;
+    case 0xFF:  format.instruction = "UD0"; break;
+    }
+
+    BEGIN_OPERATION() {
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

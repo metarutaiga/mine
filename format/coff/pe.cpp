@@ -56,7 +56,8 @@ const char* PE::GetMagic(uint16_t magic)
 
 bool PE::Load(const char* path,
               uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
-              size_t(*sym)(const char*, size_t, void*), void* sym_data)
+              size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
+              int(*log)(const char*, ...))
 {
     if (path == nullptr)
         return false;
@@ -78,51 +79,54 @@ bool PE::Load(const char* path,
     SectionHeader* sections = nullptr;
     switch (NULL) case NULL: {
         if (lfanew >= size || fseek(file, lfanew, SEEK_SET) != 0) {
-            printf("the PE offset is out of range\n");
+            log("the PE offset is out of range");
             break;
         }
         int32_t signature = 0;
         if (fread(&signature, sizeof(int32_t), 1, file) != 1 || signature != 0x4550) {
-            printf("the signature is not PE\n");
+            log("the signature is not PE");
             break;
         }
 
         // File Header
         FileHeader fileHeader = {};
         if (fread(&fileHeader, sizeof(FileHeader), 1, file) != 1) {
-            printf("get the PE/COFF File Header is failed\n");
+            log("get the PE/COFF File Header is failed");
             break;
         }
-        printf("%-8s : %s\n", "f_magic", GetMagic(fileHeader.f_magic));
-        printf("%-8s : %d\n", "f_nscns", fileHeader.f_nscns);
-        printf("%-8s : 0x%08x\n", "f_timdat", fileHeader.f_timdat);
-        printf("%-8s : 0x%08x\n", "f_symptr", fileHeader.f_symptr);
-        printf("%-8s : %d\n", "f_nsyms", fileHeader.f_nsyms);
-        printf("%-8s : %d\n", "f_opthdr", fileHeader.f_opthdr);
-        printf("%-8s : 0x%04x\n", "f_flags", fileHeader.f_flags);
+        log("%-12s : %s", "f_magic", GetMagic(fileHeader.f_magic));
+        log("%-12s : %d", "f_nscns", fileHeader.f_nscns);
+        log("%-12s : 0x%08x", "f_timdat", fileHeader.f_timdat);
+        log("%-12s : 0x%08x", "f_symptr", fileHeader.f_symptr);
+        log("%-12s : %d", "f_nsyms", fileHeader.f_nsyms);
+        log("%-12s : %d", "f_opthdr", fileHeader.f_opthdr);
+        log("%-12s : 0x%04x", "f_flags", fileHeader.f_flags);
 
         // Optional Header
         OptionalHeader optionalHeader = {};
         if (sizeof(optionalHeader) != fileHeader.f_opthdr || fread(&optionalHeader, sizeof(OptionalHeader), 1, file) != 1) {
-            printf("get the PE/COFF Optional Header is failed\n");
+            log("get the PE/COFF Optional Header is failed");
             break;
         }
+        log("%-12s : 0x%08x", "BaseOfCode", optionalHeader.BaseOfCode);
+        log("%-12s : 0x%08x", "EntryPoint", optionalHeader.AddressOfEntryPoint);
+        log("%-12s : 0x%08x", "ImageBase", optionalHeader.ImageBase);
 
         // Section Header
         sections = new SectionHeader[fileHeader.f_nscns];
         if (sections == nullptr) {
-            printf("out of memory\n");
+            log("out of memory");
             break;
         }
         if (fread(sections, sizeof(SectionHeader), fileHeader.f_nscns, file) != fileHeader.f_nscns) {
-            printf("get the PE/COFF Section Header is failed\n");
+            log("get the PE/COFF Section Header is failed");
             break;
         }
         uint32_t min = UINT32_MAX;
         uint32_t max = 0;
         for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
             const SectionHeader& section = sections[i];
-//          printf("%d : %s\n", i, section.s_name);
+            log("%-12s : %d %08X %08X %s", "section", i, section.s_vaddr, section.s_size, section.s_name);
             if (section.s_flags & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE)) {
                 if (min > section.s_vaddr)
                     min = section.s_vaddr;
@@ -130,32 +134,34 @@ bool PE::Load(const char* path,
                     max = section.s_vaddr + section.s_size;
             }
         }
-        uint32_t base = optionalHeader.ImageBase + min;
-        uint32_t size = max - min;
-        printf("%-8s : 0x%08x\n", "Base", base);
-        printf("%-8s : 0x%x\n", "Size", size);
 
         // Entry
         if (optionalHeader.AddressOfEntryPoint) {
-            sym("Entry", optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint, sym_data);
+            sym(nullptr, "Entry", optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint, sym_data);
         }
         else {
-            sym("Entry", optionalHeader.ImageBase + optionalHeader.BaseOfCode, sym_data);
+            sym(nullptr, "Entry", optionalHeader.ImageBase + optionalHeader.BaseOfCode, sym_data);
         }
 
         // Load sections to memory
+        uint32_t base = optionalHeader.ImageBase + min;
+        uint32_t size = max - min;
+        log("%-12s : 0x%08x", "Base", base);
+        log("%-12s : 0x%x", "Size", size);
         uint8_t* memory = mmap(base, size, mmap_data);
         if (memory) {
             memset(memory, 0, size);
             for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
                 const SectionHeader& section = sections[i];
+                if (section.s_size == 0)
+                    continue;
                 if (section.s_flags & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE)) {
                     if (fseek(file, section.s_scnptr, SEEK_SET) != 0) {
-                        printf("fseek failed\n");
+                        log("fseek failed");
                         break;
                     }
                     if (fread(memory + section.s_vaddr - min, section.s_size, 1, file) != 1) {
-                        printf("get the PE/COFF Section Image is failed\n");
+                        log("get the PE/COFF Section Image is failed");
                         break;
                     }
                 }
@@ -165,16 +171,32 @@ bool PE::Load(const char* path,
             if (optionalHeader.DataDirectory[0].Size) {
                 auto& directory = *(ExportDirectory*)(memory + optionalHeader.DataDirectory[0].VirtualAddress - min);
                 for (uint32_t i = 0; i < directory.NumberOfFunctions; ++i) {
-                    uint32_t address = *(uint32_t*)(memory + directory.AddressOfFunctions + sizeof(uint32_t) * i - min);
-                    uint32_t pointer = *(uint32_t*)(memory + directory.AddressOfNames + sizeof(uint32_t) * i - min);
+                    auto address = *(uint32_t*)(memory + directory.AddressOfFunctions + sizeof(uint32_t) * i - min);
+                    auto pointer = *(uint32_t*)(memory + directory.AddressOfNames + sizeof(uint32_t) * i - min);
                     auto* name = (const char*)(memory + pointer - min);
-                    sym(name, optionalHeader.ImageBase + address, sym_data);
+                    sym(nullptr, name, optionalHeader.ImageBase + address, sym_data);
+                }
+            }
+
+            // Import
+            if (optionalHeader.DataDirectory[1].Size) {
+                auto* directory = (ImportDirectory*)(memory + optionalHeader.DataDirectory[1].VirtualAddress - min);
+                while (directory->Name && directory->FirstThunk) {
+                    auto file = (const char*)(memory + directory->Name - min);
+                    auto* thunk = (uint32_t*)(memory + directory->FirstThunk - min);
+                    while (*thunk) {
+                        auto name = (const char*)(memory + (*thunk) - min) + 2;
+                        size_t symbol = sym(file, name, 0, sym_data);
+                        memcpy(thunk, &symbol, sizeof(uint32_t));
+                        thunk++;
+                    }
+                    directory++;
                 }
             }
         }
 
         succeed = true;
-        printf("succeed\n");
+        log("succeed");
     }
 
     delete[] sections;

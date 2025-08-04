@@ -7,6 +7,8 @@
 #include "x86_i86.h"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 #define o (x86_instruction::instruction_pointer)&x86_i86::
@@ -93,7 +95,20 @@ bool x86_i86::Step()
     Format format;
     StepInternal(format);
     Fixup(format);
-    format.operation(*this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+    format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+    if (IP >= memory_size) {
+        ExceptionCallback(IP, memory, stack);
+        IP = Pop();
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
+bool x86_i86::Run()
+{
+    while (IP) {
+        if (Step() == false)
+            return false;
+    }
     return true;
 }
 //------------------------------------------------------------------------------
@@ -103,6 +118,11 @@ bool x86_i86::Jump(size_t address)
         return false;
     IP = (uint16_t)address;
     return true;
+}
+//------------------------------------------------------------------------------
+void x86_i86::Exception(void(*callback)(size_t, void*, void*))
+{
+    ExceptionCallback = callback;
 }
 //------------------------------------------------------------------------------
 size_t x86_i86::Stack()
@@ -119,23 +139,42 @@ uint8_t* x86_i86::Memory(size_t base, size_t size)
 //------------------------------------------------------------------------------
 std::string x86_i86::Status()
 {
+    bool i87 = true;
     std::string output;
 
     char temp[32];
     for (int i = 0; i < 8; ++i) {
         snprintf(temp, 32, "%-8s%08X", REG16[i], regs[i].w);
         output += temp;
+
+        if (i87) {
+            output.insert(output.end(), 4, ' ');
+            snprintf(temp, 32, "ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
+            output += temp;
+        }
+
         output += '\n';
     }
 
     output += '\n';
     snprintf(temp, 32, "%-8s%08X", "IP", ip.w);
     output += temp;
-    output += '\n';
+
+    if (i87) {
+        output.insert(output.end(), 4, ' ');
+        snprintf(temp, 32, "%-8s%04X", "CONTROL", control.w);
+        output += temp;
+    }
 
     output += '\n';
     snprintf(temp, 32, "%-8s%08X", "FLAGS", flags.w);
     output += temp;
+
+    if (i87) {
+        output.insert(output.end(), 4, ' ');
+        snprintf(temp, 32, "%-8s%04X", "STATUS", status.w);
+        output += temp;
+    }
 
     return output;
 }

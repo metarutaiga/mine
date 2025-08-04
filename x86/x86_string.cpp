@@ -1,7 +1,7 @@
-#include "x86_instruction.h"
-#include "x86_instruction.inl"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 void x86_instruction::CMPSx(Format& format)
@@ -22,7 +22,7 @@ void x86_instruction::CMPSx(Format& format)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags(x86, TEMP, TEMP - SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP - SRC);
         ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
@@ -91,7 +91,7 @@ void x86_instruction::SCASx(Format& format)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags(x86, TEMP, SRC - TEMP);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, SRC - TEMP);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
 }

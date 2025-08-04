@@ -1,7 +1,7 @@
-#include "x86_instruction.h"
-#include "x86_instruction.inl"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 void x86_instruction::AND(Format& format)
@@ -19,7 +19,7 @@ void x86_instruction::AND(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST & SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST & SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -53,7 +53,7 @@ void x86_instruction::OR(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST | SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST | SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -74,7 +74,7 @@ void x86_instruction::XOR(Format& format)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags(x86, DEST, DEST ^ SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST ^ SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;

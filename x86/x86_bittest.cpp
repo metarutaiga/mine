@@ -1,7 +1,7 @@
-#include "x86_instruction.h"
-#include "x86_instruction.inl"
 #include "x86_register.h"
 #include "x86_register.inl"
+#include "x86_instruction.h"
+#include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
 void x86_instruction::BT(Format& format)

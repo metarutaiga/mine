@@ -11,6 +11,11 @@ struct COFF
         A_MAGIC2        = 0410,     /* pdp11/pre System V vax pure executable */
         A_MAGIC3        = 0411,     /* pdp11 seperate I&D */
         A_MAGIC5        = 0437,     /* pdp11 kernel overlay */
+        /* ??? */
+        OMAGIC          = 0404,     /* object */
+        PAGEMAGIC       = 0413,     /* paged */
+        REGMAGIC        = 0414,     /* region */
+        LIBMAGIC        = 0443,     /* library */
         /* Intel */
         B16MAGIC        = 0502,     /* Basic-16, no TV */
         BTVMAGIC        = 0503,     /* Basic-16 with TV */
