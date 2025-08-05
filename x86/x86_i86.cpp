@@ -38,7 +38,7 @@ const x86_instruction::instruction_pointer x86_i86::one[256] =
 //------------------------------------------------------------------------------
 // Opcodes determined by bits 5,4,3 of modR/M byte
 //------------------------------------------------------------------------------
-const x86_instruction::instruction_pointer x86_i86::group[16][8] =
+const x86_instruction::instruction_pointer x86_i86::group[6][8] =
 {        // 0      1     2      3     4     5      6      7
 /* 0 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
 /* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
@@ -94,10 +94,10 @@ bool x86_i86::Step()
 {
     Format format;
     StepInternal(format);
-    Fixup(format);
+    Fixup(format, *this);
     format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     if (IP >= memory_size) {
-        ExceptionCallback(IP, memory, stack);
+        exception(IP, memory, stack);
         IP = Pop();
     }
     return true;
@@ -122,7 +122,7 @@ bool x86_i86::Jump(size_t address)
 //------------------------------------------------------------------------------
 void x86_i86::Exception(void(*callback)(size_t, void*, void*))
 {
-    ExceptionCallback = callback;
+    exception = callback;
 }
 //------------------------------------------------------------------------------
 size_t x86_i86::Stack()
@@ -202,7 +202,7 @@ std::string x86_i86::Disassemble(int count)
 
         Format format;
         StepInternal(format);
-        output += Disasm(format);
+        output += Disasm(format, *this);
         output += '\n';
 
         for (uint32_t i = 0; i < 16; ++i) {
@@ -231,7 +231,7 @@ void x86_i86::StepInternal(Format& format)
 
     for (;;) {
         opcode = memory + IP;
-        (this->*one[opcode[0]])(format);
+        one[opcode[0]](format, opcode);
         IP += format.length;
         if (format.operation)
             break;
@@ -240,39 +240,39 @@ void x86_i86::StepInternal(Format& format)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i86::ESC(Format& format)
+void x86_i86::ESC(Format& format, const uint8_t* opcode)
 {
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i86::grp1(Format& format)
+void x86_i86::grp1(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[1][nnn])(format);
+    group[1][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp2(Format& format)
+void x86_i86::grp2(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[2][nnn])(format);
+    group[2][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp3(Format& format)
+void x86_i86::grp3(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[3][nnn])(format);
+    group[3][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp4(Format& format)
+void x86_i86::grp4(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[4][nnn])(format);
+    group[4][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i86::grp5(Format& format)
+void x86_i86::grp5(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[5][nnn])(format);
+    group[5][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------

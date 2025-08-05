@@ -15,6 +15,8 @@ struct x86_instruction : public x86_format
     uint8_t* opcode = nullptr;
     uint8_t* stack = nullptr;
 
+    void (*exception)(size_t index, void* memory, void* stack) = [](size_t, void*, void*){};
+
 protected:
 
     enum
@@ -27,123 +29,121 @@ protected:
         THREE_OPERAND   = 0b100000,
     };
 
-    void        Decode(Format& format, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
-    std::string Disasm(const Format& format);
-    void        Fixup(Format& format);
-
-    void (*ExceptionCallback)(size_t index, void* memory, void* stack) = [](size_t, void*, void*){};
+    static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
+    static std::string  Disasm(const Format& format, x86_instruction& x86);
+    static void         Fixup(Format& format, x86_instruction& x86);
 
     template<int O, int S, int Z, int A, int P, int C, typename L, typename R>
     static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP);
 
 protected:
-    typedef void instruction(Format&);
-    typedef void (x86_instruction::*instruction_pointer)(Format&);
+    typedef void instruction(Format&, const uint8_t*);
+    typedef void (*instruction_pointer)(Format&, const uint8_t*);
 
-    instruction _;
+    static instruction _;
 
-    instruction CS;     // CS segment override prefix
-    instruction SS;     // SS segment override prefix
-    instruction DS;     // DS segment override prefix
-    instruction ES;     // ES segment override prefix
-    instruction FS;     // FS segment override prefix
-    instruction GS;     // GS segment override prefix
+    static instruction CS;      // CS segment override prefix
+    static instruction SS;      // SS segment override prefix
+    static instruction DS;      // DS segment override prefix
+    static instruction ES;      // ES segment override prefix
+    static instruction FS;      // FS segment override prefix
+    static instruction GS;      // GS segment override prefix
 
-    instruction AAA;    // ASCII Adjust after Addition
-    instruction AAD;    // ASCII Adjust AX before Division
-    instruction AAM;    // ASCII Adjust AX after Multiply
-    instruction AAS;    // ASCII Adjust AL after Subtraction
-    instruction DAA;    // Decimal Adjust AL after Addition
-    instruction DAS;    // Decimal Adjust AL after Subtraction
+    static instruction AAA;     // ASCII Adjust after Addition
+    static instruction AAD;     // ASCII Adjust AX before Division
+    static instruction AAM;     // ASCII Adjust AX after Multiply
+    static instruction AAS;     // ASCII Adjust AL after Subtraction
+    static instruction DAA;     // Decimal Adjust AL after Addition
+    static instruction DAS;     // Decimal Adjust AL after Subtraction
 
-    instruction CMPSx;  // Compare String Operands
-    instruction LODSx;  // Load String Operand
-    instruction MOVSx;  // Move Data from String to String
-    instruction SCASx;  // Compare String Data
-    instruction STOSx;  // Store String Data
+    static instruction CMPSx;   // Compare String Operands
+    static instruction LODSx;   // Load String Operand
+    static instruction MOVSx;   // Move Data from String to String
+    static instruction SCASx;   // Compare String Data
+    static instruction STOSx;   // Store String Data
 
-    instruction ADC;    // Add with Carry
-    instruction ADD;    // Add
-    instruction AND;    // Logical AND
-//  instruction ARPL;   // Adjust RPL Field of Selector
-//  instruction BOUND;  // Check Array Index Against Bounds
-    instruction BSF;    // Bit Scan Forward
-    instruction BSR;    // Bit Scan Reverse
-    instruction BT;     // Bit Test
-    instruction BTC;    // Bit Test and Complement
-    instruction BTR;    // Bit Test and Reset
-    instruction BTS;    // Bit Test and Set
-    instruction CALL;   // Call Procedure
-    instruction CDQ;    // Convert Word to Doubleword/Convert Doubleword to Quadword
-    instruction CLC;    // Clear Carry Flag
-    instruction CLD;    // Clear Direction Flag
-//  instruction CLI;    // Clear Interrupt Flag
-//  instruction CLTS;   // Clear Task-Switched Flag in CR0
-    instruction CMC;    // Complement Carry Flag
-    instruction CMP;    // Compare Two Operands
-    instruction CWDE;   // Convert Byte to Word/Convert Word to Doubleword
-    instruction DEC;    // Decrement by 1
-    instruction DIV;    // Unsigned Divide
-    instruction ENTER;  // Make Stack Frame for Procedure Parameters
-//  instruction HLT;    // Halt
-    instruction IDIV;   // Signed Divide
-    instruction IMUL;   // Signed Multiply
-//  instruction IN;     // Input from Port
-    instruction INC;    // Increment by 1
-//  instruction INS;    // Input from Port to String
-//  instruction INT;    // Call to Interrupt Procedure
-//  instruction IRET;   // Interrupt Return
-    instruction Jcc;    // Jump if Condition is Met
-    instruction JMP;    // Jump
-    instruction LAHF;   // Load Flags into AH Register
-//  instruction LAR;    // Load Access Rights Byte
-    instruction LEA;    // Load Effective Address
-    instruction LEAVE;  // High Level Procedure Exit
-//  instruction LxDT;   // Load Global/Interrupt Descriptor Table Register
-//  instruction LxS;    // Load Full Pointer
-//  instruction LLDT;   // Load Local Descriptor Table Register
-//  instruction LMSW;   // Load Machine Status Word
-//  instruction LOCK;   // Assert LOCK# Signal Prefix
-    instruction LOOP;   // Loop Control with CX Counter
-//  instruction LSL;    // Load Segment Limit
-//  instruction LTR;    // Load Task Register
-    instruction MOV;    // Move Data
-    instruction MOVSX;  // Move with Sign-Extend
-    instruction MOVZX;  // Move with Zero-Extend
-    instruction MUL;    // Unsigned Multiplication of AL or AX
-    instruction NEG;    // Two's Complement Negation
-    instruction NOP;    // No Operation
-    instruction NOT;    // One's Complement Negation
-    instruction OR;     // Logical Inclusive OR
-//  instruction OUT;    // Output to Port
-//  instruction OUTS;   // Output String to Port
-    instruction POP;    // Pop a Word from the Stack
-    instruction POPAD;  // Pop all General Registers
-    instruction POPFD;  // Pop Stack into FLAGS or EFLAGS Register
-    instruction PUSH;   // Push Operand onto the Stack
-    instruction PUSHAD; // Push all General Registers
-    instruction PUSHFD; // Push Flags Register onto the Stack
-    instruction Rxx;    // Rotate
-    instruction REP;    // Repeat Following String Operation
-    instruction RET;    // Return from Procedure
-    instruction SAHF;   // Store AH into Flags
-    instruction Sxx;    // Shift Instructions
-    instruction SBB;    // Integer Subtraction with Borrow
-    instruction SETcc;  // Byte Set on Condition
-//  instruction SxDT;   // Store Global/Interrupt Descriptor Table Register
-    instruction SHxD;   // Double Precision Shift
-//  instruction SLDT;   // Store Local Descriptor Table Register
-//  instruction SMSW;   // Store Machine Status Word
-    instruction STC;    // Set Carry Flag
-    instruction STD;    // Set Direction Flag
-//  instruction STI;    // Set Interrupt Flag
-//  instruction STR;    // Store Task Register
-    instruction SUB;    // Integer Subtraction
-    instruction TEST;   // Logical Compare
-    instruction UD;     // Undefined Instruction
-//  instruction VERx;   // Verify a Segment for Reading or Writing
-//  instruction WAIT;   // Wait until BUSY# Pin is Inactive (HIGH)
-    instruction XCHG;   // Exchange Register/Memory with Register
-    instruction XLAT;   // Table Look-up Translation
-    instruction XOR;    // Logical Exclusive OR
+    static instruction ADC;     // Add with Carry
+    static instruction ADD;     // Add
+    static instruction AND;     // Logical AND
+//  static instruction ARPL;    // Adjust RPL Field of Selector
+//  static instruction BOUND;   // Check Array Index Against Bounds
+    static instruction BSF;     // Bit Scan Forward
+    static instruction BSR;     // Bit Scan Reverse
+    static instruction BT;      // Bit Test
+    static instruction BTC;     // Bit Test and Complement
+    static instruction BTR;     // Bit Test and Reset
+    static instruction BTS;     // Bit Test and Set
+    static instruction CALL;    // Call Procedure
+    static instruction CDQ;     // Convert Word to Doubleword/Convert Doubleword to Quadword
+    static instruction CLC;     // Clear Carry Flag
+    static instruction CLD;     // Clear Direction Flag
+//  static instruction CLI;     // Clear Interrupt Flag
+//  static instruction CLTS;    // Clear Task-Switched Flag in CR0
+    static instruction CMC;     // Complement Carry Flag
+    static instruction CMP;     // Compare Two Operands
+    static instruction CWDE;    // Convert Byte to Word/Convert Word to Doubleword
+    static instruction DEC;     // Decrement by 1
+    static instruction DIV;     // Unsigned Divide
+    static instruction ENTER;   // Make Stack Frame for Procedure Parameters
+//  static instruction HLT;     // Halt
+    static instruction IDIV;    // Signed Divide
+    static instruction IMUL;    // Signed Multiply
+//  static instruction IN;      // Input from Port
+    static instruction INC;     // Increment by 1
+//  static instruction INS;     // Input from Port to String
+//  static instruction INT;     // Call to Interrupt Procedure
+//  static instruction IRET;    // Interrupt Return
+    static instruction Jcc;     // Jump if Condition is Met
+    static instruction JMP;     // Jump
+    static instruction LAHF;    // Load Flags into AH Register
+//  static instruction LAR;     // Load Access Rights Byte
+    static instruction LEA;     // Load Effective Address
+    static instruction LEAVE;   // High Level Procedure Exit
+//  static instruction LxDT;    // Load Global/Interrupt Descriptor Table Register
+//  static instruction LxS;     // Load Full Pointer
+//  static instruction LLDT;    // Load Local Descriptor Table Register
+//  static instruction LMSW;    // Load Machine Status Word
+//  static instruction LOCK;    // Assert LOCK# Signal Prefix
+    static instruction LOOP;    // Loop Control with CX Counter
+//  static instruction LSL;     // Load Segment Limit
+//  static instruction LTR;     // Load Task Register
+    static instruction MOV;     // Move Data
+    static instruction MOVSX;   // Move with Sign-Extend
+    static instruction MOVZX;   // Move with Zero-Extend
+    static instruction MUL;     // Unsigned Multiplication of AL or AX
+    static instruction NEG;     // Two's Complement Negation
+    static instruction NOP;     // No Operation
+    static instruction NOT;     // One's Complement Negation
+    static instruction OR;      // Logical Inclusive OR
+//  static instruction OUT;     // Output to Port
+//  static instruction OUTS;    // Output String to Port
+    static instruction POP;     // Pop a Word from the Stack
+    static instruction POPAD;   // Pop all General Registers
+    static instruction POPFD;   // Pop Stack into FLAGS or EFLAGS Register
+    static instruction PUSH;    // Push Operand onto the Stack
+    static instruction PUSHAD;  // Push all General Registers
+    static instruction PUSHFD;  // Push Flags Register onto the Stack
+    static instruction Rxx;     // Rotate
+    static instruction REP;     // Repeat Following String Operation
+    static instruction RET;     // Return from Procedure
+    static instruction SAHF;    // Store AH into Flags
+    static instruction Sxx;     // Shift Instructions
+    static instruction SBB;     // Integer Subtraction with Borrow
+    static instruction SETcc;   // Byte Set on Condition
+//  static instruction SxDT;    // Store Global/Interrupt Descriptor Table Register
+    static instruction SHxD;    // Double Precision Shift
+//  static instruction SLDT;    // Store Local Descriptor Table Register
+//  static instruction SMSW;    // Store Machine Status Word
+    static instruction STC;     // Set Carry Flag
+    static instruction STD;     // Set Direction Flag
+//  static instruction STI;     // Set Interrupt Flag
+//  static instruction STR;     // Store Task Register
+    static instruction SUB;     // Integer Subtraction
+    static instruction TEST;    // Logical Compare
+    static instruction UD;      // Undefined Instruction
+//  static instruction VERx;    // Verify a Segment for Reading or Writing
+//  static instruction WAIT;    // Wait until BUSY# Pin is Inactive (HIGH)
+    static instruction XCHG;    // Exchange Register/Memory with Register
+    static instruction XLAT;    // Table Look-up Translation
+    static instruction XOR;     // Logical Exclusive OR
 };

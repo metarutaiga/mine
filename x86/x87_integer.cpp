@@ -1,3 +1,4 @@
+#include <fenv.h>
 #include "x86_register.h"
 #include "x86_register.inl"
 #include "x86_instruction.h"
@@ -9,9 +10,9 @@
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x87_instruction::FIADD(Format& format)
+void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FIADD", 2);
+    Decode(format, opcode, "FIADD", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -24,29 +25,38 @@ void x87_instruction::FIADD(Format& format)
         case 4: DEST = DEST + (int32_t&)SRC;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FICOM(Format& format)
+void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FICOM", 2);
+    Decode(format, opcode, "FICOM", 2);
 
     BEGIN_OPERATION() {
+        C0 = ST(0) < SRC;
+        C1 = 0;
+        C2 = 0;
+        C3 = ST(0) == SRC;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FICOMP(Format& format)
+void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FICOMP", 2);
+    Decode(format, opcode, "FICOMP", 2);
 
     BEGIN_OPERATION() {
+        C0 = ST(0) < SRC;
+        C1 = 0;
+        C2 = 0;
+        C3 = ST(0) == SRC;
         TOP = TOP + 1;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FIDIV(Format& format)
+void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FIDIV", 2);
+    Decode(format, opcode, "FIDIV", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -59,12 +69,13 @@ void x87_instruction::FIDIV(Format& format)
         case 4: DEST = DEST / (int32_t&)SRC;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FIDIVR(Format& format)
+void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FIDIVR", 2);
+    Decode(format, opcode, "FIDIVR", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -77,12 +88,13 @@ void x87_instruction::FIDIVR(Format& format)
         case 4: DEST = (int32_t&)SRC / DEST;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FILD(Format& format)
+void x87_instruction::FILD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FILD", 2);
+    Decode(format, opcode, "FILD", 2);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:
@@ -102,12 +114,13 @@ void x87_instruction::FILD(Format& format)
         case 8: DEST = (int64_t&)SRC;   break;
         default:                        return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FIMUL(Format& format)
+void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FIMUL", 2);
+    Decode(format, opcode, "FIMUL", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -120,25 +133,37 @@ void x87_instruction::FIMUL(Format& format)
         case 4: DEST = DEST * (int32_t&)SRC;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FIST(Format& format)
+void x87_instruction::FIST(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FIST", 2);
+    Decode(format, opcode, "FIST", 2);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:  format.width = 16;  break;
     }
 
     BEGIN_OPERATION() {
-        DEST = std::remove_reference_t<decltype(DEST)>((int64_t)SRC);
+        int origin = fegetround();
+        int round = FE_TOWARDZERO;
+        switch (RC) {
+        case RoundNearest:  round = FE_TONEAREST;   break;
+        case RoundDown:     round = FE_DOWNWARD;    break;
+        case RoundUp:       round = FE_UPWARD;      break;
+        case RoundChop:     round = FE_TOWARDZERO;  break;
+        }
+        fesetround(round);
+        DEST = std::remove_reference_t<decltype(DEST)>(llrint(ST(0)));
+        fesetround(origin);
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FISTP(Format& format)
+void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FISTP", 2);
+    Decode(format, opcode, "FISTP", 2);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:
@@ -150,14 +175,25 @@ void x87_instruction::FISTP(Format& format)
     }
 
     BEGIN_OPERATION() {
-        DEST = std::remove_reference_t<decltype(DEST)>((int64_t)SRC);
+        int origin = fegetround();
+        int round = FE_TOWARDZERO;
+        switch (RC) {
+        case RoundNearest:  round = FE_TONEAREST;   break;
+        case RoundDown:     round = FE_DOWNWARD;    break;
+        case RoundUp:       round = FE_UPWARD;      break;
+        case RoundChop:     round = FE_TOWARDZERO;  break;
+        }
+        fesetround(round);
+        DEST = std::remove_reference_t<decltype(DEST)>(llrint(ST(0)));
+        fesetround(origin);
         TOP = TOP + 1;
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FISUB(Format& format)
+void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FISUB", 2);
+    Decode(format, opcode, "FISUB", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -170,12 +206,13 @@ void x87_instruction::FISUB(Format& format)
         case 4: DEST = DEST - (int32_t&)SRC;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FISUBR(Format& format)
+void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FISUBR", 2);
+    Decode(format, opcode, "FISUBR", 2);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -188,6 +225,7 @@ void x87_instruction::FISUBR(Format& format)
         case 4: DEST = (int32_t&)SRC - DEST;    break;
         default:                                return;
         }
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 #include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
-void x86_instruction::CMPSx(Format& format)
+void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xA6:  format.width = 8;               break;
@@ -28,7 +28,7 @@ void x86_instruction::CMPSx(Format& format)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::LODSx(Format& format)
+void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xAC:  format.width = 8;               break;
@@ -50,7 +50,7 @@ void x86_instruction::LODSx(Format& format)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::MOVSx(Format& format)
+void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xA4:  format.width = 8;               break;
@@ -73,7 +73,7 @@ void x86_instruction::MOVSx(Format& format)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::SCASx(Format& format)
+void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xAE:  format.width = 8;               break;
@@ -96,7 +96,7 @@ void x86_instruction::SCASx(Format& format)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::STOSx(Format& format)
+void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xAA:  format.width = 8;               break;

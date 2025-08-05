@@ -4,7 +4,7 @@
 #include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
-void x86_instruction::AAA(Format& format)
+void x86_instruction::AAA(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAA";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
@@ -22,7 +22,7 @@ void x86_instruction::AAA(Format& format)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::AAD(Format& format)
+void x86_instruction::AAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAD";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
@@ -32,7 +32,7 @@ void x86_instruction::AAD(Format& format)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::AAM(Format& format)
+void x86_instruction::AAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAM";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
@@ -42,7 +42,7 @@ void x86_instruction::AAM(Format& format)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::AAS(Format& format)
+void x86_instruction::AAS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAS";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
@@ -60,7 +60,7 @@ void x86_instruction::AAS(Format& format)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::DAA(Format& format)
+void x86_instruction::DAA(Format& format, const uint8_t* opcode)
 {
     format.instruction = "DAA";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
@@ -82,7 +82,7 @@ void x86_instruction::DAA(Format& format)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::DAS(Format& format)
+void x86_instruction::DAS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "DAS";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {

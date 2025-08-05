@@ -29,14 +29,14 @@ protected:
     void StepInternal(Format& format);
 
 protected:
-    instruction ESC;
+    static instruction ESC;
 
-    instruction grp1;
-    instruction grp2;
-    instruction grp3;
-    instruction grp4;
-    instruction grp5;
+    static instruction grp1;
+    static instruction grp2;
+    static instruction grp3;
+    static instruction grp4;
+    static instruction grp5;
 
     static const instruction_pointer one[256];
-    static const instruction_pointer group[16][8];
+    static const instruction_pointer group[6][8];
 };

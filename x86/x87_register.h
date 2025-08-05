@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#undef _C2
 
 struct x87_register
 {
@@ -49,7 +50,6 @@ struct x87_register
             uint16_t _B:1;  // BUSY
         };
     };
-
     register_t sts[8] = {};
     control_t control = {};
     status_t status = {};

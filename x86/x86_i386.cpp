@@ -11,7 +11,7 @@
 #include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
-#define o (x86_instruction::instruction_pointer)&x86_i386::
+#define o x86_i386::
 #define x , o
 //------------------------------------------------------------------------------
 // One-Byte Opcode Map
@@ -60,7 +60,7 @@ const x86_instruction::instruction_pointer x86_i386::two[256] =
 //------------------------------------------------------------------------------
 // Opcodes determined by bits 5,4,3 of modR/M byte
 //------------------------------------------------------------------------------
-const x86_instruction::instruction_pointer x86_i386::group[16][8] =
+const x86_instruction::instruction_pointer x86_i386::group[9][8] =
 {        // 0      1     2      3     4     5      6      7
 /* 0 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
 /* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
@@ -178,10 +178,10 @@ bool x86_i386::Step()
 {
     Format format;
     StepInternal(format);
-    Fixup(format);
+    Fixup(format, *this);
     format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     if (EIP >= memory_size) {
-        ExceptionCallback(EIP, memory, stack);
+        exception(EIP, memory, stack);
         EIP = Pop();
     }
     return true;
@@ -197,7 +197,7 @@ bool x86_i386::Jump(size_t address)
 //------------------------------------------------------------------------------
 void x86_i386::Exception(void(*callback)(size_t, void*, void*))
 {
-    ExceptionCallback = callback;
+    exception = callback;
 }
 //------------------------------------------------------------------------------
 size_t x86_i386::Stack()
@@ -277,7 +277,7 @@ std::string x86_i386::Disassemble(int count)
 
         Format format;
         StepInternal(format);
-        output += Disasm(format);
+        output += Disasm(format, *this);
         output += '\n';
 
         for (uint32_t i = 0; i < 16; ++i) {
@@ -306,7 +306,7 @@ void x86_i386::StepInternal(Format& format)
 
     for (;;) {
         opcode = memory + EIP;
-        (this->*one[opcode[0]])(format);
+        one[opcode[0]](format, opcode);
         EIP += format.length;
         if (format.operation)
             break;
@@ -315,84 +315,84 @@ void x86_i386::StepInternal(Format& format)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i386::ESC(Format& format)
+void x86_i386::ESC(Format& format, const uint8_t* opcode)
 {
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;
         index |= (opcode[0] & 0b00000111) << 6;
         index |= (opcode[1] & 0b00111111);
-        (this->*esc[index])(format);
+        esc[index](format, opcode);
     }
     else {
         uint8_t l = (opcode[0] & 0b00000111);
         uint8_t r = (opcode[1] & 0b00111000) >> 3;
-        (this->*escMOD[l][r])(format);
+        escMOD[l][r](format, opcode);
     }
 }
 //------------------------------------------------------------------------------
-void x86_i386::TWO(Format& format)
+void x86_i386::TWO(Format& format, const uint8_t* opcode)
 {
-    (this->*two[opcode[1]])(format);
+    two[opcode[1]](format, opcode);
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i386::grp1(Format& format)
+void x86_i386::grp1(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[1][nnn])(format);
+    group[1][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp2(Format& format)
+void x86_i386::grp2(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[2][nnn])(format);
+    group[2][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp3(Format& format)
+void x86_i386::grp3(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[3][nnn])(format);
+    group[3][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp4(Format& format)
+void x86_i386::grp4(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[4][nnn])(format);
+    group[4][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp5(Format& format)
+void x86_i386::grp5(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[1] >> 3) & 0b111;
-    (this->*group[5][nnn])(format);
+    group[5][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp6(Format& format)
+void x86_i386::grp6(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[2] >> 3) & 0b111;
-    (this->*group[6][nnn])(format);
+    group[6][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp7(Format& format)
+void x86_i386::grp7(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[2] >> 3) & 0b111;
-    (this->*group[7][nnn])(format);
+    group[7][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
-void x86_i386::grp8(Format& format)
+void x86_i386::grp8(Format& format, const uint8_t* opcode)
 {
     int nnn = (opcode[2] >> 3) & 0b111;
-    (this->*group[8][nnn])(format);
+    group[8][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x86_i386::OSIZE(Format& format)
+void x86_i386::OSIZE(Format& format, const uint8_t* opcode)
 {
     format.width = 16;
 }
 //------------------------------------------------------------------------------
-void x86_i386::ASIZE(Format& format)
+void x86_i386::ASIZE(Format& format, const uint8_t* opcode)
 {
     format.address = 16;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 //------------------------------------------------------------------------------
-#define REG(reg)        ((int)(((uint8_t*)&reg - (uint8_t*)&EAX) / ((uint8_t*)&ECX - (uint8_t*)&EAX)))
+#define REG(reg)        [](){ auto& x86 = *(x86_register*)nullptr; return (int)((&reg - &EAX) / (&ECX - &EAX)); }()
 #define IMM8(m,i)       (*(int8_t*)(m+i))
 #define IMM16(m,i)      (*(int16_t*)(m+i))
 #define IMM32(m,i)      (*(int32_t*)(m+i))

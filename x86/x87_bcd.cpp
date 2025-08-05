@@ -9,21 +9,23 @@
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void x87_instruction::FBLD(Format& format)
+void x87_instruction::FBLD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FBLD", 2);
+    Decode(format, opcode, "FBLD", 2);
 
     BEGIN_OPERATION() {
         TOP = TOP - 1;
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FBSTP(Format& format)
+void x87_instruction::FBSTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, "FBSTP", 2);
+    Decode(format, opcode, "FBSTP", 2);
 
     BEGIN_OPERATION() {
         TOP = TOP + 1;
+        C1 = 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

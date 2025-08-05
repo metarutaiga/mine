@@ -29,24 +29,24 @@ protected:
     void StepInternal(Format& format);
 
 protected:
-    instruction ESC;
-    instruction TWO;
+    static instruction ESC;
+    static instruction TWO;
 
-    instruction grp1;
-    instruction grp2;
-    instruction grp3;
-    instruction grp4;
-    instruction grp5;
-    instruction grp6;
-    instruction grp7;
-    instruction grp8;
+    static instruction grp1;
+    static instruction grp2;
+    static instruction grp3;
+    static instruction grp4;
+    static instruction grp5;
+    static instruction grp6;
+    static instruction grp7;
+    static instruction grp8;
 
-    instruction OSIZE;  // Operand-size override
-    instruction ASIZE;  // Address-size override
+    static instruction OSIZE;  // Operand-size override
+    static instruction ASIZE;  // Address-size override
 
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];
-    static const instruction_pointer group[16][8];
+    static const instruction_pointer group[9][8];
 
     static const instruction_pointer esc[512];
     static const instruction_pointer escMOD[8][8];

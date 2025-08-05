@@ -67,12 +67,12 @@ static void Exception(size_t index, void* memory, void* stack)
         size_t stackIndex = 2;
         std::vector<size_t> stack64;
         auto format = (const char*)memory8 + stack32[1];
-        for (size_t i = 0; i < format[i]; ++i) {
+        for (size_t i = 0; format[i]; ++i) {
             char c = format[i];
             if (c != '%')
                 continue;
             int l = 0;
-            for (size_t j = i + 1; j < format[j]; ++j) {
+            for (size_t j = i + 1; format[j]; ++j) {
                 char c = format[j];
                 switch (c) {
                 case 'l':
