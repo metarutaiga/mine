@@ -187,6 +187,22 @@
 		F5F1B2B82E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
 		F5F1B2B92E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
 		F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
+		F5F1B2BD2E41B56700D2FF10 /* x87_floating.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */; };
+		F5F1B2BE2E41B56700D2FF10 /* x87_floating.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */; };
+		F5F1B2BF2E41B56700D2FF10 /* x87_floating.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */; };
+		F5F1B2C02E41B56700D2FF10 /* x87_floating.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */; };
+		F5F1B2C22E41C45D00D2FF10 /* x87_integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */; };
+		F5F1B2C32E41C45D00D2FF10 /* x87_integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */; };
+		F5F1B2C42E41C45D00D2FF10 /* x87_integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */; };
+		F5F1B2C52E41C45D00D2FF10 /* x87_integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */; };
+		F5F1B2C72E41D74800D2FF10 /* x87_compute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */; };
+		F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */; };
+		F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */; };
+		F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */; };
+		F5F1B2CC2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
+		F5F1B2CD2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
+		F5F1B2CE2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
+		F5F1B2CF2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -305,6 +321,10 @@
 		F5F1B2B52E41030400D2FF10 /* x87_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x87_instruction.h; sourceTree = "<group>"; };
 		F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_instruction.cpp; sourceTree = "<group>"; };
 		F5F1B2BB2E41076400D2FF10 /* x87_register.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_register.inl; sourceTree = "<group>"; };
+		F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_floating.cpp; sourceTree = "<group>"; };
+		F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_integer.cpp; sourceTree = "<group>"; };
+		F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_compute.cpp; sourceTree = "<group>"; };
+		F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_bcd.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -451,8 +471,12 @@
 				D6C5FE502E2D535000A8E110 /* x86_rotate.cpp */,
 				D6C5FE512E2D535000A8E110 /* x86_shift.cpp */,
 				D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */,
+				F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */,
+				F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */,
+				F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */,
 				F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */,
 				F5F1B2B52E41030400D2FF10 /* x87_instruction.h */,
+				F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */,
 				F5F1B2B42E41024700D2FF10 /* x87_register.h */,
 				F5F1B2BB2E41076400D2FF10 /* x87_register.inl */,
 			);
@@ -644,6 +668,7 @@
 				D6C5FE482E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B82E41059300D2FF10 /* x87_instruction.cpp in Sources */,
+				F5F1B2CC2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3D2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C72E3231D70010D73D /* coff.cpp in Sources */,
@@ -659,15 +684,18 @@
 				D67A58D42E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
 				F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */,
+				F5F1B2BD2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				F5F1B2A22E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4F2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58CE2E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D7592F2E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
 				F5BE8CD02E37C8C100DBB83A /* ecoff.cpp in Sources */,
+				F5F1B2C22E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759302E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B32E3F306000D2FF10 /* x86_register.cpp in Sources */,
 				D6D759312E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				D6C5FE392E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
@@ -689,6 +717,7 @@
 				D6C5FE372E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6909FB72E1A9D530023F7B5 /* Debugger.cpp in Sources */,
 				D6D758D92E23F59700E5C09D /* special.cpp in Sources */,
+				F5F1B2BE2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				D6D758DA2E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6D758DB2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6C5FE3E2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
@@ -705,6 +734,7 @@
 				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */,
 				D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
+				F5F1B2C52E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759072E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
 				D6D759082E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
 				D6D759092E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
@@ -717,6 +747,8 @@
 				D67A58CA2E3231D70010D73D /* coff.cpp in Sources */,
 				D6D7590E2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
+				F5F1B2CF2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
+				F5F1B2C72E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6C5FE4D2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */,
@@ -747,6 +779,7 @@
 				D6C5FE492E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B72E41059300D2FF10 /* x87_instruction.cpp in Sources */,
+				F5F1B2CD2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE402E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C82E3231D70010D73D /* coff.cpp in Sources */,
@@ -762,15 +795,18 @@
 				D67A58D62E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
 				F5F1B2A82E3B185A00D2FF10 /* pe.cpp in Sources */,
+				F5F1B2C02E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				F5F1B2A42E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4C2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58D02E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D759152E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
 				F5BE8CD32E37C8C100DBB83A /* ecoff.cpp in Sources */,
+				F5F1B2C32E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759162E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B22E3F306000D2FF10 /* x86_register.cpp in Sources */,
 				D6D759172E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				D6C5FE3A2E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
@@ -796,6 +832,7 @@
 				D6C5FE4A2E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B92E41059300D2FF10 /* x87_instruction.cpp in Sources */,
+				F5F1B2CE2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3F2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D67A58C92E3231D70010D73D /* coff.cpp in Sources */,
@@ -811,15 +848,18 @@
 				D67A58D32E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
 				F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */,
+				F5F1B2BF2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				F5F1B2A32E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4E2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D67A58CD2E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D759222E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
 				F5BE8CD12E37C8C100DBB83A /* ecoff.cpp in Sources */,
+				F5F1B2C42E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759232E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B12E3F306000D2FF10 /* x86_register.cpp in Sources */,
 				D6D759242E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
+				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				D6C5FE382E2A13A000A8E110 /* x86_bcd.cpp in Sources */,

@@ -76,39 +76,51 @@ const x86_instruction::instruction_pointer x86_i386::group[16][8] =
 // Escape Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::esc[512] =
-{             // 0       1       2       3       4       5       6       7       8       9        A        B       C        D        E       F
-/* D8 048C */  o _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* D8 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* D8 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* D8 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* D9 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* D9 159D */  x FST   x FST   x FST   x FST   x FST   x FST   x FST   x FST   x FSTP  x FSTP   x FSTP   x FSTP  x FSTP   x FSTP   x FSTP  x FSTP
-/* D9 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x FLD1  x FLDL2T x FLDL2E x FLDPI x FLDLG2 x FLDLN2 x FLDZ  x _
-/* D9 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DA 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DA 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DA 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DA 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DB 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DB 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DB 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DB 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DC 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DC 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DC 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DC 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DD 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DD 159D */  x FST   x FST   x FST   x FST   x FST   x FST   x FST   x FST   x FSTP  x FSTP   x FSTP   x FSTP  x FSTP   x FSTP   x FSTP  x FSTP
-/* DD 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DD 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DE 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DE 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DE 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DE 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DF 048C */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DF 159D */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DF 26AE */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
-/* DF 37BF */  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _      x _      x _     x _      x _      x _     x _
+{            // 0        1        2        3        4         5        6         7         8        9         A        B         C         D        E        F
+/* D8 048C */ o FADD   x FADD   x FADD   x FADD   x FADD    x FADD   x FADD    x FADD    x FMUL   x FMUL    x FMUL   x FMUL    x FMUL    x FMUL   x FMUL   x FMUL
+/* D8 159D */ x FCOM   x FCOM   x FCOM   x FCOM   x FCOM    x FCOM   x FCOM    x FCOM    x FCOMP  x FCOMP   x FCOMP  x FCOMP   x FCOMP   x FCOMP  x FCOMP  x FCOMP
+/* D8 26AE */ x FSUB   x FSUB   x FSUB   x FSUB   x FSUB    x FSUB   x FSUB    x FSUB    x FSUBR  x FSUBR   x FSUBR  x FSUBR   x FSUBR   x FSUBR  x FSUBR  x FSUBR
+/* D8 37BF */ x FDIV   x FDIV   x FDIV   x FDIV   x FDIV    x FDIV   x FDIV    x FDIV    x FDIVR  x FDIVR   x FDIVR  x FDIVR   x FDIVR   x FDIVR  x FDIVR  x FDIVR
+/* D9 048C */ x FLD    x FLD    x FLD    x FLD    x FLD     x FLD    x FLD     x FLD     x FXCH   x FXCH    x FXCH   x FXCH    x FXCH    x FXCH   x FXCH   x FXCH
+/* D9 159D */ x FNOP   x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* D9 26AE */ x FCHS   x FABS   x _      x _      x FTST    x FXAM   x _       x _       x FLD1   x FLDL2T  x FLDL2E x FLDPI   x FLDLG2  x FLDLN2 x FLDZ   x _
+/* D9 37BF */ x F2XM1  x FYL2X  x FPTAN  x FPATAN x FXTRACT x FPREM1 x FDECSTP x FINCSTP x FPREM  x FYL2XP1 x FSQRT  x FSINCOS x FRNDINT x FSCALE x FSIN   x FCOS
+/* DA 048C */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DA 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DA 26AE */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x FUCOMPP x _      x _       x _       x _      x _      x _
+/* DA 37BF */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DB 048C */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DB 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DB 26AE */ x _      x _      x FCLEX  x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DB 37BF */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DC 048C */ x FADD   x FADD   x FADD   x FADD   x FADD    x FADD   x FADD    x FADD    x FMUL   x FMUL    x FMUL   x FMUL    x FMUL    x FMUL   x FMUL   x FMUL
+/* DC 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DC 26AE */ x FSUBR  x FSUBR  x FSUBR  x FSUBR  x FSUBR   x FSUBR  x FSUBR   x FSUBR   x FSUB   x FSUB    x FSUB   x FSUB    x FSUB    x FSUB   x FSUB   x FSUB
+/* DC 37BF */ x FDIVR  x FDIVR  x FDIVR  x FDIVR  x FDIVR   x FDIVR  x FDIVR   x FDIVR   x FDIV   x FDIV    x FDIV   x FDIV    x FDIV    x FDIV   x FDIV   x FDIV
+/* DD 048C */ x FFREE  x FFREE  x FFREE  x FFREE  x FFREE   x FFREE  x FFREE   x FFREE   x _      x _       x _      x _       x _       x _      x _      x _
+/* DD 159D */ x FST    x FST    x FST    x FST    x FST     x FST    x FST     x FST     x FSTP   x FSTP    x FSTP   x FSTP    x FSTP    x FSTP   x FSTP   x FSTP
+/* DD 26AE */ x FUCOM  x FUCOM  x FUCOM  x FUCOM  x FUCOM   x FUCOM  x FUCOM   x FUCOM   x FUCOMP x FUCOMP  x FUCOMP x FUCOMP  x FUCOMP  x FUCOMP x FUCOMP x FUCOMP
+/* DD 37BF */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DE 048C */ x FADDP  x FADDP  x FADDP  x FADDP  x FADDP   x FADDP  x FADDP   x FADDP   x FMULP  x FMULP   x FMULP  x FMULP   x FMULP   x FMULP  x FMULP  x FMULP
+/* DE 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x FCOMPP  x _      x _       x _       x _      x _      x _
+/* DE 26AE */ x FSUBRP x FSUBRP x FSUBRP x FSUBRP x FSUBRP  x FSUBRP x FSUBRP  x FSUBRP  x FSUBP  x FSUBP   x FSUBP  x FSUBP   x FSUBP   x FSUBP  x FSUBP  x FSUBP
+/* DE 37BF */ x FDIVRP x FDIVRP x FDIVRP x FDIVRP x FDIVRP  x FDIVRP x FDIVRP  x FDIVRP  x FDIVP  x FDIVP   x FDIVP  x FDIVP   x FDIVP   x FDIVP  x FDIVP  x FDIVP
+/* DF 048C */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DF 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DF 26AE */ x FSTSW  x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* DF 37BF */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+};
+//------------------------------------------------------------------------------
+const x86_instruction::instruction_pointer x86_i386::escMOD[8][8] =
+{         // 0       1       2       3        4        5        6        7
+/* D8 */ { o FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
+/* D9 */ { o FLD   x _     x FST   x FSTP   x _      x FLDCW  x _      x FSTCW  },
+/* DA */ { o FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
+/* DB */ { o FILD  x _     x FIST  x FISTP  x _      x FLD    x _      x FSTP   },
+/* DC */ { o FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
+/* DD */ { o FLD   x _     x FST   x FSTP   x _      x _      x _      x FSTSW  },
+/* DE */ { o FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
+/* DF */ { o FILD  x _     x FIST  x FISTP  x FBLD   x FILD   x FBSTP  x FISTP  },
 };
 //------------------------------------------------------------------------------
 #undef o
@@ -305,10 +317,17 @@ void x86_i386::StepInternal(Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::ESC(Format& format)
 {
-    uint16_t index = 0;
-    index |= (opcode[0] & 0x07) << 6;
-    index |= (opcode[1] & 0x3F);
-    (this->*esc[index])(format);
+    if ((opcode[1] & 0b11000000) == 0b11000000) {
+        uint16_t index = 0;
+        index |= (opcode[0] & 0b00000111) << 6;
+        index |= (opcode[1] & 0b00111111);
+        (this->*esc[index])(format);
+    }
+    else {
+        uint8_t l = (opcode[0] & 0b00000111);
+        uint8_t r = (opcode[1] & 0b00111000) >> 3;
+        (this->*escMOD[l][r])(format);
+    }
 }
 //------------------------------------------------------------------------------
 void x86_i386::TWO(Format& format)

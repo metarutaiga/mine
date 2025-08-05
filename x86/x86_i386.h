@@ -49,4 +49,5 @@ protected:
     static const instruction_pointer group[16][8];
 
     static const instruction_pointer esc[512];
+    static const instruction_pointer escMOD[8][8];
 };
