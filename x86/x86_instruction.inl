@@ -3,7 +3,9 @@
 #include <bit>
 
 //------------------------------------------------------------------------------
-#define REG(reg)        [](){ x86_register x86; return (int)((&reg - &EAX) / (&ECX - &EAX)); }()
+extern x86_register& x86;
+//------------------------------------------------------------------------------
+#define REG(reg)        ((int)((& :: reg - & :: EAX) / (& :: ECX - & :: EAX)))
 #define IMM8(m,i)       (*(int8_t*)(m+i))
 #define IMM16(m,i)      (*(int16_t*)(m+i))
 #define IMM32(m,i)      (*(int32_t*)(m+i))

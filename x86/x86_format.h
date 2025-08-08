@@ -25,7 +25,7 @@ struct x86_format
             uint8_t* memory;
         };
         int width = 0;
-        int length = 1;
+        int length = 0;
         int address = 0;
         bool repeat = false;
         const char* instruction = "";

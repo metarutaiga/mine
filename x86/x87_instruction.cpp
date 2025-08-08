@@ -7,6 +7,7 @@
 #include "x87_register.h"
 #include "x87_register.inl"
 #include "x87_instruction.h"
+#include "x87_instruction.inl"
 
 //------------------------------------------------------------------------------
 //

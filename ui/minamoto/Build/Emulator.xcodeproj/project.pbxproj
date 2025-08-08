@@ -298,6 +298,7 @@
 		D6D7594A2E25044F00E5C09D /* x86_i86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i86.h; sourceTree = "<group>"; };
 		D6D7594B2E25044F00E5C09D /* x86_i86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i86.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
+		F56C53F82E46418500534B1D /* x87_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_instruction.inl; sourceTree = "<group>"; };
 		F5BE8CCE2E37C8B900DBB83A /* ecoff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff.h; sourceTree = "<group>"; };
 		F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -476,6 +477,7 @@
 				F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */,
 				F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */,
 				F5F1B2B52E41030400D2FF10 /* x87_instruction.h */,
+				F56C53F82E46418500534B1D /* x87_instruction.inl */,
 				F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */,
 				F5F1B2B42E41024700D2FF10 /* x87_register.h */,
 				F5F1B2BB2E41076400D2FF10 /* x87_register.inl */,

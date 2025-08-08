@@ -11,7 +11,7 @@
 #include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
-#define o (x86_instruction::instruction_pointer)&x86_i86::
+#define o x86_i86::
 #define x , o
 //------------------------------------------------------------------------------
 // One-Byte Opcode Map
@@ -238,6 +238,7 @@ std::string x86_i86::Disassemble(int count)
 //------------------------------------------------------------------------------
 void x86_i86::StepInternal(Format& format)
 {
+    format.length = 1;
     format.width = 16;
     format.repeat = false;
 

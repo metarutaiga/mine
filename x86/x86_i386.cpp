@@ -313,6 +313,7 @@ std::string x86_i386::Disassemble(int count)
 //------------------------------------------------------------------------------
 void x86_i386::StepInternal(Format& format)
 {
+    format.length = 1;
     format.width = 32;
     format.repeat = false;
 
@@ -344,6 +345,7 @@ void x86_i386::ESC(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_i386::TWO(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
     two[opcode[1]](format, opcode);
 }
 //------------------------------------------------------------------------------

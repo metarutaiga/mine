@@ -48,7 +48,8 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         case 2: TEMP = std::rotl(DEST, (int)SRC);   break;  // TODO
         case 3: TEMP = std::rotr(DEST, (int)SRC);   break;  // TODO
         }
-        UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
+        CF = 0; // TODO
+        OF = 0; // TODO
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
