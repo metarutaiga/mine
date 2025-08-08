@@ -389,26 +389,6 @@ void x86_instruction::CMC(Format& format, const uint8_t* opcode)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::CMP(Format& format, const uint8_t* opcode)
-{
-    switch (opcode[0]) {
-    case 0x38:
-    case 0x39:
-    case 0x3A:
-    case 0x3B:  Decode(format, opcode, "CMP", 1,  0, opcode[0] & 0b11); break;
-    case 0x3C:
-    case 0x3D:  Decode(format, opcode, "CMP", 0, -1, opcode[0] & 0b01); break;
-    case 0x80:
-    case 0x81:  Decode(format, opcode, "CMP", 1, -1, opcode[0] & 0b01); break;
-    case 0x83:  Decode(format, opcode, "CMP", 1,  8, opcode[0] & 0b01); break;
-    }
-
-    BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP - SRC);
-    } END_OPERATION;
-}
-//------------------------------------------------------------------------------
 void x86_instruction::CWDE(Format& format, const uint8_t* opcode)
 {
     format.instruction = (format.width == 16) ? "CBW" : "CWDE";
@@ -886,23 +866,6 @@ void x86_instruction::STD(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         DF = 1;
-    } END_OPERATION;
-}
-//------------------------------------------------------------------------------
-void x86_instruction::TEST(Format& format, const uint8_t* opcode)
-{
-    switch (opcode[0]) {
-    case 0x84:
-    case 0x85:  Decode(format, opcode, "TEST", 1,  0, opcode[0] & 0b01);    break;
-    case 0xA8:
-    case 0xA9:  Decode(format, opcode, "TEST", 0, -1, opcode[0] & 0b01);    break;
-    case 0xF6:
-    case 0xF7:  Decode(format, opcode, "TEST", 1, -1, opcode[0] & 0b01);    break;
-    }
-
-    BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP & SRC, TEMP, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

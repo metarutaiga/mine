@@ -170,13 +170,13 @@ bool x86_i386::Initialize(size_t space, const void* program, size_t size)
 bool x86_i386::Run()
 {
     while (EIP) {
-        if (Step() == false)
+        if (StepInto() == false)
             return false;
     }
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86_i386::Step()
+bool x86_i386::StepInto()
 {
     Format format;
     StepInternal(format);
@@ -185,6 +185,27 @@ bool x86_i386::Step()
     if (EIP >= memory_size) {
         exception(EIP, memory, stack);
         EIP = Pop32();
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
+bool x86_i386::StepOver()
+{
+    auto eip = EIP;
+    auto esp = ESP;
+    while (EIP) {
+        Format format;
+        StepInternal(format);
+        Fixup(format, *this);
+        format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+        if (EIP >= memory_size) {
+            exception(EIP, memory, stack);
+            EIP = Pop32();
+        }
+        if (EIP - eip < 16)
+            break;
+        if (ESP > esp)
+            break;
     }
     return true;
 }

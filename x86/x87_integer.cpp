@@ -21,9 +21,9 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = DEST + (int16_t&)SRC;    break;
-        case 4: DEST = DEST + (int32_t&)SRC;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = DEST + (int16_t)SRC; break;
+        case sizeof(int32_t):   DEST = DEST + (int32_t)SRC; break;
+        default:                                            return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -65,9 +65,9 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = DEST / (int16_t&)SRC;    break;
-        case 4: DEST = DEST / (int32_t&)SRC;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = DEST / (int16_t)SRC; break;
+        case sizeof(int32_t):   DEST = DEST / (int32_t)SRC; break;
+        default:                                            return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -84,9 +84,9 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = (int16_t&)SRC / DEST;    break;
-        case 4: DEST = (int32_t&)SRC / DEST;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = (int16_t)SRC / DEST; break;
+        case sizeof(int32_t):   DEST = (int32_t)SRC / DEST; break;
+        default:                                            return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -109,10 +109,10 @@ void x87_instruction::FILD(Format& format, const uint8_t* opcode)
         auto& DEST = ST(0);
         TOP = TOP - 1;
         switch (sizeof(SRC)) {
-        case 2: DEST = (int16_t&)SRC;   break;
-        case 4: DEST = (int32_t&)SRC;   break;
-        case 8: DEST = (int64_t&)SRC;   break;
-        default:                        return;
+        case sizeof(int16_t):   DEST = (int16_t)SRC;    break;
+        case sizeof(int32_t):   DEST = (int32_t)SRC;    break;
+        case sizeof(int64_t):   DEST = (int64_t)SRC;    break;
+        default:                                        return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -129,9 +129,9 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = DEST * (int16_t&)SRC;    break;
-        case 4: DEST = DEST * (int32_t&)SRC;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = DEST * (int16_t)SRC; break;
+        case sizeof(int32_t):   DEST = DEST * (int32_t)SRC; break;
+        default:                                            return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -202,9 +202,9 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = DEST - (int16_t&)SRC;    break;
-        case 4: DEST = DEST - (int32_t&)SRC;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = DEST - (int16_t)SRC; break;
+        case sizeof(int32_t):   DEST = DEST - (int32_t)SRC; break;
+        default:                                            return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -221,9 +221,9 @@ void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
         switch (sizeof(SRC)) {
-        case 2: DEST = (int16_t&)SRC - DEST;    break;
-        case 4: DEST = (int32_t&)SRC - DEST;    break;
-        default:                                return;
+        case sizeof(int16_t):   DEST = (int16_t)SRC - DEST;     break;
+        case sizeof(int32_t):   DEST = (int32_t)SRC - DEST;     break;
+        default:                                                return;
         }
         C1 = 0;
     } END_OPERATION;

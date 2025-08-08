@@ -19,7 +19,7 @@ void x86_instruction::ADC(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST + (SRC + CF), DEST, SRC);
+        UpdateFlags<OSZAPC, CARRY>(x86, DEST, DEST + (SRC + CF), DEST, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -38,7 +38,27 @@ void x86_instruction::ADD(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, DEST, DEST + SRC, DEST, SRC);
+        UpdateFlags<OSZAPC, CARRY>(x86, DEST, DEST + SRC, DEST, SRC);
+    } END_OPERATION;
+}
+//------------------------------------------------------------------------------
+void x86_instruction::CMP(Format& format, const uint8_t* opcode)
+{
+    switch (opcode[0]) {
+    case 0x38:
+    case 0x39:
+    case 0x3A:
+    case 0x3B:  Decode(format, opcode, "CMP", 1,  0, opcode[0] & 0b11); break;
+    case 0x3C:
+    case 0x3D:  Decode(format, opcode, "CMP", 0, -1, opcode[0] & 0b01); break;
+    case 0x80:
+    case 0x81:  Decode(format, opcode, "CMP", 1, -1, opcode[0] & 0b01); break;
+    case 0x83:  Decode(format, opcode, "CMP", 1,  8, opcode[0] & 0b01); break;
+    }
+
+    BEGIN_OPERATION() {
+        auto TEMP = DEST;
+        UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -62,7 +82,7 @@ void x86_instruction::DEC(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<-1, 1, 1, -1, 1, 0>(x86, DEST, DEST - 1, DEST, 1);
+        UpdateFlags<OSZAP_, BORROW>(x86, DEST, DEST - 1, DEST, 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -72,17 +92,18 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "DIV", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::REG;
-        format.operand[0].base = REG(EAX);
+        format.operand[0].type = Format::Operand::NOP;
         break;
     }
 
     BEGIN_OPERATION() {
+        auto Q = SRC;
+        auto R = SRC;
         switch (sizeof(DEST)) {
-        case sizeof(uint8_t):  { auto Q = AL / SRC;  auto R = AL % SRC;  AL = Q;  AH = R;  break; }
-        case sizeof(uint16_t): { auto Q = AX / SRC;  auto R = AX % SRC;  AX = Q;  DX = R;  break; }
-        case sizeof(uint32_t): { auto Q = EAX / SRC; auto R = EAX % SRC; EAX = Q; EDX = R; break; }
-        case sizeof(uint64_t): { auto Q = RAX / SRC; auto R = RAX % SRC; RAX = Q; RDX = R; break; }
+        case sizeof(uint8_t):  Q = AL / SRC;  R = AL % SRC;  AL = Q;  AH = R;  break;
+        case sizeof(uint16_t): Q = AX / SRC;  R = AX % SRC;  AX = Q;  DX = R;  break;
+        case sizeof(uint32_t): Q = EAX / SRC; R = EAX % SRC; EAX = Q; EDX = R; break;
+        case sizeof(uint64_t): Q = RAX / SRC; R = RAX % SRC; RAX = Q; RDX = R; break;
         }
     } END_OPERATION;
 }
@@ -93,18 +114,19 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IDIV", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::REG;
-        format.operand[0].base = REG(EAX);
+        format.operand[0].type = Format::Operand::NOP;
         break;
     }
 
     BEGIN_OPERATION() {
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        auto Q = src;
+        auto R = src;
         switch (sizeof(DEST)) {
-        case sizeof(int8_t):  { auto Q = AL / src;  auto R = AL % src;  AL = Q;  AH = R;  break; }
-        case sizeof(int16_t): { auto Q = AX / src;  auto R = AX % src;  AX = Q;  DX = R;  break; }
-        case sizeof(int32_t): { auto Q = EAX / src; auto R = EAX % src; EAX = Q; EDX = R; break; }
-        case sizeof(int64_t): { auto Q = RAX / src; auto R = RAX % src; RAX = Q; RDX = R; break; }
+        case sizeof(int8_t):  Q = AL / src;  R = AL % src;  AL = Q;  AH = R;  break;
+        case sizeof(int16_t): Q = AX / src;  R = AX % src;  AX = Q;  DX = R;  break;
+        case sizeof(int32_t): Q = EAX / src; R = EAX % src; EAX = Q; EDX = R; break;
+        case sizeof(int64_t): Q = RAX / src; R = RAX % src; RAX = Q; RDX = R; break;
         }
     } END_OPERATION;
 }
@@ -127,30 +149,26 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src1 = SRC1;
         typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src2 = SRC2;
-        typedef __int128_t int128_t;
         if (format.operand[0].type == Format::Operand::NOP) {
+            auto M = std::make_widened_t<decltype(src)>(src);
             switch (sizeof(SRC)) {
-            case sizeof(int8_t):  { auto M = int16_t(src) * AL;   AL = int8_t(M);   AH = int8_t(M >> 8);    CF = OF = (AL != M);  break; }
-            case sizeof(int16_t): { auto M = int32_t(src) * AX;   AX = int16_t(M);  DX = int16_t(M >> 16);  CF = OF = (AX != M);  break; }
-            case sizeof(int32_t): { auto M = int64_t(src) * EAX;  EAX = int32_t(M); EDX = int32_t(M >> 32); CF = OF = (EAX != M); break; }
-            case sizeof(int64_t): { auto M = int128_t(src) * RAX; RAX = int64_t(M); RDX = int64_t(M >> 64); CF = OF = (RAX != M); break; }
+            case sizeof(int8_t):  M = M * AL;  AL = int8_t(M);   AH = int8_t(M >> 8);    CF = OF = (AL != M);  break;
+            case sizeof(int16_t): M = M * AX;  AX = int16_t(M);  DX = int16_t(M >> 16);  CF = OF = (AX != M);  break;
+            case sizeof(int32_t): M = M * EAX; EAX = int32_t(M); EDX = int32_t(M >> 32); CF = OF = (EAX != M); break;
+            case sizeof(int64_t): M = M * RAX; RAX = int64_t(M); RDX = int64_t(M >> 64); CF = OF = (RAX != M); break;
             }
         }
         else if (format.operand[2].type == Format::Operand::NOP) {
-            switch (sizeof(DEST)) {
-            case sizeof(int8_t):  { auto M = int16_t(dest) * src1;  dest = int8_t(M);  CF = OF = (dest != M); break; }
-            case sizeof(int16_t): { auto M = int32_t(dest) * src1;  dest = int16_t(M); CF = OF = (dest != M); break; }
-            case sizeof(int32_t): { auto M = int64_t(dest) * src1;  dest = int32_t(M); CF = OF = (dest != M); break; }
-            case sizeof(int64_t): { auto M = int128_t(dest) * src1; dest = int64_t(M); CF = OF = (dest != M); break; }
-            }
+            auto M = std::make_widened_t<decltype(dest)>(dest);
+            M = M * src1;
+            DEST = decltype(dest)(M);
+            CF = OF = (dest != M);
         }
         else {
-            switch (sizeof(DEST)) {
-            case sizeof(int8_t):  { auto M = int16_t(src1) * src2;  dest = int8_t(M);  CF = OF = (dest != M); break; }
-            case sizeof(int16_t): { auto M = int32_t(src1) * src2;  dest = int16_t(M); CF = OF = (dest != M); break; }
-            case sizeof(int32_t): { auto M = int64_t(src1) * src2;  dest = int32_t(M); CF = OF = (dest != M); break; }
-            case sizeof(int64_t): { auto M = int128_t(src1) * src2; dest = int64_t(M); CF = OF = (dest != M); break; }
-            }
+            auto M = std::make_widened_t<decltype(dest)>(src1);
+            M = M * src2;
+            DEST = decltype(dest)(M);
+            CF = OF = (dest != M);
         }
     } END_OPERATION;
 }
@@ -175,7 +193,7 @@ void x86_instruction::INC(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<1, 1, 1, 1, 1, 0>(x86, DEST, DEST + 1, DEST, 1);
+        UpdateFlags<OSZAP_, CARRY>(x86, DEST, DEST + 1, DEST, 1);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -190,12 +208,12 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        typedef __uint128_t uint128_t;
+        auto M = std::make_widened_t<decltype(SRC)>(SRC);
         switch (sizeof(SRC)) {
-        case sizeof(int8_t):  { auto M = uint16_t(SRC) * AL;   AL = uint8_t(M);   AH = uint8_t(M >> 8);    CF = OF = (AH != 0);  break; }
-        case sizeof(int16_t): { auto M = uint32_t(SRC) * AX;   AX = uint16_t(M);  DX = uint16_t(M >> 16);  CF = OF = (DX != 0);  break; }
-        case sizeof(int32_t): { auto M = uint64_t(SRC) * EAX;  EAX = uint32_t(M); EDX = uint32_t(M >> 32); CF = OF = (EDX != 0); break; }
-        case sizeof(int64_t): { auto M = uint128_t(SRC) * RAX; RAX = uint64_t(M); RDX = uint64_t(M >> 64); CF = OF = (RDX != 0); break; }
+        case sizeof(int8_t):  M = M * AL;  AL = uint8_t(M);   AH = uint8_t(M >> 8);    CF = OF = (AH != 0);  break;
+        case sizeof(int16_t): M = M * AX;  AX = uint16_t(M);  DX = uint16_t(M >> 16);  CF = OF = (DX != 0);  break;
+        case sizeof(int32_t): M = M * EAX; EAX = uint32_t(M); EDX = uint32_t(M >> 32); CF = OF = (EDX != 0); break;
+        case sizeof(int64_t): M = M * RAX; RAX = uint64_t(M); RDX = uint64_t(M >> 64); CF = OF = (RDX != 0); break;
         }
     } END_OPERATION;
 }
@@ -210,7 +228,7 @@ void x86_instruction::NEG(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         CF = DEST ? 1 : 0;
-        UpdateFlags<0, 1, 1, 0, 1, 0>(x86, DEST, -DEST, 0, 0);
+        UpdateFlags<_SZ_P_, BORROW>(x86, DEST, -DEST, 0, 0);
 
         // Special case
         uint64_t bc = DEST | -DEST;
@@ -236,7 +254,7 @@ void x86_instruction::SBB(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<-1, 1, 1, -1, 1, -1>(x86, DEST, DEST - (SRC + CF), DEST, SRC);
+        UpdateFlags<OSZAPC, BORROW>(x86, DEST, DEST - (SRC + CF), DEST, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -255,7 +273,7 @@ void x86_instruction::SUB(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<-1, 1, 1, -1, 1, -1>(x86, DEST, DEST - SRC, DEST, SRC);
+        UpdateFlags<OSZAPC, BORROW>(x86, DEST, DEST - SRC, DEST, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

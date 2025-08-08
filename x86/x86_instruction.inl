@@ -34,24 +34,32 @@ static auto specialize(auto lambda) {
         } \
     }
 //------------------------------------------------------------------------------
-template<int O, int S, int Z, int A, int P, int C, typename L, typename R>
-inline void x86_instruction::UpdateFlags(x86_instruction& x86, L& DEST, R TEMP)
-{
-    typename std::make_signed_t<L> dest = DEST;
-    typename std::make_signed_t<R> temp = TEMP;
-    uint64_t sign = (uint64_t)1 << (sizeof(L) * 8 - 1);
-    if (C == -1)    CF = DEST > TEMP ? 1 : 0;
-    if (C ==  1)    CF = DEST < TEMP ? 1 : 0;
-    if (P ==  1)    PF = TEMP &    1 ? 1 : 0;
-//  if (A ==  1)    AF = TEMP &    1 ? 1 : 0;
-    if (Z ==  1)    ZF = TEMP ==   0 ? 1 : 0;
-    if (S ==  1)    SF = TEMP & sign ? 1 : 0;
-    if (O == -1)    OF = dest > temp ? 1 : 0;
-    if (O ==  1)    OF = dest < temp ? 1 : 0;
-    DEST = TEMP;
-}
+namespace std {
+template<class T> struct make_widened { using type = T; };
+template<class T> using make_widened_t = make_widened<T>::type;
+template<> struct make_widened<int8_t> { using type = int16_t; };
+template<> struct make_widened<int16_t> { using type = int32_t; };
+template<> struct make_widened<int32_t> { using type = int64_t; };
+template<> struct make_widened<int64_t> { using type = __int128_t; };
+template<> struct make_widened<uint8_t> { using type = uint16_t; };
+template<> struct make_widened<uint16_t> { using type = uint32_t; };
+template<> struct make_widened<uint32_t> { using type = uint64_t; };
+template<> struct make_widened<uint64_t> { using type = __uint128_t; };
+};
 //------------------------------------------------------------------------------
-template<int O, int S, int Z, int A, int P, int C, typename L, typename R, typename X, typename Y>
+#define _____C  0b000001
+#define ____P_  0b000010
+#define ___A__  0b000100
+#define __Z___  0b001000
+#define _S____  0b010000
+#define O_____  0b100000
+#define _SZ_P_  0b011010
+#define OSZAP_  0b111110
+#define OSZAPC  0b111111
+#define CARRY   false
+#define BORROW  true
+//------------------------------------------------------------------------------
+template<int F, bool B = false, typename L, typename R, typename X, typename Y>
 inline void x86_instruction::UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1, Y SRC2)
 {
     uint64_t bc = ( TEMP & (~SRC1 | SRC2)) | (~SRC1 & SRC2);
@@ -60,15 +68,13 @@ inline void x86_instruction::UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, 
     uint64_t bits = sizeof(L) * 8;
     uint64_t sign = (uint64_t)1 << (bits - 1);
     uint64_t sign2 = (uint64_t)1 << (bits - 2);
-    if (C == -1)    CF = bc &                sign ? 1 : 0;
-    if (C ==  1)    CF = cc &                sign ? 1 : 0;
-    if (P ==  1)    PF = pp &                   1 ? 1 : 0;
-    if (A == -1)    AF = bc &                   8 ? 1 : 0;
-    if (A ==  1)    AF = cc &                   8 ? 1 : 0;
-    if (Z ==  1)    ZF = TEMP ==                0 ? 1 : 0;
-    if (S ==  1)    SF = TEMP &              sign ? 1 : 0;
-    if (O == -1)    OF = (bc ^ (bc >> 1)) & sign2 ? 1 : 0;
-    if (O ==  1)    OF = (cc ^ (cc >> 1)) & sign2 ? 1 : 0;
+    uint64_t c = B ? bc : cc;
+    if (F & _____C) CF = c &               sign ? 1 : 0;
+    if (F & ____P_) PF = pp &                 1 ? 1 : 0;
+    if (F & ___A__) AF = c &                  8 ? 1 : 0;
+    if (F & __Z___) ZF = TEMP ==              0 ? 1 : 0;
+    if (F & _S____) SF = TEMP &            sign ? 1 : 0;
+    if (F & O_____) OF = (c ^ (c >> 1)) & sign2 ? 1 : 0;
     DEST = TEMP;
 }
 //------------------------------------------------------------------------------

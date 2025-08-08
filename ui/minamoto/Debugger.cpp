@@ -36,6 +36,7 @@ static std::string logs;
 static int stackIndex;
 static int symbolIndex;
 static std::vector<std::pair<std::string, size_t>> symbols;
+static bool refresh;
 //------------------------------------------------------------------------------
 static int LoggerV(const char* format, va_list va)
 {
@@ -202,23 +203,27 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 return symbols[index].first.c_str();
             }, &symbols, (int)symbols.size())) {
                 cpu->Jump(symbols[symbolIndex].second);
-                status = cpu->Status();
-                disasm = cpu->Disassemble(64);
+                refresh = true;
             }
 
-            if (ImGui::Button("Step")) {
+            if (ImGui::Button("Step Into")) {
+                refresh = true;
                 if (cpu) {
-                    cpu->Step();
-                    status = cpu->Status();
-                    disasm = cpu->Disassemble(64);
+                    cpu->StepInto();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Step Over")) {
+                refresh = true;
+                if (cpu) {
+                    cpu->StepOver();
                 }
             }
             ImGui::SameLine();
             if (ImGui::Button("Run")) {
+                refresh = true;
                 if (cpu) {
                     cpu->Run();
-                    status = cpu->Status();
-                    disasm = cpu->Disassemble(64);
                 }
             }
             ImGui::Separator();
@@ -257,6 +262,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             stackIndex = 0;
             symbolIndex = 0;
             symbols.clear();
+            refresh = true;
 
             cpu = new x86_i386;
             cpu->Initialize(16777216);
@@ -271,8 +277,18 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (symbols.empty() == false) {
                 cpu->Jump(symbols.front().second);
             }
-            status = cpu->Status();
-            disasm = cpu->Disassemble(64);
+        }
+
+        if (refresh) {
+            refresh = false;
+            ImGui::BeginChild("##100");
+            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+            ImGui::EndChild();
+            if (cpu) {
+                status = cpu->Status();
+                disasm = cpu->Disassemble(64);
+            }
         }
     }
     ImGui::End();

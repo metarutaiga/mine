@@ -62,9 +62,9 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
         TOP = TOP - 1;
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: DEST = (float&)SRC;     break;
-            case 8: DEST = (double&)SRC;    break;
-            default:                        return;
+            case sizeof(float):     DEST = (float&)SRC;     break;
+            case sizeof(double):    DEST = (double&)SRC;    break;
+            default:                                        return;
             }
         }
         else {
@@ -166,8 +166,7 @@ void x87_instruction::FNOP(Format& format, const uint8_t* opcode)
 {
     format.length = 2;
     format.instruction = "FNOP";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
-    };
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {};
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FST(Format& format, const uint8_t* opcode)
@@ -182,10 +181,10 @@ void x87_instruction::FST(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         switch (sizeof(DEST)) {
-        case 4:     (float&)DEST = ST(0);       break;
-        case 8:     (double&)DEST = ST(0);      break;
-        case 10:    (long double&)DEST = ST(0); break;
-        default:                                return;
+        case sizeof(float):         (float&)DEST = ST(0);       break;
+        case sizeof(double):        (double&)DEST = ST(0);      break;
+//      case sizeof(long double):   (long double&)DEST = ST(0); break;
+        default:                                                return;
         }
         C1 = 0;
     } END_OPERATION;
@@ -203,10 +202,10 @@ void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         switch (sizeof(DEST)) {
-        case 4:     (float&)DEST = ST(0);       break;
-        case 8:     (double&)DEST = ST(0);      break;
-        case 10:    (long double&)DEST = ST(0); break;
-        default:                                return;
+        case sizeof(float):         (float&)DEST = ST(0);       break;
+        case sizeof(double):        (double&)DEST = ST(0);      break;
+//      case sizeof(long double):   (long double&)DEST = ST(0); break;
+        default:                                                return;
         }
         TOP = TOP + 1;
         C1 = 0;

@@ -41,28 +41,14 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
+        auto TEMP = DEST;
         switch (x86.opcode[1] >> 3 & 7) {
-        case 0:
-            if (sizeof(DEST) == 1)  DEST = __builtin_rotateleft8(DEST, SRC);
-            if (sizeof(DEST) == 2)  DEST = __builtin_rotateleft16(DEST, SRC);
-            if (sizeof(DEST) == 4)  DEST = __builtin_rotateleft32(DEST, SRC);
-            break;
-        case 1:
-            if (sizeof(DEST) == 1)  DEST = __builtin_rotateright8(DEST, SRC);
-            if (sizeof(DEST) == 2)  DEST = __builtin_rotateright16(DEST, SRC);
-            if (sizeof(DEST) == 4)  DEST = __builtin_rotateright32(DEST, SRC);
-            break;
-        case 2: // TODO
-            if (sizeof(DEST) == 1)  DEST = __builtin_rotateleft8(DEST, SRC);
-            if (sizeof(DEST) == 2)  DEST = __builtin_rotateleft16(DEST, SRC);
-            if (sizeof(DEST) == 4)  DEST = __builtin_rotateleft32(DEST, SRC);
-            break;
-        case 3: // TODO
-            if (sizeof(DEST) == 1)  DEST = __builtin_rotateright8(DEST, SRC);
-            if (sizeof(DEST) == 2)  DEST = __builtin_rotateright16(DEST, SRC);
-            if (sizeof(DEST) == 4)  DEST = __builtin_rotateright32(DEST, SRC);
-            break;
+        case 0: TEMP = std::rotl(DEST, (int)SRC);   break;
+        case 1: TEMP = std::rotr(DEST, (int)SRC);   break;
+        case 2: TEMP = std::rotl(DEST, (int)SRC);   break;  // TODO
+        case 3: TEMP = std::rotr(DEST, (int)SRC);   break;  // TODO
         }
+        UpdateFlags<_SZ_P_>(x86, DEST, TEMP, TEMP, TEMP);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

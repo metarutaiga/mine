@@ -13,7 +13,8 @@ struct miCPU
     virtual ~miCPU() = default;
     virtual bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) = 0;
     virtual bool Run() = 0;
-    virtual bool Step() = 0;
+    virtual bool StepInto() = 0;
+    virtual bool StepOver() = 0;
     virtual bool Jump(size_t address) = 0;
     virtual void Exception(void(*callback)(size_t, void*, void*)) = 0;
     virtual size_t Stack() = 0;

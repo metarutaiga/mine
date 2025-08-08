@@ -21,17 +21,17 @@ void x87_instruction::FADD(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) + (float&)SRC;    break;
-            case 8: ST(0) = ST(0) + (double&)SRC;   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = ST(0) + (float&)SRC;    break;
+            case sizeof(double):    ST(0) = ST(0) + (double&)SRC;   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) + ST(i);  break;
-            case 8: ST(i) = ST(i) + ST(0);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(0) + ST(i);  break;
+            case sizeof(double):    ST(i) = ST(i) + ST(0);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -41,13 +41,12 @@ void x87_instruction::FADD(Format& format, const uint8_t* opcode)
 void x87_instruction::FADDP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FADDP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(i) + ST(0);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FCHS(Format& format, const uint8_t* opcode)
@@ -112,17 +111,17 @@ void x87_instruction::FDIV(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) / (float&)SRC;    break;
-            case 8: ST(0) = ST(0) / (double&)SRC;   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = ST(0) / (float&)SRC;    break;
+            case sizeof(double):    ST(0) = ST(0) / (double&)SRC;   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) / ST(i);  break;
-            case 8: ST(i) = ST(i) / ST(0);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(0) / ST(i);  break;
+            case sizeof(double):    ST(i) = ST(i) / ST(0);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -132,13 +131,12 @@ void x87_instruction::FDIV(Format& format, const uint8_t* opcode)
 void x87_instruction::FDIVP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FDIVP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(i) / ST(0);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
@@ -152,17 +150,17 @@ void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: ST(0) = (float&)SRC / ST(0);    break;
-            case 8: ST(0) = (double&)SRC / ST(0);   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = (float&)SRC / ST(0);    break;
+            case sizeof(double):    ST(0) = (double&)SRC / ST(0);   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(i) / ST(0);  break;
-            case 8: ST(i) = ST(0) / ST(i);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(i) / ST(0);  break;
+            case sizeof(double):    ST(i) = ST(0) / ST(i);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -172,13 +170,12 @@ void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
 void x87_instruction::FDIVRP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FDIVRP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(0) / ST(i);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FMUL(Format& format, const uint8_t* opcode)
@@ -192,17 +189,17 @@ void x87_instruction::FMUL(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) * (float&)SRC;    break;
-            case 8: ST(0) = ST(0) * (double&)SRC;   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = ST(0) * (float&)SRC;    break;
+            case sizeof(double):    ST(0) = ST(0) * (double&)SRC;   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) * ST(i);  break;
-            case 8: ST(i) = ST(i) * ST(0);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(0) * ST(i);  break;
+            case sizeof(double):    ST(i) = ST(i) * ST(0);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -212,13 +209,12 @@ void x87_instruction::FMUL(Format& format, const uint8_t* opcode)
 void x87_instruction::FMULP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FMULP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(i) * ST(0);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
@@ -252,17 +248,17 @@ void x87_instruction::FSUB(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) - (float&)SRC;    break;
-            case 8: ST(0) = ST(0) - (double&)SRC;   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = ST(0) - (float&)SRC;    break;
+            case sizeof(double):    ST(0) = ST(0) - (double&)SRC;   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(0) - ST(i);  break;
-            case 8: ST(i) = ST(i) - ST(0);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(0) - ST(i);  break;
+            case sizeof(double):    ST(i) = ST(i) - ST(0);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -272,13 +268,12 @@ void x87_instruction::FSUB(Format& format, const uint8_t* opcode)
 void x87_instruction::FSUBP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSUBP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(i) - ST(0);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
@@ -292,17 +287,17 @@ void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         if (format.operand[0].type == Format::Operand::ADR) {
             switch (sizeof(SRC)) {;
-            case 4: ST(0) = (float&)SRC - ST(0);    break;
-            case 8: ST(0) = (double&)SRC - ST(0);   break;
-            default:                                return;
+            case sizeof(float):     ST(0) = (float&)SRC - ST(0);    break;
+            case sizeof(double):    ST(0) = (double&)SRC - ST(0);   break;
+            default:                                                return;
             }
         }
         else {
             int i = format.operand[0].base;
             switch (sizeof(SRC)) {
-            case 4: ST(0) = ST(i) - ST(0);  break;
-            case 8: ST(i) = ST(0) - ST(i);  break;
-            default:                        return;
+            case sizeof(float):     ST(0) = ST(i) - ST(0);  break;
+            case sizeof(double):    ST(i) = ST(0) - ST(i);  break;
+            default:                                        return;
             }
         }
         C1 = 0;
@@ -312,12 +307,11 @@ void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
 void x87_instruction::FSUBRP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSUBRP", 2);
-
-    BEGIN_OPERATION() {
+    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
         int i = format.operand[0].base;
         ST(i) = ST(0) - ST(i);
         TOP = TOP + 1;
         C1 = 0;
-    } END_OPERATION;
+    };
 }
 //------------------------------------------------------------------------------

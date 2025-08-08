@@ -92,7 +92,7 @@ bool x86_i86::Initialize(size_t space, const void* program, size_t size)
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86_i86::Step()
+bool x86_i86::StepInto()
 {
     Format format;
     StepInternal(format);
@@ -105,10 +105,31 @@ bool x86_i86::Step()
     return true;
 }
 //------------------------------------------------------------------------------
+bool x86_i86::StepOver()
+{
+    auto ip = IP;
+    auto sp = SP;
+    while (IP) {
+        Format format;
+        StepInternal(format);
+        Fixup(format, *this);
+        format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+        if (IP >= memory_size) {
+            exception(IP, memory, stack);
+            IP = Pop16();
+        }
+        if (IP - ip < 16)
+            break;
+        if (SP > sp)
+            break;
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
 bool x86_i86::Run()
 {
     while (IP) {
-        if (Step() == false)
+        if (StepInto() == false)
             return false;
     }
     return true;

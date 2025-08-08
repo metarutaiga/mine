@@ -42,12 +42,14 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+        auto TEMP = DEST;
         switch (x86.opcode[1] >> 3 & 7) {
-        case 4: DEST = DEST << SRC; break;
-        case 5: DEST = DEST >> SRC; break;
-        case 6: DEST = dest << SRC; break;
-        case 7: DEST = dest >> SRC; break;
+        case 4: TEMP = DEST << SRC; break;
+        case 5: TEMP = DEST >> SRC; break;
+        case 6: TEMP = dest << SRC; break;
+        case 7: TEMP = dest >> SRC; break;
         }
+        UpdateFlags<_SZ_P_>(x86, DEST, TEMP, TEMP, TEMP);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -73,7 +75,15 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        // TODO
+        auto TEMP = DEST;
+        int bits = sizeof(DEST) * 4;
+        switch (x86.opcode[1]) {
+        case 0xA4:
+        case 0xA5:  TEMP = (DEST << SRC2) | (SRC1 >> (bits - SRC2)); break;
+        case 0xAC:
+        case 0xAD:  TEMP = (DEST >> SRC2) | (SRC2 << (bits - SRC2)); break;
+        }
+        UpdateFlags<_SZ_P_>(x86, DEST, TEMP, TEMP, TEMP);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

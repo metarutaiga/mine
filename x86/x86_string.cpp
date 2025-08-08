@@ -22,7 +22,7 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP - SRC);
+        UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
         ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
@@ -91,7 +91,7 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, SRC - TEMP);
+        UpdateFlags<OSZAPC, BORROW>(x86, TEMP, SRC - TEMP, SRC, TEMP);
         EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
     } END_OPERATION;
 }
