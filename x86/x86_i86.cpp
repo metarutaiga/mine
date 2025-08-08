@@ -84,6 +84,8 @@ bool x86_i86::Initialize(size_t space, const void* program, size_t size)
 
     IP = 1024;
     SP = (uint16_t)space - 16;
+    EFLAGS = 0b0000001000000010;
+
     memcpy(memory + IP, program, size);
     stack = memory + SP;
 
@@ -98,7 +100,7 @@ bool x86_i86::Step()
     format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     if (IP >= memory_size) {
         exception(IP, memory, stack);
-        IP = Pop();
+        IP = Pop16();
     }
     return true;
 }

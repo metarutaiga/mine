@@ -53,7 +53,7 @@ struct x86_register
     register_t empty = {};
     register_t regs[16] = {};
     register_t ip = {};
-    flags_t flags = { 0b10 };
+    flags_t flags = {};
     uint16_t segments = {};
 
     static const char* const REG8[8];

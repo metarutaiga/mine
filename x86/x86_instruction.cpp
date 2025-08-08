@@ -164,8 +164,11 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
 
     std::string disasm;
     disasm += format.instruction;
+
+    size_t offset = disasm.size();
     for (int i = 0; i < 3; ++i) {
-        if (i) disasm += ',';
+        if (disasm.size() > offset)
+            disasm += ',';
         disasm += ' ';
         switch (format.operand[i].type) {
         case Format::Operand::ADR:
@@ -211,8 +214,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             disasm += hex(x86.ip.q + format.operand[i].displacement);
             break;
         default:
-            if (i) disasm.pop_back();
-            disasm.pop_back();
+            if (disasm.size() > offset)
+                disasm.pop_back();
+            if (disasm.size() > offset)
+                disasm.pop_back();
             break;
         }
     }
@@ -306,7 +311,7 @@ void x86_instruction::BSF(Format& format, const uint8_t* opcode)
         ZF = 1;
         if (SRC) {
             ZF = 0;
-            DEST = __builtin_ctz(SRC);
+            DEST = std::countr_zero(SRC);
         }
     } END_OPERATION;
 }
@@ -319,7 +324,7 @@ void x86_instruction::BSR(Format& format, const uint8_t* opcode)
         ZF = 1;
         if (SRC) {
             ZF = 0;
-            DEST = __builtin_clz(SRC) ^ (sizeof(SRC) * 8 - 1);
+            DEST = std::countl_zero(SRC);
         }
     } END_OPERATION;
 }
@@ -337,7 +342,7 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        Push(EIP);
+        Push32(EIP);
         if (format.operand[0].type == Format::Operand::REL)
             EIP += format.operand[0].displacement;
         else
@@ -390,7 +395,7 @@ void x86_instruction::CMP(Format& format, const uint8_t* opcode)
     case 0x38:
     case 0x39:
     case 0x3A:
-    case 0x3B:  Decode(format, opcode, "CMP", 1, 0, opcode[0] & 0b11);  break;
+    case 0x3B:  Decode(format, opcode, "CMP", 1,  0, opcode[0] & 0b11); break;
     case 0x3C:
     case 0x3D:  Decode(format, opcode, "CMP", 0, -1, opcode[0] & 0b01); break;
     case 0x80:
@@ -427,14 +432,14 @@ void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         int level = format.operand[1].displacement % 32;
-        Push(ESP);
+        Push32(ESP);
         if (level > 0) {
             uint32_t frame_ptr = ESP;
             for (int i = 1; i < level; ++i) {
                 EBP = EBP - 4;
-                Push(EBP);
+                Push32(EBP);
             }
-            Push(frame_ptr);
+            Push32(frame_ptr);
         }
         ESP -= (uint16_t)format.operand[1].displacement;
     } END_OPERATION;
@@ -483,7 +488,51 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        // TODO
+        bool condition = false;
+        switch (x86.opcode[0]) {
+        case 0x70:  condition = ((OF)          ) == 1;  break;  // JO
+        case 0x71:  condition = ((OF)          ) == 0;  break;  // JNO
+        case 0x72:  condition = ((CF)          ) == 1;  break;  // JC
+        case 0x73:  condition = ((CF)          ) == 0;  break;  // JNC
+        case 0x74:  condition = ((ZF)          ) == 1;  break;  // JZ
+        case 0x75:  condition = ((ZF)          ) == 0;  break;  // JNZ
+        case 0x76:  condition = ((CF | ZF)     ) == 1;  break;  // JBE
+        case 0x77:  condition = ((CF | ZF)     ) == 0;  break;  // JA
+        case 0x78:  condition = ((SF)          ) == 1;  break;  // JS
+        case 0x79:  condition = ((SF)          ) == 0;  break;  // JNS
+        case 0x7A:  condition = ((PF)          ) == 1;  break;  // JPE
+        case 0x7B:  condition = ((PF)          ) == 0;  break;  // JPO
+        case 0x7C:  condition = ((SF ^ OF)     ) == 1;  break;  // JL
+        case 0x7D:  condition = ((SF ^ OF)     ) == 0;  break;  // JGE
+        case 0x7E:  condition = ((SF ^ OF) | ZF) == 1;  break;  // JLE
+        case 0x7F:  condition = ((SF ^ OF) | ZF) == 0;  break;  // JG
+        case 0xE3:  (format.address == 16) ?
+                    condition = ((CX)          ) == 0:
+                    condition = ((ECX)         ) == 0;  break;  // JECXZ
+        case 0x0F:
+            switch (x86.opcode[1]) {
+            case 0x80:  condition = ((OF)          ) == 1;  break;  // JO
+            case 0x81:  condition = ((OF)          ) == 0;  break;  // JNO
+            case 0x82:  condition = ((CF)          ) == 1;  break;  // JC
+            case 0x83:  condition = ((CF)          ) == 0;  break;  // JNC
+            case 0x84:  condition = ((ZF)          ) == 1;  break;  // JZ
+            case 0x85:  condition = ((ZF)          ) == 0;  break;  // JNZ
+            case 0x86:  condition = ((CF | ZF)     ) == 1;  break;  // JBE
+            case 0x87:  condition = ((CF | ZF)     ) == 0;  break;  // JA
+            case 0x88:  condition = ((SF)          ) == 1;  break;  // JS
+            case 0x89:  condition = ((SF)          ) == 0;  break;  // JNS
+            case 0x8A:  condition = ((PF)          ) == 1;  break;  // JPE
+            case 0x8B:  condition = ((PF)          ) == 0;  break;  // JPO
+            case 0x8C:  condition = ((SF ^ OF)     ) == 1;  break;  // JL
+            case 0x8D:  condition = ((SF ^ OF)     ) == 0;  break;  // JGE
+            case 0x8E:  condition = ((SF ^ OF) | ZF) == 1;  break;  // JLE
+            case 0x8F:  condition = ((SF ^ OF) | ZF) == 0;  break;  // JG
+            }
+            break;
+        }
+        if (condition) {
+            EIP += format.operand[0].displacement;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -532,7 +581,7 @@ void x86_instruction::LEAVE(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         ESP = EBP;
-        EBP = Pop();
+        EBP = Pop32();
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -606,10 +655,10 @@ void x86_instruction::MOVSX(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         switch (format.width) {
         case 8:
-            (uint16_t&)DEST = SRC;
+            (int16_t&)DEST = (int16_t)SRC;
             break;
         case 16:
-            (uint32_t&)DEST = SRC;
+            (int32_t&)DEST = (int32_t)SRC;
             break;
         }
     } END_OPERATION;
@@ -625,10 +674,10 @@ void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         switch (format.width) {
         case 8:
-            (uint16_t&)DEST = SRC;
+            (uint16_t&)DEST = (uint16_t)SRC;
             break;
         case 16:
-            (uint32_t&)DEST = SRC;
+            (uint32_t&)DEST = (uint32_t)SRC;
             break;
         }
     } END_OPERATION;
@@ -665,7 +714,7 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        DEST = Pop();
+        DEST = Pop32();
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -674,14 +723,14 @@ void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
     format.instruction = "POPAD";
 
     BEGIN_OPERATION() {
-        EDI = Pop();
-        ESI = Pop();
-        EBP = Pop();
-        Pop();
-        EBX = Pop();
-        EDX = Pop();
-        ECX = Pop();
-        EAX = Pop();
+        EDI = Pop32();
+        ESI = Pop32();
+        EBP = Pop32();
+        Pop32();
+        EBX = Pop32();
+        EDX = Pop32();
+        ECX = Pop32();
+        EAX = Pop32();
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -690,7 +739,7 @@ void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
     format.instruction = "POPFD";
 
     BEGIN_OPERATION() {
-        EFLAGS = Pop();
+        EFLAGS = Pop32();
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -714,7 +763,7 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        Push(DEST);
+        Push32(DEST);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -724,14 +773,14 @@ void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto Temp = ESP;
-        Push(EAX);
-        Push(ECX);
-        Push(EDX);
-        Push(EBX);
-        Push(Temp);
-        Push(EBP);
-        Push(ESI);
-        Push(EDI);
+        Push32(EAX);
+        Push32(ECX);
+        Push32(EDX);
+        Push32(EBX);
+        Push32(Temp);
+        Push32(EBP);
+        Push32(ESI);
+        Push32(EDI);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -740,7 +789,7 @@ void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
     format.instruction = "PUSHFD";
 
     BEGIN_OPERATION() {
-        Push(EFLAGS);
+        Push32(EFLAGS);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -763,7 +812,7 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        EIP = Pop();
+        EIP = Pop32();
         ESP = ESP + format.operand[0].displacement;
     } END_OPERATION;
 }
@@ -780,27 +829,45 @@ void x86_instruction::SAHF(Format& format, const uint8_t* opcode)
 void x86_instruction::SETcc(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x90:  Decode(format, opcode, "SETO", 2);    break;
-    case 0x91:  Decode(format, opcode, "SETNO", 2);   break;
-    case 0x92:  Decode(format, opcode, "SETC", 2);    break;
-    case 0x93:  Decode(format, opcode, "SETNC", 2);   break;
-    case 0x94:  Decode(format, opcode, "SETZ", 2);    break;
-    case 0x95:  Decode(format, opcode, "SETNZ", 2);   break;
-    case 0x96:  Decode(format, opcode, "SETBE", 2);   break;
-    case 0x97:  Decode(format, opcode, "SETA", 2);    break;
-    case 0x98:  Decode(format, opcode, "SETS", 2);    break;
-    case 0x99:  Decode(format, opcode, "SETNS", 2);   break;
-    case 0x9A:  Decode(format, opcode, "SETPE", 2);   break;
-    case 0x9B:  Decode(format, opcode, "SETPO", 2);   break;
-    case 0x9C:  Decode(format, opcode, "SETL", 2);    break;
-    case 0x9D:  Decode(format, opcode, "SETGE", 2);   break;
-    case 0x9E:  Decode(format, opcode, "SETLE", 2);   break;
-    case 0x9F:  Decode(format, opcode, "SETG", 2);    break;
+    case 0x90:  Decode(format, opcode, "SETO", 2);  break;
+    case 0x91:  Decode(format, opcode, "SETNO", 2); break;
+    case 0x92:  Decode(format, opcode, "SETC", 2);  break;
+    case 0x93:  Decode(format, opcode, "SETNC", 2); break;
+    case 0x94:  Decode(format, opcode, "SETZ", 2);  break;
+    case 0x95:  Decode(format, opcode, "SETNZ", 2); break;
+    case 0x96:  Decode(format, opcode, "SETBE", 2); break;
+    case 0x97:  Decode(format, opcode, "SETA", 2);  break;
+    case 0x98:  Decode(format, opcode, "SETS", 2);  break;
+    case 0x99:  Decode(format, opcode, "SETNS", 2); break;
+    case 0x9A:  Decode(format, opcode, "SETPE", 2); break;
+    case 0x9B:  Decode(format, opcode, "SETPO", 2); break;
+    case 0x9C:  Decode(format, opcode, "SETL", 2);  break;
+    case 0x9D:  Decode(format, opcode, "SETGE", 2); break;
+    case 0x9E:  Decode(format, opcode, "SETLE", 2); break;
+    case 0x9F:  Decode(format, opcode, "SETG", 2);  break;
     }
+    format.width = 8;
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        // TODO
+        switch (x86.opcode[1]) {
+        case 0x90:  DEST = ((OF)          ) == 1;   break;  // SETO
+        case 0x91:  DEST = ((OF)          ) == 0;   break;  // SETNO
+        case 0x92:  DEST = ((CF)          ) == 1;   break;  // SETC
+        case 0x93:  DEST = ((CF)          ) == 0;   break;  // SETNC
+        case 0x94:  DEST = ((ZF)          ) == 1;   break;  // SETZ
+        case 0x95:  DEST = ((ZF)          ) == 0;   break;  // SETNZ
+        case 0x96:  DEST = ((CF | ZF)     ) == 1;   break;  // SETBE
+        case 0x97:  DEST = ((CF | ZF)     ) == 0;   break;  // SETA
+        case 0x98:  DEST = ((SF)          ) == 1;   break;  // SETS
+        case 0x99:  DEST = ((SF)          ) == 0;   break;  // SETNS
+        case 0x9A:  DEST = ((PF)          ) == 1;   break;  // SETPE
+        case 0x9B:  DEST = ((PF)          ) == 0;   break;  // SETPO
+        case 0x9C:  DEST = ((SF ^ OF)     ) == 1;   break;  // SETL
+        case 0x9D:  DEST = ((SF ^ OF)     ) == 0;   break;  // SETGE
+        case 0x9E:  DEST = ((SF ^ OF) | ZF) == 1;   break;  // SETLE
+        case 0x9F:  DEST = ((SF ^ OF) | ZF) == 0;   break;  // SETG
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -826,7 +893,7 @@ void x86_instruction::TEST(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0x84:
-    case 0x85:  Decode(format, opcode, "TEST", 1, 0, opcode[0] & 0b01);     break;
+    case 0x85:  Decode(format, opcode, "TEST", 1,  0, opcode[0] & 0b01);    break;
     case 0xA8:
     case 0xA9:  Decode(format, opcode, "TEST", 0, -1, opcode[0] & 0b01);    break;
     case 0xF6:
@@ -835,7 +902,7 @@ void x86_instruction::TEST(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP & SRC);
+        UpdateFlags<1, 1, 1, 1, 1, 1>(x86, TEMP, TEMP & SRC, TEMP, SRC);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

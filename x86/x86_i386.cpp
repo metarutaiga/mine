@@ -159,6 +159,8 @@ bool x86_i386::Initialize(size_t space, const void* program, size_t size)
 
     EIP = 1024;
     ESP = (uint32_t)space - 16;
+    EFLAGS = 0b0000001000000010;
+
     memcpy(memory + EIP, program, size);
     stack = memory + ESP;
 
@@ -182,7 +184,7 @@ bool x86_i386::Step()
     format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
     if (EIP >= memory_size) {
         exception(EIP, memory, stack);
-        EIP = Pop();
+        EIP = Pop32();
     }
     return true;
 }

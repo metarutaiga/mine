@@ -239,6 +239,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 file = xxGetExecutablePath();
                 file += "/../../../../../SDK/miCPU/format/sample/pe.x86/x86.dll";
             }
+            ImGui::SameLine();
+            if (ImGui::Button("x86_arithmetic")) {
+                file = xxGetExecutablePath();
+                file += "/../../../../../SDK/miCPU/format/sample/pe.x86/x86_arithmetic.exe";
+            }
 
             ImGui::EndTable();
         }

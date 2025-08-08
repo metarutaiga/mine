@@ -36,6 +36,9 @@ protected:
     template<int O, int S, int Z, int A, int P, int C, typename L, typename R>
     static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP);
 
+    template<int O, int S, int Z, int A, int P, int C, typename L, typename R, typename X, typename Y>
+    static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1, Y SRC2);
+
 protected:
     typedef void instruction(Format&, const uint8_t*);
     typedef void (*instruction_pointer)(Format&, const uint8_t*);
