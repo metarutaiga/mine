@@ -209,14 +209,21 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button("Step Into")) {
                 refresh = true;
                 if (cpu) {
-                    cpu->StepInto();
+                    cpu->Step(1);
                 }
             }
             ImGui::SameLine();
             if (ImGui::Button("Step Over")) {
                 refresh = true;
                 if (cpu) {
-                    cpu->StepOver();
+                    cpu->Step(0);
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Step Out")) {
+                refresh = true;
+                if (cpu) {
+                    cpu->Step(-1);
                 }
             }
             ImGui::SameLine();

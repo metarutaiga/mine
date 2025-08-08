@@ -53,7 +53,7 @@ void x86_instruction::OR(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<_SZ_P_>(x86, DEST, DEST | SRC, DEST, SRC);
+        UpdateFlags<_SZ_P_>(x86, DEST, DEST | SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -72,7 +72,7 @@ void x86_instruction::TEST(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
-        UpdateFlags<_SZ_P_>(x86, TEMP, TEMP & SRC, TEMP, SRC);
+        UpdateFlags<_SZ_P_>(x86, TEMP, TEMP & SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;
@@ -93,7 +93,7 @@ void x86_instruction::XOR(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        UpdateFlags<_SZ_P_>(x86, DEST, DEST ^ SRC, DEST, SRC);
+        UpdateFlags<_SZ_P_>(x86, DEST, DEST ^ SRC);
         CF = 0;
         OF = 0;
     } END_OPERATION;

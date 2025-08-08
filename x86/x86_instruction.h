@@ -33,8 +33,8 @@ protected:
     static std::string  Disasm(const Format& format, x86_instruction& x86);
     static void         Fixup(Format& format, x86_instruction& x86);
 
-    template<int F, bool B, typename L, typename R, typename X, typename Y>
-    static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1, Y SRC2);
+    template<int F, bool B, typename L, typename R, typename X = int, typename Y = int>
+    static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());
 
 protected:
     typedef void instruction(Format&, const uint8_t*);

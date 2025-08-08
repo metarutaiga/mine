@@ -228,7 +228,7 @@ void x86_instruction::NEG(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         CF = DEST ? 1 : 0;
-        UpdateFlags<_SZ_P_, BORROW>(x86, DEST, -DEST, 0, 0);
+        UpdateFlags<_SZ_P_>(x86, DEST, -DEST);
 
         // Special case
         uint64_t bc = DEST | -DEST;

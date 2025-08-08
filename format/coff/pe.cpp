@@ -126,7 +126,7 @@ bool PE::Load(const char* path,
         uint32_t max = 0;
         for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
             const SectionHeader& section = sections[i];
-            log("%-12s : %d %08X %08X %s", "section", i, section.s_vaddr, section.s_size, section.s_name);
+            log("%-12s : %d %08X %08X %s", "Section", i, section.s_vaddr, section.s_size, section.s_name);
             if (section.s_flags & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE)) {
                 if (min > section.s_vaddr)
                     min = section.s_vaddr;

@@ -17,8 +17,7 @@ public:
     virtual ~x86_i386();
     bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) override;
     bool Run() override;
-    bool StepInto() override;
-    bool StepOver() override;
+    bool Step(int type) override;
     bool Jump(size_t address) override;
     void Exception(void(*callback)(size_t, void*, void*)) override;
     size_t Stack() override;

@@ -49,7 +49,7 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         case 6: TEMP = dest << SRC; break;
         case 7: TEMP = dest >> SRC; break;
         }
-        UpdateFlags<_SZ_P_>(x86, DEST, TEMP, TEMP, TEMP);
+        UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
         case 0xAC:
         case 0xAD:  TEMP = (DEST >> SRC2) | (SRC2 << (bits - SRC2)); break;
         }
-        UpdateFlags<_SZ_P_>(x86, DEST, TEMP, TEMP, TEMP);
+        UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

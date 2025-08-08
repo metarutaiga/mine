@@ -28,7 +28,7 @@ void x86_instruction::AAD(Format& format, const uint8_t* opcode)
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         AL = AH * 10 + AL;
         AH = 0;
-        UpdateFlags<_SZ_P_>(x86, AX, AX, AX, AX);
+        UpdateFlags<_SZ_P_>(x86, AX, AX);
     };
 }
 //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ void x86_instruction::AAM(Format& format, const uint8_t* opcode)
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         AH = AL / 10;
         AL = AL % 10;
-        UpdateFlags<_SZ_P_>(x86, AX, AX, AX, AX);
+        UpdateFlags<_SZ_P_>(x86, AX, AX);
     };
 }
 //------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void x86_instruction::DAA(Format& format, const uint8_t* opcode)
         else {
             CF = 0;
         }
-        UpdateFlags<_SZ_P_>(x86, AL, AL, AL, AL);
+        UpdateFlags<_SZ_P_>(x86, AL, AL);
     };
 }
 //------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void x86_instruction::DAS(Format& format, const uint8_t* opcode)
         else {
             CF = 0;
         }
-        UpdateFlags<_SZ_P_>(x86, AL, AL, AL, AL);
+        UpdateFlags<_SZ_P_>(x86, AL, AL);
     };
 }
 //------------------------------------------------------------------------------
