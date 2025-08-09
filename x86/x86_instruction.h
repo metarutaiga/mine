@@ -15,7 +15,7 @@ struct x86_instruction : public x86_format
     uint8_t* opcode = nullptr;
     uint8_t* stack = nullptr;
 
-    int (*exception)(size_t index, void* memory, void* stack) = [](size_t, void*, void*) { return 0; };
+    size_t (*exception)(struct miCPU*, size_t) = [](struct miCPU*, size_t) { return size_t(0); };
 
 protected:
 

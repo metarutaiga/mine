@@ -53,40 +53,22 @@ const x86_instruction::instruction_pointer x86_i86::group[6][8] =
 //------------------------------------------------------------------------------
 x86_i86::~x86_i86()
 {
-#if defined(_UCRT)
-    _aligned_free(memory);
-#else
-    free(memory);
-#endif
+    delete allocator;
 }
 //------------------------------------------------------------------------------
-bool x86_i86::Initialize(size_t space, const void* program, size_t size)
+bool x86_i86::Initialize(allocator_t* allocator)
 {
-    if (space & (1024 - 1)) {
-        printf("space %zd is not aligned 1024\n", space);
+    if (allocator == nullptr)
         return false;
-    }
-    if (space < (1024 + size + 65536)) {
-        printf("space %zd is less than %zd\n", space, 1024 + size + 65536);
-        return false;
-    }
-#if defined(_UCRT)
-    memory = (uint8_t*)_aligned_malloc(1024, space);
-#else
-    memory = (uint8_t*)aligned_alloc(1024, space);
-#endif
-    if (memory == nullptr) {
-        printf("memory allocation is failed\n");
-        return false;
-    }
-    memset(memory, 0, space);
-    memory_size = space;
+    this->allocator = allocator;
+
+    memory = (uint8_t*)allocator->Base();
+    memory_size = allocator->Space();
 
     IP = 1024;
-    SP = (uint16_t)space - 16;
+    SP = (uint16_t)memory_size - 16;
     FLAGS = 0b0000001000000010;
 
-    memcpy(memory + IP, program, size);
     stack = memory + SP;
 
     return true;
@@ -102,7 +84,7 @@ bool x86_i86::Step(int type)
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
         if (IP >= memory_size) {
-            AX = exception(IP, memory, stack);
+            AX = exception(this, IP);
             IP = Pop16();
         }
         if (type == 0)
@@ -132,7 +114,7 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void x86_i86::Exception(int(*callback)(size_t, void*, void*))
+void x86_i86::Exception(size_t(*callback)(miCPU*, size_t))
 {
     exception = callback;
 }
@@ -144,9 +126,14 @@ size_t x86_i86::Stack()
 //------------------------------------------------------------------------------
 uint8_t* x86_i86::Memory(size_t base, size_t size)
 {
-    if (base + size > memory_size)
-        return nullptr;
-    return memory + base;
+    if (base == 0 && size == 0)
+        return memory;
+    return (uint8_t*)allocator->Alloc(size, base);
+}
+//------------------------------------------------------------------------------
+allocator_t* x86_i86::Allocator()
+{
+    return allocator;
 }
 //------------------------------------------------------------------------------
 std::string x86_i86::Status()

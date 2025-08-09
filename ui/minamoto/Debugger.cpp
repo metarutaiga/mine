@@ -7,6 +7,7 @@
 #include "EmulatorPCH.h"
 #include <IconFontCppHeaders/IconsFontAwesome4.h>
 #include "format/coff/pe.h"
+#include "format/syscall/simple_allocator.h"
 #include "format/syscall/syscall.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
@@ -42,15 +43,21 @@ static int Logger(const char* format, ...)
     return length;
 }
 //------------------------------------------------------------------------------
-static int Exception(size_t index, void* memory, void* stack)
+static size_t Exception(miCPU* cpu, size_t index)
 {
+    auto allocator = cpu->Allocator();
+    auto memory = cpu->Memory();
+    auto stack = memory + cpu->Stack();
     switch (index) {
-    case (uint32_t)-1: return syscall_printf(memory, stack, LoggerV);
-    case (uint32_t)-2: return syscall_vprintf(memory, stack, LoggerV);
-    case (uint32_t)-3: return syscall_sprintf(memory, stack);
-    case (uint32_t)-4: return syscall_vsprintf(memory, stack);
-    case (uint32_t)-5: return syscall_snprintf(memory, stack);
-    case (uint32_t)-6: return syscall_vsnprintf(memory, stack);
+    case (uint32_t)-1: return syscall_malloc(stack, allocator);
+    case (uint32_t)-2: return syscall_realloc(stack, allocator);
+    case (uint32_t)-3: return syscall_free(stack, allocator);
+    case (uint32_t)-4: return syscall_printf(memory, stack, LoggerV);
+    case (uint32_t)-5: return syscall_vprintf(memory, stack, LoggerV);
+    case (uint32_t)-6: return syscall_sprintf(memory, stack);
+    case (uint32_t)-7: return syscall_vsprintf(memory, stack);
+    case (uint32_t)-8: return syscall_snprintf(memory, stack);
+    case (uint32_t)-9: return syscall_vsnprintf(memory, stack);
     }
     return 0;
 }
@@ -59,12 +66,15 @@ static size_t Symbol(const char* file, const char* name, size_t address, void* s
 {
     if (file) {
         switch (operator""_CC(name, strlen(name))) {
-        case "printf"_CC:       return (size_t)-1;
-        case "vprintf"_CC:      return (size_t)-2;
-        case "sprintf"_CC:      return (size_t)-3;
-        case "vsprintf"_CC:     return (size_t)-4;
-        case "snprintf"_CC:     return (size_t)-5;
-        case "vsnprintf"_CC:    return (size_t)-6;
+        case "malloc"_CC:       return (uint32_t)-1;
+        case "realloc"_CC:      return (uint32_t)-2;
+        case "free"_CC:         return (uint32_t)-3;
+        case "printf"_CC:       return (uint32_t)-4;
+        case "vprintf"_CC:      return (uint32_t)-5;
+        case "sprintf"_CC:      return (uint32_t)-6;
+        case "vsprintf"_CC:     return (uint32_t)-7;
+        case "snprintf"_CC:     return (uint32_t)-8;
+        case "vsnprintf"_CC:    return (uint32_t)-9;
         }
     }
     else {
@@ -180,7 +190,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             refresh = true;
 
             cpu = new x86_i386;
-            cpu->Initialize(16777216);
+            cpu->Initialize(SimpleAllocator::Initialize(16777216));
             cpu->Exception(Exception);
 
             PE pe;

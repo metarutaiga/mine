@@ -1,3 +1,4 @@
+#include <fenv.h>
 #include "x86_register.h"
 #include "x86_register.inl"
 #include "x86_instruction.h"
@@ -71,7 +72,10 @@ void x87_instruction::FPREM1(Format& format, const uint8_t* opcode)
     format.length = 2;
     format.instruction = "FPREM1";
     format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+        int origin = fegetround();
+        fesetround(FE_TONEAREST);
         auto Q = (uint64_t)nearbyint(ST(0) / ST(1));
+        fesetround(origin);
         ST(0) = ST(0) - (ST(1) * Q);
         C0 = Q & 0b100 ? 1 : 0;
         C1 = Q & 0b001 ? 1 : 0;

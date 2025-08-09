@@ -13,15 +13,18 @@
 struct x86_i86 : public miCPU
                , public x87_instruction
 {
+    allocator_t* allocator = nullptr;
+
 public:
     virtual ~x86_i86();
-    bool Initialize(size_t space, const void* program = nullptr, size_t size = 0) override;
+    bool Initialize(allocator_t* allocator) override;
     bool Run() override;
     bool Step(int type) override;
     bool Jump(size_t address) override;
-    void Exception(int(*callback)(size_t, void*, void*)) override;
+    void Exception(size_t(*callback)(miCPU*, size_t)) override;
     size_t Stack() override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) override;
+    allocator_t* Allocator() override;
     std::string Status() override;
     std::string Disassemble(int count) override;
 
