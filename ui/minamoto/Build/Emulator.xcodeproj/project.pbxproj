@@ -161,6 +161,10 @@
 		D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
 		D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
+		F56C53FF2E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
+		F56C54002E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
+		F56C54012E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
+		F56C54022E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
 		F5BE8CD02E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
 		F5BE8CD12E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
 		F5BE8CD22E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
@@ -299,6 +303,11 @@
 		D6D7594B2E25044F00E5C09D /* x86_i86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i86.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F56C53F82E46418500534B1D /* x87_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_instruction.inl; sourceTree = "<group>"; };
+		F56C53FB2E470BF900534B1D /* printf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = printf.c; sourceTree = "<group>"; };
+		F56C53FC2E470BF900534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
+		F56C53FD2E470BF900534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
+		F56C53FE2E470C0300534B1D /* printf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = printf.cpp; sourceTree = "<group>"; };
+		F56C54032E474E7600534B1D /* syscall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall.h; sourceTree = "<group>"; };
 		F5BE8CCE2E37C8B900DBB83A /* ecoff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff.h; sourceTree = "<group>"; };
 		F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -427,6 +436,8 @@
 			isa = PBXGroup;
 			children = (
 				D67A58C42E30C9280010D73D /* coff */,
+				F56C53FA2E470BC000534B1D /* sample */,
+				F56C53F92E470BB800534B1D /* syscall */,
 			);
 			name = format;
 			sourceTree = "<group>";
@@ -531,6 +542,27 @@
 			);
 			name = riscv;
 			path = ../../../riscv;
+			sourceTree = "<group>";
+		};
+		F56C53F92E470BB800534B1D /* syscall */ = {
+			isa = PBXGroup;
+			children = (
+				F56C53FE2E470C0300534B1D /* printf.cpp */,
+				F56C54032E474E7600534B1D /* syscall.h */,
+			);
+			name = syscall;
+			path = ../../../format/syscall;
+			sourceTree = "<group>";
+		};
+		F56C53FA2E470BC000534B1D /* sample */ = {
+			isa = PBXGroup;
+			children = (
+				F56C53FB2E470BF900534B1D /* printf.c */,
+				F56C53FC2E470BF900534B1D /* x86.c */,
+				F56C53FD2E470BF900534B1D /* x86_arithmetic.c */,
+			);
+			name = sample;
+			path = ../../../format/sample;
 			sourceTree = "<group>";
 		};
 		F5E5B0C62D6C5669008E0D21 /* ui */ = {
@@ -700,6 +732,7 @@
 				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				F56C54002E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE392E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE452E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
@@ -754,6 +787,7 @@
 				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6C5FE4D2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */,
+				F56C54012E470C0300534B1D /* printf.cpp in Sources */,
 				D6D759432E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D758E12E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */,
@@ -811,6 +845,7 @@
 				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				F56C54022E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE3A2E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE432E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D7591B2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
@@ -864,6 +899,7 @@
 				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
+				F56C53FF2E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE382E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE442E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D759282E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,

@@ -84,7 +84,7 @@ bool x86_i86::Initialize(size_t space, const void* program, size_t size)
 
     IP = 1024;
     SP = (uint16_t)space - 16;
-    EFLAGS = 0b0000001000000010;
+    FLAGS = 0b0000001000000010;
 
     memcpy(memory + IP, program, size);
     stack = memory + SP;
@@ -102,7 +102,7 @@ bool x86_i86::Step(int type)
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
         if (IP >= memory_size) {
-            exception(IP, memory, stack);
+            AX = exception(IP, memory, stack);
             IP = Pop16();
         }
         if (type == 0)
@@ -132,7 +132,7 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void x86_i86::Exception(void(*callback)(size_t, void*, void*))
+void x86_i86::Exception(int(*callback)(size_t, void*, void*))
 {
     exception = callback;
 }
@@ -151,42 +151,61 @@ uint8_t* x86_i86::Memory(size_t base, size_t size)
 //------------------------------------------------------------------------------
 std::string x86_i86::Status()
 {
-    bool i87 = true;
     std::string output;
 
     char temp[32];
-    for (int i = 0; i < 8; ++i) {
-        snprintf(temp, 32, "%-8s%08X", REG16[i], regs[i].w);
+    auto push_first_line = [&](const char* format, ...) {
+        va_list va;
+        va_start(va, format);
+        vsnprintf(temp, 32, format, va);
+        va_end(va);
         output += temp;
-
-        if (i87) {
-            output.insert(output.end(), 4, ' ');
-            snprintf(temp, 32, "ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
-            output += temp;
-        }
-
         output += '\n';
+    };
+
+    size_t current = 0;
+    auto push_second_line = [&](const char* format, ...) {
+        va_list va;
+        va_start(va, format);
+        vsnprintf(temp, 32, format, va);
+        va_end(va);
+        size_t now = output.size();
+        if (current != std::string::npos) {
+            now = output.find('\n', current);
+            if (now == std::string::npos)
+                now = output.size();
+        }
+        size_t len = strlen(temp);
+        if (len == 0) {
+            now = now + 1;
+            return;
+        }
+        output.insert(now, 4, ' ');
+        output.insert(now + 4, temp);
+        current = now + 4 + len + 1;
+    };
+
+    // CPU
+    for (int i = 0; i < 8; ++i) {
+        push_first_line("%-8s%04X", REG16[i], regs[i].w);
     }
+    push_first_line("");
+    push_first_line("%-8s%04X", "IP", ip.w);
+    push_first_line("%-8s%04X", "FLAGS", flags.w);
 
-    output += '\n';
-    snprintf(temp, 32, "%-8s%08X", "IP", ip.w);
-    output += temp;
-
-    if (i87) {
-        output.insert(output.end(), 4, ' ');
-        snprintf(temp, 32, "%-8s%04X", "CONTROL", control.w);
-        output += temp;
+    for (int i = 0; i < 16; ++i) {
+        static const char* name = "1N11ODITSZ1A1P1C";
+        temp[i] = (flags.w & (1 << (15 - i))) ? name[i] : '.';
     }
+    push_first_line("%.16s", temp);
 
-    output += '\n';
-    snprintf(temp, 32, "%-8s%08X", "FLAGS", flags.w);
-    output += temp;
-
-    if (i87) {
-        output.insert(output.end(), 4, ' ');
-        snprintf(temp, 32, "%-8s%04X", "STATUS", status.w);
-        output += temp;
+    // FPU
+    for (int i = 0; i < 8; ++i) {
+        push_second_line("ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
     }
+    push_second_line("");
+    push_second_line("%-8s%04X", "CONTROL", control.w);
+    push_second_line("%-8s%04X", "STATUS", status.w);
 
     return output;
 }
@@ -220,7 +239,7 @@ std::string x86_i86::Disassemble(int count)
         for (uint32_t i = 0; i < 16; ++i) {
             if (address + i >= IP) {
                 output.insert(insert, 2, ' ');
-                continue;;
+                continue;
             }
             snprintf(temp, 64, "%02X", memory[address + i]);
             output.insert(insert, temp);

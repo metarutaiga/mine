@@ -1,2 +1,7 @@
 EXPORTS
   printf
+  sprintf
+  snprintf
+  vprintf
+  vsprintf
+  vsnprintf

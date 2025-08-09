@@ -5,29 +5,12 @@
 // https://github.com/metarutaiga/miCPU
 //==============================================================================
 #include "EmulatorPCH.h"
+#include <IconFontCppHeaders/IconsFontAwesome4.h>
 #include "format/coff/pe.h"
+#include "format/syscall/syscall.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 
-//------------------------------------------------------------------------------
-static const uint8_t sampleX86[] =
-{
-    0x37,
-    0x3F,
-    0x10, 0x00,
-    0x11, 0x00,
-    0x12, 0x00,
-    0x13, 0x00,
-    0x14, 0x11,
-    0x66, 0x15, 0x34, 0x12,
-    0x15, 0x78, 0x56, 0x34, 0x12,
-    0x80, 0x10, 0x22,
-    0x66, 0x81, 0x10, 0x10, 0x32,
-    0x81, 0x10, 0x10, 0x32, 0x54, 0x76,
-    0x66, 0x83, 0x10, 0x33,
-    0x83, 0x10, 0x44,
-};
-static const int countX86 = 14;
 //------------------------------------------------------------------------------
 static miCPU* cpu;
 static std::string status;
@@ -59,73 +42,29 @@ static int Logger(const char* format, ...)
     return length;
 }
 //------------------------------------------------------------------------------
-static void Exception(size_t index, void* memory, void* stack)
+static int Exception(size_t index, void* memory, void* stack)
 {
-    auto memory8 = (uint8_t*)memory;
-    auto stack32 = (uint32_t*)stack;
     switch (index) {
-    case (uint32_t)-1: {
-        size_t stackIndex = 2;
-        std::vector<size_t> stack64;
-        auto format = (const char*)memory8 + stack32[1];
-        for (size_t i = 0; format[i]; ++i) {
-            char c = format[i];
-            if (c != '%')
-                continue;
-            int l = 0;
-            for (size_t j = i + 1; format[j]; ++j) {
-                char c = format[j];
-                switch (c) {
-                case 'l':
-                    l++;
-                    continue;
-                case 'c':
-                case 'd':
-                case 'i':
-                case 'o':
-                case 'p':
-                case 'u':
-                case 'x':
-                case 'X':
-                    stack64.push_back(stack32[stackIndex++]);
-                    if (l >= 2) {
-                        stack64.back() |= (size_t)stack32[stackIndex++] << 32;
-                    }
-                    break;
-                case 'a':
-                case 'A':
-                case 'e':
-                case 'E':
-                case 'f':
-                case 'F':
-                case 'g':
-                case 'G':
-                    stack64.push_back((size_t)stack32[stackIndex++]);
-                    stack64.back() |= (size_t)stack32[stackIndex++] << 32;
-                    break;
-                case 's':
-                    stack64.push_back((size_t)memory + stack32[stackIndex++]);
-                    break;
-                default:
-                    continue;
-                }
-                i = j - 1;
-                break;
-            }
-        }
-        LoggerV(format, (va_list)stack64.data());
-        break;
+    case (uint32_t)-1: return syscall_printf(memory, stack, LoggerV);
+    case (uint32_t)-2: return syscall_vprintf(memory, stack, LoggerV);
+    case (uint32_t)-3: return syscall_sprintf(memory, stack);
+    case (uint32_t)-4: return syscall_vsprintf(memory, stack);
+    case (uint32_t)-5: return syscall_snprintf(memory, stack);
+    case (uint32_t)-6: return syscall_vsnprintf(memory, stack);
     }
-    default:
-        break;
-    }
+    return 0;
 }
 //------------------------------------------------------------------------------
 static size_t Symbol(const char* file, const char* name, size_t address, void* sym_data)
 {
     if (file) {
         switch (operator""_CC(name, strlen(name))) {
-        case "printf"_CC:   address = (size_t)-1;   break;
+        case "printf"_CC:       return (size_t)-1;
+        case "vprintf"_CC:      return (size_t)-2;
+        case "sprintf"_CC:      return (size_t)-3;
+        case "vsprintf"_CC:     return (size_t)-4;
+        case "snprintf"_CC:     return (size_t)-5;
+        case "vsnprintf"_CC:    return (size_t)-6;
         }
     }
     else {
@@ -206,42 +145,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 refresh = true;
             }
 
-            if (ImGui::Button("Step Into")) {
-                refresh = true;
-                if (cpu) {
-                    cpu->Step(1);
-                }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Step Over")) {
-                refresh = true;
-                if (cpu) {
-                    cpu->Step(0);
-                }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Step Out")) {
-                refresh = true;
-                if (cpu) {
-                    cpu->Step(-1);
-                }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Run")) {
-                refresh = true;
-                if (cpu) {
-                    cpu->Run();
-                }
-            }
+            if (ImGui::Button(ICON_FA_PLAY))        { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(0);  } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(1);  } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(-1); }
             ImGui::Separator();
-            if (ImGui::Button("Sample")) {
-                disasm.clear();
-
-                x86_i386 x86;
-                x86.Initialize(1048576, sampleX86, sizeof(sampleX86));
-                disasm = x86.Disassemble(countX86);
-            }
-            ImGui::SameLine();
             if (ImGui::Button("printf")) {
                 file = xxGetExecutablePath();
                 file += "/../../../../../SDK/miCPU/format/sample/pe.x86/printf.exe";

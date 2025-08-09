@@ -186,7 +186,7 @@ bool x86_i386::Step(int type)
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
         if (EIP >= memory_size) {
-            exception(EIP, memory, stack);
+            EAX = exception(EIP, memory, stack);
             EIP = Pop32();
         }
         if (type == 1)
@@ -207,7 +207,7 @@ bool x86_i386::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void x86_i386::Exception(void(*callback)(size_t, void*, void*))
+void x86_i386::Exception(int(*callback)(size_t, void*, void*))
 {
     exception = callback;
 }
@@ -226,42 +226,60 @@ uint8_t* x86_i386::Memory(size_t base, size_t size)
 //------------------------------------------------------------------------------
 std::string x86_i386::Status()
 {
-    bool i387 = true;
     std::string output;
 
     char temp[32];
-    for (int i = 0; i < 8; ++i) {
-        snprintf(temp, 32, "%-8s%08X", REG32[i], regs[i].d);
+    auto push_first_line = [&](const char* format, ...) {
+        va_list va;
+        va_start(va, format);
+        vsnprintf(temp, 32, format, va);
+        va_end(va);
         output += temp;
-
-        if (i387) {
-            output.insert(output.end(), 4, ' ');
-            snprintf(temp, 32, "ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
-            output += temp;
-        }
-
         output += '\n';
+    };
+
+    size_t now = 0;
+    auto push_second_line = [&](const char* format, ...) {
+        va_list va;
+        va_start(va, format);
+        vsnprintf(temp, 32, format, va);
+        va_end(va);
+        if (now != output.size()) {
+            now = output.find('\n', now);
+            if (now == std::string::npos)
+                now = output.size();
+        }
+        size_t len = strlen(temp);
+        if (len == 0) {
+            now = now + 1;
+            return;
+        }
+        output.insert(now, 4, ' ');
+        output.insert(now + 4, temp);
+        now = now + 4 + len + 1;
+    };
+
+    // CPU
+    for (int i = 0; i < 8; ++i) {
+        push_first_line("%-8s%08X", REG32[i], regs[i].d);
     }
+    push_first_line("");
+    push_first_line("%-8s%08X", "EIP", ip.d);
+    push_first_line("%-8s%08X", "EFLAGS", flags.d);
 
-    output += '\n';
-    snprintf(temp, 32, "%-8s%08X", "EIP", ip.d);
-    output += temp;
-
-    if (i387) {
-        output.insert(output.end(), 4, ' ');
-        snprintf(temp, 32, "%-8s%04X", "CONTROL", control.w);
-        output += temp;
+    for (int i = 0; i < 16; ++i) {
+        static const char* name = "1N11ODITSZ1A1P1C";
+        temp[i] = (flags.w & (1 << (15 - i))) ? name[i] : '.';
     }
+    push_first_line("%.16s", temp);
 
-    output += '\n';
-    snprintf(temp, 32, "%-8s%08X", "EFLAGS", flags.d);
-    output += temp;
-
-    if (i387) {
-        output.insert(output.end(), 4, ' ');
-        snprintf(temp, 32, "%-8s%04X", "STATUS", status.w);
-        output += temp;
+    // FPU
+    for (int i = 0; i < 8; ++i) {
+        push_second_line("ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
     }
+    push_second_line("");
+    push_second_line("%-8s%04X", "CONTROL", control.w);
+    push_second_line("%-8s%04X", "STATUS", status.w);
 
     return output;
 }
@@ -295,7 +313,7 @@ std::string x86_i386::Disassemble(int count)
         for (uint32_t i = 0; i < 16; ++i) {
             if (address + i >= EIP) {
                 output.insert(insert, 2, ' ');
-                continue;;
+                continue;
             }
             snprintf(temp, 64, "%02X", memory[address + i]);
             output.insert(insert, temp);
