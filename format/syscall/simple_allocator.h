@@ -3,26 +3,27 @@
 #include <vector>
 #include "miCPU.h"
 
+template<int MINBLOCK>
 struct SimpleAllocator : public allocator_t {
-    enum { MINBLOCK = 16 };
+    enum { FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
     void* Alloc(size_t size, size_t hint = 0) override {
         if (size == 0)
             return nullptr;
-        size = (size + (MINBLOCK - 1)) & ~(MINBLOCK - 1);
-        uint8_t exp = std::countr_zero(size / MINBLOCK) + 1;
+        uint8_t exp = std::bit_width((size + (MINBLOCK - 1)) / MINBLOCK) - 1;
+        size_t block = (1 << exp);
         size_t pos = hint / MINBLOCK;
-        for (size_t next = pos + exp; next < status.size(); next = pos + exp) {
-            for (size_t i = 0; i < exp; ++i) {
-                if (status[pos + 1]) {
+        for (size_t next = pos + block, end = status.size(); next < end; next = pos + block) {
+            for (size_t i = pos; i < next; ++i) {
+                if (status[i] != FREED) {
                     pos = next;
                     break;
                 }
             }
             if (pos == next)
                 continue;
-            memset(status.data() + pos, exp, exp);
+            memset(status.data() + pos, exp, block);
             return memory.data() + pos * MINBLOCK;
         }
         return nullptr;
@@ -31,15 +32,25 @@ struct SimpleAllocator : public allocator_t {
         if (pointer == nullptr)
             return;
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
+        if (pos >= status.size())
+            return;
         uint8_t exp = status[pos];
-        memset(status.data() + pos, 0, exp);
+        if (exp == FREED)
+            return;
+        size_t block = (1 << exp);
+        memset(status.data() + pos, FREED, block);
     }
     size_t Size(void* pointer) override {
         if (pointer == nullptr)
             return 0;
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
+        if (pos >= status.size())
+            return 0;
         uint8_t exp = status[pos];
-        return (1 << (exp - 1)) * MINBLOCK;
+        if (exp == FREED)
+            return 0;
+        size_t block = (1 << exp);
+        return block * MINBLOCK;
     }
     void* Base() override {
         return memory.data();
@@ -50,9 +61,9 @@ struct SimpleAllocator : public allocator_t {
     static SimpleAllocator* Initialize(size_t size) {
         SimpleAllocator* allocator = new SimpleAllocator;
         if (allocator) {
-            size = (1 << std::countr_zero(size));
+            size = (1 << std::bit_width(size - 1));
             allocator->memory.resize(size);
-            allocator->status.resize(size / MINBLOCK);
+            allocator->status.resize(size / MINBLOCK, FREED);
         }
         return allocator;
     }

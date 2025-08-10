@@ -65,6 +65,9 @@ bool x86_i86::Initialize(allocator_t* allocator)
     memory = (uint8_t*)allocator->Base();
     memory_size = allocator->Space();
 
+    allocator->Alloc(1024);
+    allocator->Alloc(65536, memory_size - 65536);
+
     IP = 1024;
     SP = (uint16_t)memory_size - 16;
     FLAGS = 0b0000001000000010;
@@ -84,7 +87,7 @@ bool x86_i86::Step(int type)
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
         if (IP >= memory_size) {
-            AX = exception(this, IP);
+            AX = (uint16_t)exception(this, IP);
             IP = Pop16();
         }
         if (type == 0)
@@ -126,8 +129,11 @@ size_t x86_i86::Stack()
 //------------------------------------------------------------------------------
 uint8_t* x86_i86::Memory(size_t base, size_t size)
 {
-    if (base == 0 && size == 0)
-        return memory;
+    if (size == 0) {
+        if (base + size >= memory_size)
+            return nullptr;
+        return memory + base;
+    }
     return (uint8_t*)allocator->Alloc(size, base);
 }
 //------------------------------------------------------------------------------

@@ -12,7 +12,11 @@ int syscall_vsprintf(const void* memory, const void* stack);
 int syscall_snprintf(const void* memory, const void* stack);
 int syscall_vsnprintf(const void* memory, const void* stack);
 
-// malloc / realloc / free
+// calloc / malloc / realloc / free
+uint32_t syscall_calloc(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_malloc(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_realloc(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_free(const void* stack, struct allocator_t* allocator);
+uint32_t syscall_expand(const void* stack, struct allocator_t* allocator);
+uint32_t syscall_msize(const void* stack, struct allocator_t* allocator);
+uint32_t syscall_recalloc(const void* stack, struct allocator_t* allocator);

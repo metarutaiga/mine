@@ -1,4 +1,11 @@
 EXPORTS
+  calloc
+  malloc
+  realloc
+  free
+  _expand
+  _msize
+  _recalloc
   printf
   sprintf
   snprintf

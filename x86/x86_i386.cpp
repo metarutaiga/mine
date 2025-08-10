@@ -140,6 +140,9 @@ bool x86_i386::Initialize(allocator_t* allocator)
     memory = (uint8_t*)allocator->Base();
     memory_size = allocator->Space();
 
+    allocator->Alloc(1024);
+    allocator->Alloc(65536, memory_size - 65536);
+
     EIP = 1024;
     ESP = (uint32_t)memory_size - 16;
     EFLAGS = 0b0000001000000010;
@@ -168,7 +171,7 @@ bool x86_i386::Step(int type)
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
         if (EIP >= memory_size) {
-            EAX = exception(this, EIP);
+            EAX = (uint32_t)exception(this, EIP);
             EIP = Pop32();
         }
         if (type == 1)
@@ -201,8 +204,11 @@ size_t x86_i386::Stack()
 //------------------------------------------------------------------------------
 uint8_t* x86_i386::Memory(size_t base, size_t size)
 {
-    if (base == 0 && size == 0)
-        return memory;
+    if (size == 0) {
+        if (base + size >= memory_size)
+            return nullptr;
+        return memory + base;
+    }
     return (uint8_t*)allocator->Alloc(size, base);
 }
 //------------------------------------------------------------------------------
