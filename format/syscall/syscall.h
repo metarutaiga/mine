@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // printf / vprintf
 int syscall_vprintf(const void* memory, const void* stack, int(*function)(const char*, va_list) = vprintf);
 int syscall_printf(const void* memory, const void* stack, int(*function)(const char*, va_list) = vprintf);
@@ -20,3 +24,7 @@ uint32_t syscall_free(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_expand(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_msize(const void* stack, struct allocator_t* allocator);
 uint32_t syscall_recalloc(const void* stack, struct allocator_t* allocator);
+
+#ifdef __cplusplus
+}
+#endif

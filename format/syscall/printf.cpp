@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include <vector>
-#include "syscall.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static std::vector<uint64_t> convert_format_from_32bit_to_64bit(const char* format, const void* memory, const uint32_t* args)
 {
@@ -58,70 +61,62 @@ static std::vector<uint64_t> convert_format_from_32bit_to_64bit(const char* form
 }
 
 // printf / vprintf
-int syscall_printf(const void* memory, const void* stack, int(*function)(const char*, va_list))
+int syscall_printf(const uint8_t* memory, const uint32_t* stack, int(*function)(const char*, va_list))
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto format = (const char*)(memory8 + stack32[1]);
-    auto args = (const uint32_t*)(stack32 + 2);
+    auto format = (const char*)(memory + stack[1]);
+    auto args = (const uint32_t*)(stack + 2);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return function(format, (va_list)args64.data());
 }
 
-int syscall_vprintf(const void* memory, const void* stack, int(*function)(const char*, va_list))
+int syscall_vprintf(const uint8_t* memory, const uint32_t* stack, int(*function)(const char*, va_list))
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto format = (const char*)(memory8 + stack32[1]);
-    auto args = (const uint32_t*)(memory8 + stack32[2]);
+    auto format = (const char*)(memory + stack[1]);
+    auto args = (const uint32_t*)(memory + stack[2]);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return function(format, (va_list)args64.data());
 }
 
 // sprintf / vsprintf
-int syscall_sprintf(const void* memory, const void* stack)
+int syscall_sprintf(const uint8_t* memory, const uint32_t* stack)
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto buffer = stack32[1] ? (char*)(memory8 + stack32[1]) : nullptr;
-    auto format = (const char*)(memory8 + stack32[2]);
-    auto args = (const uint32_t*)(stack32 + 3);
+    auto buffer = stack[1] ? (char*)(memory + stack[1]) : nullptr;
+    auto format = (const char*)(memory + stack[2]);
+    auto args = (const uint32_t*)(stack + 3);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return vsnprintf(buffer, UINT32_MAX, format, (va_list)args64.data());
 }
 
-int syscall_vsprintf(const void* memory, const void* stack)
+int syscall_vsprintf(const uint8_t* memory, const uint32_t* stack)
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto buffer = stack32[1] ? (char*)(memory8 + stack32[1]) : nullptr;
-    auto format = (const char*)(memory8 + stack32[2]);
-    auto args = (const uint32_t*)(memory8 + stack32[3]);
+    auto buffer = stack[1] ? (char*)(memory + stack[1]) : nullptr;
+    auto format = (const char*)(memory + stack[2]);
+    auto args = (const uint32_t*)(memory + stack[3]);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return vsnprintf(buffer, UINT32_MAX, format, (va_list)args64.data());
 }
 
 // snprintf / vsnprintf
-int syscall_snprintf(const void* memory, const void* stack)
+int syscall_snprintf(const uint8_t* memory, const uint32_t* stack)
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto buffer = stack32[1] ? (char*)(memory8 + stack32[1]) : nullptr;
-    auto length = stack32[2];
-    auto format = (const char*)(memory8 + stack32[3]);
-    auto args = (const uint32_t*)(stack32 + 4);
+    auto buffer = stack[1] ? (char*)(memory + stack[1]) : nullptr;
+    auto length = stack[2];
+    auto format = (const char*)(memory + stack[3]);
+    auto args = (const uint32_t*)(stack + 4);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return vsnprintf(buffer, length, format, (va_list)args64.data());
 }
 
-int syscall_vsnprintf(const void* memory, const void* stack)
+int syscall_vsnprintf(const uint8_t* memory, const uint32_t* stack)
 {
-    auto memory8 = (const uint8_t*)memory;
-    auto stack32 = (const uint32_t*)stack;
-    auto buffer = stack32[1] ? (char*)(memory8 + stack32[1]) : nullptr;
-    auto length = stack32[2];
-    auto format = (const char*)(memory8 + stack32[3]);
-    auto args = (const uint32_t*)(memory8 + stack32[4]);
+    auto buffer = stack[1] ? (char*)(memory + stack[1]) : nullptr;
+    auto length = stack[2];
+    auto format = (const char*)(memory + stack[3]);
+    auto args = (const uint32_t*)(memory + stack[4]);
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
     return vsnprintf(buffer, length, format, (va_list)args64.data());
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -60,7 +60,7 @@ bool PE::Load(const char* path,
               size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
               int(*log)(const char*, ...))
 {
-    if (path == nullptr)
+    if (path == nullptr || mmap == nullptr || sym == nullptr || log == nullptr)
         return false;
 
     FILE* file = fopen(path, "rb");
@@ -131,80 +131,90 @@ bool PE::Load(const char* path,
         // Load sections to memory
         log("%-12s : 0x%08x", "Base", optionalHeader.ImageBase);
         log("%-12s : 0x%x", "Size", optionalHeader.SizeOfImage);
-        uint8_t* image = mmap(optionalHeader.DataDirectory[5].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
-        if (image) {
-            memset(image, 0, optionalHeader.SizeOfImage);
+        uint8_t* image = mmap(optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
+        if (image == nullptr) {
+            log("out of memory");
+            break;
+        }
+        memset(image, 0, optionalHeader.SizeOfImage);
 
-            // Relocation
-            void* memory = mmap(0, 0, mmap_data);
-            uint32_t old_base = optionalHeader.ImageBase;
-            uint32_t new_base = (uint32_t)(image - (uint8_t*)memory);
+        // Relocation
+        void* memory = mmap(0, 0, mmap_data);
+        uint32_t old_base = optionalHeader.ImageBase;
+        uint32_t new_base = (uint32_t)(image - (uint8_t*)memory);
+        if (old_base != new_base) {
+            log("%-12s : 0x%08x", "Base", new_base);
+        }
 
-            // Entry
-            if (optionalHeader.AddressOfEntryPoint) {
-                sym(nullptr, "Entry", new_base + optionalHeader.AddressOfEntryPoint, sym_data);
-            }
-            else {
-                sym(nullptr, "Entry", new_base + optionalHeader.BaseOfCode, sym_data);
-            }
+        // Entry
+        if (optionalHeader.AddressOfEntryPoint) {
+            sym(nullptr, "Entry", new_base + optionalHeader.AddressOfEntryPoint, sym_data);
+        }
+        else {
+            sym(nullptr, "Entry", new_base + optionalHeader.BaseOfCode, sym_data);
+        }
 
-            // Section
-            void* reloc = nullptr;
-            for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
-                const SectionHeader& section = sections[i];
-                if (section.s_size == 0)
-                    continue;
-                if (fseek(file, section.s_scnptr, SEEK_SET) != 0) {
-                    log("fseek failed");
-                    break;
-                }
-                void* to = nullptr;
-                if (section.s_flags & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE)) {
-                    to = image + section.s_vaddr;
-                }
-                if (strcmp(section.s_name, ".reloc") == 0) {
-                    to = reloc = realloc(reloc, section.s_size);
-                }
-                if (to == nullptr)
-                    continue;
-                if (fread(to, section.s_size, 1, file) != 1) {
-                    log("get the PE/COFF Section Image is failed");
-                    break;
-                }
+        // Section
+        bool finish = true;
+        void* reloc = nullptr;
+        for (uint16_t i = 0; i < fileHeader.f_nscns; ++i) {
+            const SectionHeader& section = sections[i];
+            if (section.s_size == 0)
+                continue;
+            void* to = nullptr;
+            if (section.s_flags & (IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE)) {
+                to = image + section.s_vaddr;
             }
+            if (strcmp(section.s_name, ".reloc") == 0) {
+                to = reloc = realloc(reloc, section.s_size);
+            }
+            if (to == nullptr)
+                continue;
+            finish = false;
+            if (fseek(file, section.s_scnptr, SEEK_SET) != 0) {
+                log("fseek failed");
+                break;
+            }
+            if (fread(to, section.s_size, 1, file) != 1) {
+                log("get the PE/COFF Section Image is failed");
+                break;
+            }
+            finish = true;
+        }
+        if (finish == false)
+            break;
 
-            // Export
-            if (optionalHeader.DataDirectory[0].Size) {
-                auto& directory = *(ExportDirectory*)(image + optionalHeader.DataDirectory[0].VirtualAddress);
-                for (uint32_t i = 0; i < directory.NumberOfFunctions; ++i) {
-                    auto address = *(uint32_t*)(image + directory.AddressOfFunctions + sizeof(uint32_t) * i);
-                    auto pointer = *(uint32_t*)(image + directory.AddressOfNames + sizeof(uint32_t) * i);
-                    auto* name = (const char*)(image + pointer);
-                    sym(nullptr, name, optionalHeader.ImageBase + address, sym_data);
-                }
+        // Export
+        if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size) {
+            auto& directory = *(ExportDirectory*)(image + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+            for (uint32_t i = 0; i < directory.NumberOfFunctions; ++i) {
+                auto address = *(uint32_t*)(image + directory.AddressOfFunctions + sizeof(uint32_t) * i);
+                auto pointer = *(uint32_t*)(image + directory.AddressOfNames + sizeof(uint32_t) * i);
+                auto* name = (const char*)(image + pointer);
+                sym(nullptr, name, optionalHeader.ImageBase + address, sym_data);
             }
+        }
 
-            // Import
-            if (optionalHeader.DataDirectory[1].Size) {
-                auto* directory = (ImportDirectory*)(image + optionalHeader.DataDirectory[1].VirtualAddress);
-                while (directory->Name && directory->FirstThunk) {
-                    auto file = (const char*)(image + directory->Name);
-                    auto* thunk = (uint32_t*)(image + directory->FirstThunk);
-                    while (*thunk) {
-                        auto name = (const char*)(image + (*thunk)) + 2;
-                        size_t symbol = sym(file, name, 0, sym_data);
-                        memcpy(thunk, &symbol, sizeof(uint32_t));
-                        thunk++;
-                    }
-                    directory++;
+        // Import
+        if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
+            auto* directory = (ImportDirectory*)(image + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+            while (directory->Name && directory->FirstThunk) {
+                auto file = (const char*)(image + directory->Name);
+                auto* thunk = (uint32_t*)(image + directory->FirstThunk);
+                while (*thunk) {
+                    auto name = (const char*)(image + (*thunk)) + 2;
+                    size_t symbol = sym(file, name, 0, sym_data);
+                    memcpy(thunk, &symbol, sizeof(uint32_t));
+                    thunk++;
                 }
+                directory++;
             }
+        }
 
-            // Relocation
-            if (reloc) {
-                Relocate(image, reloc, old_base, new_base, log);
-                free(reloc);
-            }
+        // Relocation
+        if (reloc) {
+            Relocate(image, reloc, new_base - old_base, log);
+            free(reloc);
         }
 
         succeed = true;
@@ -216,7 +226,7 @@ bool PE::Load(const char* path,
     return succeed;
 }
 
-void PE::Relocate(void* image, void* reloc, uint32_t from, uint32_t to, int(*log)(const char*, ...))
+void PE::Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...))
 {
     auto image8 = (uint8_t*)image;
     auto relocation = (ImageBaseRelocation*)reloc;
@@ -230,7 +240,7 @@ void PE::Relocate(void* image, void* reloc, uint32_t from, uint32_t to, int(*log
             case IMAGE_REL_BASED_ABSOLUTE:
                 break;
             case IMAGE_REL_BASED_HIGHLOW:
-                *(uint32_t*)(image8 + address) += to - from;
+                *(uint32_t*)(image8 + address) += delta;
                 break;
             default:
                 log("%02X:%04X (%08X)", type, offset, address);

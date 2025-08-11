@@ -107,6 +107,26 @@ struct PE : public COFF
         IMAGE_SCN_MEM_WRITE                 = 0x80000000,   /* The section can be written to. */
     };
 
+    enum ImageDirectoryTypes
+    {
+        IMAGE_DIRECTORY_ENTRY_EXPORT        = 0,    /* Export Directory */
+        IMAGE_DIRECTORY_ENTRY_IMPORT        = 1,    /* Import Directory */
+        IMAGE_DIRECTORY_ENTRY_RESOURCE      = 2,    /* Resource Directory */
+        IMAGE_DIRECTORY_ENTRY_EXCEPTION     = 3,    /* Exception Directory */
+        IMAGE_DIRECTORY_ENTRY_SECURITY      = 4,    /* Security Directory */
+        IMAGE_DIRECTORY_ENTRY_BASERELOC     = 5,    /* Base Relocation Table */
+        IMAGE_DIRECTORY_ENTRY_DEBUG         = 6,    /* Debug Directory */
+        IMAGE_DIRECTORY_ENTRY_COPYRIGHT     = 7,    /* (X86 usage) */
+        IMAGE_DIRECTORY_ENTRY_ARCHITECTURE  = 7,    /* Architecture Specific Data */
+        IMAGE_DIRECTORY_ENTRY_GLOBALPTR     = 8,    /* RVA of GP */
+        IMAGE_DIRECTORY_ENTRY_TLS           = 9,    /* TLS Directory */
+        IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG   = 10,   /* Load Configuration Directory */
+        IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT  = 11,   /* Bound Import Directory in headers */
+        IMAGE_DIRECTORY_ENTRY_IAT           = 12,   /* Import Address Table */
+        IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT  = 13,   /* Delay Load Import Descriptors */
+        IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR= 14,   /* COM Runtime descriptor */
+    };
+
     enum BaseRelocationTypes
     {
         IMAGE_REL_BASED_ABSOLUTE            = 0,    /* The base relocation is skipped. This type can be used to pad a block. */
@@ -236,5 +256,5 @@ struct PE : public COFF
                      uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
                      size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
                      int(*log)(const char*, ...));
-    static void Relocate(void* image, void* reloc, uint32_t from, uint32_t to, int(*log)(const char*, ...));
+    static void Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...));
 };
