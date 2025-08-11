@@ -219,18 +219,13 @@ bool PE::Load(const char* path,
 void PE::Relocate(void* image, void* reloc, uint32_t from, uint32_t to, int(*log)(const char*, ...))
 {
     auto image8 = (uint8_t*)image;
-    auto reloc8 = (uint8_t*)reloc;
-    for (;;) {
-        auto& relocation = *(ImageBaseRelocation*)reloc8;
-        if (relocation.SizeOfBlock == 0)
-            break;
-        auto* entries = (uint16_t*)(reloc8 + sizeof(ImageBaseRelocation));
-        reloc8 += relocation.SizeOfBlock;
-        for (uint32_t i = 0; i < relocation.SizeOfBlock; ++i) {
-            auto entry = entries[i];
-            auto type = entry >> 12;
-            auto offset = entry & 0x0FFF;
-            auto address = relocation.VirtualAddress + offset;
+    auto relocation = (ImageBaseRelocation*)reloc;
+    while (relocation->SizeOfBlock) {
+        auto* types = (uint16_t*)relocation;
+        for (uint32_t i = sizeof(ImageBaseRelocation) / sizeof(uint16_t); i < relocation->SizeOfBlock; ++i) {
+            auto type = types[i] >> 12;
+            auto offset = types[i] & 0x0FFF;
+            auto address = relocation->VirtualAddress + offset;
             switch (type) {
             case IMAGE_REL_BASED_ABSOLUTE:
                 break;
@@ -242,5 +237,6 @@ void PE::Relocate(void* image, void* reloc, uint32_t from, uint32_t to, int(*log
                 break;
             }
         }
+        relocation = (ImageBaseRelocation*)((uint8_t*)relocation + relocation->SizeOfBlock);
     }
 }
