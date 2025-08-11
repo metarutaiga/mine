@@ -8,11 +8,13 @@ struct SimpleAllocator : public allocator_t {
     enum { FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
-    void* Alloc(size_t size, size_t hint = 0) override {
+    void* Alloc(size_t size, size_t hint = SIZE_MAX) override {
         if (size == 0)
             return nullptr;
         uint8_t exp = std::bit_width((size + (MINBLOCK - 1)) / MINBLOCK) - 1;
         size_t block = (1 << exp);
+        if (hint == SIZE_MAX)
+            hint = block * MINBLOCK;
         size_t pos = hint / MINBLOCK;
         for (size_t next = pos + block, end = status.size(); next < end; next = pos + block) {
             for (size_t i = pos; i < next; ++i) {
@@ -61,7 +63,7 @@ struct SimpleAllocator : public allocator_t {
     static SimpleAllocator* Initialize(size_t size) {
         SimpleAllocator* allocator = new SimpleAllocator;
         if (allocator) {
-            size = (1 << std::bit_width(size - 1));
+            size = std::bit_ceil(size);
             allocator->memory.resize(size);
             allocator->status.resize(size / MINBLOCK, FREED);
         }

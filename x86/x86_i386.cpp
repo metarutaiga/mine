@@ -140,10 +140,10 @@ bool x86_i386::Initialize(allocator_t* allocator)
     memory = (uint8_t*)allocator->Base();
     memory_size = allocator->Space();
 
-    allocator->Alloc(1024);
+    allocator->Alloc(4096);
     allocator->Alloc(65536, memory_size - 65536);
 
-    EIP = 1024;
+    EIP = 4096;
     ESP = (uint32_t)memory_size - 16;
     EFLAGS = 0b0000001000000010;
 
@@ -197,9 +197,9 @@ void x86_i386::Exception(size_t(*callback)(miCPU*, size_t))
     exception = callback;
 }
 //------------------------------------------------------------------------------
-size_t x86_i386::Stack()
+allocator_t* x86_i386::Allocator()
 {
-    return ESP;
+    return allocator;
 }
 //------------------------------------------------------------------------------
 uint8_t* x86_i386::Memory(size_t base, size_t size)
@@ -212,9 +212,9 @@ uint8_t* x86_i386::Memory(size_t base, size_t size)
     return (uint8_t*)allocator->Alloc(size, base);
 }
 //------------------------------------------------------------------------------
-allocator_t* x86_i386::Allocator()
+size_t x86_i386::Stack()
 {
-    return allocator;
+    return ESP;
 }
 //------------------------------------------------------------------------------
 std::string x86_i386::Status()

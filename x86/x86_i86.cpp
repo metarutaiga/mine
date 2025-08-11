@@ -65,10 +65,10 @@ bool x86_i86::Initialize(allocator_t* allocator)
     memory = (uint8_t*)allocator->Base();
     memory_size = allocator->Space();
 
-    allocator->Alloc(1024);
+    allocator->Alloc(256);
     allocator->Alloc(65536, memory_size - 65536);
 
-    IP = 1024;
+    IP = 256;
     SP = (uint16_t)memory_size - 16;
     FLAGS = 0b0000001000000010;
 
@@ -122,9 +122,9 @@ void x86_i86::Exception(size_t(*callback)(miCPU*, size_t))
     exception = callback;
 }
 //------------------------------------------------------------------------------
-size_t x86_i86::Stack()
+allocator_t* x86_i86::Allocator()
 {
-    return SP;
+    return allocator;
 }
 //------------------------------------------------------------------------------
 uint8_t* x86_i86::Memory(size_t base, size_t size)
@@ -137,9 +137,9 @@ uint8_t* x86_i86::Memory(size_t base, size_t size)
     return (uint8_t*)allocator->Alloc(size, base);
 }
 //------------------------------------------------------------------------------
-allocator_t* x86_i86::Allocator()
+size_t x86_i86::Stack()
 {
-    return allocator;
+    return SP;
 }
 //------------------------------------------------------------------------------
 std::string x86_i86::Status()
