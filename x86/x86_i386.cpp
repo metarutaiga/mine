@@ -9,6 +9,7 @@
 #include "x86_register.inl"
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
+#include "syscall/allocator.h"
 
 //------------------------------------------------------------------------------
 #define o x86_i386::

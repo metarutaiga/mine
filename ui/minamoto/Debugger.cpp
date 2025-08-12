@@ -7,8 +7,8 @@
 #include "EmulatorPCH.h"
 #include <IconFontCppHeaders/IconsFontAwesome4.h>
 #include "format/coff/pe.h"
-#include "format/syscall/simple_allocator.h"
-#include "format/syscall/syscall.h"
+#include "syscall/simple_allocator.h"
+#include "syscall/syscall.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 

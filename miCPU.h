@@ -23,13 +23,3 @@ struct miCPU
     virtual std::string Status() = 0;
     virtual std::string Disassemble(int count) = 0;
 };
-
-struct allocator_t
-{
-    virtual ~allocator_t() = default;
-    virtual void* Alloc(size_t size, size_t hint = 0);
-    virtual void Free(void* pointer);
-    virtual size_t Size(void* pointer);
-    virtual void* Base();
-    virtual size_t Space();
-};

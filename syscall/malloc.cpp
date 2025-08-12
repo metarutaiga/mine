@@ -1,4 +1,5 @@
-#include "miCPU.h"
+#include <string.h>
+#include "allocator.h"
 
 #ifdef __cplusplus
 extern "C" {

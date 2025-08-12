@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "miCPU.h"
+#include "allocator.h"
 
 template<int MINBLOCK>
 struct SimpleAllocator : public allocator_t {
