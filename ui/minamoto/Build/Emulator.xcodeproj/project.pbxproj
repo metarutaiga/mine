@@ -12,18 +12,6 @@
 		D6169D0A2BB17E3100E5490C /* new.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D092BB17E3100E5490C /* new.cpp */; };
 		D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D0B2BB17E4900E5490C /* ucrt.cpp */; };
 		D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */; };
-		D67A58C72E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
-		D67A58C82E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
-		D67A58C92E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
-		D67A58CA2E3231D70010D73D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58C62E3231970010D73D /* coff.cpp */; };
-		D67A58CD2E35F0B00010D73D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */; };
-		D67A58CE2E35F0B00010D73D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */; };
-		D67A58CF2E35F0B00010D73D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */; };
-		D67A58D02E35F0B00010D73D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */; };
-		D67A58D32E3609270010D73D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58D22E3609220010D73D /* xcoff64.cpp */; };
-		D67A58D42E3609270010D73D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58D22E3609220010D73D /* xcoff64.cpp */; };
-		D67A58D52E3609270010D73D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58D22E3609220010D73D /* xcoff64.cpp */; };
-		D67A58D62E3609270010D73D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D67A58D22E3609220010D73D /* xcoff64.cpp */; };
 		D6909FAE2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
 		D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
 		D6909FB02E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
@@ -161,34 +149,42 @@
 		D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
 		D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6D7594B2E25044F00E5C09D /* x86_i86.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
-		F56C53FF2E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
-		F56C54002E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
-		F56C54012E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
-		F56C54022E470C0300534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C53FE2E470C0300534B1D /* printf.cpp */; };
-		F56C54052E4793FC00534B1D /* simple_allocator.h in Sources */ = {isa = PBXBuildFile; fileRef = F56C54042E4793F300534B1D /* simple_allocator.h */; };
-		F56C54062E4793FC00534B1D /* simple_allocator.h in Sources */ = {isa = PBXBuildFile; fileRef = F56C54042E4793F300534B1D /* simple_allocator.h */; };
-		F56C54072E4793FC00534B1D /* simple_allocator.h in Sources */ = {isa = PBXBuildFile; fileRef = F56C54042E4793F300534B1D /* simple_allocator.h */; };
-		F56C54082E4793FC00534B1D /* simple_allocator.h in Sources */ = {isa = PBXBuildFile; fileRef = F56C54042E4793F300534B1D /* simple_allocator.h */; };
-		F56C540B2E47B97900534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C540A2E47B97500534B1D /* malloc.cpp */; };
-		F56C540C2E47B97900534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C540A2E47B97500534B1D /* malloc.cpp */; };
-		F56C540D2E47B97900534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C540A2E47B97500534B1D /* malloc.cpp */; };
-		F56C540E2E47B97900534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C540A2E47B97500534B1D /* malloc.cpp */; };
-		F5BE8CD02E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
-		F5BE8CD12E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
-		F5BE8CD22E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
-		F5BE8CD32E37C8C100DBB83A /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */; };
+		F56C543B2E4B110B00534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54352E4B110B00534B1D /* printf.cpp */; };
+		F56C543D2E4B110B00534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54342E4B110B00534B1D /* malloc.cpp */; };
+		F56C54402E4B110B00534B1D /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541F2E4B110B00534B1D /* pe.cpp */; };
+		F56C54422E4B110B00534B1D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
+		F56C54432E4B110B00534B1D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54232E4B110B00534B1D /* xcoff64.cpp */; };
+		F56C54442E4B110B00534B1D /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
+		F56C54452E4B110B00534B1D /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541D2E4B110B00534B1D /* ecoff64.cpp */; };
+		F56C54462E4B110B00534B1D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54212E4B110B00534B1D /* xcoff32.cpp */; };
+		F56C544D2E4B110B00534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54352E4B110B00534B1D /* printf.cpp */; };
+		F56C544F2E4B110B00534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54342E4B110B00534B1D /* malloc.cpp */; };
+		F56C54522E4B110B00534B1D /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541F2E4B110B00534B1D /* pe.cpp */; };
+		F56C54542E4B110B00534B1D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
+		F56C54552E4B110B00534B1D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54232E4B110B00534B1D /* xcoff64.cpp */; };
+		F56C54562E4B110B00534B1D /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
+		F56C54572E4B110B00534B1D /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541D2E4B110B00534B1D /* ecoff64.cpp */; };
+		F56C54582E4B110B00534B1D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54212E4B110B00534B1D /* xcoff32.cpp */; };
+		F56C54592E4B110B00534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54352E4B110B00534B1D /* printf.cpp */; };
+		F56C545B2E4B110B00534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54342E4B110B00534B1D /* malloc.cpp */; };
+		F56C545E2E4B110B00534B1D /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541F2E4B110B00534B1D /* pe.cpp */; };
+		F56C54602E4B110B00534B1D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
+		F56C54612E4B110B00534B1D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54232E4B110B00534B1D /* xcoff64.cpp */; };
+		F56C54622E4B110B00534B1D /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
+		F56C54632E4B110B00534B1D /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541D2E4B110B00534B1D /* ecoff64.cpp */; };
+		F56C54642E4B110B00534B1D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54212E4B110B00534B1D /* xcoff32.cpp */; };
+		F56C54682E4B110B00534B1D /* printf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54352E4B110B00534B1D /* printf.cpp */; };
+		F56C546A2E4B110B00534B1D /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54342E4B110B00534B1D /* malloc.cpp */; };
+		F56C546D2E4B110B00534B1D /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541F2E4B110B00534B1D /* pe.cpp */; };
+		F56C546F2E4B110B00534B1D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
+		F56C54702E4B110B00534B1D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54232E4B110B00534B1D /* xcoff64.cpp */; };
+		F56C54712E4B110B00534B1D /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
+		F56C54722E4B110B00534B1D /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541D2E4B110B00534B1D /* ecoff64.cpp */; };
+		F56C54732E4B110B00534B1D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54212E4B110B00534B1D /* xcoff32.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
 		F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5E5B1A22D6C65EC008E0D21 /* except.cpp */; };
-		F5F1B2A22E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
-		F5F1B2A32E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
-		F5F1B2A42E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
-		F5F1B2A52E38C5CB00D2FF10 /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */; };
-		F5F1B2A82E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
-		F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
-		F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
-		F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2A72E3B185900D2FF10 /* pe.cpp */; };
 		F5F1B2AC2E3CA6D900D2FF10 /* Runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19A2D6C6261008E0D21 /* Runtime.dylib */; };
 		F5F1B2AE2E3E57AB00D2FF10 /* Runtime.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5F1B2AD2E3E57AB00D2FF10 /* Runtime.dll */; };
 		F5F1B2B02E3F306000D2FF10 /* x86_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */; };
@@ -250,12 +246,6 @@
 		D6169D0B2BB17E4900E5490C /* ucrt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ucrt.cpp; path = "../../../../ClangPlatform/windows-msvc/ucrt.cpp"; sourceTree = "<group>"; };
 		D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dllmain.cpp; path = "../../../../ClangPlatform/windows-msvc/dllmain.cpp"; sourceTree = "<group>"; };
 		D644A041231ED82900B75B77 /* Emulator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Emulator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D67A58C52E30C9670010D73D /* coff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = coff.h; sourceTree = "<group>"; };
-		D67A58C62E3231970010D73D /* coff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coff.cpp; sourceTree = "<group>"; };
-		D67A58CB2E35F07A0010D73D /* xcoff32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xcoff32.h; sourceTree = "<group>"; };
-		D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xcoff32.cpp; sourceTree = "<group>"; };
-		D67A58D12E3607FC0010D73D /* xcoff64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xcoff64.h; sourceTree = "<group>"; };
-		D67A58D22E3609220010D73D /* xcoff64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xcoff64.cpp; sourceTree = "<group>"; };
 		D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EmulatorEntry.cpp; sourceTree = "<group>"; };
 		D6909FAD2E1A7FFD0023F7B5 /* EmulatorPCH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmulatorPCH.h; sourceTree = "<group>"; };
 		D6909FB22E1A9D310023F7B5 /* Debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Debugger.h; sourceTree = "<group>"; };
@@ -311,17 +301,29 @@
 		D6D7594B2E25044F00E5C09D /* x86_i86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i86.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F56C53F82E46418500534B1D /* x87_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_instruction.inl; sourceTree = "<group>"; };
-		F56C53FB2E470BF900534B1D /* printf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = printf.c; sourceTree = "<group>"; };
-		F56C53FC2E470BF900534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
-		F56C53FD2E470BF900534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
-		F56C53FE2E470C0300534B1D /* printf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = printf.cpp; sourceTree = "<group>"; };
-		F56C54032E474E7600534B1D /* syscall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall.h; sourceTree = "<group>"; };
-		F56C54042E4793F300534B1D /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
-		F56C540A2E47B97500534B1D /* malloc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = malloc.cpp; sourceTree = "<group>"; };
-		F56C540F2E4869DE00534B1D /* malloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = malloc.c; sourceTree = "<group>"; };
-		F56C54172E4AEC1600534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mz.h; path = ../../../format/mz.h; sourceTree = SOURCE_ROOT; };
-		F5BE8CCE2E37C8B900DBB83A /* ecoff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff.h; sourceTree = "<group>"; };
-		F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff.cpp; sourceTree = "<group>"; };
+		F56C54182E4B110B00534B1D /* coff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = coff.h; sourceTree = "<group>"; };
+		F56C54192E4B110B00534B1D /* coff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coff.cpp; sourceTree = "<group>"; };
+		F56C541A2E4B110B00534B1D /* ecoff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff.h; sourceTree = "<group>"; };
+		F56C541B2E4B110B00534B1D /* ecoff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff.cpp; sourceTree = "<group>"; };
+		F56C541C2E4B110B00534B1D /* ecoff64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff64.h; sourceTree = "<group>"; };
+		F56C541D2E4B110B00534B1D /* ecoff64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff64.cpp; sourceTree = "<group>"; };
+		F56C541E2E4B110B00534B1D /* pe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pe.h; sourceTree = "<group>"; };
+		F56C541F2E4B110B00534B1D /* pe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pe.cpp; sourceTree = "<group>"; };
+		F56C54202E4B110B00534B1D /* xcoff32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xcoff32.h; sourceTree = "<group>"; };
+		F56C54212E4B110B00534B1D /* xcoff32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xcoff32.cpp; sourceTree = "<group>"; };
+		F56C54222E4B110B00534B1D /* xcoff64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xcoff64.h; sourceTree = "<group>"; };
+		F56C54232E4B110B00534B1D /* xcoff64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xcoff64.cpp; sourceTree = "<group>"; };
+		F56C542D2E4B110B00534B1D /* generate.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = generate.sh; sourceTree = "<group>"; };
+		F56C542E2E4B110B00534B1D /* malloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = malloc.c; sourceTree = "<group>"; };
+		F56C542F2E4B110B00534B1D /* msvcrt.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = msvcrt.def; sourceTree = "<group>"; };
+		F56C54302E4B110B00534B1D /* printf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = printf.c; sourceTree = "<group>"; };
+		F56C54312E4B110B00534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
+		F56C54322E4B110B00534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
+		F56C54342E4B110B00534B1D /* malloc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = malloc.cpp; sourceTree = "<group>"; };
+		F56C54352E4B110B00534B1D /* printf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = printf.cpp; sourceTree = "<group>"; };
+		F56C54362E4B110B00534B1D /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
+		F56C54372E4B110B00534B1D /* syscall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall.h; sourceTree = "<group>"; };
+		F56C54392E4B110B00534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mz.h; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -333,10 +335,6 @@
 		F5E5B19E2D6C65A8008E0D21 /* Runtime.dll */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = Runtime.dll; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libcxx.Windows.lib; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5E5B1A22D6C65EC008E0D21 /* except.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = except.cpp; path = "../../../../ClangPlatform/windows-msvc/except.cpp"; sourceTree = SOURCE_ROOT; };
-		F5F1B2A02E38C5BC00D2FF10 /* ecoff64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff64.h; sourceTree = "<group>"; };
-		F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff64.cpp; sourceTree = "<group>"; };
-		F5F1B2A62E3B181300D2FF10 /* pe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pe.h; sourceTree = "<group>"; };
-		F5F1B2A72E3B185900D2FF10 /* pe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pe.cpp; sourceTree = "<group>"; };
 		F5F1B2AD2E3E57AB00D2FF10 /* Runtime.dll */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = Runtime.dll; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5F1B2AF2E3F305900D2FF10 /* x86_register.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_register.cpp; sourceTree = "<group>"; };
 		F5F1B2B42E41024700D2FF10 /* x87_register.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x87_register.h; sourceTree = "<group>"; };
@@ -422,7 +420,7 @@
 			isa = PBXGroup;
 			children = (
 				CE999BD325D21EB300351116 /* Configs */,
-				D67A58C32E30C9000010D73D /* format */,
+				F56C543A2E4B110B00534B1D /* format */,
 				D6D758BF2E23F56800E5C09D /* mips */,
 				D6D758C02E23F56F00E5C09D /* riscv */,
 				D6909FB92E1AC6650023F7B5 /* x86 */,
@@ -442,37 +440,6 @@
 				30A9A7CC25ADC7D3000FA104 /* libEmulator.so */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		D67A58C32E30C9000010D73D /* format */ = {
-			isa = PBXGroup;
-			children = (
-				F56C54172E4AEC1600534B1D /* mz.h */,
-				D67A58C42E30C9280010D73D /* coff */,
-				F56C53FA2E470BC000534B1D /* sample */,
-				F56C53F92E470BB800534B1D /* syscall */,
-			);
-			name = format;
-			sourceTree = "<group>";
-		};
-		D67A58C42E30C9280010D73D /* coff */ = {
-			isa = PBXGroup;
-			children = (
-				D67A58C62E3231970010D73D /* coff.cpp */,
-				D67A58C52E30C9670010D73D /* coff.h */,
-				F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */,
-				F5BE8CCE2E37C8B900DBB83A /* ecoff.h */,
-				F5F1B2A12E38C5CA00D2FF10 /* ecoff64.cpp */,
-				F5F1B2A02E38C5BC00D2FF10 /* ecoff64.h */,
-				F5F1B2A72E3B185900D2FF10 /* pe.cpp */,
-				F5F1B2A62E3B181300D2FF10 /* pe.h */,
-				D67A58CC2E35F0AE0010D73D /* xcoff32.cpp */,
-				D67A58CB2E35F07A0010D73D /* xcoff32.h */,
-				D67A58D22E3609220010D73D /* xcoff64.cpp */,
-				D67A58D12E3607FC0010D73D /* xcoff64.h */,
-			);
-			name = coff;
-			path = ../../../format/coff;
 			sourceTree = "<group>";
 		};
 		D6909FB92E1AC6650023F7B5 /* x86 */ = {
@@ -557,29 +524,60 @@
 			path = ../../../riscv;
 			sourceTree = "<group>";
 		};
-		F56C53F92E470BB800534B1D /* syscall */ = {
+		F56C54242E4B110B00534B1D /* coff */ = {
 			isa = PBXGroup;
 			children = (
-				F56C540A2E47B97500534B1D /* malloc.cpp */,
-				F56C53FE2E470C0300534B1D /* printf.cpp */,
-				F56C54042E4793F300534B1D /* simple_allocator.h */,
-				F56C54032E474E7600534B1D /* syscall.h */,
+				F56C54182E4B110B00534B1D /* coff.h */,
+				F56C54192E4B110B00534B1D /* coff.cpp */,
+				F56C541A2E4B110B00534B1D /* ecoff.h */,
+				F56C541B2E4B110B00534B1D /* ecoff.cpp */,
+				F56C541C2E4B110B00534B1D /* ecoff64.h */,
+				F56C541D2E4B110B00534B1D /* ecoff64.cpp */,
+				F56C541E2E4B110B00534B1D /* pe.h */,
+				F56C541F2E4B110B00534B1D /* pe.cpp */,
+				F56C54202E4B110B00534B1D /* xcoff32.h */,
+				F56C54212E4B110B00534B1D /* xcoff32.cpp */,
+				F56C54222E4B110B00534B1D /* xcoff64.h */,
+				F56C54232E4B110B00534B1D /* xcoff64.cpp */,
 			);
-			name = syscall;
-			path = ../../../format/syscall;
+			path = coff;
 			sourceTree = "<group>";
 		};
-		F56C53FA2E470BC000534B1D /* sample */ = {
+		F56C54332E4B110B00534B1D /* sample */ = {
 			isa = PBXGroup;
 			children = (
-				F56C540F2E4869DE00534B1D /* malloc.c */,
-				F56C53FB2E470BF900534B1D /* printf.c */,
-				F56C53FC2E470BF900534B1D /* x86.c */,
-				F56C53FD2E470BF900534B1D /* x86_arithmetic.c */,
+				F56C542D2E4B110B00534B1D /* generate.sh */,
+				F56C542E2E4B110B00534B1D /* malloc.c */,
+				F56C542F2E4B110B00534B1D /* msvcrt.def */,
+				F56C54302E4B110B00534B1D /* printf.c */,
+				F56C54312E4B110B00534B1D /* x86.c */,
+				F56C54322E4B110B00534B1D /* x86_arithmetic.c */,
 			);
-			name = sample;
-			path = ../../../format/sample;
+			path = sample;
 			sourceTree = "<group>";
+		};
+		F56C54382E4B110B00534B1D /* syscall */ = {
+			isa = PBXGroup;
+			children = (
+				F56C54342E4B110B00534B1D /* malloc.cpp */,
+				F56C54352E4B110B00534B1D /* printf.cpp */,
+				F56C54362E4B110B00534B1D /* simple_allocator.h */,
+				F56C54372E4B110B00534B1D /* syscall.h */,
+			);
+			path = syscall;
+			sourceTree = "<group>";
+		};
+		F56C543A2E4B110B00534B1D /* format */ = {
+			isa = PBXGroup;
+			children = (
+				F56C54242E4B110B00534B1D /* coff */,
+				F56C54332E4B110B00534B1D /* sample */,
+				F56C54382E4B110B00534B1D /* syscall */,
+				F56C54392E4B110B00534B1D /* mz.h */,
+			);
+			name = format;
+			path = ../../../format;
+			sourceTree = SOURCE_ROOT;
 		};
 		F5E5B0C62D6C5669008E0D21 /* ui */ = {
 			isa = PBXGroup;
@@ -714,7 +712,6 @@
 				D6909FBF2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758E22E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594D2E25044F00E5C09D /* x86_i86.cpp in Sources */,
-				F56C54082E4793FC00534B1D /* simple_allocator.h in Sources */,
 				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE482E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
@@ -722,26 +719,27 @@
 				F5F1B2CC2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758E52E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3D2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
-				D67A58C72E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758E62E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758E72E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758E82E23F59700E5C09D /* sysctl.cpp in Sources */,
 				D6D758E92E23F59700E5C09D /* opcode.cpp in Sources */,
+				F56C54682E4B110B00534B1D /* printf.cpp in Sources */,
+				F56C546A2E4B110B00534B1D /* malloc.cpp in Sources */,
+				F56C546D2E4B110B00534B1D /* pe.cpp in Sources */,
+				F56C546F2E4B110B00534B1D /* coff.cpp in Sources */,
+				F56C54702E4B110B00534B1D /* xcoff64.cpp in Sources */,
+				F56C54712E4B110B00534B1D /* ecoff.cpp in Sources */,
+				F56C54722E4B110B00534B1D /* ecoff64.cpp in Sources */,
+				F56C54732E4B110B00534B1D /* xcoff32.cpp in Sources */,
 				D6D758EA2E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7592B2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759412E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D7592C2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D7592D2E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
-				D67A58D42E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D7592E2E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
-				F5F1B2A92E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2BD2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
-				F5F1B2A22E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4F2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
-				D67A58CE2E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D7592F2E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
-				F56C540B2E47B97900534B1D /* malloc.cpp in Sources */,
-				F5BE8CD02E37C8C100DBB83A /* ecoff.cpp in Sources */,
 				F5F1B2C22E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759302E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B32E3F306000D2FF10 /* x86_register.cpp in Sources */,
@@ -750,7 +748,6 @@
 				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
-				F56C54002E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE392E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE452E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
@@ -769,23 +766,28 @@
 			files = (
 				D6C5FE372E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6909FB72E1A9D530023F7B5 /* Debugger.cpp in Sources */,
+				F56C543B2E4B110B00534B1D /* printf.cpp in Sources */,
+				F56C543D2E4B110B00534B1D /* malloc.cpp in Sources */,
+				F56C54402E4B110B00534B1D /* pe.cpp in Sources */,
+				F56C54422E4B110B00534B1D /* coff.cpp in Sources */,
+				F56C54432E4B110B00534B1D /* xcoff64.cpp in Sources */,
+				F56C54442E4B110B00534B1D /* ecoff.cpp in Sources */,
+				F56C54452E4B110B00534B1D /* ecoff64.cpp in Sources */,
+				F56C54462E4B110B00534B1D /* xcoff32.cpp in Sources */,
 				D6D758D92E23F59700E5C09D /* special.cpp in Sources */,
 				F5F1B2BE2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				D6D758DA2E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6D758DB2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6C5FE3E2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
-				D67A58D52E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D758DC2E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6D758DD2E23F59700E5C09D /* cop.cpp in Sources */,
 				F5F1B2B02E3F306000D2FF10 /* x86_register.cpp in Sources */,
-				F5BE8CD22E37C8C100DBB83A /* ecoff.cpp in Sources */,
 				D6D758DE2E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6C5FE472E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
 				F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
-				F5F1B2AB2E3B185A00D2FF10 /* pe.cpp in Sources */,
 				D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
 				F5F1B2C52E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759072E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
@@ -797,7 +799,6 @@
 				D6D7590B2E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				D6D7590C2E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7590D2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
-				D67A58CA2E3231D70010D73D /* coff.cpp in Sources */,
 				D6D7590E2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D7590F2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				F5F1B2CF2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
@@ -805,10 +806,7 @@
 				D6D759102E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
 				D6C5FE4D2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
 				D6D758E02E23F59700E5C09D /* opcode.cpp in Sources */,
-				F56C54012E470C0300534B1D /* printf.cpp in Sources */,
-				F56C540D2E47B97900534B1D /* malloc.cpp in Sources */,
 				D6D759432E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
-				F56C54072E4793FC00534B1D /* simple_allocator.h in Sources */,
 				D6D758E12E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */,
@@ -816,9 +814,7 @@
 				D6C5FE422E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
-				D67A58CF2E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
-				F5F1B2A52E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6909FBD2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */,
 			);
@@ -831,7 +827,6 @@
 				D6909FBE2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758EB2E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */,
-				F56C54062E4793FC00534B1D /* simple_allocator.h in Sources */,
 				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE492E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
@@ -839,26 +834,27 @@
 				F5F1B2CD2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758EE2E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE402E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
-				D67A58C82E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758EF2E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758F02E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758F12E23F59700E5C09D /* sysctl.cpp in Sources */,
 				D6D758F22E23F59700E5C09D /* opcode.cpp in Sources */,
+				F56C544D2E4B110B00534B1D /* printf.cpp in Sources */,
+				F56C544F2E4B110B00534B1D /* malloc.cpp in Sources */,
+				F56C54522E4B110B00534B1D /* pe.cpp in Sources */,
+				F56C54542E4B110B00534B1D /* coff.cpp in Sources */,
+				F56C54552E4B110B00534B1D /* xcoff64.cpp in Sources */,
+				F56C54562E4B110B00534B1D /* ecoff.cpp in Sources */,
+				F56C54572E4B110B00534B1D /* ecoff64.cpp in Sources */,
+				F56C54582E4B110B00534B1D /* xcoff32.cpp in Sources */,
 				D6D758F32E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D759112E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759422E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D759122E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D759132E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
-				D67A58D62E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759142E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
-				F5F1B2A82E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2C02E41B56700D2FF10 /* x87_floating.cpp in Sources */,
-				F5F1B2A42E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4C2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
-				D67A58D02E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D759152E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
-				F56C540C2E47B97900534B1D /* malloc.cpp in Sources */,
-				F5BE8CD32E37C8C100DBB83A /* ecoff.cpp in Sources */,
 				F5F1B2C32E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759162E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B22E3F306000D2FF10 /* x86_register.cpp in Sources */,
@@ -867,7 +863,6 @@
 				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
-				F56C54022E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE3A2E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE432E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D7591B2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
@@ -887,7 +882,6 @@
 				D6909FBC2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6D758D02E23F59700E5C09D /* special.cpp in Sources */,
 				D6D7594C2E25044F00E5C09D /* x86_i86.cpp in Sources */,
-				F56C54052E4793FC00534B1D /* simple_allocator.h in Sources */,
 				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,
 				D6C5FE4A2E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
@@ -895,26 +889,27 @@
 				F5F1B2CE2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */,
 				D6D758D32E23F59700E5C09D /* regimm.cpp in Sources */,
 				D6C5FE3F2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
-				D67A58C92E3231D70010D73D /* coff.cpp in Sources */,
 				D6D758D42E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758D52E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758D62E23F59700E5C09D /* sysctl.cpp in Sources */,
 				D6D758D72E23F59700E5C09D /* opcode.cpp in Sources */,
+				F56C54592E4B110B00534B1D /* printf.cpp in Sources */,
+				F56C545B2E4B110B00534B1D /* malloc.cpp in Sources */,
+				F56C545E2E4B110B00534B1D /* pe.cpp in Sources */,
+				F56C54602E4B110B00534B1D /* coff.cpp in Sources */,
+				F56C54612E4B110B00534B1D /* xcoff64.cpp in Sources */,
+				F56C54622E4B110B00534B1D /* ecoff.cpp in Sources */,
+				F56C54632E4B110B00534B1D /* ecoff64.cpp in Sources */,
+				F56C54642E4B110B00534B1D /* xcoff32.cpp in Sources */,
 				D6D758D82E23F59700E5C09D /* special3.cpp in Sources */,
 				D6D7591E2E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759442E24F98E00E5C09D /* x86_instruction.cpp in Sources */,
 				D6D7591F2E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D759202E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
-				D67A58D32E3609270010D73D /* xcoff64.cpp in Sources */,
 				D6D759212E23F5AC00E5C09D /* riscv_rv64f.cpp in Sources */,
-				F5F1B2AA2E3B185A00D2FF10 /* pe.cpp in Sources */,
 				F5F1B2BF2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
-				F5F1B2A32E38C5CB00D2FF10 /* ecoff64.cpp in Sources */,
 				D6C5FE4E2E2D51DB00A8E110 /* x86_arithmetic.cpp in Sources */,
-				D67A58CD2E35F0B00010D73D /* xcoff32.cpp in Sources */,
 				D6D759222E23F5AC00E5C09D /* riscv_rv32m.cpp in Sources */,
-				F56C540E2E47B97900534B1D /* malloc.cpp in Sources */,
-				F5BE8CD12E37C8C100DBB83A /* ecoff.cpp in Sources */,
 				F5F1B2C42E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759232E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B12E3F306000D2FF10 /* x86_register.cpp in Sources */,
@@ -923,7 +918,6 @@
 				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
-				F56C53FF2E470C0300534B1D /* printf.cpp in Sources */,
 				D6C5FE382E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
 				D6C5FE442E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
 				D6D759282E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
