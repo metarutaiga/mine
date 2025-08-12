@@ -319,6 +319,7 @@
 		F56C54042E4793F300534B1D /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
 		F56C540A2E47B97500534B1D /* malloc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = malloc.cpp; sourceTree = "<group>"; };
 		F56C540F2E4869DE00534B1D /* malloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = malloc.c; sourceTree = "<group>"; };
+		F56C54172E4AEC1600534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mz.h; path = ../../../format/mz.h; sourceTree = SOURCE_ROOT; };
 		F5BE8CCE2E37C8B900DBB83A /* ecoff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecoff.h; sourceTree = "<group>"; };
 		F5BE8CCF2E37C8BF00DBB83A /* ecoff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ecoff.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -446,6 +447,7 @@
 		D67A58C32E30C9000010D73D /* format */ = {
 			isa = PBXGroup;
 			children = (
+				F56C54172E4AEC1600534B1D /* mz.h */,
 				D67A58C42E30C9280010D73D /* coff */,
 				F56C53FA2E470BC000534B1D /* sample */,
 				F56C53F92E470BB800534B1D /* syscall */,

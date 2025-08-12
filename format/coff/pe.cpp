@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mz.h"
 #include "pe.h"
 
 #define _L(x) (x)
@@ -72,14 +73,13 @@ bool PE::Load(const char* path,
     fseek(file, 0, SEEK_SET);
 
     // Read PE offset from MZ
-    uint32_t mz[16] = {};
-    fread(mz, 4, 16, file);
-    uint32_t lfanew = mz[15];
+    MZ::FileHeader mz = {};
+    fread(&mz, sizeof(MZ::FileHeader), 1, file);
 
     bool succeed = false;
     SectionHeader* sections = nullptr;
     switch (NULL) case NULL: {
-        if (lfanew >= size || fseek(file, lfanew, SEEK_SET) != 0) {
+        if (mz.e_lfanew >= size || fseek(file, mz.e_lfanew, SEEK_SET) != 0) {
             log("the PE offset is out of range");
             break;
         }
