@@ -4,10 +4,10 @@
 
 struct allocator_t
 {
-	virtual ~allocator_t() = default;
-	virtual void* Alloc(size_t size, size_t hint = 0);
-	virtual void Free(void* pointer);
-	virtual size_t Size(void* pointer);
-	virtual void* Base();
-	virtual size_t Space();
+    virtual ~allocator_t() = default;
+    virtual void* allocate(size_t size, size_t hint = 0) noexcept;
+    virtual void deallocate(void* pointer) noexcept;
+    virtual size_t size(void* pointer) const noexcept;
+    virtual void* address() noexcept;
+    virtual size_t max_size() const noexcept;
 };

@@ -203,7 +203,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             refresh = true;
 
             cpu = new x86_i386;
-            cpu->Initialize(SimpleAllocator<16>::Initialize(16777216));
+            cpu->Initialize(simple_allocator<16>::construct(16777216));
             cpu->Exception(Exception);
 
             PE pe;

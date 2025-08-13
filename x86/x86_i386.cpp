@@ -138,11 +138,11 @@ bool x86_i386::Initialize(allocator_t* allocator)
         return false;
     this->allocator = allocator;
 
-    memory = (uint8_t*)allocator->Base();
-    memory_size = allocator->Space();
+    memory = (uint8_t*)allocator->address();
+    memory_size = allocator->max_size();
 
-    allocator->Alloc(4096);
-    allocator->Alloc(65536, memory_size - 65536);
+    allocator->allocate(4096);
+    allocator->allocate(65536, memory_size - 65536);
 
     EIP = 4096;
     ESP = (uint32_t)memory_size - 16;
@@ -210,7 +210,7 @@ uint8_t* x86_i386::Memory(size_t base, size_t size)
             return nullptr;
         return memory + base;
     }
-    return (uint8_t*)allocator->Alloc(size, base);
+    return (uint8_t*)allocator->allocate(size, base);
 }
 //------------------------------------------------------------------------------
 size_t x86_i386::Stack()

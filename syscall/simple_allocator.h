@@ -4,11 +4,11 @@
 #include "allocator.h"
 
 template<int MINBLOCK>
-struct SimpleAllocator : public allocator_t {
+struct simple_allocator : public allocator_t {
     enum { FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
-    void* Alloc(size_t size, size_t hint = SIZE_MAX) override {
+    void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
         if (size == 0)
             return nullptr;
         uint8_t exp = std::bit_width((size + (MINBLOCK - 1)) / MINBLOCK) - 1;
@@ -30,7 +30,7 @@ struct SimpleAllocator : public allocator_t {
         }
         return nullptr;
     }
-    void Free(void* pointer) override {
+    void deallocate(void* pointer) noexcept override {
         if (pointer == nullptr)
             return;
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
@@ -42,7 +42,7 @@ struct SimpleAllocator : public allocator_t {
         size_t block = (1 << exp);
         memset(status.data() + pos, FREED, block);
     }
-    size_t Size(void* pointer) override {
+    size_t size(void* pointer) const noexcept override {
         if (pointer == nullptr)
             return 0;
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
@@ -54,18 +54,18 @@ struct SimpleAllocator : public allocator_t {
         size_t block = (1 << exp);
         return block * MINBLOCK;
     }
-    void* Base() override {
+    void* address() noexcept override {
         return memory.data();
     }
-    size_t Space() override {
+    size_t max_size() const noexcept override {
         return memory.size();
     }
-    static SimpleAllocator* Initialize(size_t size) {
-        SimpleAllocator* allocator = new SimpleAllocator;
+    static simple_allocator* construct(size_t size) {
+        simple_allocator* allocator = new simple_allocator;
         if (allocator) {
             size = std::bit_ceil(size);
-            allocator->memory.resize(size);
-            allocator->status.resize(size / MINBLOCK, FREED);
+            allocator->memory.assign(size, 0);
+            allocator->status.assign(size / MINBLOCK, FREED);
         }
         return allocator;
     }

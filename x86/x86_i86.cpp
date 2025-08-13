@@ -63,11 +63,11 @@ bool x86_i86::Initialize(allocator_t* allocator)
         return false;
     this->allocator = allocator;
 
-    memory = (uint8_t*)allocator->Base();
-    memory_size = allocator->Space();
+    memory = (uint8_t*)allocator->address();
+    memory_size = allocator->max_size();
 
-    allocator->Alloc(256);
-    allocator->Alloc(65536, memory_size - 65536);
+    allocator->allocate(256);
+    allocator->allocate(65536, memory_size - 65536);
 
     IP = 256;
     SP = (uint16_t)memory_size - 16;
@@ -135,7 +135,7 @@ uint8_t* x86_i86::Memory(size_t base, size_t size)
             return nullptr;
         return memory + base;
     }
-    return (uint8_t*)allocator->Alloc(size, base);
+    return (uint8_t*)allocator->allocate(size, base);
 }
 //------------------------------------------------------------------------------
 size_t x86_i86::Stack()
