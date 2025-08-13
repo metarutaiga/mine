@@ -32,10 +32,10 @@
 		D6C5FE3E2E2A1B5D00A8E110 /* x86_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */; };
 		D6C5FE3F2E2A1B5D00A8E110 /* x86_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */; };
 		D6C5FE402E2A1B5D00A8E110 /* x86_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */; };
-		D6C5FE422E2D4F2500A8E110 /* x86_bittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */; };
-		D6C5FE432E2D4F2500A8E110 /* x86_bittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */; };
-		D6C5FE442E2D4F2500A8E110 /* x86_bittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */; };
-		D6C5FE452E2D4F2500A8E110 /* x86_bittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */; };
+		D6C5FE422E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */; };
+		D6C5FE432E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */; };
+		D6C5FE442E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */; };
+		D6C5FE452E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */; };
 		D6C5FE472E2D503800A8E110 /* x86_logical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE462E2D503800A8E110 /* x86_logical.cpp */; };
 		D6C5FE482E2D503800A8E110 /* x86_logical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE462E2D503800A8E110 /* x86_logical.cpp */; };
 		D6C5FE492E2D503800A8E110 /* x86_logical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6C5FE462E2D503800A8E110 /* x86_logical.cpp */; };
@@ -257,7 +257,7 @@
 		D6C5FE362E2A139B00A8E110 /* x86_bcd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_bcd.cpp; sourceTree = "<group>"; };
 		D6C5FE3B2E2A1B5D00A8E110 /* x86_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86_instruction.inl; sourceTree = "<group>"; };
 		D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_string.cpp; sourceTree = "<group>"; };
-		D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_bittest.cpp; sourceTree = "<group>"; };
+		D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_bitwise.cpp; sourceTree = "<group>"; };
 		D6C5FE462E2D503800A8E110 /* x86_logical.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_logical.cpp; sourceTree = "<group>"; };
 		D6C5FE4B2E2D51DB00A8E110 /* x86_arithmetic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_arithmetic.cpp; sourceTree = "<group>"; };
 		D6C5FE502E2D535000A8E110 /* x86_rotate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_rotate.cpp; sourceTree = "<group>"; };
@@ -449,7 +449,7 @@
 			children = (
 				D6C5FE4B2E2D51DB00A8E110 /* x86_arithmetic.cpp */,
 				D6C5FE362E2A139B00A8E110 /* x86_bcd.cpp */,
-				D6C5FE412E2D4F2500A8E110 /* x86_bittest.cpp */,
+				D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */,
 				D6D7593E2E24F6F500E5C09D /* x86_format.h */,
 				D6D7594B2E25044F00E5C09D /* x86_i86.cpp */,
 				D6D7594A2E25044F00E5C09D /* x86_i86.h */,
@@ -752,7 +752,7 @@
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBE2E4B96FF0076E961 /* printf.cpp in Sources */,
 				D6C5FE392E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
-				D6C5FE452E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
+				D6C5FE452E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */,
 				D6D759352E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D759362E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				D6D759372E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
@@ -814,7 +814,7 @@
 				D6D7594F2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */,
 				F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */,
-				D6C5FE422E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
+				D6C5FE422E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
@@ -867,7 +867,7 @@
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBF2E4B96FF0076E961 /* printf.cpp in Sources */,
 				D6C5FE3A2E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
-				D6C5FE432E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
+				D6C5FE432E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */,
 				D6D7591B2E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D7591C2E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				D6D7591D2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
@@ -922,7 +922,7 @@
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FC02E4B96FF0076E961 /* printf.cpp in Sources */,
 				D6C5FE382E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
-				D6C5FE442E2D4F2500A8E110 /* x86_bittest.cpp in Sources */,
+				D6C5FE442E2D4F2500A8E110 /* x86_bitwise.cpp in Sources */,
 				D6D759282E23F5AC00E5C09D /* riscv_rv32d.cpp in Sources */,
 				D6D759292E23F5AC00E5C09D /* riscv_rv32f.cpp in Sources */,
 				D6D7592A2E23F5AC00E5C09D /* riscv_zicsr.cpp in Sources */,
