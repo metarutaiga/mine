@@ -123,12 +123,12 @@ void x86_i86::Exception(size_t(*callback)(miCPU*, size_t))
     exception = callback;
 }
 //------------------------------------------------------------------------------
-allocator_t* x86_i86::Allocator()
+allocator_t* x86_i86::Allocator() const
 {
     return allocator;
 }
 //------------------------------------------------------------------------------
-uint8_t* x86_i86::Memory(size_t base, size_t size)
+uint8_t* x86_i86::Memory(size_t base, size_t size) const
 {
     if (size == 0) {
         if (base + size >= memory_size)
@@ -138,12 +138,12 @@ uint8_t* x86_i86::Memory(size_t base, size_t size)
     return (uint8_t*)allocator->allocate(size, base);
 }
 //------------------------------------------------------------------------------
-size_t x86_i86::Stack()
+size_t x86_i86::Stack() const
 {
     return SP;
 }
 //------------------------------------------------------------------------------
-std::string x86_i86::Status()
+std::string x86_i86::Status() const
 {
     std::string output;
 
@@ -204,15 +204,16 @@ std::string x86_i86::Status()
     return output;
 }
 //------------------------------------------------------------------------------
-std::string x86_i86::Disassemble(int count)
+std::string x86_i86::Disassemble(int count) const
 {
     std::string output;
 
-    x86_i86 backup;
+    x86_i86 x86;
     for (int i = 0; i < 8; ++i)
-        backup.regs[i] = regs[i];
-    backup.flags = flags;
-    backup.ip = ip;
+        x86.regs[i] = regs[i];
+    x86.flags = flags;
+    x86.ip = ip;
+    x86.memory = memory;
 
     for (int i = 0; i < count; ++i) {
         char temp[64];
@@ -226,8 +227,8 @@ std::string x86_i86::Disassemble(int count)
         size_t insert = output.size();
 
         Format format;
-        StepInternal(format);
-        output += Disasm(format, *this);
+        x86.StepInternal(format);
+        output += Disasm(format, x86);
         output += '\n';
 
         for (uint32_t i = 0; i < 16; ++i) {
@@ -240,11 +241,6 @@ std::string x86_i86::Disassemble(int count)
             insert += 2;
         }
     }
-
-    for (int i = 0; i < 8; ++i)
-        regs[i] = backup.regs[i];
-    flags = backup.flags;
-    ip = backup.ip;
 
     return output;
 }

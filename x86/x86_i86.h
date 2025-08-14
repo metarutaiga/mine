@@ -22,11 +22,11 @@ public:
     bool Step(int type) override;
     bool Jump(size_t address) override;
     void Exception(size_t(*callback)(miCPU*, size_t)) override;
-    allocator_t* Allocator() override;
-    uint8_t* Memory(size_t base = 0, size_t size = 0) override;
-    size_t Stack() override;
-    std::string Status() override;
-    std::string Disassemble(int count) override;
+    allocator_t* Allocator() const override;
+    uint8_t* Memory(size_t base = 0, size_t size = 0) const override;
+    size_t Stack() const override;
+    std::string Status() const override;
+    std::string Disassemble(int count) const override;
 
 protected:
     void StepInternal(Format& format);
