@@ -157,6 +157,10 @@
 		F5511FC32E4B97050076E961 /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FB92E4B96F20076E961 /* malloc.cpp */; };
 		F5511FC42E4B97050076E961 /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FB92E4B96F20076E961 /* malloc.cpp */; };
 		F5511FC52E4B97050076E961 /* malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FB92E4B96F20076E961 /* malloc.cpp */; };
+		F5511FCB2E4E2A730076E961 /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
+		F5511FCC2E4E2A730076E961 /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
+		F5511FCD2E4E2A730076E961 /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
+		F5511FCE2E4E2A730076E961 /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
 		F56C54402E4B110B00534B1D /* pe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541F2E4B110B00534B1D /* pe.cpp */; };
 		F56C54422E4B110B00534B1D /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
 		F56C54432E4B110B00534B1D /* xcoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54232E4B110B00534B1D /* xcoff64.cpp */; };
@@ -305,6 +309,7 @@
 		F5511FBB2E4B96F20076E961 /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
 		F5511FBC2E4B96F20076E961 /* syscall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall.h; sourceTree = "<group>"; };
 		F5511FC62E4B97130076E961 /* allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = allocator.h; sourceTree = "<group>"; };
+		F5511FCA2E4E2A650076E961 /* string.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = string.cpp; sourceTree = "<group>"; };
 		F56C53F82E46418500534B1D /* x87_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x87_instruction.inl; sourceTree = "<group>"; };
 		F56C54182E4B110B00534B1D /* coff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = coff.h; sourceTree = "<group>"; };
 		F56C54192E4B110B00534B1D /* coff.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coff.cpp; sourceTree = "<group>"; };
@@ -532,6 +537,7 @@
 				F5511FC62E4B97130076E961 /* allocator.h */,
 				F5511FB92E4B96F20076E961 /* malloc.cpp */,
 				F5511FBA2E4B96F20076E961 /* printf.cpp */,
+				F5511FCA2E4E2A650076E961 /* string.cpp */,
 				F5511FBB2E4B96F20076E961 /* simple_allocator.h */,
 				F5511FBC2E4B96F20076E961 /* syscall.h */,
 			);
@@ -745,6 +751,7 @@
 				F5F1B2C22E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759302E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B32E3F306000D2FF10 /* x86_register.cpp in Sources */,
+				F5511FCE2E4E2A730076E961 /* string.cpp in Sources */,
 				D6D759312E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
@@ -785,6 +792,7 @@
 				F5F1B2B02E3F306000D2FF10 /* x86_register.cpp in Sources */,
 				D6D758DE2E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6C5FE472E2D503800A8E110 /* x86_logical.cpp in Sources */,
+				F5511FCD2E4E2A730076E961 /* string.cpp in Sources */,
 				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
 				F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */,
 				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
@@ -860,6 +868,7 @@
 				F5F1B2C32E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759162E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B22E3F306000D2FF10 /* x86_register.cpp in Sources */,
+				F5511FCC2E4E2A730076E961 /* string.cpp in Sources */,
 				D6D759172E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
@@ -915,6 +924,7 @@
 				F5F1B2C42E41C45D00D2FF10 /* x87_integer.cpp in Sources */,
 				D6D759232E23F5AC00E5C09D /* riscv_rv64m.cpp in Sources */,
 				F5F1B2B12E3F306000D2FF10 /* x86_register.cpp in Sources */,
+				F5511FCB2E4E2A730076E961 /* string.cpp in Sources */,
 				D6D759242E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,

@@ -62,6 +62,28 @@ static size_t Exception(miCPU* cpu, size_t index)
     case (uint32_t)-14: return syscall_vsprintf(memory, stack);
     case (uint32_t)-15: return syscall_snprintf(memory, stack);
     case (uint32_t)-16: return syscall_vsnprintf(memory, stack);
+    case (uint32_t)-21: return syscall_memchr(memory, stack);
+    case (uint32_t)-22: return syscall_memcmp(memory, stack);
+    case (uint32_t)-23: return syscall_memcpy(memory, stack);
+    case (uint32_t)-24: return syscall_memmove(memory, stack);
+    case (uint32_t)-25: return syscall_memset(memory, stack);
+    case (uint32_t)-26: return syscall_strcat(memory, stack);
+    case (uint32_t)-27: return syscall_strchr(memory, stack);
+    case (uint32_t)-28: return syscall_strcmp(memory, stack);
+    case (uint32_t)-29: return syscall_strcoll(memory, stack);
+    case (uint32_t)-30: return syscall_strcpy(memory, stack);
+    case (uint32_t)-31: return syscall_strcspn(memory, stack);
+    case (uint32_t)-32: return syscall_strerror(memory, stack);
+    case (uint32_t)-33: return syscall_strlen(memory, stack);
+    case (uint32_t)-34: return syscall_strncat(memory, stack);
+    case (uint32_t)-35: return syscall_strncmp(memory, stack);
+    case (uint32_t)-36: return syscall_strncpy(memory, stack);
+    case (uint32_t)-37: return syscall_strpbrk(memory, stack);
+    case (uint32_t)-38: return syscall_strrchr(memory, stack);
+    case (uint32_t)-39: return syscall_strspn(memory, stack);
+    case (uint32_t)-40: return syscall_strstr(memory, stack);
+    case (uint32_t)-41: return syscall_strtok(memory, stack);
+    case (uint32_t)-42: return syscall_strxfrm(memory, stack);
     }
     return 0;
 }
@@ -83,6 +105,28 @@ static size_t Symbol(const char* file, const char* name, size_t address, void* s
         case "vsprintf"_CC:     return (uint32_t)-14;
         case "snprintf"_CC:     return (uint32_t)-15;
         case "vsnprintf"_CC:    return (uint32_t)-16;
+        case "memchr"_CC:       return (uint32_t)-21;
+        case "memcmp"_CC:       return (uint32_t)-22;
+        case "memcpy"_CC:       return (uint32_t)-23;
+        case "memmove"_CC:      return (uint32_t)-24;
+        case "memset"_CC:       return (uint32_t)-25;
+        case "strcat"_CC:       return (uint32_t)-26;
+        case "strchr"_CC:       return (uint32_t)-27;
+        case "strcmp"_CC:       return (uint32_t)-28;
+        case "strcoll"_CC:      return (uint32_t)-29;
+        case "strcpy"_CC:       return (uint32_t)-30;
+        case "strcspn"_CC:      return (uint32_t)-31;
+        case "strerror"_CC:     return (uint32_t)-32;
+        case "strlen"_CC:       return (uint32_t)-33;
+        case "strncat"_CC:      return (uint32_t)-34;
+        case "strncmp"_CC:      return (uint32_t)-35;
+        case "strncpy"_CC:      return (uint32_t)-36;
+        case "strpbrk"_CC:      return (uint32_t)-37;
+        case "strrchr"_CC:      return (uint32_t)-38;
+        case "strspn"_CC:       return (uint32_t)-39;
+        case "strstr"_CC:       return (uint32_t)-40;
+        case "strtok"_CC:       return (uint32_t)-41;
+        case "strxfrm"_CC:      return (uint32_t)-42;
         }
         Logger("Symbol : %s.%s is not found", file, name);
     }
