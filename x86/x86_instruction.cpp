@@ -59,6 +59,14 @@ void x86_instruction::Decode(Format& format, const uint8_t* opcode, const char* 
             format.operand[MODRM].base = (BASE == 0b101) ? -1 : BASE;
             format.operand[MODRM].displacement = 0;
             break;
+        case 0b00000101:
+            format.length += 4;
+            format.operand[MODRM].type = Format::Operand::ADR;
+            format.operand[MODRM].scale = 0;
+            format.operand[MODRM].index = -1;
+            format.operand[MODRM].base = -1;
+            format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+            break;
         case 0b01000100:
             format.length += 2;
             format.operand[MODRM].type = Format::Operand::ADR;
@@ -83,11 +91,6 @@ void x86_instruction::Decode(Format& format, const uint8_t* opcode, const char* 
                 format.operand[MODRM].index = -1;
                 format.operand[MODRM].base = RM;
                 format.operand[MODRM].displacement = 0;
-                if (RM == 0b101) {
-                    format.length += 4;
-                    format.operand[MODRM].base = -1;
-                    format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
-                }
                 break;
             case 0b01:
                 format.length += 1;
