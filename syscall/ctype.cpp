@@ -1,6 +1,10 @@
 #include <ctype.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int syscall_isalnum(const uint32_t* stack)
 {
     auto c = stack[1];
@@ -78,3 +82,7 @@ int syscall_toupper(const uint32_t* stack)
     auto c = stack[1];
     return toupper(c);
 }
+
+#ifdef __cplusplus
+}
+#endif

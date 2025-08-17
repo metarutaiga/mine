@@ -4,13 +4,11 @@
 #include <stdint.h>
 #include <vector>
 #include "allocator.h"
+#include "syscall_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define physical(type, index)   (type)(index ? index + memory : 0)
-#define virtual(type, index)    (type)(index ? (char*)index - memory : 0)
 
 static std::vector<uint64_t> convert_format_from_32bit_to_64bit(const char* format, const void* memory, const void* stack)
 {

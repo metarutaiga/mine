@@ -27,33 +27,81 @@ int syscall_localeconv(const void* memory);
 int syscall_setlocale(const void* memory, const void* stack);
 
 // math
-double syscall_abs(const void* stack);
 double syscall_acos(const void* stack);
+double syscall_acosh(const void* stack);
 double syscall_asin(const void* stack);
+double syscall_asinh(const void* stack);
 double syscall_atan(const void* stack);
 double syscall_atan2(const void* stack);
+double syscall_atanh(const void* stack);
+double syscall_cbrt(const void* stack);
 double syscall_ceil(const void* stack);
+double syscall_copysign(const void* stack);
 double syscall_cos(const void* stack);
 double syscall_cosh(const void* stack);
+double syscall_erf(const void* stack);
+double syscall_erfc(const void* stack);
 double syscall_exp(const void* stack);
+double syscall_exp2(const void* stack);
+double syscall_expm1(const void* stack);
 double syscall_fabs(const void* stack);
+double syscall_fdim(const void* stack);
 double syscall_floor(const void* stack);
+double syscall_fma(const void* stack);
+double syscall_fmax(const void* stack);
+double syscall_fmin(const void* stack);
 double syscall_fmod(const void* stack);
+double syscall_fpclassify(const void* stack);
 double syscall_frexp(const void* memory, const void* stack);
+double syscall_hypot(const void* stack);
+double syscall_ilogb(const void* stack);
+double syscall_isfinite(const void* stack);
+double syscall_isgreater(const void* stack);
+double syscall_isgreaterequal(const void* stack);
+double syscall_isinf(const void* stack);
+double syscall_isless(const void* stack);
+double syscall_islessequal(const void* stack);
+double syscall_islessgreater(const void* stack);
+double syscall_isnan(const void* stack);
+double syscall_isnormal(const void* stack);
+double syscall_isunordered(const void* stack);
 double syscall_ldexp(const void* stack);
+double syscall_lgamma(const void* stack);
+double syscall_llrint(const void* stack);
+double syscall_llround(const void* stack);
 double syscall_log(const void* stack);
 double syscall_log10(const void* stack);
+double syscall_log1p(const void* stack);
+double syscall_log2(const void* stack);
+double syscall_logb(const void* stack);
+double syscall_lrint(const void* stack);
+double syscall_lround(const void* stack);
 double syscall_modf(const void* stack);
+double syscall_nan(const void* memory, const void* stack);
+double syscall_nanf(const void* memory, const void* stack);
+double syscall_nanl(const void* memory, const void* stack);
+double syscall_nearbyint(const void* stack);
+double syscall_nextafter(const void* stack);
+double syscall_nexttoward(const void* stack);
 double syscall_pow(const void* stack);
+double syscall_remainder(const void* stack);
+double syscall_remquo(const void* memory, const void* stack);
+double syscall_rint(const void* stack);
+double syscall_round(const void* stack);
+double syscall_scalbln(const void* stack);
+double syscall_scalbn(const void* stack);
+double syscall_signbit(const void* stack);
 double syscall_sin(const void* stack);
 double syscall_sinh(const void* stack);
 double syscall_sqrt(const void* stack);
 double syscall_tan(const void* stack);
 double syscall_tanh(const void* stack);
+double syscall_tgamma(const void* stack);
+double syscall_trunc(const void* stack);
 
 // setjmp
-int syscall_longjmp(const void* stack);
-int syscall_setjmp(const void* stack);
+int syscall_longjmp(const void* memory, const void* stack);
+int syscall_setjmp(const void* memory, const void* stack);
 
 // signal
 int syscall_raise(const void* stack);
@@ -105,14 +153,48 @@ int syscall_vscanf(const void* memory, const void* stack);
 int syscall_vsnprintf(const void* memory, const void* stack);
 int syscall_vsprintf(const void* memory, const void* stack);
 
-// calloc / malloc / realloc / free
-uint32_t syscall_calloc(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_malloc(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_realloc(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_free(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_expand(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_msize(const void* stack, struct allocator_t* allocator);
-uint32_t syscall_recalloc(const void* stack, struct allocator_t* allocator);
+// stdlib
+int syscall__Exit(const void* stack);
+int syscall_abort();
+int syscall_abs(const void* stack);
+int syscall_at_quick_exit(const void* memory, const void* stack);
+int syscall_atexit(const void* memory, const void* stack);
+int syscall_atof(const void* memory, const void* stack);
+int syscall_atoi(const void* memory, const void* stack);
+int syscall_atol(const void* memory, const void* stack);
+int syscall_atoll(const void* memory, const void* stack);
+int syscall_bsearch(const void* memory, const void* stack);
+int syscall_calloc(const void* stack, struct allocator_t* allocator);
+int syscall_div(const void* stack);
+int syscall_exit(const void* stack);
+int syscall_expand(const void* stack, struct allocator_t* allocator);
+int syscall_free(const void* stack, struct allocator_t* allocator);
+int syscall_getenv(const void* memory, const void* stack);
+int syscall_labs(const void* stack);
+int syscall_ldiv(const void* stack);
+int syscall_llabs(const void* stack);
+int syscall_lldiv(const void* stack);
+int syscall_malloc(const void* stack, struct allocator_t* allocator);
+int syscall_mblen(const void* memory, const void* stack);
+int syscall_mbstowcs(const void* memory, const void* stack);
+int syscall_mbtowc(const void* memory, const void* stack);
+int syscall_msize(const void* stack, struct allocator_t* allocator);
+int syscall_qsort(const void* memory, const void* stack);
+int syscall_quick_exit(const void* stack);
+int syscall_rand();
+int syscall_realloc(const void* stack, struct allocator_t* allocator);
+int syscall_recalloc(const void* stack, struct allocator_t* allocator);
+int syscall_srand(const void* stack);
+int syscall_strtod(const void* memory, const void* stack);
+int syscall_strtof(const void* memory, const void* stack);
+int syscall_strtol(const void* memory, const void* stack);
+int syscall_strtold(const void* memory, const void* stack);
+int syscall_strtoll(const void* memory, const void* stack);
+int syscall_strtoul(const void* memory, const void* stack);
+int syscall_strtoull(const void* memory, const void* stack);
+int syscall_system(const void* memory, const void* stack);
+int syscall_wcstombs(const void* memory, const void* stack);
+int syscall_wctomb(const void* memory, const void* stack);
 
 // string
 int syscall_memchr(const void* memory, const void* stack);
@@ -137,6 +219,17 @@ int syscall_strspn(const void* memory, const void* stack);
 int syscall_strstr(const void* memory, const void* stack);
 int syscall_strtok(const void* memory, const void* stack);
 int syscall_strxfrm(const void* memory, const void* stack);
+
+// time
+int syscall_asctime(const void* memory, const void* stack);
+int syscall_clock();
+int syscall_ctime(const void* memory, const void* stack);
+int syscall_difftime(const void* stack);
+int syscall_gmtime(const void* memory, const void* stack);
+int syscall_localtime(const void* memory, const void* stack);
+int syscall_mktime(const void* memory, const void* stack);
+int syscall_strftime(const void* memory, const void* stack);
+int syscall_time(const void* memory, const void* stack);
 
 #ifdef __cplusplus
 }
