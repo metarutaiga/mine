@@ -8,16 +8,16 @@ extern "C" {
 
 int syscall_longjmp(char* memory, const uint32_t* stack)
 {
-    auto env = physical(int*, stack[1]);
-    auto val = stack[2];
-    longjmp(env, val);
+    auto env = stack + 1;
+    auto val = stack[1 + sizeof(jmp_buf) / sizeof(int)];
+    longjmp(*(jmp_buf*)&env, val);
     return 0;
 }
 
 int syscall_setjmp(char* memory, const uint32_t* stack)
 {
-    auto env = physical(int*, stack[1]);
-    return setjmp(env);
+    auto env = stack + 1;
+    return setjmp(*(jmp_buf*)&env);
 }
 
 #ifdef __cplusplus

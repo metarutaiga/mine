@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +30,12 @@ int syscall_abs(const uint32_t* stack)
 
 int syscall_at_quick_exit(char* memory, const uint32_t* stack)
 {
+#if defined(_UCRT)
+    return 0;
+#else
     auto func = physical(void(*)(void), stack[1]);
     return at_quick_exit(func);
+#endif
 }
 
 int syscall_atexit(char* memory, const uint32_t* stack)

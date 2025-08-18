@@ -317,10 +317,10 @@ long syscall_lround(const uint32_t* stack)
     return lround(x);
 }
 
-double syscall_modf(const uint32_t* stack)
+double syscall_modf(char* memory, const uint32_t* stack)
 {
     auto x = double(stack[1]);
-    auto intpart = &double(stack[3]);
+    auto intpart = physical(double*, stack[3]);
     return modf(x, intpart);
 }
 

@@ -1,6 +1,9 @@
+#if defined(__APPLE__)
 #include <sys/cdefs.h>
+#endif
 #undef __deprecated_msg
 #define __deprecated_msg(_msg)
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
 #include <vector>
 #include "allocator.h"
@@ -232,9 +235,13 @@ int syscall_getchar()
 
 int syscall_gets(char* memory, const uint32_t* stack)
 {
+#if defined(_UCRT)
+    return 0;
+#else
     auto str = physical(char*, stack[1]);
     auto result = gets(str);
     return virtual(int, result);
+#endif
 }
 
 int syscall_perror(char* memory, const uint32_t* stack)
