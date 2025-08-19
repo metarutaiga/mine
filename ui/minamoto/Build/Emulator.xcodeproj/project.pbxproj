@@ -156,6 +156,10 @@
 		F51AF6652E521AB400E9B209 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F51AF6662E521AB400E9B209 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F51AF6672E521AB400E9B209 /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
+		F51AF66A2E54240300E9B209 /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
+		F51AF66B2E54240300E9B209 /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
+		F51AF66C2E54240300E9B209 /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
+		F51AF66D2E54240300E9B209 /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
 		F5511FBE2E4B96FF0076E961 /* stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FBA2E4B96F20076E961 /* stdio.cpp */; };
 		F5511FBF2E4B96FF0076E961 /* stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FBA2E4B96F20076E961 /* stdio.cpp */; };
@@ -334,6 +338,7 @@
 		F51AF65E2E520CB000E9B209 /* stdlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdlib.cpp; sourceTree = "<group>"; };
 		F51AF6632E521AB000E9B209 /* time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = time.cpp; sourceTree = "<group>"; };
 		F51AF6682E521FD800E9B209 /* syscall_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_internal.h; sourceTree = "<group>"; };
+		F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_i386.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F5511FBA2E4B96F20076E961 /* stdio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdio.cpp; sourceTree = "<group>"; };
 		F5511FBB2E4B96F20076E961 /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
@@ -582,6 +587,7 @@
 				F5511FCA2E4E2A650076E961 /* string.cpp */,
 				F5511FBB2E4B96F20076E961 /* simple_allocator.h */,
 				F5511FBC2E4B96F20076E961 /* syscall.h */,
+				F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */,
 				F51AF6682E521FD800E9B209 /* syscall_internal.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,
 			);
@@ -806,6 +812,7 @@
 				D6D759312E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
+				F51AF66C2E54240300E9B209 /* syscall_i386.cpp in Sources */,
 				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBE2E4B96FF0076E961 /* stdio.cpp in Sources */,
@@ -883,6 +890,7 @@
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				D6909FAF2E1A7FFD0023F7B5 /* EmulatorEntry.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
+				F51AF66A2E54240300E9B209 /* syscall_i386.cpp in Sources */,
 				F51AF6662E521AB400E9B209 /* time.cpp in Sources */,
 				D6909FBD2E1AC68C0023F7B5 /* x86_i386.cpp in Sources */,
 				D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */,
@@ -937,6 +945,7 @@
 				D6D759172E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
+				F51AF66D2E54240300E9B209 /* syscall_i386.cpp in Sources */,
 				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBF2E4B96FF0076E961 /* stdio.cpp in Sources */,
@@ -1000,6 +1009,7 @@
 				D6D759242E23F5AC00E5C09D /* riscv_zifencei.cpp in Sources */,
 				D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,
+				F51AF66B2E54240300E9B209 /* syscall_i386.cpp in Sources */,
 				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FC02E4B96FF0076E961 /* stdio.cpp in Sources */,

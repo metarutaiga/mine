@@ -194,7 +194,7 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
                 disasm += REG32[format.operand[i].base];
             }
             if (format.operand[i].displacement) {
-                if (disasm.back() != '[')
+                if (disasm.back() != '[' && format.operand[i].displacement >= 0)
                     disasm += '+';
                 disasm += hex(format.operand[i].displacement);
             }
@@ -518,7 +518,7 @@ void x86_instruction::LEA(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "LEA", 1, 0, OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST = decltype(DEST)(format.operand[0].address);
+        DEST = decltype(DEST)(format.operand[1].address);
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -561,6 +561,15 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
     case 0x89:
     case 0x8A:
     case 0x8B:  Decode(format, opcode, "MOV", 1, 0, opcode[0] & 0b11);  break;
+    case 0xA0:
+    case 0xA1:  Decode(format, opcode, "MOV", 1, -1, (opcode[0] & 0b01) | INDIRECT);
+                format.operand[1] = format.operand[0];
+                format.operand[0].type = Format::Operand::REG;
+                format.operand[0].base = REG(EAX);                      break;
+    case 0xA2:
+    case 0xA3:  Decode(format, opcode, "MOV", 1, -1, (opcode[0] & 0b01) | INDIRECT);
+                format.operand[1].type = Format::Operand::REG;
+                format.operand[1].base = REG(EAX);                      break;
     case 0xB0:
     case 0xB1:
     case 0xB2:
