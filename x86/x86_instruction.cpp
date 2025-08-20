@@ -56,8 +56,13 @@ void x86_instruction::Decode(Format& format, const uint8_t* opcode, const char* 
             format.operand[MODRM].type = Format::Operand::ADR;
             format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
             format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
-            format.operand[MODRM].base = (BASE == 0b101) ? -1 : BASE;
+            format.operand[MODRM].base = BASE;
             format.operand[MODRM].displacement = 0;
+            if (BASE == 0b101) {
+                format.length += 4;
+                format.operand[MODRM].base = -1;
+                format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+            }
             break;
         case 0b00000101:
             format.length += 4;
@@ -185,8 +190,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             disasm += '[';
             if (format.operand[i].scale > 0) {
                 disasm += REG32[format.operand[i].index];
-                disasm += '*';
-                disasm += std::to_string(format.operand[i].scale);
+                if (format.operand[i].scale > 1) {
+                    disasm += '*';
+                    disasm += std::to_string(format.operand[i].scale);
+                }
             }
             if (format.operand[i].base >= 0) {
                 if (disasm.back() != '[')
@@ -245,6 +252,7 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
                 format.operand[i].address += x86.regs[format.operand[i].base].d;
             }
             format.operand[i].address += format.operand[i].displacement;
+            format.operand[i].address = uint32_t(format.operand[i].address);
             format.operand[i].memory = x86.memory + format.operand[i].address;
             break;
         case Format::Operand::IMM:
@@ -260,9 +268,10 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             }
             break;
         case Format::Operand::REL:
-            format.operand[i].memory = x86.memory;
-            format.operand[i].memory += x86.ip.q;
-            format.operand[i].memory += format.operand[i].displacement;
+            format.operand[i].address = x86.ip.q;
+            format.operand[i].address += format.operand[i].displacement;
+            format.operand[i].address = uint32_t(format.operand[i].address);
+            format.operand[i].memory = x86.memory + format.operand[i].address;
             break;
         default:
             break;

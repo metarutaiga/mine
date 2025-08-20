@@ -6,21 +6,25 @@
 //==============================================================================
 #include "EmulatorPCH.h"
 #include <IconFontCppHeaders/IconsFontAwesome4.h>
+#include <imgui_club/imgui_memory_editor/imgui_memory_editor.h>
 #include "format/coff/pe.h"
 #include "syscall/simple_allocator.h"
 #include "syscall/syscall.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 
+#if defined(_UCRT)
+#define strcasecmp _stricmp
+#endif
+
 //------------------------------------------------------------------------------
 static miCPU* cpu;
 static std::string status;
 static std::string disasm;
 static std::string logs;
-static int stackIndex;
 static int symbolIndex;
 static std::vector<std::pair<std::string, size_t>> symbols;
-static bool refresh;
+static std::vector<std::pair<std::string, void*>> dlls;
 //------------------------------------------------------------------------------
 static std::vector<std::pair<std::string, std::string>> samples;
 //------------------------------------------------------------------------------
@@ -45,12 +49,17 @@ static int Logger(const char* format, ...)
     return length;
 }
 //------------------------------------------------------------------------------
+static int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack);
+static int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack);
+static int syscall_LoadLibary(uint8_t* memory, uint32_t* stack);
+//------------------------------------------------------------------------------
 static size_t Exception(miCPU* data, size_t index)
 {
     auto* cpu = (x86_i386*)data;
     auto& x86 = cpu->x86;
+    auto* allocator = cpu->allocator;
     auto* memory = cpu->Memory();
-    auto* stack = memory + cpu->Stack();
+    auto* stack = (uint32_t*)(memory + cpu->Stack());
 
     auto EAX = [&](long value) {
         x86.regs[0].d = uint32_t(value);
@@ -60,28 +69,44 @@ static size_t Exception(miCPU* data, size_t index)
     switch (index) {
 
     // base
-    case (uint32_t)-164:    return EAX(syscall_printf(memory, stack, LoggerV));
-    case (uint32_t)-182:    return EAX(syscall_vprintf(memory, stack, LoggerV));
+    case (uint32_t)-1001:   return EAX(syscall_printf(memory, stack, LoggerV));
+    case (uint32_t)-1002:   return EAX(syscall_vprintf(memory, stack, LoggerV));
+    case (uint32_t)-1011:   return 0;
+    case (uint32_t)-1012:   return EAX(1);
+    case (uint32_t)-1013:   return 0;
+    case (uint32_t)-1014:   return 0;
+    case (uint32_t)-1015:   return 0;
+    case (uint32_t)-1016:   return 0;
+    case (uint32_t)-1017:   return 0;
+    case (uint32_t)-1018:   return 0;
+    case (uint32_t)-1021:   return 0;
+    case (uint32_t)-1022:   return 0;
+    case (uint32_t)-1023:   return 0;
+    case (uint32_t)-1024:   return 0;
+    case (uint32_t)-1025:   return 0;
+    case (uint32_t)-1026:   return 0;
+    case (uint32_t)-1031:   return EAX(syscall_malloc(stack, allocator));
+    case (uint32_t)-1032:   return EAX(syscall_free(stack, allocator));
 
     // kernel32.dll
-    case (uint32_t)-1001:   syscall_exit(stack);    return sizeof(uint32_t) * 1;
-    case (uint32_t)-1002:   EAX(0);                 return sizeof(uint32_t) * 1;
-    case (uint32_t)-1003:   EAX(0);                 return sizeof(uint32_t) * 2;
-    case (uint32_t)-1004:   EAX(0);                 return sizeof(uint32_t) * 2;
-    case (uint32_t)-1005:   EAX(0);                 return 0;
-    case (uint32_t)-1006:   EAX(0);                 return 0;
-    case (uint32_t)-1007:   EAX(0);                 return 0;
-    case (uint32_t)-1008:   EAX(0);                 return sizeof(uint32_t) * 1;
-    case (uint32_t)-1009:   EAX(0);                 return sizeof(uint32_t) * 2;
-    case (uint32_t)-1010:   EAX(0);                 return sizeof(uint32_t) * 1;
-    case (uint32_t)-1011:   EAX(0);                 return 0;
-    case (uint32_t)-1012:   EAX(0);                 return sizeof(uint32_t) * 1;
-    case (uint32_t)-1013:   EAX(0);                 return sizeof(uint32_t) * 1;
+    case (uint32_t)-1101:   syscall_exit(stack);                            return sizeof(uint32_t) * 1;
+    case (uint32_t)-1102:   EAX(0);                                         return sizeof(uint32_t) * 1;
+    case (uint32_t)-1103:   EAX(0);                                         return sizeof(uint32_t) * 2;
+    case (uint32_t)-1104:   EAX(0);                                         return sizeof(uint32_t) * 2;
+    case (uint32_t)-1105:   EAX(0);                                         return 0;
+    case (uint32_t)-1106:   EAX(0);                                         return 0;
+    case (uint32_t)-1107:   EAX(0);                                         return 0;
+    case (uint32_t)-1108:   EAX(syscall_GetModuleHandleA(memory, stack));   return sizeof(uint32_t) * 1;
+    case (uint32_t)-1109:   EAX(syscall_GetProcAddress(memory, stack));     return sizeof(uint32_t) * 2;
+    case (uint32_t)-1110:   EAX(0);                                         return sizeof(uint32_t) * 1;
+    case (uint32_t)-1111:   EAX(0);                                         return 0;
+    case (uint32_t)-1112:   EAX(syscall_LoadLibary(memory, stack));         return sizeof(uint32_t) * 1;
+    case (uint32_t)-1113:   EAX(0);                                         return sizeof(uint32_t) * 1;
 
     // advapi32.dll
-    case (uint32_t)-1101:   EAX(0);                 return sizeof(uint32_t) * 1;
-    case (uint32_t)-1102:   EAX(0);                 return sizeof(uint32_t) * 5;
-    case (uint32_t)-1103:   EAX(0);                 return sizeof(uint32_t) * 6;
+    case (uint32_t)-1201:   EAX(0);                                         return sizeof(uint32_t) * 1;
+    case (uint32_t)-1202:   EAX(0);                                         return sizeof(uint32_t) * 5;
+    case (uint32_t)-1203:   EAX(0);                                         return sizeof(uint32_t) * 6;
     }
 
     return syscall_i386(cpu, index);
@@ -90,35 +115,54 @@ static size_t Exception(miCPU* data, size_t index)
 static size_t Symbol(const char* file, const char* name, size_t address, void* sym_data)
 {
     if (file) {
+        switch (operator""_CC(name, strlen(name))) {
+        case "printf"_CC:                       address = (uint32_t)-1001;  break;
+        case "vprintf"_CC:                      address = (uint32_t)-1002;  break;
+        case "_amsg_exit"_CC:                   address = (uint32_t)-1011;  break;
+        case "_callnewh"_CC:                    address = (uint32_t)-1012;  break;
+        case "_cexit"_CC:                       address = (uint32_t)-1013;  break;
+        case "_controlfp"_CC:                   address = (uint32_t)-1014;  break;
+        case "_flushall"_CC:                    address = (uint32_t)-1015;  break;
+        case "_initterm"_CC:                    address = (uint32_t)-1016;  break;
+        case "_onexit"_CC:                      address = (uint32_t)-1017;  break;
+        case "_XcptFilter"_CC:                  address = (uint32_t)-1018;  break;
+        case "__getmainargs"_CC:                address = (uint32_t)-1021;  break;
+        case "__p__commode"_CC:                 address = (uint32_t)-1022;  break;
+        case "__p__fmode"_CC:                   address = (uint32_t)-1023;  break;
+        case "__p___initenv"_CC:                address = (uint32_t)-1024;  break;
+        case "__setusermatherr"_CC:             address = (uint32_t)-1025;  break;
+        case "__set_app_type"_CC:               address = (uint32_t)-1026;  break;
+        case "??2@YAPAXI@Z"_CC:                 address = (uint32_t)-1031;  break;
+        case "??_U@YAPAXI@Z"_CC:                address = (uint32_t)-1031;  break;
+        case "??3@YAXPAX@Z"_CC:                 address = (uint32_t)-1032;  break;
+        case "??_V@YAXPAX@Z"_CC:                address = (uint32_t)-1032;  break;
+        }
         if (strcasecmp(file, "kernel32.dll") == 0) {
             switch (operator""_CC(name, strlen(name))) {
-            case "ExitProcess"_CC:              address = (uint32_t)-1001;  break;
-            case "FindClose"_CC:                address = (uint32_t)-1002;  break;
-            case "FindFirstFileA"_CC:           address = (uint32_t)-1003;  break;
-            case "FindNextFileA"_CC:            address = (uint32_t)-1004;  break;
-            case "GetCurrentProcessId"_CC:      address = (uint32_t)-1005;  break;
-            case "GetCurrentThreadId"_CC:       address = (uint32_t)-1006;  break;
-            case "GetLastError"_CC:             address = (uint32_t)-1007;  break;
-            case "GetModuleHandleA"_CC:         address = (uint32_t)-1008;  break;
-            case "GetProcAddress"_CC:           address = (uint32_t)-1009;  break;
-            case "GetSystemTimeAsFileTime"_CC:  address = (uint32_t)-1010;  break;
-            case "GetTickCount"_CC:             address = (uint32_t)-1011;  break;
-            case "LoadLibraryA"_CC:             address = (uint32_t)-1012;  break;
-            case "QueryPerformanceCounter"_CC:  address = (uint32_t)-1013;  break;
+            case "ExitProcess"_CC:              address = (uint32_t)-1101;  break;
+            case "FindClose"_CC:                address = (uint32_t)-1102;  break;
+            case "FindFirstFileA"_CC:           address = (uint32_t)-1103;  break;
+            case "FindNextFileA"_CC:            address = (uint32_t)-1104;  break;
+            case "GetCurrentProcessId"_CC:      address = (uint32_t)-1105;  break;
+            case "GetCurrentThreadId"_CC:       address = (uint32_t)-1106;  break;
+            case "GetLastError"_CC:             address = (uint32_t)-1107;  break;
+            case "GetModuleHandleA"_CC:         address = (uint32_t)-1108;  break;
+            case "GetProcAddress"_CC:           address = (uint32_t)-1109;  break;
+            case "GetSystemTimeAsFileTime"_CC:  address = (uint32_t)-1110;  break;
+            case "GetTickCount"_CC:             address = (uint32_t)-1111;  break;
+            case "LoadLibraryA"_CC:             address = (uint32_t)-1112;  break;
+            case "QueryPerformanceCounter"_CC:  address = (uint32_t)-1113;  break;
             }
         }
         if (strcasecmp(file, "advapi32.dll") == 0) {
             switch (operator""_CC(name, strlen(name))) {
-            case "RegCloseKey"_CC:              address = (uint32_t)-1101;  break;
-            case "RegOpenKeyExA"_CC:            address = (uint32_t)-1102;  break;
-            case "RegQueryValueExA"_CC:         address = (uint32_t)-1103;  break;
+            case "RegCloseKey"_CC:              address = (uint32_t)-1201;  break;
+            case "RegOpenKeyExA"_CC:            address = (uint32_t)-1202;  break;
+            case "RegQueryValueExA"_CC:         address = (uint32_t)-1203;  break;
             }
         }
         if (address == 0) {
             address = syscall_symbol_i386(file, name, address, sym_data);
-        }
-        if (address == 0) {
-            Logger("Symbol : %s.%s is not found", file, name);
         }
     }
     else {
@@ -126,6 +170,67 @@ static size_t Symbol(const char* file, const char* name, size_t address, void* s
         symbols.emplace_back(name, address);
     }
     return address;
+}
+//------------------------------------------------------------------------------
+static int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack)
+{
+    if (stack[1] == 0 || stack[2] == 0)
+        return 0;
+    auto image = (void*)(memory + stack[1]);
+    auto function = (char*)(memory + stack[2]);
+
+    struct Data {
+        const char* name;
+        size_t address;
+    } data = { function };
+
+    PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
+        auto& data = *(Data*)sym_data;
+        if (strcmp(data.name, name) == 0)
+            data.address = address;
+    }, &data);
+
+    return (int)data.address;
+}
+//------------------------------------------------------------------------------
+static int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
+{
+    auto name = (char*)(memory + stack[1]);
+    if (name) {
+        for (auto& [dll, image] : dlls) {
+            if (dll == name)
+                return (int)((uint8_t*)image - memory);
+        }
+    }
+
+    return 0;
+}
+//------------------------------------------------------------------------------
+static int syscall_LoadLibary(uint8_t* memory, uint32_t* stack)
+{
+    auto name = (char*)(memory + stack[1]);
+    for (auto& [dll, image] : dlls) {
+        if (dll == name)
+            return (int)((uint8_t*)image - memory);
+    }
+
+    std::string folder;
+    folder += xxGetExecutablePath();
+    folder += "/../../../../../SDK/miCPU/format/sample/pe.x86/";
+    folder += name;
+#if defined(__APPLE__) || defined(__linux__)
+    for (char& c : folder) {
+        if (c == '\\')
+            c = '/';
+    }
+#endif
+    void* image = PE::Load(folder.c_str(), [](size_t base, size_t size, void* userdata) {
+        miCPU* cpu = (miCPU*)userdata;
+        return cpu->Memory(base, size);
+    }, cpu, Logger);
+    PE::Imports(image, Symbol, &symbols, Logger);
+    dlls.emplace_back(name, image);
+    return image ? (int)((uint8_t*)image - memory) : 0;
 }
 //------------------------------------------------------------------------------
 void Debugger::Initialize()
@@ -152,6 +257,7 @@ void Debugger::Shutdown()
     symbols = std::vector<std::pair<std::string, size_t>>();
     logs = std::string();
     samples = std::vector<std::pair<std::string, std::string>>();
+    dlls = std::vector<std::pair<std::string, void*>>();
 }
 //------------------------------------------------------------------------------
 bool Debugger::Update(const UpdateData& updateData, bool& show)
@@ -161,9 +267,12 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
     bool updated = false;
     ImGui::SetNextWindowSize(ImVec2(1366.0f, 768.0f), ImGuiCond_Appearing);
-    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking)) {
+    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
         ImVec2 windowSize = ImGui::GetContentRegionAvail();
 
+        static int stackIndex = 0;
+        static bool refresh = false;
+        static bool showMemoryEditor = false;
         std::string file;
 
         if (ImGui::BeginTable("Debugger", 3)) {
@@ -215,7 +324,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button(ICON_FA_PLAY))        { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(0);  } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(1);  } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(-1); }
+            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(-1); } ImGui::SameLine();
+            ImGui::Checkbox("Memory", &showMemoryEditor);
             ImGui::Separator();
             for (auto& [name, path] : samples) {
                 float pos = ImGui::CalcTextSize(name.c_str()).x + ImGui::GetStyle().FramePadding.x * 2.0f;
@@ -240,17 +350,23 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             stackIndex = 0;
             symbolIndex = 0;
             symbols.clear();
+            dlls.clear();
             refresh = true;
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(16777216));
             cpu->Exception(Exception);
 
-            PE pe;
-            pe.Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
+            void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
-            }, cpu, Symbol, &symbols, Logger);
+            }, cpu, Logger);
+            symbols.emplace_back("Entry", PE::Entry(image));
+            PE::Imports(image, Symbol, &symbols, Logger);
+            PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
+                auto& symbols = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
+                symbols.emplace_back(name, address);
+            }, &symbols);
 
             if (symbols.empty() == false) {
                 cpu->Jump(symbols.front().second);
@@ -266,6 +382,16 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (cpu) {
                 status = cpu->Status();
                 disasm = cpu->Disassemble(64);
+            }
+        }
+
+        if (showMemoryEditor) {
+            static MemoryEditor memoryEditor;
+            if (cpu) {
+                auto allocator = cpu->Allocator();
+                ImGui::Begin("Memory", &showMemoryEditor, ImGuiWindowFlags_NoScrollbar);
+                ImGui::End();
+                memoryEditor.DrawWindow("Memory", allocator->address(), allocator->max_size());
             }
         }
     }

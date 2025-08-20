@@ -19,7 +19,7 @@ struct x86_format
             int scale;
             int index;
             int base;
-            int32_t displacement;
+            int64_t displacement;
 
             uint64_t address;
             uint8_t* memory;

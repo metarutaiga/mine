@@ -171,6 +171,10 @@ bool x86_i386::Step(int type)
         StepInternal(format);
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+        if (EIP == 0) {
+            EIP = eip;
+            return false;
+        }
         if (EIP >= memory_size) {
             auto count = exception(this, EIP);
             EIP = Pop32();
@@ -178,10 +182,11 @@ bool x86_i386::Step(int type)
         }
         if (type == 1)
             break;
-        if (type == 0 && EIP - eip < 16)
+        if (type == 0 && (ESP >= esp || EIP - eip < 16))
             break;
         if (type != 0 && ESP > esp)
             break;
+        eip = EIP;
     }
     return true;
 }

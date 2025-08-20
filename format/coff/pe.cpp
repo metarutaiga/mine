@@ -56,17 +56,14 @@ const char* PE::GetMagic(uint16_t magic)
     return "Unknown";
 }
 
-bool PE::Load(const char* path,
-              uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
-              size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
-              int(*log)(const char*, ...))
+void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data, int(*log)(const char*, ...))
 {
-    if (path == nullptr || mmap == nullptr || sym == nullptr || log == nullptr)
-        return false;
+    if (path == nullptr || mmap == nullptr || log == nullptr)
+        return nullptr;
 
     FILE* file = fopen(path, "rb");
     if (file == nullptr)
-        return false;
+        return nullptr;
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
@@ -76,7 +73,7 @@ bool PE::Load(const char* path,
     MZ::FileHeader mz = {};
     fread(&mz, sizeof(MZ::FileHeader), 1, file);
 
-    bool succeed = false;
+    uint8_t* image = nullptr;
     SectionHeader* sections = nullptr;
     switch (NULL) case NULL: {
         if (mz.e_lfanew >= size || fseek(file, mz.e_lfanew, SEEK_SET) != 0) {
@@ -131,7 +128,7 @@ bool PE::Load(const char* path,
         // Load sections to memory
         log("%-12s : 0x%08x", "Base", optionalHeader.ImageBase);
         log("%-12s : 0x%x", "Size", optionalHeader.SizeOfImage);
-        uint8_t* image = mmap(optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
+        image = mmap(optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
         if (image == nullptr) {
             log("out of memory");
             break;
@@ -144,15 +141,13 @@ bool PE::Load(const char* path,
         uint32_t new_base = (uint32_t)(image - (uint8_t*)memory);
         if (old_base != new_base) {
             log("%-12s : 0x%08x", "Base", new_base);
+            optionalHeader.ImageBase = new_base;
         }
 
-        // Entry
-        if (optionalHeader.AddressOfEntryPoint) {
-            sym(nullptr, "Entry", new_base + optionalHeader.AddressOfEntryPoint, sym_data);
-        }
-        else {
-            sym(nullptr, "Entry", new_base + optionalHeader.BaseOfCode, sym_data);
-        }
+        // Header
+        memcpy(image, &signature, sizeof(int32_t));
+        memcpy(image + sizeof(int32_t), &fileHeader, sizeof(FileHeader));
+        memcpy(image + sizeof(int32_t) + sizeof(FileHeader), &optionalHeader, sizeof(OptionalHeader));
 
         // Section
         bool finish = true;
@@ -184,55 +179,92 @@ bool PE::Load(const char* path,
         if (finish == false)
             break;
 
-        // Export
-        if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size) {
-            auto& directory = *(ExportDirectory*)(image + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
-            for (uint32_t i = 0; i < directory.NumberOfFunctions; ++i) {
-                auto address = *(uint32_t*)(image + directory.AddressOfFunctions + sizeof(uint32_t) * i);
-                auto pointer = *(uint32_t*)(image + directory.AddressOfNames + sizeof(uint32_t) * i);
-                auto* name = (const char*)(image + pointer);
-                sym(nullptr, name, optionalHeader.ImageBase + address, sym_data);
-            }
-        }
-
-        // Import
-        if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
-            auto* directory = (ImportDirectory*)(image + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
-            while (directory->Name && directory->FirstThunk) {
-                auto file = (const char*)(image + directory->Name);
-                auto* thunk = (uint32_t*)(image + directory->FirstThunk);
-                while (*thunk) {
-                    auto name = (const char*)(image + (*thunk)) + 2;
-                    size_t symbol = sym(file, name, 0, sym_data);
-                    memcpy(thunk, &symbol, sizeof(uint32_t));
-                    thunk++;
-                }
-                directory++;
-            }
-        }
-
         // Relocation
         if (reloc) {
             Relocate(image, reloc, new_base - old_base, log);
             free(reloc);
         }
 
-        succeed = true;
         log("succeed");
     }
 
     delete[] sections;
     fclose(file);
-    return succeed;
+    return image;
+}
+
+size_t PE::Entry(void* image)
+{
+    if (image == nullptr)
+        return 0;
+
+    auto image8 = (uint8_t*)image;
+    OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
+    if (optionalHeader.AddressOfEntryPoint) {
+        return optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint;
+    }
+
+    return optionalHeader.ImageBase + optionalHeader.BaseOfCode;
+}
+
+void PE::Imports(void* image, size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data, int(*log)(const char*, ...))
+{
+    if (image == nullptr || sym == nullptr)
+        return;
+
+    auto image8 = (uint8_t*)image;
+    OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
+    if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
+        auto* directory = (ImportDirectory*)(image8 + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+        while (directory->Name && directory->FirstThunk) {
+            auto file = (const char*)(image8 + directory->Name);
+            auto* ints = (uint32_t*)(image8 + directory->OriginalFirstThunk);
+            auto* iats = (uint32_t*)(image8 + directory->FirstThunk);
+            while (*ints) {
+                auto name = (const char*)(image8 + (*ints)) + 2;
+                size_t symbol = sym(file, name, 0, sym_data);
+                memcpy(iats, &symbol, sizeof(uint32_t));
+                if (symbol == 0) {
+                    log("Symbol : [%08zX] %s.%s is not found", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);
+                }
+                ints++;
+                iats++;
+            }
+            directory++;
+        }
+    }
+}
+
+void PE::Exports(void* image, void(*sym)(const char*, size_t, void*), void* sym_data)
+{
+    if (image == nullptr || sym == nullptr)
+        return;
+
+    auto image8 = (uint8_t*)image;
+    OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
+    if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size) {
+        auto& directory = *(ExportDirectory*)(image8 + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+        auto names = (uint32_t*)(image8 + directory.AddressOfNames);
+        auto ordinals = (uint16_t*)(image8 + directory.AddressOfNameOrdinals);
+        auto functions = (uint32_t*)(image8 + directory.AddressOfFunctions);
+        for (uint32_t i = 0; i < directory.NumberOfNames; ++i) {
+            auto name = (char*)(image8 + names[i]);
+            auto address = functions[ordinals[i]];
+            sym(name, optionalHeader.ImageBase + address, sym_data);
+        }
+    }
 }
 
 void PE::Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...))
 {
+    if (image == nullptr || reloc == nullptr || log == nullptr)
+        return;
+
     auto image8 = (uint8_t*)image;
     auto relocation = (ImageBaseRelocation*)reloc;
     while (relocation->SizeOfBlock) {
         auto* types = (uint16_t*)relocation;
-        for (uint32_t i = sizeof(ImageBaseRelocation) / sizeof(uint16_t); i < relocation->SizeOfBlock; ++i) {
+        for (uint32_t i = sizeof(ImageBaseRelocation) / sizeof(uint16_t); i < relocation->SizeOfBlock / sizeof(uint16_t); ++i) {
             auto type = types[i] >> 12;
             auto offset = types[i] & 0x0FFF;
             auto address = relocation->VirtualAddress + offset;
@@ -243,7 +275,7 @@ void PE::Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*,
                 *(uint32_t*)(image8 + address) += delta;
                 break;
             default:
-                log("%02X:%04X (%08X)", type, offset, address);
+                log("Relocate : %02X:%04X (%08X) Unknown", type, offset, address);
                 break;
             }
         }

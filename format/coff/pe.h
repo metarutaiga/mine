@@ -252,9 +252,9 @@ struct PE : public COFF
     };
 
     static const char* GetMagic(uint16_t magic);
-    static bool Load(const char* path,
-                     uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data,
-                     size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data,
-                     int(*log)(const char*, ...));
+    static void* Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data, int(*log)(const char*, ...));
+    static size_t Entry(void* image);
+    static void Imports(void* image, size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data, int(*log)(const char*, ...));
+    static void Exports(void* image, void(*sym)(const char*, size_t, void*), void* sym_data);
     static void Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...));
 };
