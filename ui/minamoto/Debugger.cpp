@@ -10,6 +10,7 @@
 #include "format/coff/pe.h"
 #include "syscall/simple_allocator.h"
 #include "syscall/syscall.h"
+#include "syscall/syscall_windows.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 
@@ -49,188 +50,28 @@ static int Logger(const char* format, ...)
     return length;
 }
 //------------------------------------------------------------------------------
-static int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack);
-static int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack);
-static int syscall_LoadLibary(uint8_t* memory, uint32_t* stack);
-//------------------------------------------------------------------------------
 static size_t Exception(miCPU* data, size_t index)
 {
-    auto* cpu = (x86_i386*)data;
-    auto& x86 = cpu->x86;
-    auto* allocator = cpu->allocator;
-    auto* memory = cpu->Memory();
-    auto* stack = (uint32_t*)(memory + cpu->Stack());
-
-    auto EAX = [&](long value) {
-        x86.regs[0].d = uint32_t(value);
-        return 0;
-    };
-
-    switch (index) {
-
-    // base
-    case (uint32_t)-1001:   return EAX(syscall_printf(memory, stack, LoggerV));
-    case (uint32_t)-1002:   return EAX(syscall_vprintf(memory, stack, LoggerV));
-    case (uint32_t)-1011:   return 0;
-    case (uint32_t)-1012:   return EAX(1);
-    case (uint32_t)-1013:   return 0;
-    case (uint32_t)-1014:   return 0;
-    case (uint32_t)-1015:   return 0;
-    case (uint32_t)-1016:   return 0;
-    case (uint32_t)-1017:   return 0;
-    case (uint32_t)-1018:   return 0;
-    case (uint32_t)-1021:   return 0;
-    case (uint32_t)-1022:   return 0;
-    case (uint32_t)-1023:   return 0;
-    case (uint32_t)-1024:   return 0;
-    case (uint32_t)-1025:   return 0;
-    case (uint32_t)-1026:   return 0;
-    case (uint32_t)-1031:   return EAX(syscall_malloc(stack, allocator));
-    case (uint32_t)-1032:   return EAX(syscall_free(stack, allocator));
-
-    // kernel32.dll
-    case (uint32_t)-1101:   syscall_exit(stack);                            return sizeof(uint32_t) * 1;
-    case (uint32_t)-1102:   EAX(0);                                         return sizeof(uint32_t) * 1;
-    case (uint32_t)-1103:   EAX(0);                                         return sizeof(uint32_t) * 2;
-    case (uint32_t)-1104:   EAX(0);                                         return sizeof(uint32_t) * 2;
-    case (uint32_t)-1105:   EAX(0);                                         return 0;
-    case (uint32_t)-1106:   EAX(0);                                         return 0;
-    case (uint32_t)-1107:   EAX(0);                                         return 0;
-    case (uint32_t)-1108:   EAX(syscall_GetModuleHandleA(memory, stack));   return sizeof(uint32_t) * 1;
-    case (uint32_t)-1109:   EAX(syscall_GetProcAddress(memory, stack));     return sizeof(uint32_t) * 2;
-    case (uint32_t)-1110:   EAX(0);                                         return sizeof(uint32_t) * 1;
-    case (uint32_t)-1111:   EAX(0);                                         return 0;
-    case (uint32_t)-1112:   EAX(syscall_LoadLibary(memory, stack));         return sizeof(uint32_t) * 1;
-    case (uint32_t)-1113:   EAX(0);                                         return sizeof(uint32_t) * 1;
-
-    // advapi32.dll
-    case (uint32_t)-1201:   EAX(0);                                         return sizeof(uint32_t) * 1;
-    case (uint32_t)-1202:   EAX(0);                                         return sizeof(uint32_t) * 5;
-    case (uint32_t)-1203:   EAX(0);                                         return sizeof(uint32_t) * 6;
+    size_t result = 0;
+    if (result == 0) {
+        result = syscall_windows_execute(data, index, Logger);
     }
-
-    return syscall_i386(cpu, index);
+    if (result == 0) {
+        result = syscall_i386_execute(cpu, index, LoggerV);
+    }
+    return result;
 }
 //------------------------------------------------------------------------------
-static size_t Symbol(const char* file, const char* name, size_t address, void* sym_data)
+static size_t Symbol(const char* file, const char* name)
 {
-    if (file) {
-        switch (operator""_CC(name, strlen(name))) {
-        case "printf"_CC:                       address = (uint32_t)-1001;  break;
-        case "vprintf"_CC:                      address = (uint32_t)-1002;  break;
-        case "_amsg_exit"_CC:                   address = (uint32_t)-1011;  break;
-        case "_callnewh"_CC:                    address = (uint32_t)-1012;  break;
-        case "_cexit"_CC:                       address = (uint32_t)-1013;  break;
-        case "_controlfp"_CC:                   address = (uint32_t)-1014;  break;
-        case "_flushall"_CC:                    address = (uint32_t)-1015;  break;
-        case "_initterm"_CC:                    address = (uint32_t)-1016;  break;
-        case "_onexit"_CC:                      address = (uint32_t)-1017;  break;
-        case "_XcptFilter"_CC:                  address = (uint32_t)-1018;  break;
-        case "__getmainargs"_CC:                address = (uint32_t)-1021;  break;
-        case "__p__commode"_CC:                 address = (uint32_t)-1022;  break;
-        case "__p__fmode"_CC:                   address = (uint32_t)-1023;  break;
-        case "__p___initenv"_CC:                address = (uint32_t)-1024;  break;
-        case "__setusermatherr"_CC:             address = (uint32_t)-1025;  break;
-        case "__set_app_type"_CC:               address = (uint32_t)-1026;  break;
-        case "??2@YAPAXI@Z"_CC:                 address = (uint32_t)-1031;  break;
-        case "??_U@YAPAXI@Z"_CC:                address = (uint32_t)-1031;  break;
-        case "??3@YAXPAX@Z"_CC:                 address = (uint32_t)-1032;  break;
-        case "??_V@YAXPAX@Z"_CC:                address = (uint32_t)-1032;  break;
-        }
-        if (strcasecmp(file, "kernel32.dll") == 0) {
-            switch (operator""_CC(name, strlen(name))) {
-            case "ExitProcess"_CC:              address = (uint32_t)-1101;  break;
-            case "FindClose"_CC:                address = (uint32_t)-1102;  break;
-            case "FindFirstFileA"_CC:           address = (uint32_t)-1103;  break;
-            case "FindNextFileA"_CC:            address = (uint32_t)-1104;  break;
-            case "GetCurrentProcessId"_CC:      address = (uint32_t)-1105;  break;
-            case "GetCurrentThreadId"_CC:       address = (uint32_t)-1106;  break;
-            case "GetLastError"_CC:             address = (uint32_t)-1107;  break;
-            case "GetModuleHandleA"_CC:         address = (uint32_t)-1108;  break;
-            case "GetProcAddress"_CC:           address = (uint32_t)-1109;  break;
-            case "GetSystemTimeAsFileTime"_CC:  address = (uint32_t)-1110;  break;
-            case "GetTickCount"_CC:             address = (uint32_t)-1111;  break;
-            case "LoadLibraryA"_CC:             address = (uint32_t)-1112;  break;
-            case "QueryPerformanceCounter"_CC:  address = (uint32_t)-1113;  break;
-            }
-        }
-        if (strcasecmp(file, "advapi32.dll") == 0) {
-            switch (operator""_CC(name, strlen(name))) {
-            case "RegCloseKey"_CC:              address = (uint32_t)-1201;  break;
-            case "RegOpenKeyExA"_CC:            address = (uint32_t)-1202;  break;
-            case "RegQueryValueExA"_CC:         address = (uint32_t)-1203;  break;
-            }
-        }
-        if (address == 0) {
-            address = syscall_symbol_i386(file, name, address, sym_data);
-        }
+    size_t address = 0;
+    if (address == 0) {
+        address = syscall_windows_symbol(file, name);
     }
-    else {
-        auto& symbols = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
-        symbols.emplace_back(name, address);
+    if (address == 0) {
+        address = syscall_i386_symbol(file, name);
     }
     return address;
-}
-//------------------------------------------------------------------------------
-static int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack)
-{
-    if (stack[1] == 0 || stack[2] == 0)
-        return 0;
-    auto image = (void*)(memory + stack[1]);
-    auto function = (char*)(memory + stack[2]);
-
-    struct Data {
-        const char* name;
-        size_t address;
-    } data = { function };
-
-    PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
-        auto& data = *(Data*)sym_data;
-        if (strcmp(data.name, name) == 0)
-            data.address = address;
-    }, &data);
-
-    return (int)data.address;
-}
-//------------------------------------------------------------------------------
-static int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
-{
-    auto name = (char*)(memory + stack[1]);
-    if (name) {
-        for (auto& [dll, image] : dlls) {
-            if (dll == name)
-                return (int)((uint8_t*)image - memory);
-        }
-    }
-
-    return 0;
-}
-//------------------------------------------------------------------------------
-static int syscall_LoadLibary(uint8_t* memory, uint32_t* stack)
-{
-    auto name = (char*)(memory + stack[1]);
-    for (auto& [dll, image] : dlls) {
-        if (dll == name)
-            return (int)((uint8_t*)image - memory);
-    }
-
-    std::string folder;
-    folder += xxGetExecutablePath();
-    folder += "/../../../../../SDK/miCPU/format/sample/pe.x86/";
-    folder += name;
-#if defined(__APPLE__) || defined(__linux__)
-    for (char& c : folder) {
-        if (c == '\\')
-            c = '/';
-    }
-#endif
-    void* image = PE::Load(folder.c_str(), [](size_t base, size_t size, void* userdata) {
-        miCPU* cpu = (miCPU*)userdata;
-        return cpu->Memory(base, size);
-    }, cpu, Logger);
-    PE::Imports(image, Symbol, &symbols, Logger);
-    dlls.emplace_back(name, image);
-    return image ? (int)((uint8_t*)image - memory) : 0;
 }
 //------------------------------------------------------------------------------
 void Debugger::Initialize()
@@ -343,7 +184,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         ImGui::InputTextMultiline("##100", logs, ImVec2(windowSize.x, 256.0f - 16.0f), ImGuiInputTextFlags_ReadOnly);
 
         if (file.empty() == false) {
+            syscall_windows_delete(cpu);
             delete cpu;
+
             status.clear();
             disasm.clear();
             logs.clear();
@@ -356,13 +199,14 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(16777216));
             cpu->Exception(Exception);
+            syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str());
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
             }, cpu, Logger);
             symbols.emplace_back("Entry", PE::Entry(image));
-            PE::Imports(image, Symbol, &symbols, Logger);
+            PE::Imports(image, Symbol, Logger);
             PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
                 auto& symbols = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                 symbols.emplace_back(name, address);

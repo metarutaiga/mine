@@ -217,6 +217,10 @@
 		F56C54712E4B110B00534B1D /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
 		F56C54722E4B110B00534B1D /* ecoff64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541D2E4B110B00534B1D /* ecoff64.cpp */; };
 		F56C54732E4B110B00534B1D /* xcoff32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54212E4B110B00534B1D /* xcoff32.cpp */; };
+		F56ED7682E56C157007395ED /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
+		F56ED7692E56C157007395ED /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
+		F56ED76A2E56C157007395ED /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
+		F56ED76B2E56C157007395ED /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -371,6 +375,8 @@
 		F56C54312E4B110B00534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
 		F56C54322E4B110B00534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
 		F56C54392E4B110B00534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mz.h; sourceTree = "<group>"; };
+		F56ED7662E56BFE5007395ED /* syscall_windows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_windows.h; sourceTree = "<group>"; };
+		F56ED7672E56C150007395ED /* syscall_windows.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_windows.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -589,6 +595,8 @@
 				F5511FBC2E4B96F20076E961 /* syscall.h */,
 				F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */,
 				F51AF6682E521FD800E9B209 /* syscall_internal.h */,
+				F56ED7672E56C150007395ED /* syscall_windows.cpp */,
+				F56ED7662E56BFE5007395ED /* syscall_windows.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,
 			);
 			name = syscall;
@@ -783,6 +791,7 @@
 				D6D758E62E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758E72E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758E82E23F59700E5C09D /* sysctl.cpp in Sources */,
+				F56ED76B2E56C157007395ED /* syscall_windows.cpp in Sources */,
 				D6D758E92E23F59700E5C09D /* opcode.cpp in Sources */,
 				F56C546D2E4B110B00534B1D /* pe.cpp in Sources */,
 				F5511FEA2E5025D10076E961 /* setjmp.cpp in Sources */,
@@ -844,6 +853,7 @@
 				D6D758D92E23F59700E5C09D /* special.cpp in Sources */,
 				F5F1B2BE2E41B56700D2FF10 /* x87_floating.cpp in Sources */,
 				D6D758DA2E23F59700E5C09D /* cpu.cpp in Sources */,
+				F56ED7692E56C157007395ED /* syscall_windows.cpp in Sources */,
 				D6D758DB2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				D6C5FE3E2E2A1B5D00A8E110 /* x86_string.cpp in Sources */,
 				D6D758DC2E23F59700E5C09D /* regimm.cpp in Sources */,
@@ -916,6 +926,7 @@
 				D6D758EF2E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758F02E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758F12E23F59700E5C09D /* sysctl.cpp in Sources */,
+				F56ED76A2E56C157007395ED /* syscall_windows.cpp in Sources */,
 				D6D758F22E23F59700E5C09D /* opcode.cpp in Sources */,
 				F56C54522E4B110B00534B1D /* pe.cpp in Sources */,
 				F5511FEC2E5025D10076E961 /* setjmp.cpp in Sources */,
@@ -980,6 +991,7 @@
 				D6D758D42E23F59700E5C09D /* cop.cpp in Sources */,
 				D6D758D52E23F59700E5C09D /* fpu.cpp in Sources */,
 				D6D758D62E23F59700E5C09D /* sysctl.cpp in Sources */,
+				F56ED7682E56C157007395ED /* syscall_windows.cpp in Sources */,
 				D6D758D72E23F59700E5C09D /* opcode.cpp in Sources */,
 				F56C545E2E4B110B00534B1D /* pe.cpp in Sources */,
 				F5511FEB2E5025D10076E961 /* setjmp.cpp in Sources */,
@@ -1263,6 +1275,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXCLUDED_ARCHS = x86_64;
+				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Release;
 		};

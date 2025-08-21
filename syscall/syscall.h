@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-size_t syscall_i386(void* data, size_t index);
-size_t syscall_symbol_i386(const char* file, const char* name, size_t address, void* sym_data);
+size_t syscall_i386_execute(void* data, size_t index, int(*log)(const char*, va_list));
+size_t syscall_i386_symbol(const char* file, const char* name);
 
 // assert
 int syscall_assert(const void* stack);

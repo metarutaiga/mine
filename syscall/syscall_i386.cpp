@@ -4,26 +4,32 @@
 #include "syscall.h"
 #include "x86/x86_i386.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define SYMBOL_INDEX 1
+
 #define EAX(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator) { \
+    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
     }
 #define EDXEAX(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator) { \
+    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         x86.regs[2].d = uint32_t(temp >> 32); \
     }
 #define FLD(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator) { \
+    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
         auto temp = value; \
         x87.sts[x87.status._TOP -= 1].d = temp; \
     }
 
 static const struct {
     const char* name;
-    void (*syscall)(x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator);
+    void (*syscall)(x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list));
 } syscall_tables[] = {
 
     // assert
@@ -152,7 +158,7 @@ static const struct {
     { "getchar",        EAX(syscall_getchar())                          },
     { "gets",           EAX(syscall_gets(memory, stack))                },
     { "perror",         EAX(syscall_perror(memory, stack))              },
-    { "printf",         EAX(syscall_printf(memory, stack, vprintf))     },
+    { "printf",         EAX(syscall_printf(memory, stack, log))         },
     { "putc",           EAX(syscall_putc(memory, stack))                },
     { "putchar",        EAX(syscall_putchar(stack))                     },
     { "puts",           EAX(syscall_puts(memory, stack))                },
@@ -170,7 +176,7 @@ static const struct {
     { "ungetc",         EAX(syscall_ungetc(memory, stack))              },
     { "vfprintf",       EAX(syscall_vfprintf(memory, stack))            },
     { "vfscanf",        EAX(syscall_vfscanf(memory, stack))             },
-    { "vprintf",        EAX(syscall_vprintf(memory, stack, vprintf))    },
+    { "vprintf",        EAX(syscall_vprintf(memory, stack, log))        },
     { "vscanf",         EAX(syscall_vscanf(memory, stack))              },
     { "vsnprintf",      EAX(syscall_vsnprintf(memory, stack))           },
     { "vsprintf",       EAX(syscall_vsprintf(memory, stack))            },
@@ -254,31 +260,26 @@ static const struct {
     { "time",           EAX(syscall_time(memory, stack))                },
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-size_t syscall_i386(void* data, size_t index)
+size_t syscall_i386_execute(void* data, size_t index, int(*log)(const char*, va_list))
 {
-    auto* cpu = (x86_i386*)data;
-    auto& x86 = cpu->x86;
-    auto& x87 = cpu->x87;
-    auto* memory = cpu->Memory();
-    auto* stack = memory + cpu->Stack();
-    auto* allocator = cpu->Allocator();
-
-    index = uint32_t(-index - 1);
+    index = uint32_t(-index - SYMBOL_INDEX);
 
     size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
     if (index < count) {
+        auto* cpu = (x86_i386*)data;
+        auto& x86 = cpu->x86;
+        auto& x87 = cpu->x87;
+        auto* memory = cpu->Memory();
+        auto* stack = memory + cpu->Stack();
+        auto* allocator = cpu->Allocator();
         auto syscall = syscall_tables[index].syscall;
-        syscall(x86, x87, memory, stack, allocator);
+        syscall(x86, x87, memory, stack, allocator, log);
     }
 
     return 0;
 }
 
-size_t syscall_symbol_i386(const char* file, const char* name, size_t address, void* sym_data)
+size_t syscall_i386_symbol(const char* file, const char* name)
 {
     if (file == nullptr)
         return 0;
@@ -286,7 +287,7 @@ size_t syscall_symbol_i386(const char* file, const char* name, size_t address, v
     size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
     for (size_t index = 0; index < count; ++index) {
         if (strcmp(syscall_tables[index].name, name) == 0)
-            return (uint32_t)(-index - 1);
+            return (uint32_t)(-index - SYMBOL_INDEX);
     }
 
     return 0;

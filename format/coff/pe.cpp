@@ -207,7 +207,7 @@ size_t PE::Entry(void* image)
     return optionalHeader.ImageBase + optionalHeader.BaseOfCode;
 }
 
-void PE::Imports(void* image, size_t(*sym)(const char*, const char*, size_t, void*), void* sym_data, int(*log)(const char*, ...))
+void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(const char*, ...))
 {
     if (image == nullptr || sym == nullptr)
         return;
@@ -222,7 +222,7 @@ void PE::Imports(void* image, size_t(*sym)(const char*, const char*, size_t, voi
             auto* iats = (uint32_t*)(image8 + directory->FirstThunk);
             while (*ints) {
                 auto name = (const char*)(image8 + (*ints)) + 2;
-                size_t symbol = sym(file, name, 0, sym_data);
+                size_t symbol = sym(file, name);
                 memcpy(iats, &symbol, sizeof(uint32_t));
                 if (symbol == 0) {
                     log("Symbol : [%08zX] %s.%s is not found", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);
