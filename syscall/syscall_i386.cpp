@@ -10,26 +10,34 @@ extern "C" {
 
 #define SYMBOL_INDEX 1
 
+#define CALLBACK_ARGUMENT \
+    x86_instruction& x86,   \
+    x87_instruction& x87,   \
+    void* memory,           \
+    void* stack,            \
+    allocator_t* allocator, \
+    int(*log)(const char*, va_list)
+
 #define EAX(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
+    [](CALLBACK_ARGUMENT) { \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
     }
 #define EDXEAX(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
+    [](CALLBACK_ARGUMENT) { \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         x86.regs[2].d = uint32_t(temp >> 32); \
     }
 #define FLD(value) \
-    [](x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list)) { \
+    [](CALLBACK_ARGUMENT) { \
         auto temp = value; \
         x87.sts[x87.status._TOP -= 1].d = temp; \
     }
 
 static const struct {
     const char* name;
-    void (*syscall)(x86_instruction& x86, x87_instruction& x87, void* memory, void* stack, allocator_t* allocator, int(*log)(const char*, va_list));
+    void (*syscall)(CALLBACK_ARGUMENT);
 } syscall_tables[] = {
 
     // assert
@@ -195,7 +203,6 @@ static const struct {
     { "calloc",         EAX(syscall_calloc(stack, allocator))           },
     { "div",            EAX(syscall_div(stack).quot)                    },
     { "exit",           EAX(syscall_exit(stack))                        },
-    { "_expand",        EAX(syscall_expand(stack, allocator))           },
     { "free",           EAX(syscall_free(stack, allocator))             },
     { "getenv",         EAX(syscall_getenv(memory, stack))              },
     { "labs",           EAX(syscall_labs(stack))                        },
@@ -206,12 +213,10 @@ static const struct {
     { "mblen",          EAX(syscall_mblen(memory, stack))               },
     { "mbstowcs",       EAX(syscall_mbstowcs(memory, stack))            },
     { "mbtowc",         EAX(syscall_mbtowc(memory, stack))              },
-    { "_msize",         EAX(syscall_msize(stack, allocator))            },
     { "qsort",          EAX(syscall_qsort(memory, stack))               },
     { "quick_exit",     EAX(syscall_quick_exit(stack))                  },
     { "rand",           EAX(syscall_rand())                             },
     { "realloc",        EAX(syscall_realloc(stack, allocator))          },
-    { "recalloc",       EAX(syscall_recalloc(stack, allocator))         },
     { "srand",          EAX(syscall_srand(stack))                       },
     { "strtod",         FLD(syscall_strtod(memory, stack))              },
     { "strtof",         FLD(syscall_strtof(memory, stack))              },
@@ -260,12 +265,14 @@ static const struct {
     { "time",           EAX(syscall_time(memory, stack))                },
 };
 
-size_t syscall_i386_execute(void* data, size_t index, int(*log)(const char*, va_list))
+size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))
 {
     index = uint32_t(-index - SYMBOL_INDEX);
 
     size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
     if (index < count) {
+        syslog("%s\n", (va_list)&syscall_tables[index].name);
+
         auto* cpu = (x86_i386*)data;
         auto& x86 = cpu->x86;
         auto& x87 = cpu->x87;

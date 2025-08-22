@@ -14,38 +14,35 @@
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 
-#if defined(_UCRT)
-#define strcasecmp _stricmp
-#endif
-
 //------------------------------------------------------------------------------
 static miCPU* cpu;
 static std::string status;
 static std::string disasm;
-static std::string logs;
-static int symbolIndex;
-static std::vector<std::pair<std::string, size_t>> symbols;
-static std::vector<std::pair<std::string, void*>> dlls;
+static std::string logs[2];
+static int exportIndex;
+static std::vector<std::pair<std::string, size_t>> exports;
 //------------------------------------------------------------------------------
 static std::vector<std::pair<std::string, std::string>> samples;
 //------------------------------------------------------------------------------
+template<int INDEX>
 static int LoggerV(const char* format, va_list va)
 {
     int length = vsnprintf(nullptr, 0, format, va) + 1;
-    size_t offset = logs.size();
-    logs.resize(offset + length);
-    vsnprintf(logs.data() + offset, length, format, va);
-    logs.pop_back();
-    if (logs.empty() == false && logs.back() != '\n')
-        logs += '\n';
+    size_t offset = logs[INDEX].size();
+    logs[INDEX].resize(offset + length);
+    vsnprintf(logs[INDEX].data() + offset, length, format, va);
+    logs[INDEX].pop_back();
+    if (logs[INDEX].empty() == false && logs[INDEX].back() != '\n')
+        logs[INDEX] += '\n';
     return length;
 }
 //------------------------------------------------------------------------------
+template<int INDEX>
 static int Logger(const char* format, ...)
 {
     va_list va;
     va_start(va, format);
-    int length = LoggerV(format, va);
+    int length = LoggerV<INDEX>(format, va);
     va_end(va);
     return length;
 }
@@ -54,10 +51,10 @@ static size_t Exception(miCPU* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, Logger);
+        result = syscall_windows_execute(data, index, Logger<0>, Logger<1>);
     }
     if (result == 0) {
-        result = syscall_i386_execute(cpu, index, LoggerV);
+        result = syscall_i386_execute(cpu, index, LoggerV<0>, LoggerV<1>);
     }
     return result;
 }
@@ -95,10 +92,10 @@ void Debugger::Shutdown()
     delete cpu;
     disasm = std::string();
     status = std::string();
-    symbols = std::vector<std::pair<std::string, size_t>>();
-    logs = std::string();
+    exports = std::vector<std::pair<std::string, size_t>>();
+    logs[0] = std::string();
+    logs[1] = std::string();
     samples = std::vector<std::pair<std::string, std::string>>();
-    dlls = std::vector<std::pair<std::string, void*>>();
 }
 //------------------------------------------------------------------------------
 bool Debugger::Update(const UpdateData& updateData, bool& show)
@@ -108,61 +105,93 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
     bool updated = false;
     ImGui::SetNextWindowSize(ImVec2(1366.0f, 768.0f), ImGuiCond_Appearing);
-    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
-        ImVec2 windowSize = ImGui::GetContentRegionAvail();
+    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int stackIndex = 0;
         static bool refresh = false;
+        static bool running = false;
         static bool showMemoryEditor = false;
         std::string file;
 
-        if (ImGui::BeginTable("Debugger", 3)) {
-            float left = windowSize.x / 2.0f;
-            float right = windowSize.x / 4.0f;
-            float height = windowSize.y - 256.0f;
-            float halfHeight = height / 2.0f;
+        ImGuiID id = ImGui::GetID("Debugger");
 
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, left);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, right);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, right);
+        if (ImGui::DockBuilderGetNode(id) == nullptr) {
+            id = ImGui::DockBuilderAddNode(id);
 
-            // 1st Column
-            ImGui::TableNextColumn();
-            ImGui::InputTextMultiline("##10", disasm, ImVec2(left, height), ImGuiInputTextFlags_ReadOnly);
+            ImGuiID bottomLeft = ImGui::DockBuilderSplitNode(id, ImGuiDir_Down, 1.0f / 4.0f, nullptr, &id);
+            ImGuiID bottomRight = ImGui::DockBuilderSplitNode(bottomLeft, ImGuiDir_Right, 1.0f / 2.0f, nullptr, &bottomLeft);
+            ImGuiID left = ImGui::DockBuilderSplitNode(id, ImGuiDir_Left, 1.0f / 2.0f, nullptr, &id);
+            ImGuiID rightTop = ImGui::DockBuilderSplitNode(id, ImGuiDir_Right, 1.0f / 2.0f, nullptr, &id);
+            ImGuiID rightBottom = ImGui::DockBuilderSplitNode(rightTop, ImGuiDir_Down, 1.0f / 2.0f, nullptr, &rightTop);
+            ImGuiID middleTop = ImGui::DockBuilderSplitNode(id, ImGuiDir_Down, 1.0f / 2.0f, nullptr, &id);
+            ImGuiID middleBottom = ImGui::DockBuilderSplitNode(middleTop, ImGuiDir_Down, 1.0f / 2.0f, nullptr, &middleTop);
+            ImGui::DockBuilderDockWindow("Disassembly", left);
+            ImGui::DockBuilderDockWindow("Status", middleTop);
+            ImGui::DockBuilderDockWindow("Stack", middleBottom);
+            ImGui::DockBuilderDockWindow("Export", rightTop);
+            ImGui::DockBuilderDockWindow("Menu", rightBottom);
+            ImGui::DockBuilderDockWindow("Syslog", bottomLeft);
+            ImGui::DockBuilderDockWindow("Console", bottomRight);
+            ImGui::DockBuilderFinish(id);
 
-            // 2nd Column
-            ImGui::TableNextColumn();
-            ImGui::InputTextMultiline("##20", status, ImVec2(right, halfHeight), ImGuiInputTextFlags_ReadOnly);
+            id = ImGui::GetID("Debugger");
+        }
 
-            int stackCount = halfHeight / ImGui::GetTextLineHeightWithSpacing();
-            ImGui::SetNextWindowSize(ImVec2(right, halfHeight));
+        ImGui::DockSpace(id);
+
+        if (ImGui::Begin("Disassembly", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::InputTextMultiline("##10", disasm, ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+        }
+        ImGui::End();
+        if (ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::InputTextMultiline("##20", status, ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+        }
+        ImGui::End();
+        if (ImGui::Begin("Stack", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImVec2 windowSize = ImGui::GetContentRegionAvail();
+#if 0
+            int stackCount = 65536 / sizeof(uint32_t);
+#else
+            int stackCount = windowSize.y / ImGui::GetTextLineHeightWithSpacing();
+#endif
+            ImGui::SetNextWindowSize(windowSize);
             ImGui::ListBox("##21", &stackIndex, [](void* user_data, int index) -> const char* {
                 if (cpu == nullptr)
                     return "";
 
+#if 0
+                auto allocator = cpu->Allocator();
+                size_t stack = allocator->max_size() - 65536 + index * sizeof(uint32_t);
+#else
                 auto stackCount = *(int*)user_data / 2;
                 size_t stack = cpu->Stack() + (index - stackCount) * sizeof(uint32_t);
+#endif
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
 
                 static char temp[32];
-                snprintf(temp, 32, "%s%08zX %08X", stackCount == index ? ">" : " ", stack, *value);
+                snprintf(temp, 32, "%s%08zX %08X", stack == cpu->Stack() ? ">" : " ", stack, *value);
                 return temp;
             }, &stackCount, stackCount);
-
-            // 3rd Column
-            ImGui::TableNextColumn();
-            ImGui::SetNextWindowSize(ImVec2(right, halfHeight));
-            if (ImGui::ListBox("##30", &symbolIndex, [](void* user_data, int index) {
-                auto& symbols = *(std::vector<std::pair<std::string, size_t>>*)user_data;
-                return symbols[index].first.c_str();
-            }, &symbols, (int)symbols.size())) {
-                cpu->Jump(symbols[symbolIndex].second);
+        }
+        ImGui::End();
+        if (ImGui::Begin("Export", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImVec2 windowSize = ImGui::GetContentRegionAvail();
+            ImGui::SetNextWindowSize(windowSize);
+            if (ImGui::ListBox("##30", &exportIndex, [](void* user_data, int index) {
+                auto& exports = *(std::vector<std::pair<std::string, size_t>>*)user_data;
+                return exports[index].first.c_str();
+            }, &exports, (int)exports.size())) {
+                cpu->Jump(exports[exportIndex].second);
                 refresh = true;
             }
-
-            if (ImGui::Button(ICON_FA_PLAY))        { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
+        }
+        ImGui::End();
+        if (ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            const char* icon_fa_play_stop = running ? ICON_FA_STOP : ICON_FA_PLAY;
+            if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_play_stop))   { running = !running;                     } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(0);  } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(1);  } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(-1); } ImGui::SameLine();
@@ -178,10 +207,24 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 }
                 ImGui::SameLine();
             }
-
-            ImGui::EndTable();
         }
-        ImGui::InputTextMultiline("##100", logs, ImVec2(windowSize.x, 256.0f - 16.0f), ImGuiInputTextFlags_ReadOnly);
+        ImGui::End();
+        if (ImGui::Begin("Syslog", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::InputTextMultiline("##100", logs[0], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+            ImGui::BeginChild("##100");
+            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+            ImGui::EndChild();
+        }
+        ImGui::End();
+        if (ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::InputTextMultiline("##101", logs[1], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+            ImGui::BeginChild("##101");
+            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+            ImGui::EndChild();
+        }
+        ImGui::End();
 
         if (file.empty() == false) {
             syscall_windows_delete(cpu);
@@ -189,12 +232,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
             status.clear();
             disasm.clear();
-            logs.clear();
+            logs[0].clear();
+            logs[1].clear();
+            exportIndex = 0;
+            exports.clear();
             stackIndex = 0;
-            symbolIndex = 0;
-            symbols.clear();
-            dlls.clear();
             refresh = true;
+            running = false;
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(16777216));
@@ -204,25 +248,31 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
-            }, cpu, Logger);
-            symbols.emplace_back("Entry", PE::Entry(image));
-            PE::Imports(image, Symbol, Logger);
+            }, cpu, Logger<0>);
+            exports.emplace_back("Entry", PE::Entry(image));
+            PE::Imports(image, Symbol, Logger<0>);
             PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
-                auto& symbols = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
-                symbols.emplace_back(name, address);
-            }, &symbols);
+                auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
+                exports.emplace_back(name, address);
+            }, &exports);
 
-            if (symbols.empty() == false) {
-                cpu->Jump(symbols.front().second);
+            if (exports.empty() == false) {
+                cpu->Jump(exports.front().second);
+            }
+        }
+
+        if (running) {
+            if (cpu && cpu->Step(0)) {
+                refresh = true;
+                updated = true;
+            }
+            else {
+                running = false;
             }
         }
 
         if (refresh) {
             refresh = false;
-            ImGui::BeginChild("##100");
-            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
-            ImGui::EndChild();
             if (cpu) {
                 status = cpu->Status();
                 disasm = cpu->Disassemble(64);

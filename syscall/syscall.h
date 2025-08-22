@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-size_t syscall_i386_execute(void* data, size_t index, int(*log)(const char*, va_list));
+size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_i386_symbol(const char* file, const char* name);
 
 // assert
@@ -170,7 +170,6 @@ int syscall_bsearch(const void* memory, const void* stack);
 int syscall_calloc(const void* stack, struct allocator_t* allocator);
 div_t syscall_div(const void* stack);
 int syscall_exit(const void* stack);
-int syscall_expand(const void* stack, struct allocator_t* allocator);
 int syscall_free(const void* stack, struct allocator_t* allocator);
 int syscall_getenv(const void* memory, const void* stack);
 long syscall_labs(const void* stack);
@@ -181,12 +180,10 @@ int syscall_malloc(const void* stack, struct allocator_t* allocator);
 int syscall_mblen(const void* memory, const void* stack);
 int syscall_mbstowcs(const void* memory, const void* stack);
 int syscall_mbtowc(const void* memory, const void* stack);
-int syscall_msize(const void* stack, struct allocator_t* allocator);
 int syscall_qsort(const void* memory, const void* stack);
 int syscall_quick_exit(const void* stack);
 int syscall_rand();
 int syscall_realloc(const void* stack, struct allocator_t* allocator);
-int syscall_recalloc(const void* stack, struct allocator_t* allocator);
 int syscall_srand(const void* stack);
 double syscall_strtod(const void* memory, const void* stack);
 float syscall_strtof(const void* memory, const void* stack);

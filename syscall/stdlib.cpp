@@ -99,21 +99,9 @@ div_t syscall_div(const uint32_t* stack)
 
 int syscall_exit(const uint32_t* stack)
 {
-    auto status = stack[1];
+//  auto status = stack[1];
 //  exit(status);
     return 0;
-}
-
-int syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
-{
-    auto pointer = stack[1];
-    auto new_size = stack[2];
-    auto memory = (char*)allocator->address();
-    auto old_pointer = physical(char*, pointer);
-    auto old_size = allocator->size(old_pointer);
-    if (old_size < new_size)
-        return 0;
-    return pointer;
 }
 
 int syscall_free(const uint32_t* stack, struct allocator_t* allocator)
@@ -190,13 +178,6 @@ int syscall_mbtowc(char* memory, const uint32_t* stack)
     return mbtowc(pwc, pmb, max);
 }
 
-int syscall_msize(const uint32_t* stack, struct allocator_t* allocator)
-{
-    auto pointer = stack[1];
-    auto memory = (char*)allocator->address();
-    return (uint32_t)allocator->size(physical(char*, pointer));
-}
-
 int syscall_qsort(char* memory, const uint32_t* stack)
 {
     auto base = physical(void*, stack[1]);
@@ -234,28 +215,6 @@ int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
     if (pointer) {
         memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
         allocator->deallocate(old_pointer);
-    }
-    return virtual(int, new_pointer);
-}
-
-int syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
-{
-    auto pointer = stack[1];
-    auto new_size = stack[2] * stack[3];
-    auto memory = (char*)allocator->address();
-    auto old_pointer = physical(char*, pointer);
-    auto old_size = allocator->size(old_pointer);
-    if (old_size == new_size)
-        return pointer;
-    auto new_pointer = (uint8_t*)allocator->allocate(new_size);
-    if (new_pointer == nullptr)
-        return 0;
-    if (pointer) {
-        memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
-        allocator->deallocate(old_pointer);
-    }
-    if (new_size > old_size) {
-        memset(memory + old_size, 0, new_size - old_size);
     }
     return virtual(int, new_pointer);
 }
