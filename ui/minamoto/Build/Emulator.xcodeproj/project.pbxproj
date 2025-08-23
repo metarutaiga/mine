@@ -339,6 +339,7 @@
 		D6D759402E24F98E00E5C09D /* x86_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_instruction.cpp; sourceTree = "<group>"; };
 		D6D7594A2E25044F00E5C09D /* x86_i86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i86.h; sourceTree = "<group>"; };
 		D6D7594B2E25044F00E5C09D /* x86_i86.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i86.cpp; sourceTree = "<group>"; };
+		D6DA48E22E5A0AF000B2E822 /* syscall_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_table.h; sourceTree = "<group>"; };
 		F51AF65E2E520CB000E9B209 /* stdlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdlib.cpp; sourceTree = "<group>"; };
 		F51AF6632E521AB000E9B209 /* time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = time.cpp; sourceTree = "<group>"; };
 		F51AF6682E521FD800E9B209 /* syscall_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_internal.h; sourceTree = "<group>"; };
@@ -595,6 +596,7 @@
 				F5511FBC2E4B96F20076E961 /* syscall.h */,
 				F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */,
 				F51AF6682E521FD800E9B209 /* syscall_internal.h */,
+				D6DA48E22E5A0AF000B2E822 /* syscall_table.h */,
 				F56ED7672E56C150007395ED /* syscall_windows.cpp */,
 				F56ED7662E56BFE5007395ED /* syscall_windows.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,

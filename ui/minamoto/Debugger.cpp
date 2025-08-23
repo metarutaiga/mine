@@ -192,9 +192,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             const char* icon_fa_play_stop = running ? ICON_FA_STOP : ICON_FA_PLAY;
             if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
             if (ImGui::Button(icon_fa_play_stop))   { running = !running;                     } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(0);  } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(1);  } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(-1); } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step('OVER');   } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
             ImGui::Separator();
             for (auto& [name, path] : samples) {
@@ -243,12 +243,14 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(16777216));
             cpu->Exception(Exception);
-            syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str());
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
             }, cpu, Logger<0>);
+
+            syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image);
+
             exports.emplace_back("Entry", PE::Entry(image));
             PE::Imports(image, Symbol, Logger<0>);
             PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
@@ -262,7 +264,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
 
         if (running) {
-            if (cpu && cpu->Step(0)) {
+            if (cpu && cpu->Step('INTO')) {
                 refresh = true;
                 updated = true;
             }

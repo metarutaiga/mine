@@ -156,7 +156,7 @@ bool x86_i386::Initialize(allocator_t* allocator)
 bool x86_i386::Run()
 {
     while (EIP) {
-        if (Step(1) == false)
+        if (Step('INTO') == false)
             return false;
     }
     return true;
@@ -180,12 +180,18 @@ bool x86_i386::Step(int type)
             EIP = Pop32();
             ESP += count;
         }
-        if (type == 1)
+        switch (type) {
+        case 'INTO':
+            return true;
+        case 'OVER':
+            if (ESP >= esp || EIP - eip < 16)
+                return true;
+            continue;
+        case 'OUT ':
+            if (strcmp(format.instruction, "RET") == 0)
+                return true;
             break;
-        if (type == 0 && (ESP >= esp || EIP - eip < 16))
-            break;
-        if (type != 0 && ESP > esp)
-            break;
+        }
         eip = EIP;
     }
     return true;

@@ -41,7 +41,7 @@ extern "C" {
 #define SYMBOL_INDEX 1001
 
 struct Windows {
-    bool initialized;
+    uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
     char currentDirectory[260];
 };
@@ -128,15 +128,16 @@ int syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, allocator_t* alloca
             c = '/';
     }
 #endif
+    auto slash = path.find_last_of("/\\");
 
-    (*dir) = opendir(path.substr(0, path.find_last_of("/\\")).c_str());
+    (*dir) = opendir(path.substr(0, slash).c_str());
     if ((*dir) == nullptr) {
         allocator->deallocate(dir);
         return 0xFFFFFFFF;
     }
 
     auto pattern = (char*)(dir + 1);
-    strncpy(pattern, path.substr(path.find_last_of("/\\") + 1).c_str(), 120);
+    strncpy(pattern, path.substr(slash + 1).c_str(), 120);
 
     stack[1] = virtual(int, dir);
     if (syscall_FindNextFileA(memory, stack) == false) {
@@ -174,13 +175,15 @@ int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
     auto* windows = physical(Windows*, 0x700);
     auto& modules = windows->modules;
     auto name = physical(char*, stack[1]);
-    if (name) {
-        std::string file = name;
-        file = file.substr(file.find_last_of("/\\") + 1);
-        for (auto& [name, image] : modules) {
-            if (strcasecmp(name.c_str(), file.c_str()) == 0)
-                return virtual(int, image);
-        }
+
+    if (name == nullptr)
+        return windows->image;
+
+    std::string file = name;
+    file = file.substr(file.find_last_of("/\\") + 1);
+    for (auto& [name, image] : modules) {
+        if (strcasecmp(name.c_str(), file.c_str()) == 0)
+            return virtual(int, image);
     }
 
     return 0;
@@ -335,6 +338,39 @@ int syscall_strnicmp(uint8_t* memory, const uint32_t* stack)
     return strncasecmp(str1, str2, num);
 }
 
+int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    auto begin = physical(uint32_t*, stack[1]);
+    auto end = physical(uint32_t*, stack[2]);
+
+    auto& x86 = cpu->x86;
+    for (auto function = end - 1; function >= begin; --function) {
+        if (*function) {
+            Push32(*function);
+        }
+    }
+
+    return 0;
+}
+
+int syscall___p__commode(uint8_t* memory)
+{
+    auto msvcrt = physical(int**, 0x600);
+    return virtual(int, msvcrt[4]);
+}
+
+int syscall___p__fmode(uint8_t* memory)
+{
+    auto msvcrt = physical(int**, 0x600);
+    return virtual(int, msvcrt[5]);
+}
+
+int syscall___p___initenv(uint8_t* memory)
+{
+    auto msvcrt = physical(int**, 0x600);
+    return virtual(int, msvcrt[6]);
+}
+
 struct syscall_basic_string_char {
     uint32_t allocator;
     union {
@@ -399,8 +435,7 @@ int syscall_dummy(uint32_t* stack) {
     int(*syslog)(const char*, ...), \
     int(*log)(const char*, ...)
 
-#undef EAX
-#define EAX(count, value) \
+#define INT32(count, value) \
     [](CALLBACK_ARGUMENT) -> size_t {   \
         auto temp = value;              \
         x86.regs[0].d = uint32_t(temp); \
@@ -413,103 +448,108 @@ static const struct {
 } syscall_tables[] = {
 
     // kernel32
-    { "CloseHandle",                EAX(1, 0)                                               },
-    { "CreateFileA",                EAX(7, 0)                                               },
-    { "CreateFileMappingA",         EAX(6, 0)                                               },
-    { "CreateProcessA",             EAX(10, false)                                          },
-    { "DeleteFileA",                EAX(1, true)                                            },
-    { "FormatMessageA",             EAX(7, 0)                                               },
-    { "FreeLibrary",                EAX(1, syscall_FreeLibrary(memory, stack))              },
-    { "GetProcAddress",             EAX(2, syscall_GetProcAddress(memory, stack))           },
-    { "GetModuleHandleA",           EAX(1, syscall_GetModuleHandleA(memory, stack))         },
-    { "ExitProcess",                EAX(1, syscall_exit(stack))                             },
-    { "FindClose",                  EAX(1, syscall_FindClose(memory, stack, allocator))     },
-    { "FindFirstFileA",             EAX(2, syscall_FindFirstFileA(memory, stack, allocator))},
-    { "FindNextFileA",              EAX(2, syscall_FindNextFileA(memory, stack))            },
-    { "GetCurrentProcessId",        EAX(0, 0)                                               },
-    { "GetCurrentThreadId",         EAX(0, 0)                                               },
-    { "GetFileSize",                EAX(2, 0)                                               },
-    { "GetLastError",               EAX(0, 0)                                               },
-    { "GetSystemTimeAsFileTime",    EAX(1, 0)                                               },
-    { "GetTickCount",               EAX(0, 0)                                               },
-    { "InterlockedExchange",        EAX(2, 0)                                               },
-    { "LoadLibraryA",               EAX(1, syscall_LoadLibraryA(memory, stack, cpu, syslog))},
-    { "LocalAlloc",                 EAX(2, syscall_malloc(stack + 1, allocator))            },
-    { "MapViewOfFile",              EAX(5, 0)                                               },
-    { "QueryPerformanceCounter",    EAX(0, 0)                                               },
-    { "RaiseException",             EAX(4, 0)                                               },
-    { "SetCurrentDirectoryA",       EAX(1, syscall_SetCurrentDirectoryA(memory, stack))     },
-    { "UnmapViewOfFile",            EAX(1, true)                                            },
-    { "WaitForSingleObject",        EAX(2, 0xFFFFFFFF)                                      },
+    { "CloseHandle",                INT32(1, 0)                                                 },
+    { "CreateFileA",                INT32(7, 0)                                                 },
+    { "CreateFileMappingA",         INT32(6, 0)                                                 },
+    { "CreateProcessA",             INT32(10, false)                                            },
+    { "DeleteFileA",                INT32(1, true)                                              },
+    { "FormatMessageA",             INT32(7, 0)                                                 },
+    { "FreeLibrary",                INT32(1, syscall_FreeLibrary(memory, stack))                },
+    { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack))             },
+    { "GetModuleHandleA",           INT32(1, syscall_GetModuleHandleA(memory, stack))           },
+    { "ExitProcess",                INT32(1, syscall_exit(stack))                               },
+    { "FindClose",                  INT32(1, syscall_FindClose(memory, stack, allocator))       },
+    { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(memory, stack, allocator))  },
+    { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))              },
+    { "GetCurrentProcessId",        INT32(0, 0)                                                 },
+    { "GetCurrentThreadId",         INT32(0, 0)                                                 },
+    { "GetFileSize",                INT32(2, 0)                                                 },
+    { "GetLastError",               INT32(0, 0)                                                 },
+    { "GetSystemTimeAsFileTime",    INT32(1, 0)                                                 },
+    { "GetTickCount",               INT32(0, 0)                                                 },
+    { "InterlockedExchange",        INT32(2, 0)                                                 },
+    { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu, syslog))  },
+    { "LocalAlloc",                 INT32(2, syscall_malloc(stack + 1, allocator))              },
+    { "MapViewOfFile",              INT32(5, 0)                                                 },
+    { "QueryPerformanceCounter",    INT32(0, 0)                                                 },
+    { "RaiseException",             INT32(4, 0)                                                 },
+    { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))       },
+    { "UnmapViewOfFile",            INT32(1, true)                                              },
+    { "WaitForSingleObject",        INT32(2, 0xFFFFFFFF)                                        },
 
     // advapi32
-    { "RegCloseKey",                EAX(1, 0)                                               },
-    { "RegOpenKeyExA",              EAX(5, 0)                                               },
-    { "RegQueryValueExA",           EAX(6, 0)                                               },
+    { "RegCloseKey",                INT32(1, 0)                                                 },
+    { "RegOpenKeyExA",              INT32(5, 2)                                                 },
+    { "RegQueryValueExA",           INT32(6, 2)                                                 },
 
     // msvcrt
-    { "recalloc",                   EAX(0, syscall_recalloc(stack, allocator))              },
-    { "_expand",                    EAX(0, syscall_expand(stack, allocator))                },
-    { "_exit",                      EAX(0, syscall_exit(stack))                             },
-    { "_amsg_exit",                 EAX(0, 0)                                               },
-    { "_callnewh",                  EAX(0, 1)                                               },
-    { "_cexit",                     EAX(0, syscall_exit(stack))                             },
-    { "_controlfp",                 EAX(0, 0)                                               },
-    { "_CxxThrowException",         EAX(0, 0)                                               },
-    { "_c_exit",                    EAX(0, syscall_exit(stack))                             },
-    { "_except_handler3",           EAX(0, 0)                                               },
-    { "_finite",                    EAX(0, syscall_isfinite(stack))                         },
-    { "_flushall",                  EAX(0, 0)                                               },
-    { "_initterm",                  EAX(0, 0)                                               },
-    { "_isnan",                     EAX(0, syscall_isnan(stack))                            },
-    { "_msize",                     EAX(0, syscall_msize(stack, allocator))                 },
-    { "_onexit",                    EAX(0, 0)                                               },
-    { "_purecall",                  EAX(0, 0)                                               },
-    { "_snprintf",                  EAX(0, syscall_snprintf(memory, stack))                 },
-    { "_splitpath",                 EAX(0, 0)                                               },
-    { "_stricmp",                   EAX(0, syscall_stricmp(memory, stack))                  },
-    { "_strnicmp",                  EAX(0, syscall_strnicmp(memory, stack))                 },
-    { "_XcptFilter",                EAX(0, 0)                                               },
-    { "__CppXcptFilter",            EAX(0, 0)                                               },
-    { "__CxxFrameHandler",          EAX(0, 0)                                               },
-    { "__dllonexit",                EAX(0, 0)                                               },
-    { "__getmainargs",              EAX(0, 0)                                               },
-    { "__p__commode",               EAX(0, 0)                                               },
-    { "__p__fmode",                 EAX(0, 0)                                               },
-    { "__p___initenv",              EAX(0, 0)                                               },
-    { "__security_error_handler",   EAX(0, 0)                                               },
-    { "__setusermatherr",           EAX(0, 0)                                               },
-    { "__set_app_type",             EAX(0, 0)                                               },
-    { "?terminate@@YAXXZ",          EAX(0, 0)                                               },
-    { "?_Nomemory@std@@YAXXZ",      EAX(0, 0)                                               },
-    { "??2@YAPAXI@Z",               EAX(0, syscall_malloc(stack, allocator))                },
-    { "??3@YAXPAX@Z",               EAX(0, syscall_free(stack, allocator))                  },
-    { "??0exception@@QAE@XZ",       EAX(0, 0)                                               },
-    { "??1exception@@UAE@XZ",       EAX(0, 0)                                               },
-    { "??0exception@@QAE@ABV0@@Z",  EAX(0, 0)                                               },
-    { "??1type_info@@UAE@XZ",       EAX(0, 0)                                               },
-    { "??_U@YAPAXI@Z",              EAX(0, syscall_malloc(stack, allocator))                },
-    { "??_V@YAXPAX@Z",              EAX(0, syscall_free(stack, allocator))                  },
+    { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                },
+    { "_expand",                    INT32(0, syscall_expand(stack, allocator))                  },
+    { "_exit",                      INT32(0, syscall_exit(stack))                               },
+    { "_amsg_exit",                 INT32(0, 0)                                                 },
+    { "_callnewh",                  INT32(0, 1)                                                 },
+    { "_cexit",                     INT32(0, syscall_exit(stack))                               },
+    { "_controlfp",                 INT32(0, 0)                                                 },
+    { "_CxxThrowException",         INT32(0, 0)                                                 },
+    { "_c_exit",                    INT32(0, syscall_exit(stack))                               },
+    { "_except_handler3",           INT32(0, 0)                                                 },
+    { "_finite",                    INT32(0, syscall_isfinite(stack))                           },
+    { "_flushall",                  INT32(0, 0)                                                 },
+    { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))             },
+    { "_isnan",                     INT32(0, syscall_isnan(stack))                              },
+    { "_msize",                     INT32(0, syscall_msize(stack, allocator))                   },
+    { "_onexit",                    INT32(0, 0)                                                 },
+    { "_purecall",                  INT32(0, 0)                                                 },
+    { "_snprintf",                  INT32(0, syscall_snprintf(memory, stack))                   },
+    { "_splitpath",                 INT32(0, 0)                                                 },
+    { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                    },
+    { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                   },
+    { "_XcptFilter",                INT32(0, 0)                                                 },
+    { "__CppXcptFilter",            INT32(0, 0)                                                 },
+    { "__CxxFrameHandler",          INT32(0, 0)                                                 },
+    { "__dllonexit",                INT32(0, 0)                                                 },
+    { "__getmainargs",              INT32(0, 0)                                                 },
+    { "__p__commode",               INT32(0, syscall___p__commode(memory))                      },
+    { "__p__fmode",                 INT32(0, syscall___p__fmode(memory))                        },
+    { "__p___initenv",              INT32(0, syscall___p___initenv(memory))                     },
+    { "__security_error_handler",   INT32(0, 0)                                                 },
+    { "__setusermatherr",           INT32(0, 0)                                                 },
+    { "__set_app_type",             INT32(0, 0)                                                 },
+    { "?terminate@@YAXXZ",          INT32(0, 0)                                                 },
+    { "?_Nomemory@std@@YAXXZ",      INT32(0, 0)                                                 },
+    { "??2@YAPAXI@Z",               INT32(0, syscall_malloc(stack, allocator))                  },
+    { "??3@YAXPAX@Z",               INT32(0, syscall_free(stack, allocator))                    },
+    { "??0exception@@QAE@XZ",       INT32(0, 0)                                                 },
+    { "??1exception@@UAE@XZ",       INT32(0, 0)                                                 },
+    { "??0exception@@QAE@ABV0@@Z",  INT32(0, 0)                                                 },
+    { "??1type_info@@UAE@XZ",       INT32(0, 0)                                                 },
+    { "??_U@YAPAXI@Z",              INT32(0, syscall_malloc(stack, allocator))                  },
+    { "??_V@YAXPAX@Z",              INT32(0, syscall_free(stack, allocator))                    },
 
     // std::string
-    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",   EAX(0, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator))   },
-    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",      EAX(0, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator))   },
-    { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         EAX(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))             },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",   INT32(0, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator)) },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",      INT32(0, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator)) },
+    { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))           },
 
     // dummy
-    { "$$dummy$$",                  EAX(1, syscall_dummy(stack))                            },
+    { "$$dummy$$",                  INT32(1, syscall_dummy(stack))                              },
 };
 
-size_t syscall_windows_new(void* data, const char* path)
+size_t syscall_windows_new(void* data, const char* path, void* image)
 {
     if (data == nullptr)
         return 0;
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
+    auto* msvcrt = physical(int*, 0x600);
+    msvcrt[0] = 1;
+    msvcrt[1] = 2;
+    msvcrt[2] = 3;
+
     auto* windows = physical(Windows*, 0x700);
-    if (windows->initialized == false) {
-        windows->initialized = true;
+    if (windows->image == 0) {
+        windows->image = virtual(uint32_t, image);
         new (windows) Windows;
     }
 #if defined(_WIN32)
@@ -528,8 +568,8 @@ size_t syscall_windows_delete(void* data)
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* windows = physical(Windows*, 0x700);
-    if (windows->initialized) {
-        windows->initialized = false;
+    if (windows->image) {
+        windows->image = 0;
         windows->~Windows();
     }
     return 0;
@@ -560,6 +600,11 @@ size_t syscall_windows_symbol(const char* file, const char* name)
 {
     if (file == nullptr)
         return 0;
+
+    if (strcmp(name, "_iob") == 0)
+        return 0x600;
+    if (strcmp(name, "_adjust_fdiv") == 0)
+        return 0x60C;
 
     size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
     for (size_t index = 0; index < count; ++index) {

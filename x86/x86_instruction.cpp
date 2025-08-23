@@ -771,7 +771,7 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
     }
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
         EIP = Pop32();
-        ESP = ESP + format.operand[0].displacement;
+        ESP = uint32_t(ESP + format.operand[0].displacement);
     };
 }
 //------------------------------------------------------------------------------
