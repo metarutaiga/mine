@@ -21,11 +21,11 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 {      // 0        1       2      3      4       5       6       7       8       9       A       B       C        D       E       F
 /* 0 */ o ADD    x ADD   x ADD  x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
 /* 1 */ x ADC    x ADC   x ADC  x ADC  x ADC   x ADC   x _     x _     x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x _     x _
-/* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x _     x _     x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x _     x _
-/* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x _     x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x _     x _
+/* 2 */ x AND    x AND   x AND  x AND  x AND   x AND   x ES    x _     x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x CS    x _
+/* 3 */ x XOR    x XOR   x XOR  x XOR  x XOR   x XOR   x SS    x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x DS    x _
 /* 4 */ x INC    x INC   x INC  x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC    x DEC   x DEC   x DEC
 /* 5 */ x PUSH   x PUSH  x PUSH x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
-/* 6 */ x PUSHAD x POPAD x _    x _    x _     x _     x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
+/* 6 */ x PUSHAD x POPAD x _    x _    x FS    x GS    x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
 /* 7 */ x Jcc    x Jcc   x Jcc  x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
 /* 8 */ x grp1   x grp1  x _    x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
 /* 9 */ x NOP    x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x _     x _     x PUSHFD x POPFD x SAHF  x LAHF

@@ -206,7 +206,7 @@ static const struct {
     { "strcoll",        INT32(syscall_strcoll(memory, stack))           },
     { "strcpy",         INT32(syscall_strcpy(memory, stack))            },
     { "strcspn",        INT32(syscall_strcspn(memory, stack))           },
-    { "strerror",       INT32(syscall_strerror(memory, stack))          },
+    { "strerror",       INT32(syscall_strerror(memory, stack, syslog))  },
     { "strlen",         INT32(syscall_strlen(memory, stack))            },
     { "strncat",        INT32(syscall_strncat(memory, stack))           },
     { "strncmp",        INT32(syscall_strncmp(memory, stack))           },

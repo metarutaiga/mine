@@ -44,8 +44,8 @@ protected:
     static instruction grp7;
     static instruction grp8;
 
-    static instruction OSIZE;  // Operand-size override
-    static instruction ASIZE;  // Address-size override
+    static instruction OSIZE;   // Operand-size override
+    static instruction ASIZE;   // Address-size override
 
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];

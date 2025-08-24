@@ -16,6 +16,7 @@ extern "C" {
     void* memory,           \
     void* stack,            \
     allocator_t* allocator, \
+    int(*syslog)(const char*, va_list), \
     int(*log)(const char*, va_list)
 
 #define DIV32(value) \
@@ -67,7 +68,7 @@ size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, 
         auto* stack = memory + cpu->Stack();
         auto* allocator = cpu->Allocator();
         auto syscall = syscall_table[index].syscall;
-        syscall(x86, x87, memory, stack, allocator, log);
+        syscall(x86, x87, memory, stack, allocator, syslog, log);
     }
 
     return 0;

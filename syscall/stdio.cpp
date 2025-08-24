@@ -118,16 +118,16 @@ int syscall_fgetpos(char* memory, const uint32_t* stack)
     return result;
 }
 
-int syscall_fgets(char* memory, const uint32_t* stack)
+size_t syscall_fgets(char* memory, const uint32_t* stack)
 {
     auto str = physical(char*, stack[1]);
     auto num = stack[2];
     auto stream = physical(FILE**, stack[3]);
     auto result = fgets(str, num, *stream);
-    return virtual(int, result);
+    return virtual(size_t, result);
 }
 
-int syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto stream = (FILE**)allocator->allocate(sizeof(FILE*));
     if (stream == nullptr)
@@ -139,7 +139,7 @@ int syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* alloc
         allocator->deallocate(stream);
         return 0;
     }
-    return virtual(int, stream);
+    return virtual(size_t, stream);
 }
 
 int syscall_fprintf(char* memory, const uint32_t* stack)
@@ -165,22 +165,22 @@ int syscall_fputs(char* memory, const uint32_t* stack)
     return fputs(str, *stream);
 }
 
-int syscall_fread(char* memory, const uint32_t* stack)
+size_t syscall_fread(char* memory, const uint32_t* stack)
 {
     auto ptr = physical(void*, stack[1]);
     auto size = stack[2];
     auto count = stack[3];
     auto stream = physical(FILE**, stack[4]);
-    return (int)fread(ptr, size, count, *stream);
+    return fread(ptr, size, count, *stream);
 }
 
-int syscall_freopen(char* memory, const uint32_t* stack)
+size_t syscall_freopen(char* memory, const uint32_t* stack)
 {
     auto filename = physical(char*, stack[1]);
     auto mode = physical(char*, stack[2]);
     auto stream = physical(FILE**, stack[3]);
     (*stream) = freopen(filename, mode, *stream);
-    return virtual(int, stream);
+    return virtual(size_t, stream);
 }
 
 int syscall_fscanf(char* memory, const uint32_t* stack)
@@ -207,19 +207,19 @@ int syscall_fsetpos(char* memory, const uint32_t* stack)
     return fsetpos(*stream, &pos);
 }
 
-int syscall_ftell(char* memory, const uint32_t* stack)
+long syscall_ftell(char* memory, const uint32_t* stack)
 {
     auto stream = physical(FILE**, stack[1]);
-    return (int)ftell(*stream);
+    return ftell(*stream);
 }
 
-int syscall_fwrite(char* memory, const uint32_t* stack)
+size_t syscall_fwrite(char* memory, const uint32_t* stack)
 {
     auto ptr = physical(void*, stack[1]);
     auto size = stack[2];
     auto count = stack[3];
     auto stream = physical(FILE**, stack[4]);
-    return (int)fwrite(ptr, size, count, *stream);
+    return fwrite(ptr, size, count, *stream);
 }
 
 int syscall_getc(char* memory, const uint32_t* stack)
@@ -233,14 +233,14 @@ int syscall_getchar()
     return getchar();
 }
 
-int syscall_gets(char* memory, const uint32_t* stack)
+size_t syscall_gets(char* memory, const uint32_t* stack)
 {
 #if defined(_UCRT)
     return 0;
 #else
     auto str = physical(char*, stack[1]);
     auto result = gets(str);
-    return virtual(int, result);
+    return virtual(size_t, result);
 #endif
 }
 
@@ -351,20 +351,20 @@ int syscall_sscanf(char* memory, const uint32_t* stack)
     return vsscanf(s, format, (va_list)args64.data());
 }
 
-int syscall_tmpfile(char* memory, struct allocator_t* allocator)
+size_t syscall_tmpfile(char* memory, struct allocator_t* allocator)
 {
     auto result = (FILE**)allocator->allocate(sizeof(FILE*));
     if (result == nullptr)
         return 0;
     (*result) = tmpfile();
-    return virtual(int, result);
+    return virtual(size_t, result);
 }
 
-int syscall_tmpnam(char* memory, const uint32_t* stack)
+size_t syscall_tmpnam(char* memory, const uint32_t* stack)
 {
     auto str = physical(char*, stack[1]);
     auto result = tmpnam(str);
-    return virtual(int, result);
+    return virtual(size_t, result);
 }
 
 int syscall_ungetc(char* memory, const uint32_t* stack)

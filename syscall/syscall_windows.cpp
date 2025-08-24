@@ -17,8 +17,7 @@
 #else
 #include <fnmatch.h>
 #include <sys/dir.h>
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 struct WIN32_FIND_DATAA {
     uint32_t    dwFileAttributes;
     uint64_t    ftCreationTime;
@@ -179,10 +178,12 @@ int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
     if (name == nullptr)
         return windows->image;
 
-    std::string file = name;
-    file = file.substr(file.find_last_of("/\\") + 1);
+    std::string path = name;
+    auto slash = path.find_last_of("/\\");
+
+    path = path.substr(slash + 1);
     for (auto& [name, image] : modules) {
-        if (strcasecmp(name.c_str(), file.c_str()) == 0)
+        if (strcasecmp(name.c_str(), path.c_str()) == 0)
             return virtual(int, image);
     }
 
@@ -209,6 +210,8 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
             c = '/';
     }
 #endif
+    auto slash = path.find_last_of("/\\");
+
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
         miCPU* cpu = (miCPU*)userdata;
         return cpu->Memory(base, size);
@@ -221,7 +224,7 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
             address = syscall_i386_symbol(file, name);
         return address;
     }, log);
-    modules.emplace_back(path.substr(path.find_last_of("/\\") + 1).c_str(), image);
+    modules.emplace_back(path.substr(slash + 1).c_str(), image);
 
     // _DllMainCRTStartup
     size_t entry = PE::Entry(image);
@@ -234,18 +237,20 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
         //                  hDllHandle
         //                  dwReason
         //                  lpreserved
-        //                  $$stack_1_eax$$
+        //                  $$$$$$$$
         //                  hDllHandle
         //                  dwReason
         //                  lpreserved
         // LoadLibraryA     LoadLibraryA
-        // lpLibFileName    lpreserved
+        // lpLibFileName    lpLibFileName
 
-        uint32_t eax = (uint32_t)syscall_windows_symbol("", "$$dummy$$");
-        uint32_t ret = Pop32();
-        Pop32();
+        // 58 POP EAX
+        // 58 POP EAX
+        // C3 RET
+        // C3 RET
         Push32(virtual(int, image));
-        Push32(ret);
+        Push32(0xC3C35858);
+        uint32_t eax = ESP;
         Push32(0);
         Push32(2);
         Push32(0);
@@ -421,10 +426,6 @@ int syscall_basic_string_char_deconstructor(uint32_t thiz, uint8_t* memory, allo
     return 0;
 }
 
-int syscall_dummy(uint32_t* stack) {
-    return stack[1];
-}
-
 #define CALLBACK_ARGUMENT \
     x86_i386* cpu,          \
     x86_instruction& x86,   \
@@ -530,9 +531,6 @@ static const struct {
     { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",   INT32(0, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator)) },
     { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",      INT32(0, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator)) },
     { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))           },
-
-    // dummy
-    { "$$dummy$$",                  INT32(1, syscall_dummy(stack))                              },
 };
 
 size_t syscall_windows_new(void* data, const char* path, void* image)

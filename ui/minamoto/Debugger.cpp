@@ -190,8 +190,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         ImGui::End();
         if (ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             const char* icon_fa_play_stop = running ? ICON_FA_STOP : ICON_FA_PLAY;
-            if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();    } ImGui::SameLine();
-            if (ImGui::Button(icon_fa_play_stop))   { running = !running;                     } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();          } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_play_stop))   { running = !running;                           } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step('OVER');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
