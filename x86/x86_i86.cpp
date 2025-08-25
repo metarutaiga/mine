@@ -57,23 +57,19 @@ x86_i86::~x86_i86()
     delete allocator;
 }
 //------------------------------------------------------------------------------
-bool x86_i86::Initialize(allocator_t* allocator)
+bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
 {
     if (allocator == nullptr)
         return false;
     this->allocator = allocator;
 
-    memory = (uint8_t*)allocator->address();
     memory_size = allocator->max_size();
-
-    allocator->allocate(256);
-    allocator->allocate(65536, memory_size - 65536);
+    memory_address = (uint8_t*)allocator->allocate(256, 0);
+    stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
 
     IP = 256;
     SP = (uint16_t)memory_size - 16;
     FLAGS = 0b0000001000000010;
-
-    stack = memory + SP;
 
     return true;
 }
@@ -134,7 +130,7 @@ uint8_t* x86_i86::Memory(size_t base, size_t size) const
     if (size == 0) {
         if (base + size >= memory_size)
             return nullptr;
-        return memory + base;
+        return memory_address + base;
     }
     return (uint8_t*)allocator->allocate(size, base);
 }
@@ -214,7 +210,7 @@ std::string x86_i86::Disassemble(int count) const
         x86.regs[i] = regs[i];
     x86.flags = flags;
     x86.ip = ip;
-    x86.memory = memory;
+    x86.memory_address = memory_address;
 
     for (int i = 0; i < count; ++i) {
         char temp[64];
@@ -237,7 +233,7 @@ std::string x86_i86::Disassemble(int count) const
                 output.insert(insert, 2, ' ');
                 continue;
             }
-            snprintf(temp, 64, "%02X", memory[address + i]);
+            snprintf(temp, 64, "%02X", memory_address[address + i]);
             output.insert(insert, temp);
             insert += 2;
         }
@@ -253,7 +249,7 @@ void x86_i86::StepInternal(Format& format)
     format.repeat = false;
 
     for (;;) {
-        opcode = memory + IP;
+        opcode = memory_address + IP;
         one[opcode[0]](format, opcode);
         IP += format.length;
         if (format.operation)

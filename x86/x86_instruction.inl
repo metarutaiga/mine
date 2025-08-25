@@ -9,12 +9,12 @@ static x86_register x86;
 #define IMM8(m,i)       (*(int8_t*)(m+i))
 #define IMM16(m,i)      (*(int16_t*)(m+i))
 #define IMM32(m,i)      (*(int32_t*)(m+i))
-#define Push16(reg)     (*(uint16_t*)(x86.stack = x86.memory + (x86.regs[4].q -= sizeof(uint16_t))                   ) = (uint16_t)reg)
-#define Push32(reg)     (*(uint32_t*)(x86.stack = x86.memory + (x86.regs[4].q -= sizeof(uint32_t))                   ) = (uint32_t)reg)
-#define Push64(reg)     (*(uint64_t*)(x86.stack = x86.memory + (x86.regs[4].q -= sizeof(uint64_t))                   ) = (uint64_t)reg)
-#define Pop16()         (*(uint16_t*)(x86.stack = x86.memory + (x86.regs[4].q += sizeof(uint16_t)) - sizeof(uint16_t))                )
-#define Pop32()         (*(uint32_t*)(x86.stack = x86.memory + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
-#define Pop64()         (*(uint64_t*)(x86.stack = x86.memory + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
+#define Push16(reg)     (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint16_t))                   ) = (uint16_t)reg)
+#define Push32(reg)     (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint32_t))                   ) = (uint32_t)reg)
+#define Push64(reg)     (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint64_t))                   ) = (uint64_t)reg)
+#define Pop16()         (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint16_t)) - sizeof(uint16_t))                )
+#define Pop32()         (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
+#define Pop64()         (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
 //------------------------------------------------------------------------------
 template<typename T>
 static auto specialize(auto lambda) {

@@ -16,8 +16,8 @@
 
 //------------------------------------------------------------------------------
 static miCPU* cpu;
-static std::string status;
 static std::string disasm;
+static std::string status;
 static std::string logs[2];
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
@@ -108,9 +108,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int stackIndex = 0;
+        static int stackFocus = -1;
         static bool refresh = false;
         static bool running = false;
         static bool showMemoryEditor = false;
+        static const int stackSize = 65536;
         std::string file;
 
         ImGuiID id = ImGui::GetID("Debugger");
@@ -148,38 +150,29 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
         ImGui::End();
         if (ImGui::Begin("Stack", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImVec2 windowSize = ImGui::GetContentRegionAvail();
-#if 0
-            int stackCount = 65536 / sizeof(uint32_t);
-#else
-            int stackCount = windowSize.y / ImGui::GetTextLineHeightWithSpacing();
-#endif
-            ImGui::SetNextWindowSize(windowSize);
-            ImGui::ListBox("##21", &stackIndex, [](void* user_data, int index) -> const char* {
+            char temp[32];
+            int stackCount = stackSize / sizeof(uint32_t);
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##30", &stackIndex, &stackFocus, [](void* user_data, int index) -> const char* {
                 if (cpu == nullptr)
                     return "";
 
-#if 0
                 auto allocator = cpu->Allocator();
-                size_t stack = allocator->max_size() - 65536 + index * sizeof(uint32_t);
-#else
-                auto stackCount = *(int*)user_data / 2;
-                size_t stack = cpu->Stack() + (index - stackCount) * sizeof(uint32_t);
-#endif
+                size_t stack = allocator->max_size() - stackSize + index * sizeof(uint32_t);
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
 
-                static char temp[32];
+                char* temp = (char*)user_data;
                 snprintf(temp, 32, "%s%08zX %08X", stack == cpu->Stack() ? ">" : " ", stack, *value);
                 return temp;
-            }, &stackCount, stackCount);
+            }, temp, stackCount);
+            stackFocus = -1;
         }
         ImGui::End();
         if (ImGui::Begin("Export", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImVec2 windowSize = ImGui::GetContentRegionAvail();
-            ImGui::SetNextWindowSize(windowSize);
-            if (ImGui::ListBox("##30", &exportIndex, [](void* user_data, int index) {
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            if (ImGui::ListBox("##40", &exportIndex, [](void* user_data, int index) {
                 auto& exports = *(std::vector<std::pair<std::string, size_t>>*)user_data;
                 return exports[index].first.c_str();
             }, &exports, (int)exports.size())) {
@@ -241,25 +234,26 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             running = false;
 
             cpu = new x86_i386;
-            cpu->Initialize(simple_allocator<16>::construct(16777216));
+            cpu->Initialize(simple_allocator<16>::construct(16777216), stackSize);
             cpu->Exception(Exception);
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
             }, cpu, Logger<0>);
+            if (image) {
+                syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image);
 
-            syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image);
+                exports.emplace_back("Entry", PE::Entry(image));
+                PE::Imports(image, Symbol, Logger<0>);
+                PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
+                    auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
+                    exports.emplace_back(name, address);
+                }, &exports);
 
-            exports.emplace_back("Entry", PE::Entry(image));
-            PE::Imports(image, Symbol, Logger<0>);
-            PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
-                auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
-                exports.emplace_back(name, address);
-            }, &exports);
-
-            if (exports.empty() == false) {
-                cpu->Jump(exports.front().second);
+                if (exports.empty() == false) {
+                    cpu->Jump(exports.front().second);
+                }
             }
         }
 
@@ -278,6 +272,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (cpu) {
                 status = cpu->Status();
                 disasm = cpu->Disassemble(64);
+
+                auto allocator = cpu->Allocator();
+                stackFocus = (int)(cpu->Stack() - (allocator->max_size() - stackSize)) / sizeof(uint32_t);
             }
         }
 

@@ -12,7 +12,7 @@ struct allocator_t;
 struct miCPU
 {
     virtual ~miCPU() = default;
-    virtual bool Initialize(allocator_t* allocator) = 0;
+    virtual bool Initialize(allocator_t* allocator, size_t stack) = 0;
     virtual bool Run() = 0;
     virtual bool Step(int type) = 0;
     virtual bool Jump(size_t address) = 0;

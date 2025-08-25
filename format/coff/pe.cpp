@@ -209,7 +209,7 @@ size_t PE::Entry(void* image)
 
 void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(const char*, ...))
 {
-    if (image == nullptr || sym == nullptr)
+    if (image == nullptr || sym == nullptr || log == nullptr)
         return;
 
     auto image8 = (uint8_t*)image;

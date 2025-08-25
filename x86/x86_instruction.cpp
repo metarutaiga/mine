@@ -187,6 +187,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             case 64:    disasm += "QWORD PTR";  break;
             }
             disasm += ' ';
+            if (format.segment[0]) {
+                disasm += format.segment;
+                disasm += ':';
+            }
             disasm += '[';
             if (format.operand[i].scale > 0) {
                 disasm += REG32[format.operand[i].index];
@@ -253,7 +257,7 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             }
             format.operand[i].address += format.operand[i].displacement;
             format.operand[i].address = uint32_t(format.operand[i].address);
-            format.operand[i].memory = x86.memory + format.operand[i].address;
+            format.operand[i].memory = x86.memory_address + format.operand[i].address;
             break;
         case Format::Operand::IMM:
             format.operand[i].address = format.operand[i].displacement;
@@ -271,7 +275,7 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             format.operand[i].address = x86.ip.q;
             format.operand[i].address += format.operand[i].displacement;
             format.operand[i].address = uint32_t(format.operand[i].address);
-            format.operand[i].memory = x86.memory + format.operand[i].address;
+            format.operand[i].memory = x86.memory_address + format.operand[i].address;
             break;
         default:
             break;
@@ -289,26 +293,32 @@ void x86_instruction::_(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::CS(Format& format, const uint8_t* opcode)
 {
+    format.segment = "CS";
 }
 //------------------------------------------------------------------------------
 void x86_instruction::SS(Format& format, const uint8_t* opcode)
 {
+    format.segment = "SS";
 }
 //------------------------------------------------------------------------------
 void x86_instruction::DS(Format& format, const uint8_t* opcode)
 {
+    format.segment = "DS";
 }
 //------------------------------------------------------------------------------
 void x86_instruction::ES(Format& format, const uint8_t* opcode)
 {
+    format.segment = "ES";
 }
 //------------------------------------------------------------------------------
 void x86_instruction::FS(Format& format, const uint8_t* opcode)
 {
+    format.segment = "FS";
 }
 //------------------------------------------------------------------------------
 void x86_instruction::GS(Format& format, const uint8_t* opcode)
 {
+    format.segment = "GS";
 }
 //------------------------------------------------------------------------------
 //
@@ -887,7 +897,7 @@ void x86_instruction::XLAT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "XLAT";
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
-        AL = *(x86.memory + EBX + AL);
+        AL = *(x86.memory_address + EBX + AL);
     };
 }
 //------------------------------------------------------------------------------

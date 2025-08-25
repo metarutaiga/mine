@@ -29,6 +29,7 @@ struct x86_format
         int address = 0;
         bool repeat = false;
         const char* instruction = "";
+        const char* segment = "";
         Operand operand[3] = {};
 
         void (*operation)(x86_instruction&, x87_instruction&, const Format&, void*, const void*, const void*) = nullptr;

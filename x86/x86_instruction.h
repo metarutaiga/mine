@@ -11,9 +11,9 @@ struct x86_instruction : public x86_format
     x86_instruction& x86 = (*this);
 
     size_t memory_size = 0;
-    uint8_t* memory = nullptr;
+    uint8_t* memory_address = nullptr;
+    uint8_t* stack_address = nullptr;
     uint8_t* opcode = nullptr;
-    uint8_t* stack = nullptr;
 
     size_t (*exception)(struct miCPU*, size_t) = [](struct miCPU*, size_t) { return size_t(0); };
 

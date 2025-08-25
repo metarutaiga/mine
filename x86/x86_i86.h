@@ -17,7 +17,7 @@ struct x86_i86 : public miCPU
 
 public:
     virtual ~x86_i86();
-    bool Initialize(allocator_t* allocator) override;
+    bool Initialize(allocator_t* allocator, size_t stack) override;
     bool Run() override;
     bool Step(int type) override;
     bool Jump(size_t address) override;
