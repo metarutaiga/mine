@@ -142,13 +142,20 @@ size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* al
     return virtual(size_t, stream);
 }
 
-int syscall_fprintf(char* memory, const uint32_t* stack)
+int syscall_fprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
 {
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
     auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return fprintf(*stream, format, (va_list)args64.data());
+    switch ((size_t)(*stream)) {
+    case 0x0:
+    case 0x1:   return 0;
+    case 0x2:
+    case 0x3:   return function(format, (va_list)args64.data());
+    default:    return fprintf(*stream, format, (va_list)args64.data());
+    }
+    return 0;
 }
 
 int syscall_fputc(char* memory, const uint32_t* stack)

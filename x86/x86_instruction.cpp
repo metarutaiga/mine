@@ -160,13 +160,11 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
 {
     auto hex = [](auto imm) {
         char temp[64];
-        int precision = 0;
         unsigned long long value = std::abs((int64_t)imm);
-        if (value > 0xFFFFFFFF)     precision = 16;
-        else if (value > 0xFFFF)    precision = 8;
-        else if (value > 0xFF)      precision = 4;
-        else                        precision = 2;
-        snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "", precision, value);
+        if (value > 0xFFFFFFFF)     snprintf(temp, 64, "%s%0*llX",                 "", 16, imm);
+        else if (value > 0xFFFF)    snprintf(temp, 64, "%s%0*llX",                 "",  8, imm & 0xFFFFFFFF);
+        else if (value > 0xFF)      snprintf(temp, 64, "%s%0*llX",                 "",  4, imm & 0xFFFF);
+        else                        snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
         return std::string(temp);
     };
 
@@ -233,6 +231,33 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             if (disasm.size() > offset)
                 disasm.pop_back();
             break;
+        }
+    }
+
+    for (int i = 2; i >= 0; --i) {
+        char c = format.instruction[0];
+        if (c == 'C' || c == 'J')
+            break;
+        switch (format.operand[i].type) {
+//      case Format::Operand::ADR:
+//          if (format.operand[i].scale > 0)
+//              continue;
+//          if (format.operand[i].base >= 0)
+//              continue;
+//          break;
+        case Format::Operand::IMM:
+            break;
+        default:
+            continue;
+        }
+        auto memory = x86.memory_address + uint32_t(format.operand[i].displacement);
+        if (memory >= x86.memory_address && memory < x86.memory_address + x86.memory_size) {
+            char c = memory[0];
+            if (c >= 0x20 && c <= 0x7E) {
+                disasm.resize(40, ' ');
+                disasm += (char*)memory;
+                break;
+            }
         }
     }
 
@@ -581,12 +606,12 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
     case 0x8A:
     case 0x8B:  Decode(format, opcode, "MOV", 1, 0, opcode[0] & 0b11);  break;
     case 0xA0:
-    case 0xA1:  Decode(format, opcode, "MOV", 1, -1, (opcode[0] & 0b01) | INDIRECT);
+    case 0xA1:  Decode(format, opcode, "MOV", 1, 32, (opcode[0] & 0b01) | INDIRECT);
                 format.operand[1] = format.operand[0];
                 format.operand[0].type = Format::Operand::REG;
                 format.operand[0].base = REG(EAX);                      break;
     case 0xA2:
-    case 0xA3:  Decode(format, opcode, "MOV", 1, -1, (opcode[0] & 0b01) | INDIRECT);
+    case 0xA3:  Decode(format, opcode, "MOV", 1, 32, (opcode[0] & 0b01) | INDIRECT);
                 format.operand[1].type = Format::Operand::REG;
                 format.operand[1].base = REG(EAX);                      break;
     case 0xB0:

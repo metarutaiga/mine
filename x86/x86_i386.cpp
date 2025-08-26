@@ -226,6 +226,11 @@ size_t x86_i386::Stack() const
     return ESP;
 }
 //------------------------------------------------------------------------------
+size_t x86_i386::Program() const
+{
+    return EIP;
+}
+//------------------------------------------------------------------------------
 std::string x86_i386::Status() const
 {
     std::string output;
@@ -295,6 +300,7 @@ std::string x86_i386::Disassemble(int count) const
         x86.regs[i] = regs[i];
     x86.flags = flags;
     x86.ip = ip;
+    x86.memory_size = memory_size;
     x86.memory_address = memory_address;
 
     for (int i = 0; i < count; ++i) {

@@ -119,7 +119,7 @@ int syscall_fgetc(const void* memory, const void* stack);
 int syscall_fgetpos(const void* memory, const void* stack);
 size_t syscall_fgets(const void* memory, const void* stack);
 size_t syscall_fopen(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_fprintf(const void* memory, const void* stack);
+int syscall_fprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
 int syscall_fputc(const void* memory, const void* stack);
 int syscall_fputs(const void* memory, const void* stack);
 size_t syscall_fread(const void* memory, const void* stack);

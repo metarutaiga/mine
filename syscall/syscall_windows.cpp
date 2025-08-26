@@ -42,6 +42,7 @@ extern "C" {
 struct Windows {
     uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
+    void (*loadLibraryCallback)(void*);
     char currentDirectory[260];
 };
 
@@ -225,6 +226,9 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
         return address;
     }, log);
     modules.emplace_back(path.substr(slash + 1).c_str(), image);
+    if (windows->loadLibraryCallback) {
+        windows->loadLibraryCallback(image);
+    }
 
     // _DllMainCRTStartup
     size_t entry = PE::Entry(image);
@@ -248,6 +252,9 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
         // 58 POP EAX
         // C3 RET
         // C3 RET
+        uint32_t ret = Pop32();
+        Pop32();
+        Push32(ret);
         Push32(virtual(int, image));
         Push32(0xC3C35858);
         uint32_t eax = ESP;
@@ -256,7 +263,7 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
         Push32(0);
         Push32(eax);
         Push32(0);
-        Push32(0);
+        Push32(1);
         Push32(0);
         Push32(entry);
         Push32(entry);
@@ -275,7 +282,7 @@ int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
 {
     auto* windows = physical(Windows*, 0x700);
     char* pathName = physical(char*, stack[1]);
-    strcpy(windows->currentDirectory, pathName);
+    strncpy(windows->currentDirectory, pathName, 260);
 #if defined(_WIN32)
     return true;
 #else
@@ -358,22 +365,49 @@ int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
+int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto argc = physical(int*, stack[1]);
+    auto argv = physical(int*, stack[2]);
+    auto envp = physical(int*, stack[3]);
+//  auto expand = physical(int, stack[4]);
+//  auto mode = physical(int*, stack[5]);
+
+    auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
+    auto main = (char*)allocator->allocate(sizeof("main"));
+    strcpy(main, "main");
+    args[0] = virtual(int, main);
+    args[1] = 0;
+
+    auto environ = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
+    auto path = (char*)allocator->allocate(sizeof("PATH=."));
+    strcpy(path, "PATH=.");
+    environ[0] = virtual(int, path);
+    environ[1] = 0;
+
+    *argc = 1;
+    *argv = virtual(int, args);
+    *envp = virtual(int, environ);
+
+    return 0;
+}
+
 int syscall___p__commode(uint8_t* memory)
 {
     auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[4]);
+    return virtual(int, msvcrt[0x30]);
 }
 
 int syscall___p__fmode(uint8_t* memory)
 {
     auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[5]);
+    return virtual(int, msvcrt[0x31]);
 }
 
 int syscall___p___initenv(uint8_t* memory)
 {
     auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[6]);
+    return virtual(int, msvcrt[0x32]);
 }
 
 struct syscall_basic_string_char {
@@ -509,7 +543,7 @@ static const struct {
     { "__CppXcptFilter",            INT32(0, 0)                                                 },
     { "__CxxFrameHandler",          INT32(0, 0)                                                 },
     { "__dllonexit",                INT32(0, 0)                                                 },
-    { "__getmainargs",              INT32(0, 0)                                                 },
+    { "__getmainargs",              INT32(0, syscall___getmainargs(memory, stack, allocator))   },
     { "__p__commode",               INT32(0, syscall___p__commode(memory))                      },
     { "__p__fmode",                 INT32(0, syscall___p__fmode(memory))                        },
     { "__p___initenv",              INT32(0, syscall___p___initenv(memory))                     },
@@ -541,9 +575,9 @@ size_t syscall_windows_new(void* data, const char* path, void* image)
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* msvcrt = physical(int*, 0x600);
-    msvcrt[0] = 1;
-    msvcrt[1] = 2;
-    msvcrt[2] = 3;
+    msvcrt[0x00] = 1;
+    msvcrt[0x10] = 2;
+    msvcrt[0x20] = 3;
 
     auto* windows = physical(Windows*, 0x700);
     if (windows->image == 0) {
@@ -551,10 +585,23 @@ size_t syscall_windows_new(void* data, const char* path, void* image)
         new (windows) Windows;
     }
 #if defined(_WIN32)
-    strcpy(windows->currentDirectory, path);
+    strncpy(windows->currentDirectory, path, 260);
 #else
     realpath(path, windows->currentDirectory);
 #endif
+    return 0;
+}
+
+size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*))
+{
+    if (data == nullptr)
+        return 0;
+
+    auto* cpu = (x86_i386*)data;
+    auto* memory = cpu->Memory();
+    auto* windows = physical(Windows*, 0x700);
+    windows->loadLibraryCallback = loadLibraryCallback;
+
     return 0;
 }
 
@@ -587,7 +634,7 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto* memory = cpu->Memory();
         auto* stack = (uint32_t*)(memory + cpu->Stack());
         auto* allocator = cpu->Allocator();
-        auto syscall = syscall_tables[index].syscall;
+        auto* syscall = syscall_tables[index].syscall;
         return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
     }
 

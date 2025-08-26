@@ -117,7 +117,7 @@ static const struct {
     { "fgetpos",        INT32(syscall_fgetpos(memory, stack))           },
     { "fgets",          INT32(syscall_fgets(memory, stack))             },
     { "fopen",          INT32(syscall_fopen(memory, stack, allocator))  },
-    { "fprintf",        INT32(syscall_fprintf(memory, stack))           },
+    { "fprintf",        INT32(syscall_fprintf(memory, stack, log))      },
     { "fputc",          INT32(syscall_fputc(memory, stack))             },
     { "fputs",          INT32(syscall_fputs(memory, stack))             },
     { "fread",          INT32(syscall_fread(memory, stack))             },

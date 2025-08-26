@@ -25,6 +25,7 @@ public:
     allocator_t* Allocator() const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;
     size_t Stack() const override;
+    size_t Program() const override;
     std::string Status() const override;
     std::string Disassemble(int count) const override;
 

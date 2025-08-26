@@ -5,6 +5,7 @@
 // https://github.com/metarutaiga/miCPU
 //==============================================================================
 #include "EmulatorPCH.h"
+#include <map>
 #include <IconFontCppHeaders/IconsFontAwesome4.h>
 #include <imgui_club/imgui_memory_editor/imgui_memory_editor.h>
 #include "format/coff/pe.h"
@@ -16,9 +17,9 @@
 
 //------------------------------------------------------------------------------
 static miCPU* cpu;
-static std::string disasm;
 static std::string status;
 static std::string logs[2];
+static std::map<size_t, std::string> disasms;
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
 //------------------------------------------------------------------------------
@@ -90,11 +91,11 @@ void Debugger::Initialize()
 void Debugger::Shutdown()
 {
     delete cpu;
-    disasm = std::string();
     status = std::string();
     exports = std::vector<std::pair<std::string, size_t>>();
     logs[0] = std::string();
     logs[1] = std::string();
+    disasms = std::map<size_t, std::string>();
     samples = std::vector<std::pair<std::string, std::string>>();
 }
 //------------------------------------------------------------------------------
@@ -104,9 +105,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         return false;
 
     bool updated = false;
-    ImGui::SetNextWindowSize(ImVec2(1366.0f, 768.0f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(1536.0f, 864.0f), ImGuiCond_Appearing);
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
+        static int disasmIndex = 0;
+        static int disasmFocus = -1;
         static int stackIndex = 0;
         static int stackFocus = -1;
         static bool refresh = false;
@@ -142,7 +145,49 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         ImGui::DockSpace(id);
 
         if (ImGui::Begin("Disassembly", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImGui::InputTextMultiline("##10", disasm, ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+            struct Local {
+                std::map<size_t, std::string>::iterator temp_it;
+                int temp_index;
+                char temp[128];
+            } local;
+            local.temp_it = disasms.begin();
+            local.temp_index = 0;
+
+            int disasmCount = (int)disasms.size();
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##10", &disasmIndex, &disasmFocus, [](void* user_data, int index) -> const char* {
+                Local& local = *(Local*)user_data;
+                if (local.temp_index != index) {
+                    local.temp_index = index;
+                    local.temp_it = disasms.begin();
+                    std::advance(local.temp_it, index);
+                }
+                auto& disasm = (*local.temp_it++).second;
+                local.temp_index++;
+
+                int comment = 8 + 3 + 32 + 40;
+                snprintf(local.temp, 128, "%*s", comment, "");
+                auto pos = ImGui::GetCursorPos();
+                ImGui::Selectable(local.temp);
+                if (ImGui::IsItemHovered() && disasm.size() > comment) {
+                    ImGui::SetTooltip("%s", disasm.c_str() + comment);
+                }
+                ImGui::SetCursorPos(pos);
+                strncpy(local.temp, disasm.c_str(), comment + 16);
+                for (int i = comment; i < comment + 16; ++i) {
+                    if (local.temp[i] == '\r' || local.temp[i] == '\n')
+                        local.temp[i] = ' ';
+                }
+                local.temp[comment + 16] = '.';
+                local.temp[comment + 17] = '.';
+                local.temp[comment + 18] = '.';
+                local.temp[comment + 19] = 0;
+
+                return local.temp;
+            }, &local, disasmCount);
+            if (disasmFocus >= 0)
+                updated = true;
+            disasmFocus = -1;
         }
         ImGui::End();
         if (ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoScrollbar)) {
@@ -150,7 +195,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
         ImGui::End();
         if (ImGui::Begin("Stack", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            char temp[32];
+            char temp[128];
             int stackCount = stackSize / sizeof(uint32_t);
             ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
             ImGui::ListBox("##30", &stackIndex, &stackFocus, [](void* user_data, int index) -> const char* {
@@ -162,11 +207,25 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
+                const char* text = (char*)cpu->Memory(*value);
+                if (text == nullptr || (text[0] < 0x20 || text[0] > 0x7E)) {
+                    text = "";
+                }
 
                 char* temp = (char*)user_data;
-                snprintf(temp, 32, "%s%08zX %08X", stack == cpu->Stack() ? ">" : " ", stack, *value);
+                snprintf(temp, 128, "%*s", 8 + 1 + 8 + 28, "");
+                auto pos = ImGui::GetCursorPos();
+                ImGui::Selectable(temp);
+                if (ImGui::IsItemHovered() && text[0]) {
+                    ImGui::SetTooltip("%s", text);
+                }
+                ImGui::SetCursorPos(pos);
+
+                snprintf(temp, 128, "%08zX %08X %.28s", stack, *value, text);
                 return temp;
             }, temp, stackCount);
+            if (stackFocus >= 0)
+                updated = true;
             stackFocus = -1;
         }
         ImGui::End();
@@ -224,12 +283,15 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             delete cpu;
 
             status.clear();
-            disasm.clear();
             logs[0].clear();
             logs[1].clear();
+            disasms.clear();
             exportIndex = 0;
             exports.clear();
+            disasmIndex = 0;
+            disasmFocus = -1;
             stackIndex = 0;
+            stackFocus = -1;
             refresh = true;
             running = false;
 
@@ -242,7 +304,29 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 return cpu->Memory(base, size);
             }, cpu, Logger<0>);
             if (image) {
+                auto disassembly = [](void* image) {
+                    size_t base = 0;
+                    size_t address = 0;
+                    size_t size = 0;
+                    PE::SectionCode(image, &base, &address, &size);
+                    size_t begin = base + address;
+                    size_t end = begin + size;
+                    size_t program = cpu->Program();
+                    while (begin < end) {
+                        cpu->Jump(begin);
+                        std::string disasm = cpu->Disassemble(1);
+                        size_t space = disasm.find("  ");
+                        if (space == std::string::npos)
+                            break;
+                        size_t address = strtoll(disasm.c_str(), nullptr, 16);
+                        disasms[address] = disasm;
+                        begin += (space - 8 - 3) / 2;
+                    }
+                    cpu->Jump(program);
+                };
+
                 syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image);
+                syscall_windows_debug(cpu, disassembly);
 
                 exports.emplace_back("Entry", PE::Entry(image));
                 PE::Imports(image, Symbol, Logger<0>);
@@ -250,6 +334,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                     exports.emplace_back(name, address);
                 }, &exports);
+
+                disassembly(image);
 
                 if (exports.empty() == false) {
                     cpu->Jump(exports.front().second);
@@ -260,7 +346,6 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         if (running) {
             if (cpu && cpu->Step('INTO')) {
                 refresh = true;
-                updated = true;
             }
             else {
                 running = false;
@@ -271,11 +356,16 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             refresh = false;
             if (cpu) {
                 status = cpu->Status();
-                disasm = cpu->Disassemble(64);
+
+                auto it = disasms.find(cpu->Program());
+                if (it != disasms.end()) {
+                    disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
+                }
 
                 auto allocator = cpu->Allocator();
-                stackFocus = (int)(cpu->Stack() - (allocator->max_size() - stackSize)) / sizeof(uint32_t);
+                stackIndex = stackFocus = (int)(cpu->Stack() - (allocator->max_size() - stackSize)) / sizeof(uint32_t);
             }
+            updated = true;
         }
 
         if (showMemoryEditor) {
