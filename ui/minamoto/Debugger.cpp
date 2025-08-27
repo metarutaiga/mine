@@ -25,6 +25,9 @@ static std::vector<std::pair<std::string, size_t>> exports;
 //------------------------------------------------------------------------------
 static std::vector<std::pair<std::string, std::string>> samples;
 //------------------------------------------------------------------------------
+#define SYSLOG  0
+#define CONSOLE 1
+//------------------------------------------------------------------------------
 template<int INDEX>
 static int LoggerV(const char* format, va_list va)
 {
@@ -33,8 +36,10 @@ static int LoggerV(const char* format, va_list va)
     logs[INDEX].resize(offset + length);
     vsnprintf(logs[INDEX].data() + offset, length, format, va);
     logs[INDEX].pop_back();
-    if (logs[INDEX].empty() == false && logs[INDEX].back() != '\n')
-        logs[INDEX] += '\n';
+    if (INDEX == SYSLOG) {
+        if (logs[INDEX].empty() == false && logs[INDEX].back() != '\n')
+            logs[INDEX] += '\n';
+    }
     return length;
 }
 //------------------------------------------------------------------------------
@@ -52,10 +57,10 @@ static size_t Exception(miCPU* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, Logger<0>, Logger<1>);
+        result = syscall_windows_execute(data, index, Logger<SYSLOG>, Logger<CONSOLE>);
     }
     if (result == 0) {
-        result = syscall_i386_execute(cpu, index, LoggerV<0>, LoggerV<1>);
+        result = syscall_i386_execute(cpu, index, LoggerV<SYSLOG>, LoggerV<CONSOLE>);
     }
     return result;
 }
@@ -347,7 +352,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
-            }, cpu, Logger<0>);
+            }, cpu, Logger<SYSLOG>);
             if (image) {
                 auto disassembly = [](void* image) {
                     size_t base = 0;
@@ -387,7 +392,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 syscall_windows_debug(cpu, disassembly);
 
                 exports.emplace_back("Entry", PE::Entry(image));
-                PE::Imports(image, Symbol, Logger<0>);
+                PE::Imports(image, Symbol, Logger<SYSLOG>);
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
                     auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                     exports.emplace_back(name, address);

@@ -207,6 +207,19 @@ size_t PE::Entry(void* image)
     return optionalHeader.ImageBase + optionalHeader.BaseOfCode;
 }
 
+bool PE::SectionCode(void* image, size_t* base, size_t* address, size_t* size)
+{
+    if (image == nullptr || base == nullptr || address == nullptr || size == nullptr)
+        return false;
+
+    auto image8 = (uint8_t*)image;
+    OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
+    (*base) = optionalHeader.ImageBase;
+    (*address) = optionalHeader.BaseOfCode;
+    (*size) = optionalHeader.SizeOfCode;
+    return true;
+}
+
 void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(const char*, ...))
 {
     if (image == nullptr || sym == nullptr || log == nullptr)

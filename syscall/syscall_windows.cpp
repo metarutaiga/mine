@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
 #include "allocator.h"
@@ -389,15 +390,15 @@ int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocat
     args[0] = virtual(int, main);
     args[1] = 0;
 
-    auto environ = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
+    auto env = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
     auto path = (char*)allocator->allocate(sizeof("PATH=."));
     strcpy(path, "PATH=.");
-    environ[0] = virtual(int, path);
-    environ[1] = 0;
+    env[0] = virtual(int, path);
+    env[1] = 0;
 
     *argc = 1;
     *argv = virtual(int, args);
-    *envp = virtual(int, environ);
+    *envp = virtual(int, env);
 
     return 0;
 }

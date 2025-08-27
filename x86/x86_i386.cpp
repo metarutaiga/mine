@@ -160,6 +160,7 @@ bool x86_i386::Run()
 //------------------------------------------------------------------------------
 bool x86_i386::Step(int type)
 {
+    auto eip_over = EIP;
     auto eip = EIP;
     auto esp = ESP;
     while (EIP) {
@@ -167,6 +168,10 @@ bool x86_i386::Step(int type)
         StepInternal(format);
         Fixup(format, *this);
         format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+        if (format.repeat && ECX != 0) {
+            ECX -= 1;
+            EIP = eip;
+        }
         if (EIP == 0) {
             EIP = eip;
             return false;
@@ -180,9 +185,9 @@ bool x86_i386::Step(int type)
         case 'INTO':
             return true;
         case 'OVER':
-            if (ESP >= esp || EIP - eip < 16)
+            if (ESP >= esp || EIP - eip_over < 16)
                 return true;
-            continue;
+            break;
         case 'OUT ':
             if (strcmp(format.instruction, "RET") == 0)
                 return true;

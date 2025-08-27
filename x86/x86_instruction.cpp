@@ -170,6 +170,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
     };
 
     std::string disasm;
+    if (format.repeat) {
+        disasm += "REP";
+        disasm += ' ';
+    }
     disasm += format.instruction;
 
     size_t offset = disasm.size();

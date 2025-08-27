@@ -20,6 +20,7 @@ struct miCPU
     virtual allocator_t* Allocator() const = 0;
     virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;
     virtual size_t Stack() const = 0;
+    virtual size_t Program() const = 0;
     virtual std::string Status() const = 0;
     virtual std::string Disassemble(int count) const = 0;
 };
