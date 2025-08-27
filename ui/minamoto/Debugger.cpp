@@ -72,6 +72,18 @@ static size_t Symbol(const char* file, const char* name)
     return address;
 }
 //------------------------------------------------------------------------------
+static const char* Name(size_t index)
+{
+    const char* name = nullptr;
+    if (name == nullptr) {
+        name = syscall_windows_name(index);
+    }
+    if (name == nullptr) {
+        name = syscall_i386_name(index);
+    }
+    return name;
+}
+//------------------------------------------------------------------------------
 void Debugger::Initialize()
 {
     std::string folder;
@@ -162,26 +174,49 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     local.temp_it = disasms.begin();
                     std::advance(local.temp_it, index);
                 }
-                auto& disasm = (*local.temp_it++).second;
+                auto& [address, disasm] = (*local.temp_it++);
                 local.temp_index++;
 
-                int comment = 8 + 3 + 32 + 40;
-                snprintf(local.temp, 128, "%*s", comment, "");
-                auto pos = ImGui::GetCursorPos();
-                ImGui::Selectable(local.temp);
-                if (ImGui::IsItemHovered() && disasm.size() > comment) {
-                    ImGui::SetTooltip("%s", disasm.c_str() + comment);
+                const char* comment = nullptr;
+                auto comma = disasm.rfind(" ");
+                if (comma != std::string::npos) {
+                    size_t address = strtoll(disasm.c_str() + comma + 2, nullptr, 16);
+                    if (address) {
+                        auto it = disasms.lower_bound(address);
+                        if (it == disasms.end() || (address - (*it).first) > 16)
+                            comment = (char*)cpu->Memory(address);
+                        if (comment) {
+                            uint32_t index = *(uint32_t*)comment;
+                            const char* name = Name(index);
+                            if (name) {
+                                comment = name;
+                            }
+                        }
+                    }
                 }
-                ImGui::SetCursorPos(pos);
-                strncpy(local.temp, disasm.c_str(), comment + 16);
-                for (int i = comment; i < comment + 16; ++i) {
+                if (comment == nullptr || (comment[0] < 0x20 || comment[0] > 0x7E)) {
+                    comment = "";
+                }
+
+                int column = 8 + 3 + 32 + 40;
+                if (comment[0]) {
+                    snprintf(local.temp, 128, "%*s", column, "");
+                    auto pos = ImGui::GetCursorPos();
+                    ImGui::Selectable(local.temp);
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("%s", comment);
+                    }
+                    ImGui::SetCursorPos(pos);
+                }
+                snprintf(local.temp, 128, "%-*s%s", column, disasm.c_str(), comment);
+                for (int i = column; i < column + 16; ++i) {
                     if (local.temp[i] == '\r' || local.temp[i] == '\n')
                         local.temp[i] = ' ';
                 }
-                local.temp[comment + 16] = '.';
-                local.temp[comment + 17] = '.';
-                local.temp[comment + 18] = '.';
-                local.temp[comment + 19] = 0;
+                local.temp[column + 16] = '.';
+                local.temp[column + 17] = '.';
+                local.temp[column + 18] = '.';
+                local.temp[column + 19] = 0;
 
                 return local.temp;
             }, &local, disasmCount);
@@ -207,7 +242,17 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
-                const char* text = (char*)cpu->Memory(*value);
+                const char* text = nullptr;
+                if (*value) {
+                    text = (char*)cpu->Memory(*value);
+                    if (text) {
+                        uint32_t index = *(uint32_t*)text;
+                        const char* name = Name(index);
+                        if (name) {
+                            text = name;
+                        }
+                    }
+                }
                 if (text == nullptr || (text[0] < 0x20 || text[0] > 0x7E)) {
                     text = "";
                 }
@@ -315,6 +360,10 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     while (begin < end) {
                         cpu->Jump(begin);
                         std::string disasm = cpu->Disassemble(1);
+                        if (disasm.empty())
+                            break;
+                        if (disasm.back() == '\n')
+                            disasm.pop_back();
                         size_t space = disasm.find("  ");
                         if (space == std::string::npos)
                             break;
@@ -322,6 +371,15 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                         disasms[address] = disasm;
                         begin += (space - 8 - 3) / 2;
                     }
+//                  auto it = disasms.lower_bound(end);
+//                  if (it != disasms.begin())
+//                      it--;
+//                  while (it != disasms.begin()) {
+//                      auto rem = it--;
+//                      if ((*rem).second.find("0000  ") == std::string::npos)
+//                          break;
+//                      disasms.erase(rem);
+//                  }
                     cpu->Jump(program);
                 };
 

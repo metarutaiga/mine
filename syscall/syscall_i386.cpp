@@ -88,6 +88,18 @@ size_t syscall_i386_symbol(const char* file, const char* name)
     return 0;
 }
 
+const char* syscall_i386_name(size_t index)
+{
+    index = uint32_t(-index - SYMBOL_INDEX);
+
+    size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
+    if (index < count) {
+        return syscall_table[index].name;
+    }
+
+    return nullptr;
+}
+
 #ifdef __cplusplus
 }
 #endif

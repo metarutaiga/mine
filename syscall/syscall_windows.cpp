@@ -37,7 +37,17 @@ struct WIN32_FIND_DATAA {
 extern "C" {
 #endif
 
-#define SYMBOL_INDEX 1001
+#define SYMBOL_INDEX    1001
+#define TIB_MSVCRT      0x600
+#define TIB_WINDOWS     0x700
+
+struct MSVCRT {
+    uint32_t iob[3][8];
+    uint32_t adjust_fdiv;
+    uint32_t commode;
+    uint32_t fmode;
+    uint32_t initenv;
+};
 
 struct Windows {
     uint32_t image;
@@ -115,7 +125,7 @@ int syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, allocator_t* alloca
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
     if (dir == nullptr)
         return 0xFFFFFFFF;
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     auto name = physical(char*, stack[1]);
 
     std::string path = windows->currentDirectory;
@@ -172,7 +182,7 @@ int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack)
 
 int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
 {
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     auto& modules = windows->modules;
     auto name = physical(char*, stack[1]);
 
@@ -197,7 +207,7 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
     if (module)
         return module;
 
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     auto& modules = windows->modules;
     auto name = physical(char*, stack[1]);
 
@@ -280,7 +290,7 @@ int syscall_FreeLibrary(uint8_t* memory, uint32_t* stack)
 
 int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
 {
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     char* pathName = physical(char*, stack[1]);
     strncpy(windows->currentDirectory, pathName, 260);
 #if defined(_WIN32)
@@ -394,20 +404,20 @@ int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocat
 
 int syscall___p__commode(uint8_t* memory)
 {
-    auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[0x30]);
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    return virtual(int, &msvcrt->commode);
 }
 
 int syscall___p__fmode(uint8_t* memory)
 {
-    auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[0x31]);
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    return virtual(int, &msvcrt->fmode);
 }
 
 int syscall___p___initenv(uint8_t* memory)
 {
-    auto msvcrt = physical(int**, 0x600);
-    return virtual(int, msvcrt[0x32]);
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    return virtual(int, &msvcrt->initenv);
 }
 
 struct syscall_basic_string_char {
@@ -480,7 +490,7 @@ int syscall_basic_string_char_deconstructor(uint32_t thiz, uint8_t* memory, allo
 static const struct {
     const char* name;
     size_t (*syscall)(CALLBACK_ARGUMENT);
-} syscall_tables[] = {
+} syscall_table[] = {
 
     // kernel32
     { "CloseHandle",                INT32(1, 0)                                                 },
@@ -574,12 +584,12 @@ size_t syscall_windows_new(void* data, const char* path, void* image)
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
-    auto* msvcrt = physical(int*, 0x600);
-    msvcrt[0x00] = 1;
-    msvcrt[0x10] = 2;
-    msvcrt[0x20] = 3;
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    msvcrt->iob[0][0] = 1;
+    msvcrt->iob[1][0] = 2;
+    msvcrt->iob[2][0] = 3;
 
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image == 0) {
         windows->image = virtual(uint32_t, image);
         new (windows) Windows;
@@ -599,7 +609,7 @@ size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*))
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     windows->loadLibraryCallback = loadLibraryCallback;
 
     return 0;
@@ -612,7 +622,7 @@ size_t syscall_windows_delete(void* data)
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
-    auto* windows = physical(Windows*, 0x700);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image) {
         windows->image = 0;
         windows->~Windows();
@@ -624,9 +634,9 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
 {
     index = uint32_t(-index - SYMBOL_INDEX);
 
-    size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
+    size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     if (index < count) {
-        syslog("%s\n", syscall_tables[index].name);
+        syslog("%s\n", syscall_table[index].name);
 
         auto* cpu = (x86_i386*)data;
         auto& x86 = cpu->x86;
@@ -634,7 +644,7 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto* memory = cpu->Memory();
         auto* stack = (uint32_t*)(memory + cpu->Stack());
         auto* allocator = cpu->Allocator();
-        auto* syscall = syscall_tables[index].syscall;
+        auto* syscall = syscall_table[index].syscall;
         return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
     }
 
@@ -647,17 +657,34 @@ size_t syscall_windows_symbol(const char* file, const char* name)
         return 0;
 
     if (strcmp(name, "_iob") == 0)
-        return 0x600;
+        return TIB_MSVCRT + offsetof(MSVCRT, iob);
     if (strcmp(name, "_adjust_fdiv") == 0)
-        return 0x60C;
+        return TIB_MSVCRT + offsetof(MSVCRT, adjust_fdiv);
 
-    size_t count = sizeof(syscall_tables) / sizeof(syscall_tables[0]);
+    size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     for (size_t index = 0; index < count; ++index) {
-        if (strcmp(syscall_tables[index].name, name) == 0)
+        if (strcmp(syscall_table[index].name, name) == 0)
             return (uint32_t)(-index - SYMBOL_INDEX);
     }
 
     return 0;
+}
+
+const char* syscall_windows_name(size_t index)
+{
+    if (index == TIB_MSVCRT + offsetof(MSVCRT, iob))
+        return "_iob";
+    if (index == TIB_MSVCRT + offsetof(MSVCRT, adjust_fdiv))
+        return "_adjust_fdiv";
+
+    index = uint32_t(-index - SYMBOL_INDEX);
+
+    size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
+    if (index < count) {
+        return syscall_table[index].name;
+    }
+
+    return nullptr;
 }
 
 #ifdef __cplusplus

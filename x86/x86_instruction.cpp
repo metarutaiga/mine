@@ -164,7 +164,8 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
         if (value > 0xFFFFFFFF)     snprintf(temp, 64, "%s%0*llX",                 "", 16, imm);
         else if (value > 0xFFFF)    snprintf(temp, 64, "%s%0*llX",                 "",  8, imm & 0xFFFFFFFF);
         else if (value > 0xFF)      snprintf(temp, 64, "%s%0*llX",                 "",  4, imm & 0xFFFF);
-        else                        snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
+        else if (value > 0x9)       snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
+        else                        snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  1, value);
         return std::string(temp);
     };
 
@@ -231,33 +232,6 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             if (disasm.size() > offset)
                 disasm.pop_back();
             break;
-        }
-    }
-
-    for (int i = 2; i >= 0; --i) {
-        char c = format.instruction[0];
-        if (c == 'C' || c == 'J')
-            break;
-        switch (format.operand[i].type) {
-//      case Format::Operand::ADR:
-//          if (format.operand[i].scale > 0)
-//              continue;
-//          if (format.operand[i].base >= 0)
-//              continue;
-//          break;
-        case Format::Operand::IMM:
-            break;
-        default:
-            continue;
-        }
-        auto memory = x86.memory_address + uint32_t(format.operand[i].displacement);
-        if (memory >= x86.memory_address && memory < x86.memory_address + x86.memory_size) {
-            char c = memory[0];
-            if (c >= 0x20 && c <= 0x7E) {
-                disasm.resize(40, ' ');
-                disasm += (char*)memory;
-                break;
-            }
         }
     }
 

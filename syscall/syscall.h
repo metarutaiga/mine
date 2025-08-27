@@ -6,6 +6,7 @@ extern "C" {
 
 size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_i386_symbol(const char* file, const char* name);
+const char* syscall_i386_name(size_t index);
 
 // assert
 int syscall_assert(const void* stack);
