@@ -15,6 +15,7 @@ struct x86_instruction : public x86_format
     uint8_t* stack_address = nullptr;
     uint8_t* opcode = nullptr;
 
+    size_t breakpoint = 0;
     size_t (*exception)(struct miCPU*, size_t) = [](struct miCPU*, size_t) { return size_t(0); };
 
 protected:
@@ -49,6 +50,7 @@ protected:
     static instruction FS;      // FS segment override prefix
     static instruction GS;      // GS segment override prefix
 
+    static instruction REP;     // Repeat Following String Operation
     static instruction WAIT;    // Wait until BUSY# Pin is Inactive (HIGH)
 
     static instruction AAA;     // ASCII Adjust after Addition
@@ -126,7 +128,6 @@ protected:
     static instruction PUSHAD;  // Push all General Registers
     static instruction PUSHFD;  // Push Flags Register onto the Stack
     static instruction Rxx;     // Rotate
-    static instruction REP;     // Repeat Following String Operation
     static instruction RET;     // Return from Procedure
     static instruction SAHF;    // Store AH into Flags
     static instruction Sxx;     // Shift Instructions

@@ -126,6 +126,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int updateCount = 0;
+        static int breakpoint = 0;
         static int disasmIndex = 0;
         static int disasmFocus = -1;
         static int stackIndex = 0;
@@ -296,6 +297,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
+            if (ImGui::InputInt("Breakpoint", &breakpoint, 0, 0, ImGuiInputTextFlags_CharsHexadecimal)) {
+                if (cpu) cpu->Breakpoint(breakpoint);
+            }
             ImGui::Separator();
             for (auto& [name, path] : samples) {
                 float pos = ImGui::CalcTextSize(name.c_str()).x + ImGui::GetStyle().FramePadding.x * 2.0f;
@@ -345,6 +349,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
+            cpu->Breakpoint(breakpoint);
             cpu->Exception(Exception);
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {

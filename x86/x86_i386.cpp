@@ -121,7 +121,7 @@ const x86_instruction::instruction_pointer x86_i386::escMOD[8][8] =
 /* DC */ { o FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
 /* DD */ { o FLD   x _     x FST   x FSTP   x _      x _      x _      x FSTSW  },
 /* DE */ { o FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
-/* DF */ { o FILD  x _     x FIST  x FISTP  x FBLD   x FILD   x FBSTP  x FISTP  },
+/* DF */ { o FILD  x _     x FIST  x FISTP  x _      x FILD   x _      x FISTP  },
 };
 //------------------------------------------------------------------------------
 #undef o
@@ -152,6 +152,8 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 bool x86_i386::Run()
 {
     while (EIP) {
+        if (EIP == breakpoint)
+            return false;
         if (Step('INTO') == false)
             return false;
     }
@@ -208,6 +210,11 @@ bool x86_i386::Jump(size_t address)
         return false;
     EIP = (uint32_t)address;
     return true;
+}
+//------------------------------------------------------------------------------
+void x86_i386::Breakpoint(size_t address)
+{
+    breakpoint = address;
 }
 //------------------------------------------------------------------------------
 void x86_i386::Exception(size_t(*callback)(miCPU*, size_t))

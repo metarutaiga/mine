@@ -21,6 +21,7 @@ public:
     bool Run() override;
     bool Step(int type) override;
     bool Jump(size_t address) override;
+    void Breakpoint(size_t address) override;
     void Exception(size_t(*callback)(miCPU*, size_t)) override;
     allocator_t* Allocator() const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;

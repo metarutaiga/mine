@@ -74,35 +74,57 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
     return true;
 }
 //------------------------------------------------------------------------------
+bool x86_i86::Run()
+{
+    while (IP) {
+        if (IP == breakpoint)
+            return false;
+        if (Step('INTO') == false)
+            return false;
+    }
+    return true;
+}
+//------------------------------------------------------------------------------
 bool x86_i86::Step(int type)
 {
+    auto ip_over = EIP;
     auto ip = IP;
     auto sp = SP;
     while (IP) {
         Format format;
         StepInternal(format);
         Fixup(format, *this);
-        format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+        if (format.operation == nullptr)
+            return false;
+        if (format.repeat == false || CX != 0) {
+            format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+            if (format.repeat) {
+                CX -= 1;
+                IP = ip;
+            }
+        }
+        if (IP == 0) {
+            IP = ip;
+            return false;
+        }
         if (IP >= memory_size) {
             auto count = (uint16_t)exception(this, IP);
             IP = Pop16();
             SP += count;
         }
-        if (type == 0)
+        switch (type) {
+        case 'INTO':
+            return true;
+        case 'OVER':
+            if (SP >= sp || IP - ip_over < 16)
+                return true;
             break;
-        if (IP - ip < 16)
+        case 'OUT ':
+            if (strcmp(format.instruction, "RET") == 0)
+                return true;
             break;
-        if (SP > sp)
-            break;
-    }
-    return true;
-}
-//------------------------------------------------------------------------------
-bool x86_i86::Run()
-{
-    while (IP) {
-        if (Step(0) == false)
-            return false;
+        }
+        ip = IP;
     }
     return true;
 }
@@ -113,6 +135,11 @@ bool x86_i86::Jump(size_t address)
         return false;
     IP = (uint16_t)address;
     return true;
+}
+//------------------------------------------------------------------------------
+void x86_i86::Breakpoint(size_t address)
+{
+    breakpoint = address;
 }
 //------------------------------------------------------------------------------
 void x86_i86::Exception(size_t(*callback)(miCPU*, size_t))
@@ -215,6 +242,7 @@ std::string x86_i86::Disassemble(int count) const
         x86.regs[i] = regs[i];
     x86.flags = flags;
     x86.ip = ip;
+    x86.memory_size = memory_size;
     x86.memory_address = memory_address;
 
     for (int i = 0; i < count; ++i) {
@@ -253,12 +281,18 @@ void x86_i86::StepInternal(Format& format)
     format.width = 16;
     format.repeat = false;
 
+    auto ip = IP;
     for (;;) {
         opcode = memory_address + IP;
         one[opcode[0]](format, opcode);
         IP += format.length;
         if (format.operation)
             break;
+        if (IP - ip >= 15) {
+            if (format.instruction[0] == 0)
+                format.instruction = "UNKNOWN";
+            break;
+        }
     }
 }
 //------------------------------------------------------------------------------

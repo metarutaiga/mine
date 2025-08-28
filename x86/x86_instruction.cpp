@@ -332,6 +332,11 @@ void x86_instruction::GS(Format& format, const uint8_t* opcode)
     format.segment = "GS";
 }
 //------------------------------------------------------------------------------
+void x86_instruction::REP(Format& format, const uint8_t* opcode)
+{
+    format.repeat = true;
+}
+//------------------------------------------------------------------------------
 void x86_instruction::WAIT(Format& format, const uint8_t* opcode)
 {
 }
@@ -635,40 +640,32 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::MOVSX(Format& format, const uint8_t* opcode)
 {
+    Decode(format, opcode, "MOVSX", 2, 0, DIRECTION | OPERAND_SIZE);
     switch (opcode[1]) {
-    case 0xBE:
-    case 0xBF:  Decode(format, opcode, "MOVSX", 2, 0, 1);   break;
+    case 0xBE:  format.address = 8;     break;
+    case 0xBF:  format.address = 16;    break;
     }
 
     BEGIN_OPERATION() {
-        switch (x86.opcode[1]) {
-        case 0xBE:
-            switch (format.width) {
-            case 16:    (int16_t&)DEST = (int8_t)SRC;   break;
-            case 32:    (int32_t&)DEST = (int8_t)SRC;   break;
-            }
-            break;
-        case 0xBF:      (int32_t&)DEST = (int16_t)SRC;  break;
+        switch (format.address) {
+        case 8:     DEST = (int8_t)SRC;     break;
+        case 16:    DEST = (int16_t)SRC;    break;
         }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
 {
+    Decode(format, opcode, "MOVZX", 2, 0, DIRECTION | OPERAND_SIZE);
     switch (opcode[1]) {
-    case 0xB6:
-    case 0xB7:  Decode(format, opcode, "MOVZX", 2, 0, 1);   break;
+    case 0xB6:  format.address = 8;     break;
+    case 0xB7:  format.address = 16;    break;
     }
 
     BEGIN_OPERATION() {
-        switch (x86.opcode[1]) {
-        case 0xB6:
-            switch (format.width) {
-            case 16:    (uint16_t&)DEST = (uint8_t)SRC;     break;
-            case 32:    (uint32_t&)DEST = (uint8_t)SRC;     break;
-            }
-            break;
-        case 0xB7:      (uint32_t&)DEST = (uint16_t)SRC;    break;
+        switch (format.address) {
+        case 8:     DEST = (uint8_t)SRC;    break;
+        case 16:    DEST = (uint16_t)SRC;   break;
         }
     } END_OPERATION;
 }
@@ -775,11 +772,6 @@ void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
         Push32(EFLAGS);
     };
-}
-//------------------------------------------------------------------------------
-void x86_instruction::REP(Format& format, const uint8_t* opcode)
-{
-    format.repeat = true;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RET(Format& format, const uint8_t* opcode)

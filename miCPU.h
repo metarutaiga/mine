@@ -16,6 +16,7 @@ struct miCPU
     virtual bool Run() = 0;
     virtual bool Step(int type) = 0;
     virtual bool Jump(size_t address) = 0;
+    virtual void Breakpoint(size_t address) = 0;
     virtual void Exception(size_t(*callback)(miCPU*, size_t)) = 0;
     virtual allocator_t* Allocator() const = 0;
     virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;
