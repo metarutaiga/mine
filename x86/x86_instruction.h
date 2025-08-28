@@ -49,6 +49,8 @@ protected:
     static instruction FS;      // FS segment override prefix
     static instruction GS;      // GS segment override prefix
 
+    static instruction WAIT;    // Wait until BUSY# Pin is Inactive (HIGH)
+
     static instruction AAA;     // ASCII Adjust after Addition
     static instruction AAD;     // ASCII Adjust AX before Division
     static instruction AAM;     // ASCII Adjust AX after Multiply
@@ -142,7 +144,6 @@ protected:
     static instruction TEST;    // Logical Compare
     static instruction UD;      // Undefined Instruction
 //  static instruction VERx;    // Verify a Segment for Reading or Writing
-//  static instruction WAIT;    // Wait until BUSY# Pin is Inactive (HIGH)
     static instruction XCHG;    // Exchange Register/Memory with Register
     static instruction XLAT;    // Table Look-up Translation
     static instruction XOR;     // Logical Exclusive OR

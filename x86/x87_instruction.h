@@ -31,7 +31,7 @@ protected:
     static instruction FDIVRP;      // Floating divide reversed and pop
 //  static instruction FENI;        // Enable interrupts (8087 only, others do fnop)
 //  static instruction FNENI;       // Enable interrupts, nowait (8087 only, others do fnop)
-    static instruction FFREE;       // Free register
+//  static instruction FFREE;       // Free register
     static instruction FIADD;       // Integer add
     static instruction FICOM;       // Integer compare
     static instruction FICOMP;      // Integer compare and pop
@@ -58,7 +58,7 @@ protected:
 //  static instruction FLDENV;      // Load environment state
     static instruction FMUL;        // Floating point multiply
     static instruction FMULP;       // Floating point multiply and pop
-    static instruction FNOP;        // no operation
+//  static instruction FNOP;        // no operation
     static instruction FPATAN;      // Partial arctangent
     static instruction FPREM;       // Partial remainder
     static instruction FPREM1;      // Partial remainder (IEEE compatible, 387+)

@@ -188,6 +188,7 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             case 16:    disasm += "WORD PTR";   break;
             case 32:    disasm += "DWORD PTR";  break;
             case 64:    disasm += "QWORD PTR";  break;
+            case 80:    disasm += "TBYTE PTR";  break;
             }
             disasm += ' ';
             if (format.segment[0]) {
@@ -220,6 +221,13 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             disasm += hex(format.operand[i].displacement);
             break;
         case Format::Operand::REG:
+            if (format.floating) {
+                disasm += "ST";
+                disasm += '(';
+                disasm += '0' + format.operand[i].base;
+                disasm += ')';
+                break;
+            }
             switch (format.width) {
             case 8:     disasm += REG8[format.operand[i].base];   break;
             case 16:    disasm += REG16[format.operand[i].base];  break;
@@ -322,6 +330,10 @@ void x86_instruction::FS(Format& format, const uint8_t* opcode)
 void x86_instruction::GS(Format& format, const uint8_t* opcode)
 {
     format.segment = "GS";
+}
+//------------------------------------------------------------------------------
+void x86_instruction::WAIT(Format& format, const uint8_t* opcode)
+{
 }
 //------------------------------------------------------------------------------
 //

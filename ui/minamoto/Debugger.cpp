@@ -125,6 +125,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     ImGui::SetNextWindowSize(ImVec2(1536.0f, 864.0f), ImGuiCond_Appearing);
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
+        static int updateCount = 0;
         static int disasmIndex = 0;
         static int disasmFocus = -1;
         static int stackIndex = 0;
@@ -225,8 +226,6 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
                 return local.temp;
             }, &local, disasmCount);
-            if (disasmFocus >= 0)
-                updated = true;
             disasmFocus = -1;
         }
         ImGui::End();
@@ -274,8 +273,6 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 snprintf(temp, 128, "%08zX %08X %.28s", stack, *value, text);
                 return temp;
             }, temp, stackCount);
-            if (stackFocus >= 0)
-                updated = true;
             stackFocus = -1;
         }
         ImGui::End();
@@ -428,7 +425,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 auto allocator = cpu->Allocator();
                 stackIndex = stackFocus = (int)(cpu->Stack() - (allocator->max_size() - stackSize)) / sizeof(uint32_t);
             }
-            updated = true;
+            updateCount = 3;
         }
 
         if (showMemoryEditor) {
@@ -439,6 +436,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 ImGui::End();
                 memoryEditor.DrawWindow("Memory", allocator->address(), allocator->max_size());
             }
+        }
+
+        if (updateCount) {
+            updateCount--;
+            updated = true;
         }
     }
     ImGui::End();

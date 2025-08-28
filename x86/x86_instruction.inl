@@ -25,8 +25,8 @@ static auto specialize(auto lambda) {
 }
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
-        auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, auto SRC1, auto SRC2) { \
-            auto SRC = SRC1; (void)SRC;
+        auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, auto& SRC1, auto& SRC2) { \
+            auto& SRC = SRC1; (void)SRC;
 #define END_OPERATION }; \
         switch (format.width) { \
         case 8:     format.operation = specialize<uint8_t>(operation);  break; \

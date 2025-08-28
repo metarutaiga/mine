@@ -28,7 +28,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 /* 6 */ x PUSHAD x POPAD x _    x _    x FS    x GS    x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
 /* 7 */ x Jcc    x Jcc   x Jcc  x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
 /* 8 */ x grp1   x grp1  x _    x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
-/* 9 */ x NOP    x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x _     x _     x PUSHFD x POPFD x SAHF  x LAHF
+/* 9 */ x NOP    x XCHG  x XCHG x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CWDE  x CDQ   x _     x WAIT  x PUSHFD x POPFD x SAHF  x LAHF
 /* A */ x MOV    x MOV   x MOV  x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
 /* B */ x MOV    x MOV   x MOV  x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x grp2   x grp2  x RET  x RET  x _     x _     x MOV   x MOV   x ENTER x LEAVE x _     x _     x _      x _     x _     x _
@@ -83,7 +83,7 @@ const x86_instruction::instruction_pointer x86_i386::esc[512] =
 /* D8 26AE */ x FSUB   x FSUB   x FSUB   x FSUB   x FSUB    x FSUB   x FSUB    x FSUB    x FSUBR  x FSUBR   x FSUBR  x FSUBR   x FSUBR   x FSUBR  x FSUBR  x FSUBR
 /* D8 37BF */ x FDIV   x FDIV   x FDIV   x FDIV   x FDIV    x FDIV   x FDIV    x FDIV    x FDIVR  x FDIVR   x FDIVR  x FDIVR   x FDIVR   x FDIVR  x FDIVR  x FDIVR
 /* D9 048C */ x FLD    x FLD    x FLD    x FLD    x FLD     x FLD    x FLD     x FLD     x FXCH   x FXCH    x FXCH   x FXCH    x FXCH    x FXCH   x FXCH   x FXCH
-/* D9 159D */ x FNOP   x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
+/* D9 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
 /* D9 26AE */ x FCHS   x FABS   x _      x _      x FTST    x FXAM   x _       x _       x FLD1   x FLDL2T  x FLDL2E x FLDPI   x FLDLG2  x FLDLN2 x FLDZ   x _
 /* D9 37BF */ x F2XM1  x FYL2X  x FPTAN  x FPATAN x FXTRACT x FPREM1 x FDECSTP x FINCSTP x FPREM  x FYL2XP1 x FSQRT  x FSINCOS x FRNDINT x FSCALE x FSIN   x FCOS
 /* DA 048C */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
@@ -98,7 +98,7 @@ const x86_instruction::instruction_pointer x86_i386::esc[512] =
 /* DC 159D */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
 /* DC 26AE */ x FSUBR  x FSUBR  x FSUBR  x FSUBR  x FSUBR   x FSUBR  x FSUBR   x FSUBR   x FSUB   x FSUB    x FSUB   x FSUB    x FSUB    x FSUB   x FSUB   x FSUB
 /* DC 37BF */ x FDIVR  x FDIVR  x FDIVR  x FDIVR  x FDIVR   x FDIVR  x FDIVR   x FDIVR   x FDIV   x FDIV    x FDIV   x FDIV    x FDIV    x FDIV   x FDIV   x FDIV
-/* DD 048C */ x FFREE  x FFREE  x FFREE  x FFREE  x FFREE   x FFREE  x FFREE   x FFREE   x _      x _       x _      x _       x _       x _      x _      x _
+/* DD 048C */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
 /* DD 159D */ x FST    x FST    x FST    x FST    x FST     x FST    x FST     x FST     x FSTP   x FSTP    x FSTP   x FSTP    x FSTP    x FSTP   x FSTP   x FSTP
 /* DD 26AE */ x FUCOM  x FUCOM  x FUCOM  x FUCOM  x FUCOM   x FUCOM  x FUCOM   x FUCOM   x FUCOMP x FUCOMP  x FUCOMP x FUCOMP  x FUCOMP  x FUCOMP x FUCOMP x FUCOMP
 /* DD 37BF */ x _      x _      x _      x _      x _       x _      x _       x _       x _      x _       x _      x _       x _       x _      x _      x _
@@ -344,12 +344,18 @@ void x86_i386::StepInternal(Format& format)
     format.width = 32;
     format.repeat = false;
 
+    auto eip = EIP;
     for (;;) {
         opcode = memory_address + EIP;
         one[opcode[0]](format, opcode);
         EIP += format.length;
         if (format.operation)
             break;
+        if (EIP - eip >= 15) {
+            if (format.instruction[0] == 0)
+                format.instruction = "UNKNOWN";
+            break;
+        }
     }
 }
 //------------------------------------------------------------------------------
@@ -357,6 +363,8 @@ void x86_i386::StepInternal(Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::ESC(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+    format.floating = true;
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;
         index |= (opcode[0] & 0b00000111) << 6;

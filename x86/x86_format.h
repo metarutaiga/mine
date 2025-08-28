@@ -27,6 +27,7 @@ struct x86_format
         int width = 0;
         int length = 0;
         int address = 0;
+        bool floating = false;
         bool repeat = false;
         const char* instruction = "";
         const char* segment = "";

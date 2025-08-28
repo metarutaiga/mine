@@ -18,6 +18,7 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -33,6 +34,7 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
 void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FICOM", 2);
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         C0 = ST(0) < SRC;
@@ -45,6 +47,7 @@ void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
 void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FICOMP", 2);
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         C0 = ST(0) < SRC;
@@ -62,6 +65,7 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -81,6 +85,7 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -105,6 +110,7 @@ void x87_instruction::FILD(Format& format, const uint8_t* opcode)
         }
         break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -126,6 +132,7 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -145,6 +152,7 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
     case 0xDB:  format.width = 32;  break;
     case 0xDF:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         int origin = fegetround();
@@ -174,6 +182,7 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
         }
         break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         int origin = fegetround();
@@ -199,6 +208,7 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
@@ -218,6 +228,7 @@ void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
+    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         auto& DEST = ST(0);
