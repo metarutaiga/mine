@@ -3,6 +3,10 @@
 #include <bit>
 
 //------------------------------------------------------------------------------
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wshift-count-overflow"
+#endif
+//------------------------------------------------------------------------------
 static x86_register x86;
 //------------------------------------------------------------------------------
 #define REG(reg)        ((int)((& :: reg - & :: EAX) / (& :: ECX - & :: EAX)))
@@ -25,8 +29,8 @@ static auto specialize(auto lambda) {
 }
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
-        auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, auto& SRC1, auto& SRC2) { \
-            auto& SRC = SRC1; (void)SRC;
+        auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
+            const auto& SRC = SRC1; (void)SRC;
 #define END_OPERATION }; \
         switch (format.width) { \
         case 8:     format.operation = specialize<uint8_t>(operation);  break; \

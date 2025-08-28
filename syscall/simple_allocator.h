@@ -3,7 +3,7 @@
 #include <vector>
 #include "allocator.h"
 
-template<int MINBLOCK>
+template<unsigned int MINBLOCK>
 struct simple_allocator : public allocator_t {
     enum { FREED = 0xFF };
     std::vector<uint8_t> memory;
@@ -11,7 +11,9 @@ struct simple_allocator : public allocator_t {
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
         if (size == 0)
             return nullptr;
-        uint8_t exp = std::bit_width((size + (MINBLOCK - 1)) / MINBLOCK) - 1;
+        uint8_t exp = std::bit_width(std::bit_ceil(size) / MINBLOCK);
+        if (exp > 0)
+            exp = exp - 1;
         size_t block = (1 << exp);
         if (hint == SIZE_MAX)
             hint = block * MINBLOCK;

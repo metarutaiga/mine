@@ -133,6 +133,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static bool refresh = false;
         static bool running = false;
         static bool showMemoryEditor = false;
+        static const int allocatorSize = 16777216;
         static const int stackSize = 65536;
         std::string file;
 
@@ -191,7 +192,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                         auto it = disasms.lower_bound(address);
                         if (it == disasms.end() || (address - (*it).first) > 16)
                             comment = (char*)cpu->Memory(address);
-                        if (comment) {
+                        if (comment && (address + 4) <= allocatorSize) {
                             uint32_t index = *(uint32_t*)comment;
                             const char* name = Name(index);
                             if (name) {
@@ -343,7 +344,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             running = false;
 
             cpu = new x86_i386;
-            cpu->Initialize(simple_allocator<16>::construct(16777216), stackSize);
+            cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
             cpu->Exception(Exception);
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {

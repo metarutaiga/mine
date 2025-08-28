@@ -869,16 +869,6 @@ void x86_instruction::STD(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::UD(Format& format, const uint8_t* opcode)
-{
-    switch (opcode[1]) {
-    case 0x0B:  format.instruction = "UD2"; break;
-    case 0xB9:  format.instruction = "UD1"; break;
-    case 0xFF:  format.instruction = "UD0"; break;
-    }
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {};
-}
-//------------------------------------------------------------------------------
 void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
@@ -902,6 +892,7 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
+        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
         auto TEMP = DEST;
         DEST = SRC;
         SRC = TEMP;

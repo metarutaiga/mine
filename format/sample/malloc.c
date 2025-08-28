@@ -18,5 +18,14 @@ int main(int argc, const char* argv[])
     free(ptr_1);
     free(ptr_4);
     printf("%p %p %p %p %zd %p\n", ptr_1, ptr_2, ptr_3, ptr_4, size_5);
+
+    void** array[256];
+    for (int i = 0; i < 256; ++i) {
+        array[i] = malloc(i);
+        printf("%d:%p (%d)\n", i, array[i], _msize(array[i]));
+    }
+    for (int i = 0; i < 256; ++i) {
+        free(array[i]);
+    }
     return 0;
 }

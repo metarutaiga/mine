@@ -41,7 +41,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::two[256] =
 {      // 0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ o grp6  x grp7  x _     x _     x _     x _     x _     x _     x _     x _     x _     x UD    x _     x _     x _     x _
+/* 0 */ o grp6  x grp7  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 1 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 2 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 3 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
@@ -52,11 +52,11 @@ const x86_instruction::instruction_pointer x86_i386::two[256] =
 /* 8 */ x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
 /* 9 */ x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
 /* A */ x _     x _     x _     x BT    x SHxD  x SHxD  x _     x _     x _     x _     x _     x BTS   x SHxD  x SHxD  x _     x IMUL
-/* B */ x _     x _     x _     x BTR   x _     x _     x MOVZX x MOVZX x _     x UD    x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
+/* B */ x _     x _     x _     x BTR   x _     x _     x MOVZX x MOVZX x _     x _     x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
 /* C */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* D */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* E */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* F */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x UD
+/* F */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 };
 //------------------------------------------------------------------------------
 // Opcodes determined by bits 5,4,3 of modR/M byte
@@ -167,10 +167,14 @@ bool x86_i386::Step(int type)
         Format format;
         StepInternal(format);
         Fixup(format, *this);
-        format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-        if (format.repeat && ECX != 0) {
-            ECX -= 1;
-            EIP = eip;
+        if (format.operation == nullptr)
+            return false;
+        if (format.repeat == false || ECX != 0) {
+            format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+            if (format.repeat) {
+                ECX -= 1;
+                EIP = eip;
+            }
         }
         if (EIP == 0) {
             EIP = eip;

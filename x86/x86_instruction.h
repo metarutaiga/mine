@@ -142,7 +142,6 @@ protected:
 //  static instruction STR;     // Store Task Register
     static instruction SUB;     // Integer Subtraction
     static instruction TEST;    // Logical Compare
-    static instruction UD;      // Undefined Instruction
 //  static instruction VERx;    // Verify a Segment for Reading or Writing
     static instruction XCHG;    // Exchange Register/Memory with Register
     static instruction XLAT;    // Table Look-up Translation
