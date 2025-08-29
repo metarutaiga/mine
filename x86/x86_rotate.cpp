@@ -40,16 +40,55 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         break;
     }
 
-    BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        switch (x86.opcode[1] >> 3 & 7) {
-        case 0: TEMP = std::rotl(DEST, (int)SRC);   break;
-        case 1: TEMP = std::rotr(DEST, (int)SRC);   break;
-        case 2: TEMP = std::rotl(DEST, (int)SRC);   break;  // TODO
-        case 3: TEMP = std::rotr(DEST, (int)SRC);   break;  // TODO
-        }
-        CF = 0; // TODO
-        OF = 0; // TODO
-    } END_OPERATION;
+#define LSB(v)  ((v                       ) & 1)
+#define MSB(v)  ((v >> (sizeof(v) * 8 - 1)) & 1)
+#define SMSB(v) ((v >> (sizeof(v) * 8 - 2)) & 1)
+
+    switch (opcode[1] >> 3 & 7) {
+    case 0:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            DEST = std::rotl(DEST, COUNT);
+            CF = LSB(DEST);
+            if (SRC == 1)
+                OF = MSB(DEST) ^ CF;
+        } END_OPERATION;
+        break;
+    case 1:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            DEST = std::rotr(DEST, COUNT);
+            CF = MSB(DEST);
+            if (SRC == 1)
+                OF = MSB(DEST) ^ SMSB(DEST);
+        } END_OPERATION;
+        break;
+    case 2:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            while (COUNT) {
+                int TEMP = MSB(DEST);
+                DEST = (DEST << 1) + CF;
+                CF = TEMP;
+                COUNT = COUNT - 1;
+            }
+            if (SRC == 1)
+                OF = MSB(DEST) ^ CF;
+        } END_OPERATION;
+        break;
+    case 3:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            if (SRC == 1)
+                OF = MSB(DEST) ^ CF;
+            while (COUNT) {
+                int TEMP = LSB(DEST);
+                DEST = (DEST >> 1) + (std::remove_reference_t<decltype(DEST)>(CF) << (sizeof(DEST) * 8 - 1));
+                CF = TEMP;
+                COUNT = COUNT - 1;
+            }
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------

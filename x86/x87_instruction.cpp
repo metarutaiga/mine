@@ -55,17 +55,20 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
         break;
     }
 
-    BEGIN_OPERATION() {
-        TOP = TOP - 1;
-        if (format.operand[0].type == Format::Operand::ADR) {
+    if (format.operand[0].type == Format::Operand::ADR) {
+        BEGIN_OPERATION() {
+            TOP = TOP - 1;
             ST(0) = (std::make_float_t<decltype(SRC)>&)SRC;
-        }
-        else {
+            C1 = 0;
+        } END_OPERATION;
+    }
+    else {
+        format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
             int i = format.operand[0].base;
             ST(0) = ST(i + 1);
-        }
-        C1 = 0;
-    } END_OPERATION;
+            C1 = 0;
+        };
+    }
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)

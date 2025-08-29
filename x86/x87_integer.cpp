@@ -21,12 +21,8 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = DEST + (int16_t)SRC; break;
-        case sizeof(int32_t):   DEST = DEST + (int32_t)SRC; break;
-        default:                                            return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = ST(0) + src;
         C1 = 0;
     } END_OPERATION;
 }
@@ -37,10 +33,11 @@ void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        C0 = ST(0) < SRC;
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        C0 = ST(0) < src;
         C1 = 0;
         C2 = 0;
-        C3 = ST(0) == SRC;
+        C3 = ST(0) == src;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -50,10 +47,11 @@ void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        C0 = ST(0) < SRC;
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        C0 = ST(0) < src;
         C1 = 0;
         C2 = 0;
-        C3 = ST(0) == SRC;
+        C3 = ST(0) == src;
         TOP = TOP + 1;
     } END_OPERATION;
 }
@@ -68,12 +66,8 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = DEST / (int16_t)SRC; break;
-        case sizeof(int32_t):   DEST = DEST / (int32_t)SRC; break;
-        default:                                            return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = ST(0) / src;
         C1 = 0;
     } END_OPERATION;
 }
@@ -88,12 +82,8 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = (int16_t)SRC / DEST; break;
-        case sizeof(int32_t):   DEST = (int32_t)SRC / DEST; break;
-        default:                                            return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = src / ST(0);
         C1 = 0;
     } END_OPERATION;
 }
@@ -113,14 +103,9 @@ void x87_instruction::FILD(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
         TOP = TOP - 1;
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = (int16_t)SRC;    break;
-        case sizeof(int32_t):   DEST = (int32_t)SRC;    break;
-        case sizeof(int64_t):   DEST = (int64_t)SRC;    break;
-        default:                                        return;
-        }
+        ST(0) = src;
         C1 = 0;
     } END_OPERATION;
 }
@@ -135,12 +120,8 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = DEST * (int16_t)SRC; break;
-        case sizeof(int32_t):   DEST = DEST * (int32_t)SRC; break;
-        default:                                            return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = ST(0) * src;
         C1 = 0;
     } END_OPERATION;
 }
@@ -211,12 +192,8 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = DEST - (int16_t)SRC; break;
-        case sizeof(int32_t):   DEST = DEST - (int32_t)SRC; break;
-        default:                                            return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = ST(0) - src;
         C1 = 0;
     } END_OPERATION;
 }
@@ -231,12 +208,8 @@ void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        auto& DEST = ST(0);
-        switch (sizeof(SRC)) {
-        case sizeof(int16_t):   DEST = (int16_t)SRC - DEST;     break;
-        case sizeof(int32_t):   DEST = (int32_t)SRC - DEST;     break;
-        default:                                                return;
-        }
+        typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
+        ST(0) = src - ST(0);
         C1 = 0;
     } END_OPERATION;
 }

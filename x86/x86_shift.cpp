@@ -40,17 +40,34 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         break;
     }
 
-    BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        auto TEMP = DEST;
-        switch (x86.opcode[1] >> 3 & 7) {
-        case 4: TEMP = DEST << SRC; break;
-        case 5: TEMP = DEST >> SRC; break;
-        case 6: TEMP = dest << SRC; break;
-        case 7: TEMP = dest >> SRC; break;
-        }
-        UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
-    } END_OPERATION;
+    switch (opcode[1] >> 3 & 7) {
+    case 4:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            UpdateFlags<_SZ_P_>(x86, DEST, DEST << COUNT);
+        } END_OPERATION;
+        break;
+    case 5:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            UpdateFlags<_SZ_P_>(x86, DEST, DEST >> COUNT);
+        } END_OPERATION;
+        break;
+    case 6:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+            UpdateFlags<_SZ_P_>(x86, DEST, dest << COUNT);
+        } END_OPERATION;
+        break;
+    case 7:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC % (sizeof(DEST) * 8));
+            typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+            UpdateFlags<_SZ_P_>(x86, DEST, dest >> COUNT);
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
@@ -74,16 +91,21 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
         break;
     }
 
-    BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        int bits = sizeof(DEST) * 4;
-        switch (x86.opcode[1]) {
-        case 0xA4:
-        case 0xA5:  TEMP = (DEST << SRC2) | (SRC1 >> (bits - SRC2)); break;
-        case 0xAC:
-        case 0xAD:  TEMP = (DEST >> SRC2) | (SRC2 << (bits - SRC2)); break;
-        }
-        UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
-    } END_OPERATION;
+    switch (opcode[1]) {
+    case 0xA4:
+    case 0xA5:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC2 % (sizeof(DEST) * 8));
+            UpdateFlags<_SZ_P_>(x86, DEST, (DEST << COUNT) | (SRC1 >> (sizeof(DEST) * 8 - COUNT)));
+        } END_OPERATION;
+        break;
+    case 0xAC:
+    case 0xAD:
+        BEGIN_OPERATION() {
+            int COUNT = (SRC2 % (sizeof(DEST) * 8));
+            UpdateFlags<_SZ_P_>(x86, DEST, (DEST << COUNT) | (SRC1 << (sizeof(DEST) * 8 - COUNT)));
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------

@@ -286,7 +286,7 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             format.operand[i].address = x86.ip.q;
             format.operand[i].address += format.operand[i].displacement;
             format.operand[i].address = uint32_t(format.operand[i].address);
-            format.operand[i].memory = x86.memory_address + format.operand[i].address;
+            format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         default:
             break;
@@ -356,23 +356,32 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
         Push32(EIP);
-        if (format.operand[0].type == Format::Operand::REL)
-            EIP += format.operand[0].displacement;
-        else
-            EIP = *(uint32_t*)format.operand[0].memory;
+        EIP = *(uint32_t*)format.operand[0].memory;
     };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::CDQ(Format& format, const uint8_t* opcode)
 {
-    format.instruction = (format.width == 16) ? "CWD" : "CDQ";
-
-    BEGIN_OPERATION() {
-        if (sizeof(DEST) == sizeof(int16_t))
+    switch (format.width) {
+    case 16:
+        format.instruction = "CWD";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
             DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
-        else
+        };
+        break;
+    case 32:
+        format.instruction = "CDQ";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
             EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
-    } END_OPERATION;
+        };
+        break;
+    case 64:
+        format.instruction = "CQO";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+            RDX = (int64_t)RAX < 0 ? 0xFFFFFFFFFFFFFFFFull : 0x0000000000000000ull;
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::CLC(Format& format, const uint8_t* opcode)
@@ -401,14 +410,26 @@ void x86_instruction::CMC(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::CWDE(Format& format, const uint8_t* opcode)
 {
-    format.instruction = (format.width == 16) ? "CBW" : "CWDE";
-
-    BEGIN_OPERATION() {
-        if (sizeof(DEST) == sizeof(int16_t))
+    switch (format.width) {
+    case 16:
+        format.instruction = "CBW";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
             AX = (int8_t)AL;
-        else
+        };
+        break;
+    case 32:
+        format.instruction = "CWDE";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
             EAX = (int16_t)AX;
-    } END_OPERATION;
+        };
+        break;
+    case 64:
+        format.instruction = "CDQE";
+        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+            RAX = (int32_t)EAX;
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
@@ -537,10 +558,7 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
     }
     format.operand[1].type = Format::Operand::NOP;
     format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
-        if (format.operand[0].type == Format::Operand::REL)
-            EIP += format.operand[0].displacement;
-        else
-            EIP = *(uint32_t*)format.operand[0].memory;
+        EIP = *(uint32_t*)format.operand[0].memory;
     };
 }
 //------------------------------------------------------------------------------
@@ -641,33 +659,21 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
 void x86_instruction::MOVSX(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVSX", 2, 0, DIRECTION | OPERAND_SIZE);
-    switch (opcode[1]) {
-    case 0xBE:  format.address = 8;     break;
-    case 0xBF:  format.address = 16;    break;
-    }
 
-    BEGIN_OPERATION() {
-        switch (format.address) {
-        case 8:     DEST = (int8_t)SRC;     break;
-        case 16:    DEST = (int16_t)SRC;    break;
-        }
-    } END_OPERATION;
+    switch (opcode[1]) {
+    case 0xBE:  BEGIN_OPERATION() { DEST = (int8_t)SRC;  } END_OPERATION;   break;
+    case 0xBF:  BEGIN_OPERATION() { DEST = (int16_t)SRC; } END_OPERATION;   break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVZX", 2, 0, DIRECTION | OPERAND_SIZE);
-    switch (opcode[1]) {
-    case 0xB6:  format.address = 8;     break;
-    case 0xB7:  format.address = 16;    break;
-    }
 
-    BEGIN_OPERATION() {
-        switch (format.address) {
-        case 8:     DEST = (uint8_t)SRC;    break;
-        case 16:    DEST = (uint16_t)SRC;   break;
-        }
-    } END_OPERATION;
+    switch (opcode[1]) {
+    case 0xB6:  BEGIN_OPERATION() { DEST = (uint8_t)SRC;  } END_OPERATION;  break;
+    case 0xB7:  BEGIN_OPERATION() { DEST = (uint16_t)SRC; } END_OPERATION;  break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::NOP(Format& format, const uint8_t* opcode)
@@ -823,26 +829,24 @@ void x86_instruction::SETcc(Format& format, const uint8_t* opcode)
     format.width = 8;
     format.operand[1].type = Format::Operand::NOP;
 
-    BEGIN_OPERATION() {
-        switch (x86.opcode[1]) {
-        case 0x90:  DEST = ((OF)          ) == 1;   break;  // SETO
-        case 0x91:  DEST = ((OF)          ) == 0;   break;  // SETNO
-        case 0x92:  DEST = ((CF)          ) == 1;   break;  // SETC
-        case 0x93:  DEST = ((CF)          ) == 0;   break;  // SETNC
-        case 0x94:  DEST = ((ZF)          ) == 1;   break;  // SETZ
-        case 0x95:  DEST = ((ZF)          ) == 0;   break;  // SETNZ
-        case 0x96:  DEST = ((CF | ZF)     ) == 1;   break;  // SETBE
-        case 0x97:  DEST = ((CF | ZF)     ) == 0;   break;  // SETA
-        case 0x98:  DEST = ((SF)          ) == 1;   break;  // SETS
-        case 0x99:  DEST = ((SF)          ) == 0;   break;  // SETNS
-        case 0x9A:  DEST = ((PF)          ) == 1;   break;  // SETPE
-        case 0x9B:  DEST = ((PF)          ) == 0;   break;  // SETPO
-        case 0x9C:  DEST = ((SF ^ OF)     ) == 1;   break;  // SETL
-        case 0x9D:  DEST = ((SF ^ OF)     ) == 0;   break;  // SETGE
-        case 0x9E:  DEST = ((SF ^ OF) | ZF) == 1;   break;  // SETLE
-        case 0x9F:  DEST = ((SF ^ OF) | ZF) == 0;   break;  // SETG
-        }
-    } END_OPERATION;
+    switch (opcode[1]) {
+    case 0x90:  BEGIN_OPERATION() { DEST = ((OF)          ) == 1; } END_OPERATION;  break;  // SETO
+    case 0x91:  BEGIN_OPERATION() { DEST = ((OF)          ) == 0; } END_OPERATION;  break;  // SETNO
+    case 0x92:  BEGIN_OPERATION() { DEST = ((CF)          ) == 1; } END_OPERATION;  break;  // SETC
+    case 0x93:  BEGIN_OPERATION() { DEST = ((CF)          ) == 0; } END_OPERATION;  break;  // SETNC
+    case 0x94:  BEGIN_OPERATION() { DEST = ((ZF)          ) == 1; } END_OPERATION;  break;  // SETZ
+    case 0x95:  BEGIN_OPERATION() { DEST = ((ZF)          ) == 0; } END_OPERATION;  break;  // SETNZ
+    case 0x96:  BEGIN_OPERATION() { DEST = ((CF | ZF)     ) == 1; } END_OPERATION;  break;  // SETBE
+    case 0x97:  BEGIN_OPERATION() { DEST = ((CF | ZF)     ) == 0; } END_OPERATION;  break;  // SETA
+    case 0x98:  BEGIN_OPERATION() { DEST = ((SF)          ) == 1; } END_OPERATION;  break;  // SETS
+    case 0x99:  BEGIN_OPERATION() { DEST = ((SF)          ) == 0; } END_OPERATION;  break;  // SETNS
+    case 0x9A:  BEGIN_OPERATION() { DEST = ((PF)          ) == 1; } END_OPERATION;  break;  // SETPE
+    case 0x9B:  BEGIN_OPERATION() { DEST = ((PF)          ) == 0; } END_OPERATION;  break;  // SETPO
+    case 0x9C:  BEGIN_OPERATION() { DEST = ((SF ^ OF)     ) == 1; } END_OPERATION;  break;  // SETL
+    case 0x9D:  BEGIN_OPERATION() { DEST = ((SF ^ OF)     ) == 0; } END_OPERATION;  break;  // SETGE
+    case 0x9E:  BEGIN_OPERATION() { DEST = ((SF ^ OF) | ZF) == 1; } END_OPERATION;  break;  // SETLE
+    case 0x9F:  BEGIN_OPERATION() { DEST = ((SF ^ OF) | ZF) == 0; } END_OPERATION;  break;  // SETG
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::STC(Format& format, const uint8_t* opcode)
