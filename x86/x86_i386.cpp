@@ -351,8 +351,10 @@ std::string x86_i386::Disassemble(int count) const
 //------------------------------------------------------------------------------
 void x86_i386::StepInternal(Format& format)
 {
-    format.length = 1;
     format.width = 32;
+    format.length = 1;
+    format.address = 32;
+    format.floating = false;
     format.repeat = false;
 
     auto eip = EIP;

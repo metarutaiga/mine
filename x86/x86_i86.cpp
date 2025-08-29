@@ -277,8 +277,10 @@ std::string x86_i86::Disassemble(int count) const
 //------------------------------------------------------------------------------
 void x86_i86::StepInternal(Format& format)
 {
-    format.length = 1;
     format.width = 16;
+    format.length = 1;
+    format.address = 16;
+    format.floating = false;
     format.repeat = false;
 
     auto ip = IP;

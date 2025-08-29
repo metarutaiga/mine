@@ -166,12 +166,10 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
         if (ImGui::Begin("Disassembly", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             struct Local {
-                std::map<size_t, std::string>::iterator temp_it;
-                int temp_index;
+                std::map<size_t, std::string>::iterator temp_it = disasms.begin();
+                int temp_index = 0;
                 char temp[128];
             } local;
-            local.temp_it = disasms.begin();
-            local.temp_index = 0;
 
             int disasmCount = (int)disasms.size();
             ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
@@ -191,7 +189,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     size_t address = strtoll(disasm.c_str() + comma + 2, nullptr, 16);
                     if (address) {
                         auto it = disasms.lower_bound(address);
-                        if (it == disasms.end() || (address - (*it).first) > 16)
+                        if (it == disasms.end() || std::abs(int64_t(address - (*it).first)) > 16)
                             comment = (char*)cpu->Memory(address);
                         if (comment && (address + 4) <= allocatorSize) {
                             uint32_t index = *(uint32_t*)comment;

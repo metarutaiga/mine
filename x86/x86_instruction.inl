@@ -28,17 +28,30 @@ static auto specialize(auto lambda) {
     };
 }
 //------------------------------------------------------------------------------
+#define OPERATION() \
+        format.operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, void* dest, const void* src1, const void* src2)
 #define BEGIN_OPERATION() { \
         auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
             const auto& SRC = SRC1; (void)SRC;
 #define END_OPERATION }; \
         switch (format.width) { \
-        case 8:     format.operation = specialize<uint8_t>(operation);  break; \
-        case 16:    format.operation = specialize<uint16_t>(operation); break; \
-        case 32:    format.operation = specialize<uint32_t>(operation); break; \
-        case 64:    format.operation = specialize<uint64_t>(operation); break; \
+        case 8:  format.operation = specialize<uint8_t>(operation);  break; \
+        case 16: format.operation = specialize<uint16_t>(operation); break; \
+        case 32: format.operation = specialize<uint32_t>(operation); break; \
         } \
     }
+//------------------------------------------------------------------------------
+#if HAVE_X64
+#undef END_OPERATION
+#define END_OPERATION }; \
+        switch (format.width) { \
+        case 8:  format.operation = specialize<uint8_t>(operation);  break; \
+        case 16: format.operation = specialize<uint16_t>(operation); break; \
+        case 32: format.operation = specialize<uint32_t>(operation); break; \
+        case 64: format.operation = specialize<uint64_t>(operation); break; \
+        } \
+    }
+#endif
 //------------------------------------------------------------------------------
 namespace std {
 template<class T> struct make_widened { using type = T; };

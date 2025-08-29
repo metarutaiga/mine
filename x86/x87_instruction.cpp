@@ -15,7 +15,8 @@
 void x87_instruction::FCLEX(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCLEX";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         FPUStatusWord = FPUStatusWord & 0b0111111100000000;
     };
 }
@@ -23,7 +24,8 @@ void x87_instruction::FCLEX(Format& format, const uint8_t* opcode)
 void x87_instruction::FDECSTP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FDECSTP";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         C1 = 0;
     };
@@ -32,7 +34,8 @@ void x87_instruction::FDECSTP(Format& format, const uint8_t* opcode)
 void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FINCSTP";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP + 1;
         C1 = 0;
     };
@@ -63,7 +66,7 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
         } END_OPERATION;
     }
     else {
-        format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+        OPERATION() {
             int i = format.operand[0].base;
             ST(0) = ST(i + 1);
             C1 = 0;
@@ -74,7 +77,8 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDZ";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = 0.0;
         C1 = 0;
@@ -84,7 +88,8 @@ void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 void x87_instruction::FLD1(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLD1";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = 1.0;
         C1 = 0;
@@ -94,7 +99,8 @@ void x87_instruction::FLD1(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDL2E(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2E";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = M_LOG2E;
         C1 = 0;
@@ -104,7 +110,8 @@ void x87_instruction::FLDL2E(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDL2T(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2T";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = M_LN10 * M_LOG2E;
         C1 = 0;
@@ -114,7 +121,8 @@ void x87_instruction::FLDL2T(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDLG2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLG2";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = M_LN2 * M_LOG10E;
         C1 = 0;
@@ -124,7 +132,8 @@ void x87_instruction::FLDLG2(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDLN2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLN2";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = M_LN2;
         C1 = 0;
@@ -134,7 +143,8 @@ void x87_instruction::FLDLN2(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDPI";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         TOP = TOP - 1;
         ST(0) = M_PI;
         C1 = 0;
@@ -215,7 +225,8 @@ void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FTST";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         C0 = ST(0) < 0.0;
         C1 = 0;
         C2 = 0;
@@ -226,7 +237,8 @@ void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOM";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         auto SRC = ST(format.operand[0].base);
         C0 = ST(0) < SRC;
         C1 = 0;
@@ -238,7 +250,8 @@ void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMP";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         auto SRC = ST(format.operand[0].base);
         C0 = ST(0) < SRC;
         C1 = 0;
@@ -251,7 +264,8 @@ void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMPP";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         auto SRC = ST(format.operand[0].base);
         C0 = ST(0) < SRC;
         C1 = 0;
@@ -264,7 +278,8 @@ void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
 void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXAM";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         C0 = 0;
         C1 = ST(0) < 0.0;
         C2 = 0;
@@ -284,7 +299,8 @@ void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
     format.instruction = "FXCH";
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = opcode[1] & 0b111;
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         int i = format.operand[0].base;
         auto TEMP = ST(0);
         ST(0) = ST(i);
@@ -296,7 +312,8 @@ void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
 void x87_instruction::FXTRACT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXTRACT";
-    format.operation = [](x86_instruction&, x87_instruction& x87, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         auto TEMP = copysign(0.0, ST(0));
         ST(0) = exp(ST(0));
         TOP = TOP - 1;

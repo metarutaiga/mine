@@ -160,12 +160,20 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
 {
     auto hex = [](auto imm) {
         char temp[64];
-        unsigned long long value = std::abs((int64_t)imm);
-        if (value > 0xFFFFFFFF)     snprintf(temp, 64, "%s%0*llX",                 "", 16, imm);
-        else if (value > 0xFFFF)    snprintf(temp, 64, "%s%0*llX",                 "",  8, imm & 0xFFFFFFFF);
-        else if (value > 0xFF)      snprintf(temp, 64, "%s%0*llX",                 "",  4, imm & 0xFFFF);
-        else if (value > 0x9)       snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
-        else                        snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  1, value);
+#if HAVE_X64
+        auto value = std::abs((int64_t)imm);
+        if (value > 0xFFFFFFFF)  snprintf(temp, 64, "%s%0*llX",                 "", 16, imm);
+        else if (value > 0xFFFF) snprintf(temp, 64, "%s%0*llX",                 "",  8, imm & 0xFFFFFFFF);
+        else if (value > 0xFF)   snprintf(temp, 64, "%s%0*llX",                 "",  4, imm & 0xFFFF);
+        else if (value > 0x9)    snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
+        else                     snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  1, value);
+#else
+        auto value = std::abs((int32_t)imm);
+        if (value > 0xFFFF)    snprintf(temp, 64, "%s%0*X",                 "", 8, imm);
+        else if (value > 0xFF) snprintf(temp, 64, "%s%0*X",                 "", 4, imm & 0xFFFF);
+        else if (value > 0x9)  snprintf(temp, 64, "%s%0*X", imm < 0 ? "-" : "", 2, value);
+        else                   snprintf(temp, 64, "%s%0*X", imm < 0 ? "-" : "", 1, value);
+#endif
         return std::string(temp);
     };
 
@@ -184,11 +192,11 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
         switch (format.operand[i].type) {
         case Format::Operand::ADR:
             switch (format.width) {
-            case 8:     disasm += "BYTE PTR";   break;
-            case 16:    disasm += "WORD PTR";   break;
-            case 32:    disasm += "DWORD PTR";  break;
-            case 64:    disasm += "QWORD PTR";  break;
-            case 80:    disasm += "TBYTE PTR";  break;
+            case 8:  disasm += "BYTE PTR";  break;
+            case 16: disasm += "WORD PTR";  break;
+            case 32: disasm += "DWORD PTR"; break;
+            case 64: disasm += "QWORD PTR"; break;
+            case 80: disasm += "TBYTE PTR"; break;
             }
             disasm += ' ';
             if (format.segment[0]) {
@@ -197,7 +205,13 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             }
             disasm += '[';
             if (format.operand[i].scale > 0) {
-                disasm += REG32[format.operand[i].index];
+                switch (format.address) {
+                case 16: disasm += REG16[format.operand[i].index]; break;
+                case 32: disasm += REG32[format.operand[i].index]; break;
+#if HAVE_X64
+                case 64: disasm += REG64[format.operand[i].index]; break;
+#endif
+                }
                 if (format.operand[i].scale > 1) {
                     disasm += '*';
                     disasm += std::to_string(format.operand[i].scale);
@@ -206,7 +220,13 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             if (format.operand[i].base >= 0) {
                 if (disasm.back() != '[')
                     disasm += '+';
-                disasm += REG32[format.operand[i].base];
+                switch (format.address) {
+                case 16: disasm += REG16[format.operand[i].base]; break;
+                case 32: disasm += REG32[format.operand[i].base]; break;
+#if HAVE_X64
+                case 64: disasm += REG64[format.operand[i].base]; break;
+#endif
+                }
             }
             if (format.operand[i].displacement) {
                 if (disasm.back() != '[' && format.operand[i].displacement >= 0)
@@ -229,14 +249,20 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
                 break;
             }
             switch (format.width) {
-            case 8:     disasm += REG8[format.operand[i].base];   break;
-            case 16:    disasm += REG16[format.operand[i].base];  break;
-            case 32:    disasm += REG32[format.operand[i].base];  break;
-            case 64:    disasm += REG64[format.operand[i].base];  break;
+            case 8:  disasm += REG8[format.operand[i].base];   break;
+            case 16: disasm += REG16[format.operand[i].base];  break;
+            case 32: disasm += REG32[format.operand[i].base];  break;
+#if HAVE_X64
+            case 64: disasm += REG64[format.operand[i].base];  break;
+#endif
             }
             break;
         case Format::Operand::REL:
+#if HAVE_X64
             disasm += hex(x86.ip.q + format.operand[i].displacement);
+#else
+            disasm += hex(x86.ip.d + format.operand[i].displacement);
+#endif
             break;
         default:
             if (disasm.size() > offset)
@@ -267,7 +293,12 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
                 format.operand[i].address += x86.regs[format.operand[i].base].d;
             }
             format.operand[i].address += format.operand[i].displacement;
-            format.operand[i].address = uint32_t(format.operand[i].address);
+            switch (format.address) {
+            case 16: format.operand[i].address = uint16_t(format.operand[i].address); break;
+#if HAVE_X64
+            case 32: format.operand[i].address = uint32_t(format.operand[i].address); break;
+#endif
+            }
             format.operand[i].memory = x86.memory_address + format.operand[i].address;
             break;
         case Format::Operand::IMM:
@@ -283,9 +314,18 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             }
             break;
         case Format::Operand::REL:
+#if HAVE_X64
             format.operand[i].address = x86.ip.q;
+#else
+            format.operand[i].address = x86.ip.d;
+#endif
             format.operand[i].address += format.operand[i].displacement;
-            format.operand[i].address = uint32_t(format.operand[i].address);
+            switch (format.address) {
+            case 16: format.operand[i].address = uint16_t(format.operand[i].address); break;
+#if HAVE_X64
+            case 32: format.operand[i].address = uint32_t(format.operand[i].address); break;
+#endif
+            }
             format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         default:
@@ -297,7 +337,8 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
 void x86_instruction::_(Format& format, const uint8_t* opcode)
 {
     format.instruction = "UNKNOWN";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {};
+
+    OPERATION() {};
 }
 //------------------------------------------------------------------------------
 //
@@ -354,7 +395,8 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
         }
     }
     format.operand[1].type = Format::Operand::NOP;
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         Push32(EIP);
         EIP = *(uint32_t*)format.operand[0].memory;
     };
@@ -365,29 +407,35 @@ void x86_instruction::CDQ(Format& format, const uint8_t* opcode)
     switch (format.width) {
     case 16:
         format.instruction = "CWD";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+        OPERATION() {
             DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
         };
         break;
     case 32:
         format.instruction = "CDQ";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+        OPERATION() {
             EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
         };
         break;
+#if HAVE_X64
     case 64:
         format.instruction = "CQO";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+        OPERATION() {
             RDX = (int64_t)RAX < 0 ? 0xFFFFFFFFFFFFFFFFull : 0x0000000000000000ull;
         };
         break;
+#endif
     }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::CLC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CLC";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         CF = 0;
     };
 }
@@ -395,7 +443,8 @@ void x86_instruction::CLC(Format& format, const uint8_t* opcode)
 void x86_instruction::CLD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CLD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         DF = 0;
     };
 }
@@ -403,7 +452,8 @@ void x86_instruction::CLD(Format& format, const uint8_t* opcode)
 void x86_instruction::CMC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CMC";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         CF = !CF;
     };
 }
@@ -413,22 +463,27 @@ void x86_instruction::CWDE(Format& format, const uint8_t* opcode)
     switch (format.width) {
     case 16:
         format.instruction = "CBW";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+        OPERATION() {
             AX = (int8_t)AL;
         };
         break;
     case 32:
         format.instruction = "CWDE";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+        OPERATION() {
             EAX = (int16_t)AX;
         };
         break;
+#if HAVE_X64
     case 64:
         format.instruction = "CDQE";
-        format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+        OPERATION() {
             RAX = (int32_t)EAX;
         };
         break;
+#endif
     }
 }
 //------------------------------------------------------------------------------
@@ -440,7 +495,8 @@ void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::IMM;
     format.operand[0].displacement = IMM16(opcode, 1);
     format.operand[1].displacement = IMM8(opcode, 3);
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         int level = format.operand[1].displacement % 32;
         Push32(ESP);
         if (level > 0) {
@@ -458,23 +514,23 @@ void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
 void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0x70:  Decode(format, opcode, "JO",  1, 8, RELATIVE);  break;
-    case 0x71:  Decode(format, opcode, "JNO", 1, 8, RELATIVE);  break;
-    case 0x72:  Decode(format, opcode, "JC",  1, 8, RELATIVE);  break;
-    case 0x73:  Decode(format, opcode, "JNC", 1, 8, RELATIVE);  break;
-    case 0x74:  Decode(format, opcode, "JZ",  1, 8, RELATIVE);  break;
-    case 0x75:  Decode(format, opcode, "JNZ", 1, 8, RELATIVE);  break;
-    case 0x76:  Decode(format, opcode, "JBE", 1, 8, RELATIVE);  break;
-    case 0x77:  Decode(format, opcode, "JA",  1, 8, RELATIVE);  break;
-    case 0x78:  Decode(format, opcode, "JS",  1, 8, RELATIVE);  break;
-    case 0x79:  Decode(format, opcode, "JNS", 1, 8, RELATIVE);  break;
-    case 0x7A:  Decode(format, opcode, "JPE", 1, 8, RELATIVE);  break;
-    case 0x7B:  Decode(format, opcode, "JPO", 1, 8, RELATIVE);  break;
-    case 0x7C:  Decode(format, opcode, "JL",  1, 8, RELATIVE);  break;
-    case 0x7D:  Decode(format, opcode, "JGE", 1, 8, RELATIVE);  break;
-    case 0x7E:  Decode(format, opcode, "JLE", 1, 8, RELATIVE);  break;
-    case 0x7F:  Decode(format, opcode, "JG",  1, 8, RELATIVE);  break;
-    case 0xE3:  Decode(format, opcode, (format.address == 16) ? "JCXZ" : "JECXZ", 1, 8, RELATIVE); break;
+    case 0x70:      Decode(format, opcode, "JO",  1, 8, RELATIVE);  break;
+    case 0x71:      Decode(format, opcode, "JNO", 1, 8, RELATIVE);  break;
+    case 0x72:      Decode(format, opcode, "JC",  1, 8, RELATIVE);  break;
+    case 0x73:      Decode(format, opcode, "JNC", 1, 8, RELATIVE);  break;
+    case 0x74:      Decode(format, opcode, "JZ",  1, 8, RELATIVE);  break;
+    case 0x75:      Decode(format, opcode, "JNZ", 1, 8, RELATIVE);  break;
+    case 0x76:      Decode(format, opcode, "JBE", 1, 8, RELATIVE);  break;
+    case 0x77:      Decode(format, opcode, "JA",  1, 8, RELATIVE);  break;
+    case 0x78:      Decode(format, opcode, "JS",  1, 8, RELATIVE);  break;
+    case 0x79:      Decode(format, opcode, "JNS", 1, 8, RELATIVE);  break;
+    case 0x7A:      Decode(format, opcode, "JPE", 1, 8, RELATIVE);  break;
+    case 0x7B:      Decode(format, opcode, "JPO", 1, 8, RELATIVE);  break;
+    case 0x7C:      Decode(format, opcode, "JL",  1, 8, RELATIVE);  break;
+    case 0x7D:      Decode(format, opcode, "JGE", 1, 8, RELATIVE);  break;
+    case 0x7E:      Decode(format, opcode, "JLE", 1, 8, RELATIVE);  break;
+    case 0x7F:      Decode(format, opcode, "JG",  1, 8, RELATIVE);  break;
+    case 0xE3:      Decode(format, opcode, (format.address == 16) ? "JCXZ" : "JECXZ", 1, 8, RELATIVE); break;
     case 0x0F:
         switch (opcode[1]) {
         case 0x80:  Decode(format, opcode, "JO",  2, -1, OPERAND_SIZE | RELATIVE);  break;
@@ -496,53 +552,48 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
         }
         break;
     }
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
-        bool condition = false;
-        switch (x86.opcode[0]) {
-        case 0x70:  condition = ((OF)          ) == 1;  break;  // JO
-        case 0x71:  condition = ((OF)          ) == 0;  break;  // JNO
-        case 0x72:  condition = ((CF)          ) == 1;  break;  // JC
-        case 0x73:  condition = ((CF)          ) == 0;  break;  // JNC
-        case 0x74:  condition = ((ZF)          ) == 1;  break;  // JZ
-        case 0x75:  condition = ((ZF)          ) == 0;  break;  // JNZ
-        case 0x76:  condition = ((CF | ZF)     ) == 1;  break;  // JBE
-        case 0x77:  condition = ((CF | ZF)     ) == 0;  break;  // JA
-        case 0x78:  condition = ((SF)          ) == 1;  break;  // JS
-        case 0x79:  condition = ((SF)          ) == 0;  break;  // JNS
-        case 0x7A:  condition = ((PF)          ) == 1;  break;  // JPE
-        case 0x7B:  condition = ((PF)          ) == 0;  break;  // JPO
-        case 0x7C:  condition = ((SF ^ OF)     ) == 1;  break;  // JL
-        case 0x7D:  condition = ((SF ^ OF)     ) == 0;  break;  // JGE
-        case 0x7E:  condition = ((SF ^ OF) | ZF) == 1;  break;  // JLE
-        case 0x7F:  condition = ((SF ^ OF) | ZF) == 0;  break;  // JG
-        case 0xE3:  (format.address == 16) ?
-                    condition = ((CX)          ) == 0:          // JCXZ
-                    condition = ((ECX)         ) == 0;  break;  // JECXZ
-        case 0x0F:
-            switch (x86.opcode[1]) {
-            case 0x80:  condition = ((OF)          ) == 1;  break;  // JO
-            case 0x81:  condition = ((OF)          ) == 0;  break;  // JNO
-            case 0x82:  condition = ((CF)          ) == 1;  break;  // JC
-            case 0x83:  condition = ((CF)          ) == 0;  break;  // JNC
-            case 0x84:  condition = ((ZF)          ) == 1;  break;  // JZ
-            case 0x85:  condition = ((ZF)          ) == 0;  break;  // JNZ
-            case 0x86:  condition = ((CF | ZF)     ) == 1;  break;  // JBE
-            case 0x87:  condition = ((CF | ZF)     ) == 0;  break;  // JA
-            case 0x88:  condition = ((SF)          ) == 1;  break;  // JS
-            case 0x89:  condition = ((SF)          ) == 0;  break;  // JNS
-            case 0x8A:  condition = ((PF)          ) == 1;  break;  // JPE
-            case 0x8B:  condition = ((PF)          ) == 0;  break;  // JPO
-            case 0x8C:  condition = ((SF ^ OF)     ) == 1;  break;  // JL
-            case 0x8D:  condition = ((SF ^ OF)     ) == 0;  break;  // JGE
-            case 0x8E:  condition = ((SF ^ OF) | ZF) == 1;  break;  // JLE
-            case 0x8F:  condition = ((SF ^ OF) | ZF) == 0;  break;  // JG
-            }
-            break;
+
+    switch (opcode[0]) {
+    case 0x70:      OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO
+    case 0x71:      OPERATION() { if (((OF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNO
+    case 0x72:      OPERATION() { if (((CF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JC
+    case 0x73:      OPERATION() { if (((CF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNC
+    case 0x74:      OPERATION() { if (((ZF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JZ
+    case 0x75:      OPERATION() { if (((ZF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNZ
+    case 0x76:      OPERATION() { if (((CF | ZF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JBE
+    case 0x77:      OPERATION() { if (((CF | ZF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JA
+    case 0x78:      OPERATION() { if (((SF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JS
+    case 0x79:      OPERATION() { if (((SF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNS
+    case 0x7A:      OPERATION() { if (((PF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JPE
+    case 0x7B:      OPERATION() { if (((PF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JPO
+    case 0x7C:      OPERATION() { if (((SF ^ OF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JL
+    case 0x7D:      OPERATION() { if (((SF ^ OF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JGE
+    case 0x7E:      OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP += format.operand[0].displacement; };  break;  // JLE
+    case 0x7F:      OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP += format.operand[0].displacement; };  break;  // JG
+    case 0xE3:      (format.address == 16) ?
+                    OPERATION() { if (((CX)          ) == 0) EIP += format.operand[0].displacement; } :         // JCXZ
+                    OPERATION() { if (((ECX)         ) == 0) EIP += format.operand[0].displacement; };  break;  // JECXZ
+    case 0x0F:
+        switch (opcode[1]) {
+        case 0x80:  OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO
+        case 0x81:  OPERATION() { if (((OF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNO
+        case 0x82:  OPERATION() { if (((CF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JC
+        case 0x83:  OPERATION() { if (((CF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNC
+        case 0x84:  OPERATION() { if (((ZF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JZ
+        case 0x85:  OPERATION() { if (((ZF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNZ
+        case 0x86:  OPERATION() { if (((CF | ZF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JBE
+        case 0x87:  OPERATION() { if (((CF | ZF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JA
+        case 0x88:  OPERATION() { if (((SF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JS
+        case 0x89:  OPERATION() { if (((SF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNS
+        case 0x8A:  OPERATION() { if (((PF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JPE
+        case 0x8B:  OPERATION() { if (((PF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JPO
+        case 0x8C:  OPERATION() { if (((SF ^ OF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JL
+        case 0x8D:  OPERATION() { if (((SF ^ OF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JGE
+        case 0x8E:  OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP += format.operand[0].displacement; };  break;  // JLE
+        case 0x8F:  OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP += format.operand[0].displacement; };  break;  // JG
         }
-        if (condition) {
-            EIP += format.operand[0].displacement;
-        }
-    };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::JMP(Format& format, const uint8_t* opcode)
@@ -557,7 +608,8 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
         }
     }
     format.operand[1].type = Format::Operand::NOP;
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         EIP = *(uint32_t*)format.operand[0].memory;
     };
 }
@@ -565,7 +617,8 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 void x86_instruction::LAHF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "LAHF";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         AH = FLAGS;
     };
 }
@@ -582,7 +635,8 @@ void x86_instruction::LEA(Format& format, const uint8_t* opcode)
 void x86_instruction::LEAVE(Format& format, const uint8_t* opcode)
 {
     format.instruction = "LEAVE";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         ESP = EBP;
         EBP = Pop32();
     };
@@ -595,7 +649,8 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
     case 0xE1:  Decode(format, opcode, "LOOPZ", 1, 8, OPERAND_SIZE | RELATIVE);     break;
     case 0xE2:  Decode(format, opcode, "LOOP", 1, 8, OPERAND_SIZE | RELATIVE);      break;
     }
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         uint32_t CountReg = (format.width == 16) ? CX : ECX;
         if (CountReg) {
             (format.width == 16) ? CX = CX - 1 : ECX = ECX - 1;
@@ -684,7 +739,8 @@ void x86_instruction::NOP(Format& format, const uint8_t* opcode)
     }
     format.operand[0].type = Format::Operand::NOP;
     format.operand[1].type = Format::Operand::NOP;
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {};
+
+    OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void x86_instruction::POP(Format& format, const uint8_t* opcode)
@@ -712,7 +768,8 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
 void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPAD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         EDI = Pop32();
         ESI = Pop32();
         EBP = Pop32();
@@ -727,7 +784,8 @@ void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
 void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPFD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         EFLAGS = Pop32();
     };
 }
@@ -759,7 +817,8 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "PUSHAD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         auto Temp = ESP;
         Push32(EAX);
         Push32(ECX);
@@ -775,7 +834,8 @@ void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "PUSHFD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         Push32(EFLAGS);
     };
 }
@@ -792,7 +852,8 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
     case 0xC3:
         break;
     }
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format& format, void*, const void*, const void*) {
+
+    OPERATION() {
         EIP = Pop32();
         ESP = uint32_t(ESP + format.operand[0].displacement);
     };
@@ -801,7 +862,8 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
 void x86_instruction::SAHF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "SAHF";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         FLAGS = AH;
     };
 }
@@ -852,7 +914,8 @@ void x86_instruction::SETcc(Format& format, const uint8_t* opcode)
 void x86_instruction::STC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "STC";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         CF = 1;
     };
 }
@@ -860,7 +923,8 @@ void x86_instruction::STC(Format& format, const uint8_t* opcode)
 void x86_instruction::STD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "STD";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         DF = 1;
     };
 }
@@ -898,7 +962,8 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
 void x86_instruction::XLAT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "XLAT";
-    format.operation = [](x86_instruction& x86, x87_instruction&, const Format&, void*, const void*, const void*) {
+
+    OPERATION() {
         AL = *(x86.memory_address + EBX + AL);
     };
 }

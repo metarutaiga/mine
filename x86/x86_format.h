@@ -4,6 +4,8 @@
 #include <functional>
 #include <string>
 
+#define HAVE_X64 0
+
 struct x86_instruction;
 struct x87_instruction;
 
@@ -13,20 +15,25 @@ struct x86_format
     {
         struct Operand
         {
-            enum Type { NOP, ADR, IMM, REG, REL };
+            enum Type : int8_t { NOP, ADR, IMM, REG, REL };
             Type type = NOP;
 
-            int scale;
-            int index;
-            int base;
+            int8_t scale;
+            int8_t index;
+            int8_t base;
+#if HAVE_X64
             int64_t displacement;
-
             uint64_t address;
+#else
+            int32_t displacement;
+            uint32_t address;
+#endif
+
             uint8_t* memory;
         };
-        int width = 0;
-        int length = 0;
-        int address = 0;
+        char width = 0;
+        char length = 0;
+        char address = 0;
         bool floating = false;
         bool repeat = false;
         const char* instruction = "";

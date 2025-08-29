@@ -6,28 +6,28 @@
 //------------------------------------------------------------------------------
 void x86_instruction::BSF(Format& format, const uint8_t* opcode)
 {
-	Decode(format, opcode, "BSF", 2, 0, OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "BSF", 2, 0, OPERAND_SIZE | DIRECTION);
 
-	BEGIN_OPERATION() {
-		ZF = 1;
-		if (SRC) {
-			ZF = 0;
-			DEST = std::countr_zero(SRC);
-		}
-	} END_OPERATION;
+    BEGIN_OPERATION() {
+        ZF = 1;
+        if (SRC) {
+            ZF = 0;
+            DEST = std::countr_zero(SRC);
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::BSR(Format& format, const uint8_t* opcode)
 {
-	Decode(format, opcode, "BSR", 2, 0, OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "BSR", 2, 0, OPERAND_SIZE | DIRECTION);
 
-	BEGIN_OPERATION() {
-		ZF = 1;
-		if (SRC) {
-			ZF = 0;
-			DEST = std::countl_zero(SRC);
-		}
-	} END_OPERATION;
+    BEGIN_OPERATION() {
+        ZF = 1;
+        if (SRC) {
+            ZF = 0;
+            DEST = std::countl_zero(SRC);
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::BT(Format& format, const uint8_t* opcode)
