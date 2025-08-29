@@ -529,7 +529,6 @@ static const struct {
     { "RegQueryValueExA",           INT32(6, 2)                                                 },
 
     // msvcrt
-    { "iswspace",                   INT32(0, 0)                                                 },
     { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                },
     { "_amsg_exit",                 INT32(0, 0)                                                 },
     { "_callnewh",                  INT32(0, 1)                                                 },

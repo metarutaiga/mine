@@ -232,6 +232,87 @@ int syscall_mktime(const void* memory, const void* stack);
 int syscall_strftime(const void* memory, const void* stack);
 int syscall_time(const void* memory, const void* stack);
 
+// wchar
+int syscall_btowc(const void* memory, const void* stack);
+int syscall_fgetwc(const void* memory, const void* stack);
+int syscall_fgetws(const void* memory, const void* stack);
+int syscall_fputwc(const void* memory, const void* stack);
+int syscall_fputws(const void* memory, const void* stack);
+int syscall_fwide(const void* memory, const void* stack);
+int syscall_fwprintf(const void* memory, const void* stack);
+int syscall_fwscanf(const void* memory, const void* stack);
+int syscall_getwc(const void* memory, const void* stack);
+int syscall_getwchar(const void* memory, const void* stack);
+size_t syscall_mbrlen(const void* memory, const void* stack);
+size_t syscall_mbrtowc(const void* memory, const void* stack);
+int syscall_mbsinit(const void* memory, const void* stack);
+size_t syscall_mbsrtowcs(const void* memory, const void* stack);
+int syscall_putwc(const void* memory, const void* stack);
+int syscall_putwchar(const void* memory, const void* stack);
+int syscall_swprintf(const void* memory, const void* stack);
+int syscall_swscanf(const void* memory, const void* stack);
+int syscall_ungetwc(const void* memory, const void* stack);
+int syscall_vfwprintf(const void* memory, const void* stack);
+int syscall_vfwscanf(const void* memory, const void* stack);
+int syscall_vswprintf(const void* memory, const void* stack);
+int syscall_vswscanf(const void* memory, const void* stack);
+int syscall_vwprintf(const void* memory, const void* stack);
+int syscall_vwscanf(const void* memory, const void* stack);
+size_t syscall_wcrtomb(const void* memory, const void* stack);
+int syscall_wcscat(const void* memory, const void* stack);
+int syscall_wcschr(const void* memory, const void* stack);
+int syscall_wcscmp(const void* memory, const void* stack);
+int syscall_wcscoll(const void* memory, const void* stack);
+int syscall_wcscpy(const void* memory, const void* stack);
+size_t syscall_wcscspn(const void* memory, const void* stack);
+size_t syscall_wcsftime(const void* memory, const void* stack);
+size_t syscall_wcslen(const void* memory, const void* stack);
+int syscall_wcsncat(const void* memory, const void* stack);
+int syscall_wcsncmp(const void* memory, const void* stack);
+int syscall_wcsncpy(const void* memory, const void* stack);
+int syscall_wcspbrk(const void* memory, const void* stack);
+int syscall_wcsrchr(const void* memory, const void* stack);
+size_t syscall_wcsrtombs(const void* memory, const void* stack);
+size_t syscall_wcsspn(const void* memory, const void* stack);
+int syscall_wcsstr(const void* memory, const void* stack);
+double syscall_wcstod(const void* memory, const void* stack);
+float syscall_wcstof(const void* memory, const void* stack);
+int syscall_wcstok(const void* memory, const void* stack);
+long syscall_wcstol(const void* memory, const void* stack);
+long double syscall_wcstold(const void* memory, const void* stack);
+long long syscall_wcstoll(const void* memory, const void* stack);
+long syscall_wcstoul(const void* memory, const void* stack);
+long long syscall_wcstoull(const void* memory, const void* stack);
+int syscall_wcsxfrm(const void* memory, const void* stack);
+int syscall_wctob(const void* memory, const void* stack);
+int syscall_wmemchr(const void* memory, const void* stack);
+int syscall_wmemcmp(const void* memory, const void* stack);
+int syscall_wmemcpy(const void* memory, const void* stack);
+int syscall_wmemmove(const void* memory, const void* stack);
+int syscall_wmemset(const void* memory, const void* stack);
+int syscall_wprintf(const void* memory, const void* stack);
+int syscall_wscanf(const void* memory, const void* stack);
+
+// wctype
+int syscall_iswalnum(const void* stack);
+int syscall_iswalpha(const void* stack);
+int syscall_iswblank(const void* stack);
+int syscall_iswcntrl(const void* stack);
+int syscall_iswctype(const void* stack);
+int syscall_iswdigit(const void* stack);
+int syscall_iswgraph(const void* stack);
+int syscall_iswlower(const void* stack);
+int syscall_iswprint(const void* stack);
+int syscall_iswpunct(const void* stack);
+int syscall_iswspace(const void* stack);
+int syscall_iswupper(const void* stack);
+int syscall_iswxdigit(const void* stack);
+int syscall_towctrans(const void* stack);
+int syscall_towlower(const void* stack);
+int syscall_towupper(const void* stack);
+int syscall_wctrans(const void* memory, const void* stack);
+int syscall_wctype(const void* memory, const void* stack);
+
 #ifdef __cplusplus
 }
 #endif

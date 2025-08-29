@@ -251,6 +251,14 @@
 		F5F1B2CD2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
 		F5F1B2CE2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
 		F5F1B2CF2E41ED7E00D2FF10 /* x87_bcd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */; };
+		F5FCAED92E61ECB6007401E1 /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
+		F5FCAEDA2E61ECB6007401E1 /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
+		F5FCAEDB2E61ECB6007401E1 /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
+		F5FCAEDC2E61ECB6007401E1 /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
+		F5FCAEDE2E61EFB0007401E1 /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
+		F5FCAEDF2E61EFB0007401E1 /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
+		F5FCAEE02E61EFB0007401E1 /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
+		F5FCAEE12E61EFB0007401E1 /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -399,6 +407,8 @@
 		F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_integer.cpp; sourceTree = "<group>"; };
 		F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_compute.cpp; sourceTree = "<group>"; };
 		F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_bcd.cpp; sourceTree = "<group>"; };
+		F5FCAED82E61ECB3007401E1 /* wctype.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wctype.cpp; sourceTree = "<group>"; };
+		F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wchar.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -600,6 +610,8 @@
 				F56ED7672E56C150007395ED /* syscall_windows.cpp */,
 				F56ED7662E56BFE5007395ED /* syscall_windows.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,
+				F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */,
+				F5FCAED82E61ECB3007401E1 /* wctype.cpp */,
 			);
 			name = syscall;
 			path = ../../../syscall;
@@ -783,6 +795,7 @@
 				D6D7594D2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				F5511FEE2E5028B70076E961 /* signal.cpp in Sources */,
 				D6D758E32E23F59700E5C09D /* cpu.cpp in Sources */,
+				F5FCAED92E61ECB6007401E1 /* wctype.cpp in Sources */,
 				D6C5FE482E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758E42E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B82E41059300D2FF10 /* x87_instruction.cpp in Sources */,
@@ -824,6 +837,7 @@
 				D6D759322E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C82E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				F51AF66C2E54240300E9B209 /* syscall_i386.cpp in Sources */,
+				F5FCAEDF2E61EFB0007401E1 /* wchar.cpp in Sources */,
 				D6D759332E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759342E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBE2E4B96FF0076E961 /* stdio.cpp in Sources */,
@@ -845,6 +859,7 @@
 			files = (
 				F5511FE92E5025D10076E961 /* setjmp.cpp in Sources */,
 				D6C5FE372E2A13A000A8E110 /* x86_bcd.cpp in Sources */,
+				F5FCAEE02E61EFB0007401E1 /* wchar.cpp in Sources */,
 				D6909FB72E1A9D530023F7B5 /* Debugger.cpp in Sources */,
 				F56C54402E4B110B00534B1D /* pe.cpp in Sources */,
 				F56C54422E4B110B00534B1D /* coff.cpp in Sources */,
@@ -866,6 +881,7 @@
 				F5511FCD2E4E2A730076E961 /* string.cpp in Sources */,
 				D6D758DF2E23F59700E5C09D /* sysctl.cpp in Sources */,
 				F5F1B2BA2E41059300D2FF10 /* x87_instruction.cpp in Sources */,
+				F5FCAEDA2E61ECB6007401E1 /* wctype.cpp in Sources */,
 				D6D759042E23F5AC00E5C09D /* riscv_rv64a.cpp in Sources */,
 				D6D759052E23F5AC00E5C09D /* riscv_rv32i.cpp in Sources */,
 				D6D759062E23F5AC00E5C09D /* riscv_cpu.cpp in Sources */,
@@ -918,6 +934,7 @@
 				D6D7594E2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				F5511FEF2E5028B70076E961 /* signal.cpp in Sources */,
 				D6D758EC2E23F59700E5C09D /* cpu.cpp in Sources */,
+				F5FCAEDC2E61ECB6007401E1 /* wctype.cpp in Sources */,
 				D6C5FE492E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758ED2E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B72E41059300D2FF10 /* x87_instruction.cpp in Sources */,
@@ -959,6 +976,7 @@
 				D6D759182E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2C92E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				F51AF66D2E54240300E9B209 /* syscall_i386.cpp in Sources */,
+				F5FCAEE12E61EFB0007401E1 /* wchar.cpp in Sources */,
 				D6D759192E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D7591A2E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FBF2E4B96FF0076E961 /* stdio.cpp in Sources */,
@@ -983,6 +1001,7 @@
 				D6D7594C2E25044F00E5C09D /* x86_i86.cpp in Sources */,
 				F5511FF12E5028B70076E961 /* signal.cpp in Sources */,
 				D6D758D12E23F59700E5C09D /* cpu.cpp in Sources */,
+				F5FCAEDB2E61ECB6007401E1 /* wctype.cpp in Sources */,
 				D6C5FE4A2E2D503800A8E110 /* x86_logical.cpp in Sources */,
 				D6D758D22E23F59700E5C09D /* pcrel.cpp in Sources */,
 				F5F1B2B92E41059300D2FF10 /* x87_instruction.cpp in Sources */,
@@ -1024,6 +1043,7 @@
 				D6D759252E23F5AC00E5C09D /* riscv_rv32a.cpp in Sources */,
 				F5F1B2CA2E41D74800D2FF10 /* x87_compute.cpp in Sources */,
 				F51AF66B2E54240300E9B209 /* syscall_i386.cpp in Sources */,
+				F5FCAEDE2E61EFB0007401E1 /* wchar.cpp in Sources */,
 				D6D759262E23F5AC00E5C09D /* riscv_rv64d.cpp in Sources */,
 				D6D759272E23F5AC00E5C09D /* riscv_rv64i.cpp in Sources */,
 				F5511FC02E4B96FF0076E961 /* stdio.cpp in Sources */,
@@ -1277,7 +1297,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXCLUDED_ARCHS = x86_64;
-				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Release;
 		};
