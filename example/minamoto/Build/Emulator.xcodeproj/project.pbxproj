@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -411,6 +411,10 @@
 		F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wchar.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F595EEC22E6333EA000498EB /* windows */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = windows; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		30A9A7CA25ADC7D3000FA104 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -592,6 +596,7 @@
 		F5511FBD2E4B96F20076E961 /* syscall */ = {
 			isa = PBXGroup;
 			children = (
+				F595EEC22E6333EA000498EB /* windows */,
 				F5511FC62E4B97130076E961 /* allocator.h */,
 				F5511FD42E4F7EF90076E961 /* assert.cpp */,
 				F5511FD92E4F7F660076E961 /* ctype.cpp */,
@@ -686,6 +691,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				F595EEC22E6333EA000498EB /* windows */,
+			);
 			name = "Emulator-Android";
 			productName = "Emulator-Android";
 			productReference = 30A9A7CC25ADC7D3000FA104 /* libEmulator.so */;
@@ -703,6 +711,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				F595EEC22E6333EA000498EB /* windows */,
+			);
 			name = "Emulator-Windows";
 			productName = "Emulator-Windows";
 			productReference = CE93603325AC470300CEF503 /* Emulator.dll */;
@@ -718,6 +729,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F595EEC22E6333EA000498EB /* windows */,
 			);
 			name = "Emulator-iOS";
 			productName = Emulator;
@@ -735,6 +749,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F595EEC22E6333EA000498EB /* windows */,
 			);
 			name = "Emulator-macOS";
 			productName = Emulator;

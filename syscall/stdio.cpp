@@ -99,7 +99,14 @@ int syscall_ferror(char* memory, const uint32_t* stack)
 int syscall_fflush(char* memory, const uint32_t* stack)
 {
     auto stream = physical(FILE**, stack[1]);
-    return fflush(*stream);
+    switch ((size_t)(*stream)) {
+    case 0x0:
+    case 0x1:
+    case 0x2:
+    case 0x3:   return 0;
+    default:    return fflush(*stream);
+    }
+    return 0;
 }
 
 int syscall_fgetc(char* memory, const uint32_t* stack)
