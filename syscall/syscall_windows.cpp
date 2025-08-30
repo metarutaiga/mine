@@ -48,6 +48,9 @@ struct MSVCRT {
     uint32_t commode;
     uint32_t fmode;
     uint32_t initenv;
+    uint32_t argc;
+    uint32_t argv;
+    uint32_t envp;
 };
 
 struct Windows {
@@ -384,21 +387,11 @@ int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocat
 //  auto expand = physical(int, stack[4]);
 //  auto mode = physical(int*, stack[5]);
 
-    auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
-    auto main = (char*)allocator->allocate(sizeof("main"));
-    strcpy(main, "main");
-    args[0] = virtual(int, main);
-    args[1] = 0;
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
 
-    auto env = (uint32_t*)allocator->allocate(sizeof(uint32_t) * 2);
-    auto path = (char*)allocator->allocate(sizeof("PATH=."));
-    strcpy(path, "PATH=.");
-    env[0] = virtual(int, path);
-    env[1] = 0;
-
-    *argc = 1;
-    *argv = virtual(int, args);
-    *envp = virtual(int, env);
+    *argc = msvcrt->argc;
+    *argv = msvcrt->argv;
+    *envp = msvcrt->envp;
 
     return 0;
 }
@@ -584,17 +577,39 @@ static const struct {
     { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))           },
 };
 
-size_t syscall_windows_new(void* data, const char* path, void* image)
+size_t syscall_windows_new(void* data, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[])
 {
     if (data == nullptr)
         return 0;
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
+    auto* allocator = cpu->Allocator();
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     msvcrt->iob[0][0] = 1;
     msvcrt->iob[1][0] = 2;
     msvcrt->iob[2][0] = 3;
+
+    auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * argc);
+    for (int i = 0; i < argc; ++i) {
+        size_t length = strlen(argv[i]);
+        auto arg = allocator->allocate(length + 1);
+        memcpy(arg, argv[i], length);
+        args[i] = virtual(int, arg);
+    }
+
+    auto envs = (uint32_t*)allocator->allocate(sizeof(uint32_t) * (envc + 1));
+    for (int i = 0; i < envc; ++i) {
+        size_t length = strlen(envp[i]);
+        auto env = allocator->allocate(length + 1);
+        memcpy(env, envp[i], length);
+        envs[i] = virtual(int, env);
+    }
+    envs[envc] = 0;
+
+    msvcrt->argc = argc;
+    msvcrt->argv = virtual(int, args);
+    msvcrt->envp = virtual(int, envs);
 
     auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image == 0) {
@@ -606,6 +621,7 @@ size_t syscall_windows_new(void* data, const char* path, void* image)
 #else
     realpath(path, windows->currentDirectory);
 #endif
+
     return 0;
 }
 
@@ -634,6 +650,7 @@ size_t syscall_windows_delete(void* data)
         windows->image = 0;
         windows->~Windows();
     }
+
     return 0;
 }
 

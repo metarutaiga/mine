@@ -484,12 +484,12 @@
 			isa = PBXGroup;
 			children = (
 				CE999BD325D21EB300351116 /* Configs */,
+				F5E5B0C62D6C5669008E0D21 /* example */,
 				F56C543A2E4B110B00534B1D /* format */,
 				D6D758BF2E23F56800E5C09D /* mips */,
 				D6D758C02E23F56F00E5C09D /* riscv */,
 				F5511FBD2E4B96F20076E961 /* syscall */,
 				D6909FB92E1AC6650023F7B5 /* x86 */,
-				F5E5B0C62D6C5669008E0D21 /* ui */,
 				D6909FB82E1AA1F10023F7B5 /* miCPU.h */,
 				D644A042231ED82900B75B77 /* Products */,
 				300264BD24266097004559E0 /* Frameworks */,
@@ -660,7 +660,7 @@
 			path = ../../../format;
 			sourceTree = SOURCE_ROOT;
 		};
-		F5E5B0C62D6C5669008E0D21 /* ui */ = {
+		F5E5B0C62D6C5669008E0D21 /* example */ = {
 			isa = PBXGroup;
 			children = (
 				D6909FB32E1A9D500023F7B5 /* Debugger.cpp */,
@@ -668,7 +668,7 @@
 				D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */,
 				D6909FAD2E1A7FFD0023F7B5 /* EmulatorPCH.h */,
 			);
-			name = ui;
+			name = example;
 			path = ..;
 			sourceTree = "<group>";
 		};

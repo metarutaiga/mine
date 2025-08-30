@@ -1,0 +1,4 @@
+example/console/build
+example/minamoto/Build/Emulator.xcodeproj/xcshareddata
+example/minamoto/Build/Emulator.xcodeproj/xcuserdata
+format/sample/pe.x86

@@ -17,6 +17,7 @@
 
 //------------------------------------------------------------------------------
 static miCPU* cpu;
+static std::string arguments;
 static std::string status;
 static std::string logs[2];
 static std::map<size_t, std::string> disasms;
@@ -91,6 +92,8 @@ static const char* Name(size_t index)
 //------------------------------------------------------------------------------
 void Debugger::Initialize()
 {
+    arguments = "main";
+
     std::string folder;
     folder += xxGetExecutablePath();
     folder += "/../../../../../SDK/miCPU/format/sample/pe.x86/";
@@ -108,6 +111,7 @@ void Debugger::Initialize()
 void Debugger::Shutdown()
 {
     delete cpu;
+    arguments = std::string();
     status = std::string();
     exports = std::vector<std::pair<std::string, size_t>>();
     logs[0] = std::string();
@@ -295,6 +299,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
+            ImGui::InputTextEx("Argument", nullptr, arguments);
             if (ImGui::InputInt("Breakpoint", &breakpoint, 0, 0, ImGuiInputTextFlags_CharsHexadecimal)) {
                 if (cpu) cpu->Breakpoint(breakpoint);
             }
@@ -389,7 +394,17 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     cpu->Jump(program);
                 };
 
-                syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image);
+                std::vector<std::string> parsed;
+                std::vector<const char*> args;
+                for (size_t pos = 0, next = 0; next != std::string::npos; pos = arguments.find_first_not_of(' ', next)) {
+                    next = arguments.find(' ', pos);
+                    parsed.push_back(arguments.substr(pos, next - pos));
+                }
+                for (auto& arg : parsed) {
+                    args.push_back(arg.data());
+                }
+
+                syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image, (int)args.size(), args.data(), 0, nullptr);
                 syscall_windows_debug(cpu, disassembly);
 
                 exports.emplace_back("Entry", PE::Entry(image));
