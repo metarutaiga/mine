@@ -43,7 +43,7 @@ void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FLD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FLD", 2);
+    Decode(format, opcode, "FLD", 1);
     switch (opcode[0]) {
     case 0xD9:  format.width = 32;  break;
     case 0xDD:  format.width = 64;  break;
@@ -153,7 +153,7 @@ void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FLDCW", 2);
+    Decode(format, opcode, "FLDCW", 1);
     format.width = 16;
     format.floating = false;
     format.operand[1].type = Format::Operand::NOP;
@@ -198,7 +198,7 @@ void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FSTCW", 2);
+    Decode(format, opcode, "FSTCW", 1);
     format.width = 16;
     format.floating = false;
     format.operand[1].type = Format::Operand::NOP;
@@ -210,7 +210,7 @@ void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FSTSW", 2);
+    Decode(format, opcode, "FSTSW", 1);
     format.width = 16;
     format.floating = false;
     format.length = (opcode[0] == 0xDF) ? 2 : format.length;

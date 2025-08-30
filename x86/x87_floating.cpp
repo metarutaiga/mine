@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 void x87_instruction::FADD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FADD", 2);
+    Decode(format, opcode, "FADD", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -71,7 +71,7 @@ void x87_instruction::FCHS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOM", 2);
+    Decode(format, opcode, "FCOM", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -109,7 +109,7 @@ void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOMP", 2);
+    Decode(format, opcode, "FCOMP", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -163,7 +163,7 @@ void x87_instruction::FCOMPP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FDIV(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FDIV", 2);
+    Decode(format, opcode, "FDIV", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -211,7 +211,7 @@ void x87_instruction::FDIVP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FDIVR", 2);
+    Decode(format, opcode, "FDIVR", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -259,7 +259,7 @@ void x87_instruction::FDIVRP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FMUL(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FMUL", 2);
+    Decode(format, opcode, "FMUL", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -327,7 +327,7 @@ void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FSUB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FSUB", 2);
+    Decode(format, opcode, "FSUB", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -375,7 +375,7 @@ void x87_instruction::FSUBP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FSUBR", 2);
+    Decode(format, opcode, "FSUBR", 1);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;

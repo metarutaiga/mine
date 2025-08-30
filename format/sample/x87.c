@@ -182,6 +182,9 @@ __declspec(dllexport) void fisubr()
 __declspec(dllexport) void fld()
 {
     __asm__(".intel_syntax\n"
+            "fld dword ptr [0x55667788]\n"
+            "fld qword ptr [0x55667788]\n"
+            "fld tbyte ptr [0x55667788]\n"
             "fld dword ptr [ecx*4+edx+0x55667788]\n"
             "fld qword ptr [ecx*4+edx+0x55667788]\n"
             "fld tbyte ptr [ecx*4+edx+0x55667788]\n"

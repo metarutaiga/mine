@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------
 void x87_instruction::FBLD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FBLD", 2);
+    Decode(format, opcode, "FBLD", 1);
     format.width = 80;
     format.operand[1].type = Format::Operand::NOP;
 
@@ -24,7 +24,7 @@ void x87_instruction::FBLD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FBSTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FBSTP", 2);
+    Decode(format, opcode, "FBSTP", 1);
     format.width = 80;
     format.operand[1].type = Format::Operand::NOP;
 
