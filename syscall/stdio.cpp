@@ -5,6 +5,7 @@
 #define __deprecated_msg(_msg)
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
+#include <string>
 #include <vector>
 #include "allocator.h"
 #include "syscall_internal.h"
@@ -13,7 +14,17 @@
 extern "C" {
 #endif
 
-static std::vector<uint64_t> convert_format_from_32bit_to_64bit(const char* format, const void* memory, const void* stack)
+static std::string convert_format(const char* format)
+{
+    size_t pos;
+    std::string output = format;
+    while ((pos = output.find("%I64")) != std::string::npos) {
+        output.replace(pos, 4, "%ll");
+    }
+    return output;
+}
+
+static std::vector<uint64_t> convert_format_argument(const char* format, const void* memory, const void* stack)
 {
     auto args = (const uint32_t*)stack;
     size_t args_index = 0;
@@ -154,13 +165,14 @@ int syscall_fprintf(char* memory, const uint32_t* stack, int(*function)(const ch
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
     switch ((size_t)(*stream)) {
     case 0x0:
     case 0x1:   return 0;
     case 0x2:
-    case 0x3:   return function(format, (va_list)args64.data());
-    default:    return fprintf(*stream, format, (va_list)args64.data());
+    case 0x3:   return function(format64.c_str(), (va_list)args64.data());
+    default:    return fprintf(*stream, format64.c_str(), (va_list)args64.data());
     }
     return 0;
 }
@@ -202,8 +214,9 @@ int syscall_fscanf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfscanf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfscanf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_fseek(char* memory, const uint32_t* stack)
@@ -269,8 +282,9 @@ int syscall_printf(char* memory, const uint32_t* stack, int(*function)(const cha
 {
     auto format = physical(char*, stack[1]);
     auto args = stack + 2;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return function(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return function(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_putc(char* memory, const uint32_t* stack)
@@ -316,8 +330,9 @@ int syscall_scanf(char* memory, const uint32_t* stack)
 {
     auto format = physical(char*, stack[1]);
     auto args = stack + 2;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vscanf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vscanf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_setbuf(char* memory, const uint32_t* stack)
@@ -343,8 +358,9 @@ int syscall_snprintf(char* memory, const uint32_t* stack)
     auto length = stack[2];
     auto format = physical(char*, stack[3]);
     auto args = stack + 4;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vsnprintf(buffer, length, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vsnprintf(buffer, length, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_sprintf(char* memory, const uint32_t* stack)
@@ -352,8 +368,9 @@ int syscall_sprintf(char* memory, const uint32_t* stack)
     auto buffer = physical(char*, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vsnprintf(buffer, UINT32_MAX, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vsnprintf(buffer, UINT32_MAX, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_sscanf(char* memory, const uint32_t* stack)
@@ -361,8 +378,9 @@ int syscall_sscanf(char* memory, const uint32_t* stack)
     auto s = physical(char*, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vsscanf(s, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vsscanf(s, format64.c_str(), (va_list)args64.data());
 }
 
 size_t syscall_tmpfile(char* memory, struct allocator_t* allocator)
@@ -393,8 +411,9 @@ int syscall_vfprintf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfprintf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfprintf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vfscanf(char* memory, const uint32_t* stack)
@@ -402,24 +421,27 @@ int syscall_vfscanf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfscanf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfscanf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
 {
     auto format = physical(char*, stack[1]);
     auto args = physical(char*, stack[2]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return function(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return function(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vscanf(char* memory, const uint32_t* stack)
 {
     auto format = physical(char*, stack[1]);
     auto args = physical(va_list, stack[2]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vscanf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vscanf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vsnprintf(char* memory, const uint32_t* stack)
@@ -428,8 +450,9 @@ int syscall_vsnprintf(char* memory, const uint32_t* stack)
     auto length = stack[2];
     auto format = physical(char*, stack[3]);
     auto args = physical(va_list, stack[4]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vsnprintf(buffer, length, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vsnprintf(buffer, length, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vsprintf(char* memory, const uint32_t* stack)
@@ -437,8 +460,9 @@ int syscall_vsprintf(char* memory, const uint32_t* stack)
     auto buffer = physical(char*, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vsnprintf(buffer, UINT32_MAX, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vsnprintf(buffer, UINT32_MAX, format64.c_str(), (va_list)args64.data());
 }
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@ CXX := g++
 CXXFLAGS := -O3 --std=c++20 -I../.. -I../../format
 LDFLAGS :=
 
-SRC_DIRS := ../../format/coff ../../syscall ../../x86
+SRC_DIRS := ../../format/coff ../../syscall ../../syscall/windows ../../x86
 BUILD_DIR := build
 BIN := micpu
 

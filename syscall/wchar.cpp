@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
 #include <wchar.h>
+#include <string>
 #include <vector>
 #include "syscall_internal.h"
 
@@ -8,7 +9,17 @@
 extern "C" {
 #endif
 
-static std::vector<uint64_t> convert_format_from_32bit_to_64bit(const wchar_t* format, const void* memory, const void* stack)
+static std::wstring convert_format(const wchar_t* format)
+{
+    size_t pos;
+    std::wstring output = format;
+    while ((pos = output.find(L"%I64")) != std::string::npos) {
+        output.replace(pos, 4, L"%ll");
+    }
+    return output;
+}
+
+static std::vector<uint64_t> convert_format_argument(const wchar_t* format, const void* memory, const void* stack)
 {
     auto args = (const uint32_t*)stack;
     size_t args_index = 0;
@@ -111,8 +122,9 @@ int syscall_fwprintf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfwprintf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfwprintf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_fwscanf(char* memory, const uint32_t* stack)
@@ -120,8 +132,9 @@ int syscall_fwscanf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfwscanf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfwscanf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_getwc(char* memory, const uint32_t* stack)
@@ -186,8 +199,9 @@ int syscall_swprintf(char* memory, const uint32_t* stack)
     auto len = stack[2];
     auto format = physical(wchar_t*, stack[3]);
     auto args = stack + 4;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vswprintf(ws, len, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vswprintf(ws, len, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_swscanf(char* memory, const uint32_t* stack)
@@ -195,8 +209,9 @@ int syscall_swscanf(char* memory, const uint32_t* stack)
     auto ws = physical(wchar_t*, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = stack + 3;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vswscanf(ws, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vswscanf(ws, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_ungetwc(char* memory, const uint32_t* stack)
@@ -211,8 +226,9 @@ int syscall_vfwprintf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfwprintf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfwprintf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vfwscanf(char* memory, const uint32_t* stack)
@@ -220,8 +236,9 @@ int syscall_vfwscanf(char* memory, const uint32_t* stack)
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vfwscanf(*stream, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vfwscanf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vswprintf(char* memory, const uint32_t* stack)
@@ -230,8 +247,9 @@ int syscall_vswprintf(char* memory, const uint32_t* stack)
     auto len = stack[2];
     auto format = physical(wchar_t*, stack[3]);
     auto args = physical(va_list, stack[4]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vswprintf(ws, len, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vswprintf(ws, len, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vswscanf(char* memory, const uint32_t* stack)
@@ -239,24 +257,27 @@ int syscall_vswscanf(char* memory, const uint32_t* stack)
     auto ws = physical(wchar_t*, stack[1]);
     auto format = physical(wchar_t*, stack[2]);
     auto args = physical(va_list, stack[3]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vswscanf(ws, format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vswscanf(ws, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vwprintf(char* memory, const uint32_t* stack)
 {
     auto format = physical(wchar_t*, stack[1]);
     auto args = physical(va_list, stack[2]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vwprintf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vwprintf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vwscanf(char* memory, const uint32_t* stack)
 {
     auto format = physical(wchar_t*, stack[1]);
     auto args = physical(va_list, stack[2]);
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vwscanf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vwscanf(format64.c_str(), (va_list)args64.data());
 }
 
 size_t syscall_wcrtomb(char* memory, const uint32_t* stack)
@@ -518,16 +539,18 @@ int syscall_wprintf(char* memory, const uint32_t* stack)
 {
     auto format = physical(wchar_t*, stack[1]);
     auto args = stack + 2;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return vwprintf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return vwprintf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_wscanf(char* memory, const uint32_t* stack)
 {
     auto format = physical(wchar_t*, stack[1]);
     auto args = stack + 2;
-    auto args64 = convert_format_from_32bit_to_64bit(format, memory, args);
-    return wscanf(format, (va_list)args64.data());
+    auto format64 = convert_format(format);
+    auto args64 = convert_format_argument(format, memory, args);
+    return wscanf(format64.c_str(), (va_list)args64.data());
 }
 
 #ifdef __cplusplus

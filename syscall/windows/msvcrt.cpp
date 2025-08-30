@@ -9,6 +9,7 @@
 #include "x86/x86_i386.h"
 #include "x86/x86_register.inl"
 #include "x86/x86_instruction.inl"
+#include "x86/x87_register.inl"
 #include "msvcrt.h"
 
 #if defined(_WIN32)
@@ -147,6 +148,17 @@ int syscall_strnicmp(uint8_t* memory, const uint32_t* stack)
     return strncasecmp(str1, str2, num);
 }
 
+int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
+{
+    auto control = stack[1];
+    auto mask = stack[2];
+
+    auto& x87 = cpu->x87;
+    FPUControlWord = (FPUStatusWord & ~mask) | (control & mask);
+
+    return 0;
+}
+
 int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto begin = physical(uint32_t*, stack[1]);
@@ -158,6 +170,23 @@ int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
             Push32(*function);
         }
     }
+
+    return 0;
+}
+
+int syscall__setjmp3(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    auto buf = physical(JUMP_BUFFER*, stack[1]);
+
+    buf->Ebp = EBP;
+    buf->Ebx = EBX;
+    buf->Edi = EDI;
+    buf->Esi = ESI;
+    buf->Esp = ESP;
+    buf->Eip = EIP;
+    buf->Registration = 0;
+    buf->TryLevel = 0;
+    buf->Cookie = 0x56433230;
 
     return 0;
 }

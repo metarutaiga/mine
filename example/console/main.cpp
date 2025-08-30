@@ -59,7 +59,7 @@ int main(int argc, const char* argv[])
         return cpu->Memory(base, size);
     }, cpu, syslog);
     if (image) {
-        syscall_windows_new(cpu, ".", image, argc - 1, argv + 1);
+        syscall_windows_new(cpu, ".", image, argc - 1, argv + 1, 0, nullptr);
 
         PE::Imports(image, get_symbol, syslog);
 

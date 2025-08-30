@@ -17,6 +17,7 @@
 #else
 #include <fnmatch.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <sys/dir.h>
 static_assert(true);
 #pragma pack(push, 1)
@@ -38,6 +39,16 @@ struct WIN32_FIND_DATAA {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Atomic
+int syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
+{
+    auto Target = physical(int*, stack[1]);
+    auto Value = physical(int, stack[2]);
+    auto result = (*Target);
+    (*Target) = Value;
+    return result;
+}
 
 // Critical Section
 
@@ -256,7 +267,7 @@ int syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* 
 
     auto map = allocator->allocate(dwNumberOfBytesToMap);
     if (map == nullptr)
-        return NULL;
+        return 0;
 
     fseek(file, dwFileOffsetLow, SEEK_SET);
     fread(map, 1, dwNumberOfBytesToMap, file);
@@ -508,6 +519,70 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
     }
 
     return virtual(int, image);
+}
+
+// System
+int syscall_GetCurrentProcessId()
+{
+#if defined(_WIN32)
+    return GetCurrentProcessId();
+#else
+    return getpid();
+#endif
+}
+
+int syscall_GetCurrentThreadId()
+{
+#if defined(_WIN32)
+    return GetCurrentThreadId();
+#else
+    return (int)(size_t)pthread_self();
+#endif
+}
+
+// Time
+int syscall_GetSystemTimeAsFileTime(uint8_t* memory, uint32_t* stack)
+{
+#if defined(_WIN32)
+    auto lpSystemTimeAsFileTime = physical(FILETIME*, stack[1]);
+    GetSystemTimeAsFileTime(lpSystemTimeAsFileTime);
+#else
+    auto lpSystemTimeAsFileTime = physical(uint64_t*, stack[1]);
+
+    struct timespec ts = {};
+    clock_gettime(CLOCK_REALTIME, &ts);
+
+    (*lpSystemTimeAsFileTime) = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+#endif
+    return 0;
+}
+
+int syscall_GetTickCount()
+{
+#if defined(_WIN32)
+    return GetTickCount();
+#else
+    struct timespec ts = {};
+    clock_gettime(CLOCK_REALTIME, &ts);
+
+    return int(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+#endif
+}
+
+int syscall_QueryPerformanceCounter(uint8_t* memory, uint32_t* stack)
+{
+#if defined(_WIN32)
+    auto lpPerformanceCount = physical(LARGE_INTEGER*, stack[1]);
+    return QueryPerformanceCounter(lpPerformanceCount);
+#else
+    auto lpPerformanceCount = physical(uint64_t*, stack[1]);
+
+    struct timespec ts = {};
+    clock_gettime(CLOCK_REALTIME, &ts);
+
+    (*lpPerformanceCount) = ts.tv_sec * 1'000'000'000ull + ts.tv_nsec;
+    return true;
+#endif
 }
 
 #ifdef __cplusplus
