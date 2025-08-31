@@ -34,7 +34,7 @@ void x86_instruction::NOT(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        DEST = !DEST;
+        DEST = ~DEST;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

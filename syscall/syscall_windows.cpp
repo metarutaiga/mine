@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define SYMBOL_INDEX    1001
+#define SYMBOL_INDEX 1001
 
 #define CALLBACK_ARGUMENT \
     x86_i386* cpu,          \

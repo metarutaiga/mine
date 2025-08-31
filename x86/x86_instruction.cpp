@@ -158,22 +158,34 @@ void x86_instruction::Decode(Format& format, const uint8_t* opcode, const char* 
 //------------------------------------------------------------------------------
 std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
 {
-    auto hex = [](auto imm) {
+    auto hex = [](auto imm, bool sign) {
         char temp[64];
+        if (sign) {
 #if HAVE_X64
-        auto value = std::abs((int64_t)imm);
-        if (value > 0xFFFFFFFF)  snprintf(temp, 64, "%s%0*llX",                 "", 16, imm);
-        else if (value > 0xFFFF) snprintf(temp, 64, "%s%0*llX",                 "",  8, imm & 0xFFFFFFFF);
-        else if (value > 0xFF)   snprintf(temp, 64, "%s%0*llX",                 "",  4, imm & 0xFFFF);
-        else if (value > 0x9)    snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
-        else                     snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  1, value);
+            auto value = uint64_t(std::abs(int64_t(imm)));
+            if (value > 0x9FFFFFFF)  snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "", 16, value);
 #else
-        auto value = std::abs((int32_t)imm);
-        if (value > 0xFFFF)    snprintf(temp, 64, "%s%0*X",                 "", 8, imm);
-        else if (value > 0xFF) snprintf(temp, 64, "%s%0*X",                 "", 4, imm & 0xFFFF);
-        else if (value > 0x9)  snprintf(temp, 64, "%s%0*X", imm < 0 ? "-" : "", 2, value);
-        else                   snprintf(temp, 64, "%s%0*X", imm < 0 ? "-" : "", 1, value);
+            auto value = uint64_t(std::abs(int32_t(imm)));
+            if (0) {}
 #endif
+            else if (value > 0x9FFF) snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  8, value);
+            else if (value > 0x9F)   snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  4, value);
+            else if (value > 0x9)    snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  2, value);
+            else                     snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  1, value);
+        }
+        else {
+#if HAVE_X64
+            auto value = uint64_t(uint64_t(imm));
+            if (value > 0x9FFFFFFF)  snprintf(temp, 64, "%s%0*llX", "", 16, value);
+#else
+            auto value = uint64_t(uint32_t(imm));
+            if (0) {}
+#endif
+            else if (value > 0x9FFF) snprintf(temp, 64, "%s%0*llX", "",  8, value);
+            else if (value > 0x9F)   snprintf(temp, 64, "%s%0*llX", "",  4, value);
+            else if (value > 0x9)    snprintf(temp, 64, "%s%0*llX", "",  2, value);
+            else                     snprintf(temp, 64, "%s%0*llX", "",  1, value);
+        }
         return std::string(temp);
     };
 
@@ -231,14 +243,14 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             if (format.operand[i].displacement) {
                 if (disasm.back() != '[' && format.operand[i].displacement >= 0)
                     disasm += '+';
-                disasm += hex(format.operand[i].displacement);
+                disasm += hex(format.operand[i].displacement, true);
             }
             if (disasm.back() == '[')
                 disasm += '0';
             disasm += ']';
             break;
         case Format::Operand::IMM:
-            disasm += hex(format.operand[i].displacement);
+            disasm += hex(format.operand[i].displacement, false);
             break;
         case Format::Operand::REG:
             if (format.floating) {
@@ -248,20 +260,20 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
                 disasm += ')';
                 break;
             }
-            switch (format.width) {
-            case 8:  disasm += REG8[format.operand[i].base];   break;
-            case 16: disasm += REG16[format.operand[i].base];  break;
-            case 32: disasm += REG32[format.operand[i].base];  break;
+            switch (format.operand[i].extend ? 8 : format.width) {
+            case 8:  disasm += REG8[format.operand[i].base];  break;
+            case 16: disasm += REG16[format.operand[i].base]; break;
+            case 32: disasm += REG32[format.operand[i].base]; break;
 #if HAVE_X64
-            case 64: disasm += REG64[format.operand[i].base];  break;
+            case 64: disasm += REG64[format.operand[i].base]; break;
 #endif
             }
             break;
         case Format::Operand::REL:
 #if HAVE_X64
-            disasm += hex(x86.ip.q + format.operand[i].displacement);
+            disasm += hex(x86.ip.q + format.operand[i].displacement, false);
 #else
-            disasm += hex(x86.ip.d + format.operand[i].displacement);
+            disasm += hex(x86.ip.d + format.operand[i].displacement, false);
 #endif
             break;
         default:
@@ -306,11 +318,11 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         case Format::Operand::REG:
-            if (format.width != 8 || format.operand[i].base < 4) {
-                format.operand[i].memory = &x86.regs[format.operand[i].base].l;
+            if ((format.width == 8 || format.operand[i].extend) && format.operand[i].base >= 4) {
+                format.operand[i].memory = &x86.regs[format.operand[i].base - 4].h;
             }
             else {
-                format.operand[i].memory = &x86.regs[format.operand[i].base - 4].h;
+                format.operand[i].memory = &x86.regs[format.operand[i].base].l;
             }
             break;
         case Format::Operand::REL:
@@ -716,8 +728,18 @@ void x86_instruction::MOVSX(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVSX", 2, 0, DIRECTION | OPERAND_SIZE);
 
     switch (opcode[1]) {
-    case 0xBE:  BEGIN_OPERATION() { DEST = (int8_t)SRC;  } END_OPERATION;   break;
-    case 0xBF:  BEGIN_OPERATION() { DEST = (int16_t)SRC; } END_OPERATION;   break;
+    case 0xBE:
+        if (format.operand[1].type == Format::Operand::REG)
+            format.operand[1].extend = 1;
+        BEGIN_OPERATION() {
+            DEST = (int8_t)SRC;
+        } END_OPERATION;
+        break;
+    case 0xBF:
+        BEGIN_OPERATION() {
+            DEST = (int16_t)SRC;
+        } END_OPERATION;
+        break;
     }
 }
 //------------------------------------------------------------------------------
@@ -726,8 +748,18 @@ void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVZX", 2, 0, DIRECTION | OPERAND_SIZE);
 
     switch (opcode[1]) {
-    case 0xB6:  BEGIN_OPERATION() { DEST = (uint8_t)SRC;  } END_OPERATION;  break;
-    case 0xB7:  BEGIN_OPERATION() { DEST = (uint16_t)SRC; } END_OPERATION;  break;
+    case 0xB6:
+        if (format.operand[1].type == Format::Operand::REG)
+            format.operand[1].extend = 1;
+        BEGIN_OPERATION() {
+            DEST = (uint8_t)SRC;
+        } END_OPERATION;
+        break;
+    case 0xB7:
+        BEGIN_OPERATION() {
+            DEST = (uint16_t)SRC;
+        } END_OPERATION;
+        break;
     }
 }
 //------------------------------------------------------------------------------

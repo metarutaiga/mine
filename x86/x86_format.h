@@ -21,6 +21,7 @@ struct x86_format
             int8_t scale;
             int8_t index;
             int8_t base;
+            int8_t extend;
 #if HAVE_X64
             int64_t displacement;
             uint64_t address;
