@@ -45,9 +45,10 @@ struct simple_allocator : public allocator_t {
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
         if (pos >= status.size())
             return;
-        uint8_t exp = status[pos] & ~HEAD;
+        uint8_t exp = status[pos];
         if (exp == FREED)
             return;
+        exp = exp & ~HEAD;
         status[pos] = FREED;
         size_t block = (1 << exp);
         for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
@@ -62,9 +63,10 @@ struct simple_allocator : public allocator_t {
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
         if (pos >= status.size())
             return 0;
-        uint8_t exp = status[pos] & ~HEAD;
+        uint8_t exp = status[pos];
         if (exp == FREED)
             return 0;
+        exp = exp & ~HEAD;
         size_t count = 1;
         size_t block = (1 << exp);
         for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
