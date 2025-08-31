@@ -19,6 +19,7 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(ESI);
+    format.string = true;
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
@@ -43,6 +44,7 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EAX);
     format.operand[1].base = REG(ESI);
+    format.string = true;
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -65,6 +67,7 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(ESI);
+    format.string = true;
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -88,6 +91,7 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(EAX);
+    format.string = true;
 
     BEGIN_OPERATION() {
         auto TEMP = DEST;
@@ -111,6 +115,7 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::REG;
     format.operand[0].base = REG(EDI);
     format.operand[1].base = REG(EAX);
+    format.string = true;
 
     BEGIN_OPERATION() {
         DEST = SRC;

@@ -41,14 +41,16 @@ static const struct {
 
     // kernel32
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
+    { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
     { "GetLastError",               INT32(0, 0)                                                     },
-    { "GetSystemTimeAsFileTime",    INT32(1, syscall_GetSystemTimeAsFileTime(memory, stack))        },
-    { "GetTickCount",               INT32(0, syscall_GetTickCount())                                },
-    { "InterlockedExchange",        INT32(2, syscall_InterlockedExchange(memory, stack))            },
     { "LocalAlloc",                 INT32(2, syscall_malloc(stack + 1, allocator))                  },
-    { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
+    { "TerminateProcess",           INT32(2, 0)                                                     },
+
+    // kernel32 - atomic
+    { "InterlockedCompareExchange", INT32(3, syscall_InterlockedCompareExchange(memory, stack))     },
+    { "InterlockedExchange",        INT32(2, syscall_InterlockedExchange(memory, stack))            },
 
     // kernel32 - critical section
     { "DeleteCriticalSection",      INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
@@ -59,6 +61,11 @@ static const struct {
 
     // kernel32 - directory
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
+
+    // kernel32 - exception
+    { "IsDebuggerPresent",          INT32(0, false)                                                 },
+    { "SetUnhandledExceptionFilter",INT32(1, 0)                                                     },
+    { "UnhandledExceptionFilter",   INT32(1, 0)                                                     },
 
     // kernel32 - file
     { "CloseHandle",                INT32(1, syscall_CloseHandle(memory, stack, allocator))         },
@@ -76,9 +83,16 @@ static const struct {
     // kernel32 - library
     { "DisableThreadLibraryCalls",  INT32(1, true)                                                  },
     { "FreeLibrary",                INT32(1, syscall_FreeLibrary(memory, stack))                    },
+    { "GetModuleBaseNameA",         INT32(4, syscall_GetModuleBaseNameA(memory, stack))             },
+    { "GetModuleFileNameA",         INT32(3, syscall_GetModuleFileNameA(memory, stack))             },
     { "GetModuleHandleA",           INT32(1, syscall_GetModuleHandleA(memory, stack))               },
-    { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack))                 },
+    { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack, syslog))         },
     { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu, syslog))      },
+
+    // kernel32 - time
+    { "GetSystemTimeAsFileTime",    INT32(1, syscall_GetSystemTimeAsFileTime(memory, stack))        },
+    { "GetTickCount",               INT32(0, syscall_GetTickCount())                                },
+    { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
 
     // kernel32 - unimplemented
 //  { "CreateProcessA",             INT32(10, false)                                                },
@@ -93,17 +107,25 @@ static const struct {
     { "RegQueryValueExA",           INT32(6, 2)                                                     },
 
     // msvcrt
+    { "memmove_s",                  INT32(0, syscall_memmove_s(memory, stack))                      },
     { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                    },
     { "_callnewh",                  INT32(0, 1)                                                     },
     { "_cexit",                     INT32(0, syscall_exit(stack))                                   },
     { "_controlfp",                 INT32(0, syscall__controlfp(stack, cpu))                        },
+    { "_controlfp_s",               INT32(0, syscall__controlfp_s(memory, stack, cpu))              },
+    { "_crt_debugger_hook",         INT32(0, 0)                                                     },
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
+    { "_decode_pointer",            INT32(0, syscall__decode_pointer(stack))                        },
+    { "_encode_pointer",            INT32(0, syscall__encode_pointer(stack))                        },
     { "_exit",                      INT32(0, syscall_exit(stack))                                   },
     { "_expand",                    INT32(0, syscall_expand(stack, allocator))                      },
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
     { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))                 },
+    { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_isnan",                     INT32(0, syscall_isnan(stack))                                  },
+    { "_lock",                      INT32(0, 0)                                                     },
+    { "_malloc_crt",                INT32(0, syscall_malloc(stack, allocator))                      },
     { "_msize",                     INT32(0, syscall_msize(stack, allocator))                       },
     { "_onexit",                    INT32(0, 0)                                                     },
     { "_setjmp3",                   INT32(0, syscall__setjmp3(memory, stack, cpu))                  },
@@ -111,8 +133,10 @@ static const struct {
     { "_splitpath",                 INT32(0, syscall_splitpath(memory, stack))                      },
     { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                        },
     { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                       },
+    { "_unlock",                    INT32(0, 0)                                                     },
     { "__dllonexit",                INT32(0, 0)                                                     },
     { "__getmainargs",              INT32(0, syscall___getmainargs(memory, stack, allocator))       },
+    { "__iob_func",                 INT32(0, syscall___iob_func(memory))                            },
     { "__p__commode",               INT32(0, syscall___p__commode(memory))                          },
     { "__p__fmode",                 INT32(0, syscall___p__fmode(memory))                            },
     { "__p___initenv",              INT32(0, syscall___p___initenv(memory))                         },
@@ -147,6 +171,7 @@ static const struct {
     // std::string
     { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",   INT32(0, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator)) },
     { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",      INT32(0, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator)) },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_constructor(ECX, memory, allocator))             },
     { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))           },
 };
 

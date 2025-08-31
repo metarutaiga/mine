@@ -36,15 +36,30 @@ struct WIN32_FIND_DATAA {
 #pragma pack(pop)
 #endif
 
+#define SYSCALL_INVALID_HANDLE_VALUE size_t(int64_t(-1))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Atomic
-int syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
+uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* stack)
 {
-    auto Target = physical(int*, stack[1]);
-    auto Value = physical(int, stack[2]);
+    auto Destination = physical(uint32_t*, stack[1]);
+    auto ExChange = physical(uint32_t, stack[2]);
+    auto Comperand = physical(uint32_t, stack[3]);
+    if ((*Destination) == Comperand) {
+        auto result = (*Destination);
+        (*Destination) = ExChange;
+        return result;
+    }
+    return ExChange;
+}
+
+uint32_t syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
+{
+    auto Target = physical(uint32_t*, stack[1]);
+    auto Value = physical(uint32_t, stack[2]);
     auto result = (*Target);
     (*Target) = Value;
     return result;
@@ -131,8 +146,9 @@ int syscall_TryEnterCriticalSection(uint8_t* memory, const uint32_t* stack)
 int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    char* pathName = physical(char*, stack[1]);
-    strncpy(windows->currentDirectory, pathName, 260);
+
+    char* lpPathName = physical(char*, stack[1]);
+    strncpy(windows->currentDirectory, lpPathName, 260);
 #if defined(_WIN32)
     return true;
 #else
@@ -156,21 +172,21 @@ int syscall_CloseHandle(uint8_t* memory, uint32_t* stack, struct allocator_t* al
     return true;
 }
 
-int syscall_CreateFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_CreateFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
-    auto fileName = physical(char*, stack[1]);
-    auto desiredAccess = stack[2];
-//  auto shareMode = stack[3];
-//  auto securityAttributes = physical(void*, stack[4]);
-    auto creationDisposition = stack[5];
-//  auto flagsAndAttributes = stack[6];
-//  auto templateFile = physical(FILE**, stack[7]);
-
     auto* windows = physical(Windows*, TIB_WINDOWS);
+
+    auto lpFileName = physical(char*, stack[1]);
+    auto dwDesiredAccess = stack[2];
+//  auto dwShareMode = stack[3];
+//  auto lpSecurityAttributes = physical(void*, stack[4]);
+    auto dwCreationDisposition = stack[5];
+//  auto dwFlagsAndAttributes = stack[6];
+//  auto hTemplateFile = physical(FILE**, stack[7]);
 
     std::string path = windows->currentDirectory;
     path += '\\';
-    path += fileName;
+    path += lpFileName;
 #if defined(_WIN32)
 #else
     for (char& c : path) {
@@ -181,46 +197,46 @@ int syscall_CreateFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* al
 
     struct stat st;
     const char* mode = nullptr;
-    switch (desiredAccess & 0xC0000000) {
-    default:                        return 0xFFFFFFFF;
+    switch (dwDesiredAccess & 0xC0000000) {
+    default:                        return SYSCALL_INVALID_HANDLE_VALUE;
     case 0x40000000: mode = "wb";   break;
     case 0x80000000: mode = "rb";   break;
     case 0xC0000000: mode = "wb+";  break;
     }
 
-    switch (creationDisposition) {
+    switch (dwCreationDisposition) {
     case 1:
         if (stat(path.c_str(), &st) == 0)
-            return 0xFFFFFFFF;
+            return SYSCALL_INVALID_HANDLE_VALUE;
         break;
     case 2:
         break;
     case 3:
         if (stat(path.c_str(), &st) != 0)
-            return 0xFFFFFFFF;
+            return SYSCALL_INVALID_HANDLE_VALUE;
         break;
     case 4:
         break;
     case 5:
         if (stat(path.c_str(), &st) != 0)
-            return 0xFFFFFFFF;
+            return SYSCALL_INVALID_HANDLE_VALUE;
         break;
     }
 
     auto handle = (FILE**)allocator->allocate(sizeof(FILE*));
     if (handle == nullptr)
-        return 0xFFFFFFFF;
+        return SYSCALL_INVALID_HANDLE_VALUE;
 
     (*handle) = fopen(path.c_str(), mode);
     if ((*handle) == nullptr) {
         allocator->deallocate(handle);
-        return 0xFFFFFFFF;
+        return SYSCALL_INVALID_HANDLE_VALUE;
     }
 
-    return virtual(int, handle);
+    return virtual(size_t, handle);
 }
 
-int syscall_CreateFileMappingA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_CreateFileMappingA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFile = physical(FILE**, stack[1]);
 //  auto lpFileMappingAttributes = physical(void*, stack[2]);
@@ -229,13 +245,13 @@ int syscall_CreateFileMappingA(uint8_t* memory, uint32_t* stack, struct allocato
 //  auto dwMaximumSizeLow = stack[5];
 //  auto lpName = physical(char*, stack[6]);
 
-    return virtual(int, hFile);
+    return virtual(size_t, hFile);
 }
 
-int syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
+uint32_t syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
 {
     auto hFile = physical(FILE**, stack[1]);
-    auto lpFileSizeHigh = physical(int*, stack[2]);
+    auto lpFileSizeHigh = physical(uint32_t*, stack[2]);
 
     auto file = (*hFile);
     long pos = ftell(file);
@@ -244,12 +260,12 @@ int syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
     fseek(file, pos, SEEK_SET);
 
     if (lpFileSizeHigh)
-        (*lpFileSizeHigh) = int(size >> 32);
+        (*lpFileSizeHigh) = uint32_t(size >> 32);
 
-    return virtual(int, size);
+    return uint32_t(size);
 }
 
-int syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFileMappingObject = physical(FILE**, stack[1]);
 //  auto dwDesiredAccess = stack[2];
@@ -273,7 +289,7 @@ int syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* 
     fread(map, 1, dwNumberOfBytesToMap, file);
     fseek(file, pos, SEEK_SET);
 
-    return virtual(int, map);
+    return virtual(size_t, map);
 }
 
 int syscall_UnmapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
@@ -288,14 +304,14 @@ int syscall_UnmapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t
 int syscall_FindClose(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
-    auto handle = physical(HANDLE*, stack[1]);
-    auto result = FindClose(*handle);
-    allocator->deallocate(handle);
+    auto hFindFile = physical(HANDLE*, stack[1]);
+    auto result = FindClose(*hFindFile);
+    allocator->deallocate(hFindFile);
     return result;
 #else
-    auto dir = physical(DIR**, stack[1]);
-    auto result = closedir(*dir);
-    allocator->deallocate(dir);
+    auto hFindFile = physical(DIR**, stack[1]);
+    auto result = closedir(*hFindFile);
+    allocator->deallocate(hFindFile);
     return result ? false : true;
 #endif
 }
@@ -303,16 +319,16 @@ int syscall_FindClose(uint8_t* memory, uint32_t* stack, struct allocator_t* allo
 int syscall_FindNextFileA(uint8_t* memory, uint32_t* stack)
 {
 #if defined(_WIN32)
-    auto handle = physical(HANDLE*, stack[1]);
-    auto findFileData = physical(WIN32_FIND_DATAA*, stack[2]);
-    return FindNextFileA(*handle, findFileData);
+    auto hFindFile = physical(HANDLE*, stack[1]);
+    auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
+    return FindNextFileA(*hFindFile, lpFindFileData);
 #else
-    auto dir = physical(DIR**, stack[1]);
-    auto findFileData = physical(WIN32_FIND_DATAA*, stack[2]);
-    auto pattern = (char*)(dir + 1);
+    auto hFindFile = physical(DIR**, stack[1]);
+    auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
+    auto pattern = (char*)(hFindFile + 1);
 
     dirent* dirent = nullptr;
-    while ((dirent = readdir(*dir)) != nullptr) {
+    while ((dirent = readdir(*hFindFile)) != nullptr) {
         if (pattern[0] && fnmatch(pattern, dirent->d_name, FNM_CASEFOLD) == 0)
             break;
     }
@@ -320,46 +336,47 @@ int syscall_FindNextFileA(uint8_t* memory, uint32_t* stack)
         return false;
 
     switch (dirent->d_type) {
-    case DT_DIR:    findFileData->dwFileAttributes = 0x010; break;
-    case DT_REG:    findFileData->dwFileAttributes = 0x080; break;
-    case DT_LNK:    findFileData->dwFileAttributes = 0x400; break;
+    case DT_DIR: lpFindFileData->dwFileAttributes = 0x010; break;
+    case DT_REG: lpFindFileData->dwFileAttributes = 0x080; break;
+    case DT_LNK: lpFindFileData->dwFileAttributes = 0x400; break;
     }
-    findFileData->ftCreationTime = 0;
-    findFileData->ftLastAccessTime = 0;
-    findFileData->ftLastWriteTime = 0;
-    findFileData->nFileSizeHigh = 0;
-    findFileData->nFileSizeLow = 0;
-    strncpy(findFileData->cFileName, dirent->d_name, 260);
-    strncpy(findFileData->cAlternateFileName, dirent->d_name, 14);
+    lpFindFileData->ftCreationTime = 0;
+    lpFindFileData->ftLastAccessTime = 0;
+    lpFindFileData->ftLastWriteTime = 0;
+    lpFindFileData->nFileSizeHigh = 0;
+    lpFindFileData->nFileSizeLow = 0;
+    strncpy(lpFindFileData->cFileName, dirent->d_name, 260);
+    strncpy(lpFindFileData->cAlternateFileName, dirent->d_name, 14);
 
     return true;
 #endif
 }
 
-int syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto handle = (HANDLE*)allocator->allocate(sizeof(HANDLE));
     if (handle == nullptr)
-        return 0xFFFFFFFF;
-    auto name = physical(char*, stack[1]);
-    auto findFileData = physical(WIN32_FIND_DATAA*, stack[2]);
-    (*handle) = FindFirstFileA(name, findFileData);
+        return SYSCALL_INVALID_HANDLE_VALUE;
+    auto lpFileName = physical(char*, stack[1]);
+    auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
+    (*handle) = FindFirstFileA(lpFileName, lpFindFileData);
     if ((*handle) == INVALID_HANDLE_VALUE) {
         allocator->deallocate(handle);
-        return 0xFFFFFFFF;
+        return SYSCALL_INVALID_HANDLE_VALUE;
     }
-    return virtual(int, handle);
+    return virtual(size_t, handle);
 #else
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
     if (dir == nullptr)
-        return 0xFFFFFFFF;
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    auto name = physical(char*, stack[1]);
+        return SYSCALL_INVALID_HANDLE_VALUE;
+    auto lpFileName = physical(char*, stack[1]);
 
     std::string path = windows->currentDirectory;
     path += '\\';
-    path += name;
+    path += lpFileName;
 #if defined(_WIN32)
 #else
     for (char& c : path) {
@@ -372,19 +389,19 @@ int syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator_t*
     (*dir) = opendir(path.substr(0, slash).c_str());
     if ((*dir) == nullptr) {
         allocator->deallocate(dir);
-        return 0xFFFFFFFF;
+        return SYSCALL_INVALID_HANDLE_VALUE;
     }
 
     auto pattern = (char*)(dir + 1);
     strncpy(pattern, path.substr(slash + 1).c_str(), 120);
 
-    stack[1] = virtual(int, dir);
+    stack[1] = virtual(uint32_t, dir);
     if (syscall_FindNextFileA(memory, stack) == false) {
         allocator->deallocate(dir);
-        return 0xFFFFFFFF;
+        return SYSCALL_INVALID_HANDLE_VALUE;
     }
 
-    return virtual(int, dir);
+    return virtual(size_t, dir);
 #endif
 }
 
@@ -395,20 +412,48 @@ int syscall_FreeLibrary(uint8_t* memory, uint32_t* stack)
     return 0;
 }
 
-int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
+size_t syscall_GetModuleBaseNameA(uint8_t* memory, uint32_t* stack)
+{
+    extern size_t syscall_GetModuleFileNameA(uint8_t* memory, uint32_t* stack);
+    return syscall_GetModuleFileNameA(memory, stack + 1);
+}
+
+size_t syscall_GetModuleFileNameA(uint8_t* memory, uint32_t* stack)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    auto& modules = windows->modules;
-    auto name = physical(char*, stack[1]);
 
-    if (name == nullptr)
+    auto hModule = physical(void*, stack[1]);
+    auto lpFilename = physical(char*, stack[2]);
+    auto nSize = stack[3];
+
+    if (hModule == nullptr) {
+        strncpy(lpFilename, ".", nSize);
+        return strlen(lpFilename);
+    }
+
+    for (auto& [name, image] : windows->modules) {
+        if (image == hModule) {
+            strncpy(lpFilename, name.c_str(), nSize);
+            return name.size();
+        }
+    }
+
+    return 0;
+}
+
+size_t syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
+    auto lpModuleName = physical(char*, stack[1]);
+    if (lpModuleName == nullptr)
         return windows->image;
 
-    std::string path = name;
+    std::string path = lpModuleName;
     auto slash = path.find_last_of("/\\");
 
     path = path.substr(slash + 1);
-    for (auto& [name, image] : modules) {
+    for (auto& [name, image] : windows->modules) {
         if (strcasecmp(name.c_str(), path.c_str()) == 0)
             return virtual(int, image);
     }
@@ -416,40 +461,42 @@ int syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
     return 0;
 }
 
-int syscall_GetProcAddress(uint8_t* memory, uint32_t* stack)
+size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const char*, ...))
 {
     if (stack[1] == 0 || stack[2] == 0)
         return 0;
-    auto image = physical(void*, stack[1]);
-    auto function = physical(char*, stack[2]);
+    auto hModule = physical(void*, stack[1]);
+    auto lpProcName = physical(char*, stack[2]);
 
     struct Data {
         const char* name;
         size_t address;
-    } data = { function };
+        int(*log)(const char*, ...);
+    } data = { lpProcName, 0, log };
 
-    PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
+    PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
         auto& data = *(Data*)sym_data;
-        if (strcmp(data.name, name) == 0)
+        if (strcmp(data.name, name) == 0) {
             data.address = address;
+            data.log("Symbol : [%08zX] %s", data.address, data.name);
+        }
     }, &data);
 
-    return (int)data.address;
+    return data.address;
 }
 
-int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*log)(const char*, ...))
+size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*log)(const char*, ...))
 {
-    int module = syscall_GetModuleHandleA(memory, stack);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
+    size_t module = syscall_GetModuleHandleA(memory, stack);
     if (module)
         return module;
 
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    auto& modules = windows->modules;
-    auto name = physical(char*, stack[1]);
-
+    auto lpLibFileName = physical(char*, stack[1]);
     std::string path = windows->currentDirectory;
     path += '\\';
-    path += name;
+    path += lpLibFileName;
 #if defined(_WIN32)
 #else
     for (char& c : path) {
@@ -473,7 +520,7 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
             address = syscall_i386_symbol(file, name);
         return address;
     }, log);
-    modules.emplace_back(path.substr(slash + 1).c_str(), image);
+    windows->modules.emplace_back(path.substr(slash + 1).c_str(), image);
     if (windows->loadLibraryCallback) {
         windows->loadLibraryCallback(image);
     }
@@ -518,7 +565,7 @@ int syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*l
         Push32(entry);
     }
 
-    return virtual(int, image);
+    return virtual(size_t, image);
 }
 
 // System

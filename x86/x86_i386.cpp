@@ -139,11 +139,11 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
     this->allocator = allocator;
 
     memory_size = allocator->max_size();
-    memory_address = (uint8_t*)allocator->allocate(4096, 0);
-    stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
+    memory_address = (uint8_t*)allocator->allocate(stack, 0);
+    stack_address = memory_address + stack - 16;
 
-    EIP = 4096;
-    ESP = (uint32_t)memory_size - 16;
+    EIP = (uint32_t)stack;
+    ESP = (uint32_t)stack - 16;
     EFLAGS = 0b0000001000000010;
 
     return true;
@@ -171,9 +171,9 @@ bool x86_i386::Step(int type)
         Fixup(format, *this);
         if (format.operation == nullptr)
             return false;
-        if (format.repeat == false || ECX != 0) {
+        if (format.repeat == false || format.string == false || ECX != 0) {
             format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-            if (format.repeat) {
+            if (format.repeat && format.string) {
                 ECX -= 1;
                 EIP = eip;
             }

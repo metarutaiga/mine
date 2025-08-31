@@ -64,11 +64,11 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
     this->allocator = allocator;
 
     memory_size = allocator->max_size();
-    memory_address = (uint8_t*)allocator->allocate(256, 0);
-    stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
+    memory_address = (uint8_t*)allocator->allocate(stack, 0);
+    stack_address = memory_address + stack - 16;
 
-    IP = 256;
-    SP = (uint16_t)memory_size - 16;
+    IP = (uint32_t)stack;
+    SP = (uint32_t)stack - 16;
     FLAGS = 0b0000001000000010;
 
     return true;
@@ -96,9 +96,9 @@ bool x86_i86::Step(int type)
         Fixup(format, *this);
         if (format.operation == nullptr)
             return false;
-        if (format.repeat == false || CX != 0) {
+        if (format.repeat == false || format.string == false || CX != 0) {
             format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-            if (format.repeat) {
+            if (format.repeat && format.string) {
                 CX -= 1;
                 IP = ip;
             }

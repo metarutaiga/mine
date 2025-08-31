@@ -18,7 +18,7 @@ struct syscall_basic_string {
 extern "C" {
 #endif
 
-int syscall_basic_string_char_copy_constructor(uint32_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) {
+size_t syscall_basic_string_char_copy_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     auto& other = *physical(syscall_basic_string<char>*, stack[1]);
     local.allocator = other.allocator;
@@ -35,7 +35,7 @@ int syscall_basic_string_char_copy_constructor(uint32_t thiz, uint8_t* memory, c
     return thiz;
 }
 
-int syscall_basic_string_char_cstr_constructor(uint32_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) {
+size_t syscall_basic_string_char_cstr_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     auto* other = physical(char*, stack[1]);
     local.size = local.res = (uint32_t)strlen(other);
@@ -50,7 +50,15 @@ int syscall_basic_string_char_cstr_constructor(uint32_t thiz, uint8_t* memory, c
     return thiz;
 }
 
-int syscall_basic_string_char_deconstructor(uint32_t thiz, uint8_t* memory, struct allocator_t* allocator) {
+size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator) {
+    auto& local = *physical(syscall_basic_string<char>*, thiz);
+    local.buf[0] = 0;
+    local.size = 0;
+    local.res = sizeof(local.buf) - 1;
+    return thiz;
+}
+
+size_t syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator) {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     if (local.size >= sizeof(local.buf)) {
         allocator->deallocate(physical(char*, local.ptr));

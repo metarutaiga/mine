@@ -245,8 +245,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 if (cpu == nullptr)
                     return "";
 
-                auto allocator = cpu->Allocator();
-                size_t stack = allocator->max_size() - stackSize + index * sizeof(uint32_t);
+                size_t stack = index * sizeof(uint32_t);
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
@@ -441,8 +440,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
                 }
 
-                auto allocator = cpu->Allocator();
-                stackIndex = stackFocus = (int)(cpu->Stack() - (allocator->max_size() - stackSize)) / sizeof(uint32_t);
+                stackIndex = stackFocus = (int)(cpu->Stack() / sizeof(uint32_t));
             }
             updateCount = 3;
         }

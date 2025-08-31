@@ -5,7 +5,7 @@
 
 template<unsigned int MINBLOCK>
 struct simple_allocator : public allocator_t {
-    enum { FREED = 0xFF };
+    enum { HEAD = 0x80, FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
@@ -14,20 +14,27 @@ struct simple_allocator : public allocator_t {
         uint8_t exp = std::bit_width(std::bit_ceil(size) / MINBLOCK);
         if (exp > 0)
             exp = exp - 1;
-        size_t block = (1 << exp);
+        size_t block = (size + MINBLOCK - 1) / MINBLOCK;
+        size_t power_block = (1 << exp);
+        size_t next_block = power_block;
+        if (next_block > 1048576 / MINBLOCK)
+            next_block = 1048576 / MINBLOCK;
         if (hint == SIZE_MAX)
-            hint = block * MINBLOCK;
+            hint = power_block * MINBLOCK;
         size_t pos = hint / MINBLOCK;
-        for (size_t next = pos + block, end = status.size(); next < end; next = pos + block) {
+        for (size_t next = pos + block, end = status.size(); next <= end; next = pos + block) {
             for (size_t i = pos; i < next; ++i) {
                 if (status[i] != FREED) {
                     pos = next;
                     break;
                 }
             }
-            if (pos == next)
+            if (pos == next) {
+                pos = pos + next_block - block;
                 continue;
-            memset(status.data() + pos, exp, block);
+            }
+            status[pos] = exp | HEAD;
+            memset(status.data() + pos + 1, exp, block - 1);
             return memory.data() + pos * MINBLOCK;
         }
         return nullptr;
@@ -38,11 +45,16 @@ struct simple_allocator : public allocator_t {
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
         if (pos >= status.size())
             return;
-        uint8_t exp = status[pos];
+        uint8_t exp = status[pos] & ~HEAD;
         if (exp == FREED)
             return;
+        status[pos] = FREED;
         size_t block = (1 << exp);
-        memset(status.data() + pos, FREED, block);
+        for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
+            if ((*it) != exp)
+                break;
+            (*it) = FREED;
+        }
     }
     size_t size(void* pointer) const noexcept override {
         if (pointer == nullptr)
@@ -50,11 +62,17 @@ struct simple_allocator : public allocator_t {
         size_t pos = ((uint8_t*)pointer - memory.data()) / MINBLOCK;
         if (pos >= status.size())
             return 0;
-        uint8_t exp = status[pos];
+        uint8_t exp = status[pos] & ~HEAD;
         if (exp == FREED)
             return 0;
+        size_t count = 1;
         size_t block = (1 << exp);
-        return block * MINBLOCK;
+        for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
+            if ((*it) != exp)
+                break;
+            count++;
+        }
+        return count * MINBLOCK;
     }
     void* address() noexcept override {
         return memory.data();

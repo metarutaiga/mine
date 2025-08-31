@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-int syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto new_size = stack[2];
@@ -33,14 +33,23 @@ int syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
     return pointer;
 }
 
-int syscall_msize(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_memmove_s(char* memory, const uint32_t* stack)
+{
+    auto destination = physical(char*, stack[1]);
+    auto source = physical(char*, stack[3]);
+    auto num = stack[4];
+    memmove(destination, source, num);
+    return stack[1];
+}
+
+size_t syscall_msize(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto memory = (char*)allocator->address();
-    return (uint32_t)allocator->size(physical(char*, pointer));
+    return allocator->size(physical(char*, pointer));
 }
 
-int syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto new_size = stack[2] * stack[3];
@@ -59,7 +68,7 @@ int syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     if (new_size > old_size) {
         memset(memory + old_size, 0, new_size - old_size);
     }
-    return virtual(int, new_pointer);
+    return virtual(size_t, new_pointer);
 }
 
 int syscall_splitpath(uint8_t* memory, const uint32_t* stack)
@@ -159,6 +168,30 @@ int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
+int syscall__controlfp_s(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    auto current = physical(int*, stack[1]);
+    auto control = stack[2];
+    auto mask = stack[3];
+
+    auto& x87 = cpu->x87;
+    if (current)
+        (*current) = FPUControlWord;
+    FPUControlWord = (FPUStatusWord & ~mask) | (control & mask);
+
+    return 0;
+}
+
+int syscall__decode_pointer(const uint32_t* stack)
+{
+    return stack[1];
+}
+
+int syscall__encode_pointer(const uint32_t* stack)
+{
+    return stack[1];
+}
+
 int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto begin = physical(uint32_t*, stack[1]);
@@ -208,22 +241,28 @@ int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocat
     return 0;
 }
 
-int syscall___p__commode(uint8_t* memory)
+size_t syscall___iob_func(uint8_t* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
-    return virtual(int, &msvcrt->commode);
+    return virtual(int, msvcrt->iob);
 }
 
-int syscall___p__fmode(uint8_t* memory)
+size_t syscall___p__commode(uint8_t* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
-    return virtual(int, &msvcrt->fmode);
+    return virtual(size_t, &msvcrt->commode);
 }
 
-int syscall___p___initenv(uint8_t* memory)
+size_t syscall___p__fmode(uint8_t* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
-    return virtual(int, &msvcrt->initenv);
+    return virtual(size_t, &msvcrt->fmode);
+}
+
+size_t syscall___p___initenv(uint8_t* memory)
+{
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    return virtual(size_t, &msvcrt->initenv);
 }
 
 #ifdef __cplusplus

@@ -127,8 +127,8 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
         }
 
         // Load sections to memory
-        log("%-12s : 0x%08x", "Base", optionalHeader.ImageBase);
-        log("%-12s : 0x%x", "Size", optionalHeader.SizeOfImage);
+        log("%-12s : 0x%08X", "Base", optionalHeader.ImageBase);
+        log("%-12s : 0x%08X", "Size", optionalHeader.SizeOfImage);
         image = mmap(optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
         if (image == nullptr) {
             log("out of memory");
@@ -141,7 +141,7 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
         uint32_t old_base = optionalHeader.ImageBase;
         uint32_t new_base = (uint32_t)(image - (uint8_t*)memory);
         if (old_base != new_base) {
-            log("%-12s : 0x%08x", "Base", new_base);
+            log("%-12s : 0x%08X", "Base", new_base);
             optionalHeader.ImageBase = new_base;
         }
 

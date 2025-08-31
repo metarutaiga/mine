@@ -36,6 +36,7 @@ struct x86_format
         char address = 0;
         bool floating = false;
         bool repeat = false;
+        bool string = false;
         const char* instruction = "";
         const char* segment = "";
         Operand operand[3] = {};
