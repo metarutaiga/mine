@@ -151,13 +151,12 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
     if (format.operand[0].type == Format::Operand::NOP) {
         BEGIN_OPERATION() {
             typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
-            auto M = std::make_widened_t<decltype(src)>(src);
             switch (sizeof(SRC)) {
-            case sizeof(int8_t):  M = M * AL;  AL = int8_t(M);   AH = int8_t(M >> 8);    CF = OF = (AL != M);  break;
-            case sizeof(int16_t): M = M * AX;  AX = int16_t(M);  DX = int16_t(M >> 16);  CF = OF = (AX != M);  break;
-            case sizeof(int32_t): M = M * EAX; EAX = int32_t(M); EDX = int32_t(M >> 32); CF = OF = (EAX != M); break;
+            case sizeof(int8_t):  { auto M = int16_t(src) * int8_t(AL);    AL = int8_t(M);   AH = (M >> 8);   CF = OF = (int8_t(M) != M);  break; }
+            case sizeof(int16_t): { auto M = int32_t(src) * int16_t(AX);   AX = int16_t(M);  DX = (M >> 16);  CF = OF = (int16_t(M) != M); break; }
+            case sizeof(int32_t): { auto M = int64_t(src) * int32_t(EAX);  EAX = int32_t(M); EDX = (M >> 32); CF = OF = (int32_t(M) != M); break; }
 #if HAVE_X64
-            case sizeof(int64_t): M = M * RAX; RAX = int64_t(M); RDX = int64_t(M >> 64); CF = OF = (RAX != M); break;
+            case sizeof(int64_t): { auto M = int128_t(src) * int64_t(RAX); RAX = int64_t(M); RDX = (M >> 64); CF = OF = (int64_t(M) != M); break; }
 #endif
             }
         } END_OPERATION;
@@ -165,22 +164,27 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
     else if (format.operand[2].type == Format::Operand::NOP) {
         BEGIN_OPERATION() {
             typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-            typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src = SRC;
-            auto M = std::make_widened_t<decltype(dest)>(dest);
-            M = M * src;
-            DEST = decltype(dest)(M);
-            CF = OF = (dest != M);
+            switch (sizeof(DEST)) {
+            case sizeof(int8_t):  { auto M = int16_t(dest) * int8_t(SRC);   DEST = int8_t(M);  CF = OF = (int8_t(M) != M);  break; }
+            case sizeof(int16_t): { auto M = int32_t(dest) * int16_t(SRC);  DEST = int16_t(M); CF = OF = (int16_t(M) != M); break; }
+            case sizeof(int32_t): { auto M = int64_t(dest) * int32_t(SRC);  DEST = int32_t(M); CF = OF = (int32_t(M) != M); break; }
+#if HAVE_X64
+            case sizeof(int64_t): { auto M = int128_t(dest) * int64_t(SRC); DEST = int64_t(M); CF = OF = (int64_t(M) != M); break; }
+#endif
+            }
         } END_OPERATION;
     }
     else {
         BEGIN_OPERATION() {
-            typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
             typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src1 = SRC1;
-            typename std::make_signed_t<std::remove_reference_t<decltype(SRC)>> src2 = SRC2;
-            auto M = std::make_widened_t<decltype(dest)>(src1);
-            M = M * src2;
-            DEST = decltype(dest)(M);
-            CF = OF = (dest != M);
+            switch (sizeof(DEST)) {
+            case sizeof(int8_t):  { auto M = int16_t(src1) * int8_t(SRC2);   DEST = int8_t(M);  CF = OF = (int8_t(M) != M);  break; }
+            case sizeof(int16_t): { auto M = int32_t(src1) * int16_t(SRC2);  DEST = int16_t(M); CF = OF = (int16_t(M) != M); break; }
+            case sizeof(int32_t): { auto M = int64_t(src1) * int32_t(SRC2);  DEST = int32_t(M); CF = OF = (int32_t(M) != M); break; }
+#if HAVE_X64
+            case sizeof(int64_t): { auto M = int128_t(src1) * int64_t(SRC2); DEST = int64_t(M); CF = OF = (int64_t(M) != M); break; }
+#endif
+            }
         } END_OPERATION;
     }
 }
@@ -220,13 +224,12 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto M = std::make_widened_t<decltype(SRC)>(SRC);
         switch (sizeof(SRC)) {
-        case sizeof(int8_t):  M = M * AL;  AL = uint8_t(M);   AH = uint8_t(M >> 8);    CF = OF = (AH != 0);  break;
-        case sizeof(int16_t): M = M * AX;  AX = uint16_t(M);  DX = uint16_t(M >> 16);  CF = OF = (DX != 0);  break;
-        case sizeof(int32_t): M = M * EAX; EAX = uint32_t(M); EDX = uint32_t(M >> 32); CF = OF = (EDX != 0); break;
+        case sizeof(uint8_t):  { auto M = uint16_t(SRC) * AL;   AL = uint8_t(M);   AH = (M >> 8);   CF = OF = (AL != M);  break; }
+        case sizeof(uint16_t): { auto M = uint32_t(SRC) * AX;   AX = uint16_t(M);  DX = (M >> 16);  CF = OF = (AX != M);  break; }
+        case sizeof(uint32_t): { auto M = uint64_t(SRC) * EAX;  EAX = uint32_t(M); EDX = (M >> 32); CF = OF = (EAX != M); break; }
 #if HAVE_X64
-        case sizeof(int64_t): M = M * RAX; RAX = uint64_t(M); RDX = uint64_t(M >> 64); CF = OF = (RDX != 0); break;
+        case sizeof(uint64_t): { auto M = uint128_t(SRC) * RAX; RAX = uint64_t(M); RDX = (M >> 64); CF = OF = (RAX != M); break; }
 #endif
         }
     } END_OPERATION;

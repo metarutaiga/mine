@@ -53,19 +53,6 @@ static auto specialize(auto lambda) {
     }
 #endif
 //------------------------------------------------------------------------------
-namespace std {
-template<class T> struct make_widened { using type = T; };
-template<class T> using make_widened_t = make_widened<T>::type;
-template<> struct make_widened<int8_t> { using type = int16_t; };
-template<> struct make_widened<int16_t> { using type = int32_t; };
-template<> struct make_widened<int32_t> { using type = int64_t; };
-template<> struct make_widened<int64_t> { using type = __int128_t; };
-template<> struct make_widened<uint8_t> { using type = uint16_t; };
-template<> struct make_widened<uint16_t> { using type = uint32_t; };
-template<> struct make_widened<uint32_t> { using type = uint64_t; };
-template<> struct make_widened<uint64_t> { using type = __uint128_t; };
-};
-//------------------------------------------------------------------------------
 #define _____C  0b000001
 #define ____P_  0b000010
 #define ___A__  0b000100

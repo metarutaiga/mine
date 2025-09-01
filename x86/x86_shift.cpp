@@ -103,7 +103,7 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
     case 0xAD:
         BEGIN_OPERATION() {
             int COUNT = (SRC2 % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, (DEST << COUNT) | (SRC1 << (sizeof(DEST) * 8 - COUNT)));
+            UpdateFlags<_SZ_P_>(x86, DEST, (DEST >> COUNT) | (SRC1 << (sizeof(DEST) * 8 - COUNT)));
         } END_OPERATION;
         break;
     }
