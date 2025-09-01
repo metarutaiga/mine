@@ -16,7 +16,7 @@ void x87_instruction::F2XM1(Format& format, const uint8_t* opcode)
     format.instruction = "F2XM1";
 
     OPERATION() {
-        ST(0) = pow(2.0, ST(0)) - 1;
+        ST(0) = pow(2.0, ST(0)) - 1.0;
         C1 = 0;
     };
 }
@@ -48,8 +48,8 @@ void x87_instruction::FPATAN(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         ST(1) = atan(ST(1) / ST(0));
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -148,8 +148,8 @@ void x87_instruction::FYL2X(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         ST(1) = ST(1) * log2(ST(0));
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -159,8 +159,8 @@ void x87_instruction::FYL2XP1(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         ST(1) = ST(1) * log2(ST(0) + 1.0);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------

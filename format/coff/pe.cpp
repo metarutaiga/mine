@@ -107,6 +107,7 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
             log("get the PE/COFF Optional Header is failed");
             break;
         }
+        log("%-12s : 0x%08x", "SizeOfCode", optionalHeader.SizeOfCode);
         log("%-12s : 0x%08x", "BaseOfCode", optionalHeader.BaseOfCode);
         log("%-12s : 0x%08x", "EntryPoint", optionalHeader.AddressOfEntryPoint);
         log("%-12s : 0x%08x", "ImageBase", optionalHeader.ImageBase);

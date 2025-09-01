@@ -152,9 +152,9 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 bool x86_i386::Run()
 {
     while (EIP) {
-        if (EIP == breakpoint)
-            return false;
         if (Step('INTO') == false)
+            return false;
+        if (EIP == breakpoint)
             return false;
     }
     return true;

@@ -36,8 +36,8 @@ void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
     format.instruction = "FINCSTP";
 
     OPERATION() {
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -61,13 +61,14 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
             TOP = TOP - 1;
-            ST(0) = (std::make_float_t<decltype(SRC)>&)SRC;
+            ST(0) = DEST;
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
             int i = format.operand[0].base;
+            TOP = TOP - 1;
             ST(0) = ST(i + 1);
             C1 = 0;
         };
@@ -159,7 +160,7 @@ void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        FPUControlWord = SRC;
+        FPUControlWord = DEST;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -174,9 +175,9 @@ void x87_instruction::FST(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        (std::make_float_t<decltype(DEST)>&)DEST = ST(0);
+        DEST = ST(0);
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_FLOAT;
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
@@ -190,10 +191,10 @@ void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        (std::make_float_t<decltype(DEST)>&)DEST = ST(0);
-        TOP = TOP + 1;
+        DEST = ST(0);
         C1 = 0;
-    } END_OPERATION;
+        TOP = TOP + 1;
+    } END_OPERATION_FLOAT;
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
@@ -237,6 +238,8 @@ void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOM";
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].base = opcode[1] & 0b111;
 
     OPERATION() {
         auto SRC = ST(format.operand[0].base);
@@ -250,6 +253,8 @@ void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMP";
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].base = opcode[1] & 0b111;
 
     OPERATION() {
         auto SRC = ST(format.operand[0].base);
@@ -264,6 +269,8 @@ void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMPP";
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].base = opcode[1] & 0b111;
 
     OPERATION() {
         auto SRC = ST(format.operand[0].base);

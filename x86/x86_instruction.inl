@@ -41,9 +41,7 @@ static auto specialize(auto lambda) {
         } \
     }
 //------------------------------------------------------------------------------
-#if HAVE_X64
-#undef END_OPERATION
-#define END_OPERATION }; \
+#define END_OPERATION_64 }; \
         switch (format.width) { \
         case 8:  format.operation = specialize<uint8_t>(operation);  break; \
         case 16: format.operation = specialize<uint16_t>(operation); break; \
@@ -51,6 +49,10 @@ static auto specialize(auto lambda) {
         case 64: format.operation = specialize<uint64_t>(operation); break; \
         } \
     }
+//------------------------------------------------------------------------------
+#if HAVE_X64
+#undef END_OPERATION
+#define END_OPERATION END_OPERATION_64
 #endif
 //------------------------------------------------------------------------------
 #define _____C  0b000001

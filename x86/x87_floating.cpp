@@ -31,9 +31,9 @@ void x87_instruction::FADD(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = ST(0) + (std::make_float_t<decltype(SRC)>&)SRC;
+            ST(0) = ST(0) + DEST;
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -54,8 +54,8 @@ void x87_instruction::FADDP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(i) + ST(0);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -89,12 +89,11 @@ void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            auto src = (std::make_float_t<decltype(SRC)>&)SRC;
-            C0 = ST(0) < src;
+            C0 = ST(0) < DEST;
             C1 = 0;
             C2 = 0;
-            C3 = ST(0) == src;
-        } END_OPERATION;
+            C3 = ST(0) == DEST;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -127,13 +126,12 @@ void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            auto src = (std::make_float_t<decltype(SRC)>&)SRC;
-            C0 = ST(0) < src;
+            C0 = ST(0) < DEST;
             C1 = 0;
             C2 = 0;
-            C3 = ST(0) == src;
+            C3 = ST(0) == DEST;
             TOP = TOP + 1;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -150,6 +148,8 @@ void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
 void x87_instruction::FCOMPP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMPP";
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].base = opcode[1] & 0b111;
 
     OPERATION() {
         auto SRC = ST(format.operand[0].base);
@@ -181,9 +181,9 @@ void x87_instruction::FDIV(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = ST(0) / (std::make_float_t<decltype(SRC)>&)SRC;
+            ST(0) = ST(0) / DEST;
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -204,8 +204,8 @@ void x87_instruction::FDIVP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(i) / ST(0);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -229,9 +229,9 @@ void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = (std::make_float_t<decltype(SRC)>&)SRC / ST(0);
+            ST(0) = DEST / ST(0);
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -252,8 +252,8 @@ void x87_instruction::FDIVRP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(0) / ST(i);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -277,9 +277,9 @@ void x87_instruction::FMUL(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = ST(0) * (std::make_float_t<decltype(SRC)>&)SRC;
+            ST(0) = ST(0) * DEST;
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -300,8 +300,8 @@ void x87_instruction::FMULP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(i) * ST(0);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -345,9 +345,9 @@ void x87_instruction::FSUB(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = ST(0) - (std::make_float_t<decltype(SRC)>&)SRC;
+            ST(0) = ST(0) - DEST;
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -368,8 +368,8 @@ void x87_instruction::FSUBP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(i) - ST(0);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------
@@ -393,9 +393,9 @@ void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::ADR) {
         BEGIN_OPERATION() {
-            ST(0) = (std::make_float_t<decltype(SRC)>&)SRC - ST(0);
+            ST(0) = DEST - ST(0);
             C1 = 0;
-        } END_OPERATION;
+        } END_OPERATION_FLOAT;
     }
     else {
         OPERATION() {
@@ -416,8 +416,8 @@ void x87_instruction::FSUBRP(Format& format, const uint8_t* opcode)
     OPERATION() {
         int i = format.operand[0].base;
         ST(i) = ST(0) - ST(i);
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------

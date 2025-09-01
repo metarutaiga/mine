@@ -29,8 +29,8 @@ void x87_instruction::FBSTP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     OPERATION() {
-        TOP = TOP + 1;
         C1 = 0;
+        TOP = TOP + 1;
     };
 }
 //------------------------------------------------------------------------------

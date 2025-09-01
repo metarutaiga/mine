@@ -75,7 +75,7 @@ void x86_instruction::DEC(Format& format, const uint8_t* opcode)
     case 0x4F:
         format.instruction = "DEC";
         format.operand[0].type = Format::Operand::REG;
-        format.operand[0].base = opcode[0] - 0x48;
+        format.operand[0].base = opcode[0] & 0b111;
         break;
     case 0xFE:
     case 0xFF:  Decode(format, opcode, "DEC", 1, 0, opcode[0] & 0b01);  break;
@@ -202,7 +202,7 @@ void x86_instruction::INC(Format& format, const uint8_t* opcode)
     case 0x47:
         format.instruction = "INC";
         format.operand[0].type = Format::Operand::REG;
-        format.operand[0].base = opcode[0] - 0x40;
+        format.operand[0].base = opcode[0] & 0b111;
         break;
     case 0xFE:
     case 0xFF:  Decode(format, opcode, "INC", 1, 0, opcode[0] & 0b01);  break;
@@ -249,7 +249,7 @@ void x86_instruction::NEG(Format& format, const uint8_t* opcode)
 
         // Special case
         auto bc = DEST | -DEST;
-        auto one = 1;
+        auto one = (DEST | 1) & 1;
         auto bits = sizeof(DEST) * 8;
         auto sign2 = one << (bits - 2);
         AF = bc &                   8 ? 1 : 0;

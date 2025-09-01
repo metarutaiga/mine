@@ -77,9 +77,9 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
 bool x86_i86::Run()
 {
     while (IP) {
-        if (IP == breakpoint)
-            return false;
         if (Step('INTO') == false)
+            return false;
+        if (IP == breakpoint)
             return false;
     }
     return true;
