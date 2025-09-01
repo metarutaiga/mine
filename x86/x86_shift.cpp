@@ -35,6 +35,7 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         case 6: Decode(format, opcode, "SAL", 1, 0, opcode[0] & 0b01);  break;
         case 7: Decode(format, opcode, "SAR", 1, 0, opcode[0] & 0b01);  break;
         }
+        format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = REG(ECX);
         break;
@@ -55,15 +56,15 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         break;
     case 6:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
             typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+            int COUNT = (SRC % (sizeof(DEST) * 8));
             UpdateFlags<_SZ_P_>(x86, DEST, dest << COUNT);
         } END_OPERATION;
         break;
     case 7:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
             typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
+            int COUNT = (SRC % (sizeof(DEST) * 8));
             UpdateFlags<_SZ_P_>(x86, DEST, dest >> COUNT);
         } END_OPERATION;
         break;
@@ -73,19 +74,15 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
 void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0xA4:
-        Decode(format, opcode, "SHLD", 2, 8, OPERAND_SIZE | THREE_OPERAND);
-        break;
+    case 0xA4:  Decode(format, opcode, "SHLD", 2, 8, OPERAND_SIZE | THREE_OPERAND); break;
+    case 0xAC:  Decode(format, opcode, "SHRD", 2, 8, OPERAND_SIZE | THREE_OPERAND); break;
     case 0xA5:
-        Decode(format, opcode, "SHLD", 2, 0, OPERAND_SIZE);
-        format.operand[2].type = Format::Operand::REG;
-        format.operand[2].base = REG(ECX);
-        break;
-    case 0xAC:
-        Decode(format, opcode, "SHRD", 2, 8, OPERAND_SIZE | THREE_OPERAND);
-        break;
     case 0xAD:
-        Decode(format, opcode, "SHRD", 2, 0, OPERAND_SIZE);
+        switch (opcode[1]) {
+        case 0xA5:  Decode(format, opcode, "SHLD", 2, 0, OPERAND_SIZE); break;
+        case 0xAD:  Decode(format, opcode, "SHRD", 2, 0, OPERAND_SIZE); break;
+        }
+        format.operand[2].flags = Format::Operand::BIT8;
         format.operand[2].type = Format::Operand::REG;
         format.operand[2].base = REG(ECX);
         break;

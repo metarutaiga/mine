@@ -196,6 +196,7 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
     }
     disasm += format.instruction;
 
+    int width;
     size_t offset = disasm.size();
     for (int i = 0; i < 3; ++i) {
         if (disasm.size() > offset)
@@ -203,7 +204,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
         disasm += ' ';
         switch (format.operand[i].type) {
         case Format::Operand::ADR:
-            switch (format.width) {
+            width = format.width;
+            if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
+            if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
+            switch (width) {
             case 8:  disasm += "BYTE PTR";  break;
             case 16: disasm += "WORD PTR";  break;
             case 32: disasm += "DWORD PTR"; break;
@@ -260,7 +264,10 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
                 disasm += ')';
                 break;
             }
-            switch (format.operand[i].extend ? 8 : format.width) {
+            width = format.width;
+            if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
+            if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
+            switch (width) {
             case 8:  disasm += REG8[format.operand[i].base];  break;
             case 16: disasm += REG16[format.operand[i].base]; break;
             case 32: disasm += REG32[format.operand[i].base]; break;
@@ -318,7 +325,7 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         case Format::Operand::REG:
-            if ((format.width == 8 || format.operand[i].extend) && format.operand[i].base >= 4) {
+            if ((format.width == 8 || format.operand[i].flags & Format::Operand::BIT8) && format.operand[i].base >= 4) {
                 format.operand[i].memory = &x86.regs[format.operand[i].base - 4].h;
             }
             else {
@@ -672,7 +679,7 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
             case 0xE1:  BranchCond = (ZF != 0); break;
             }
             if (BranchCond) {
-                EIP += format.operand[1].displacement;
+                EIP += format.operand[0].displacement;
             }
         }
     };
@@ -726,40 +733,28 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
 void x86_instruction::MOVSX(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVSX", 2, 0, DIRECTION | OPERAND_SIZE);
+    switch (opcode[1]) {
+    case 0xBE:  format.operand[1].flags = Format::Operand::BIT8;    break;
+    case 0xBF:  format.operand[1].flags = Format::Operand::BIT16;   break;
+    }
 
     switch (opcode[1]) {
-    case 0xBE:
-        if (format.operand[1].type == Format::Operand::REG)
-            format.operand[1].extend = 1;
-        BEGIN_OPERATION() {
-            DEST = (int8_t)SRC;
-        } END_OPERATION;
-        break;
-    case 0xBF:
-        BEGIN_OPERATION() {
-            DEST = (int16_t)SRC;
-        } END_OPERATION;
-        break;
+    case 0xBE:  BEGIN_OPERATION() { DEST = (int8_t)SRC; } END_OPERATION;    break;
+    case 0xBF:  BEGIN_OPERATION() { DEST = (int16_t)SRC; } END_OPERATION;   break;
     }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVZX", 2, 0, DIRECTION | OPERAND_SIZE);
+    switch (opcode[1]) {
+    case 0xB6:  format.operand[1].flags = Format::Operand::BIT8;    break;
+    case 0xB7:  format.operand[1].flags = Format::Operand::BIT16;   break;
+    }
 
     switch (opcode[1]) {
-    case 0xB6:
-        if (format.operand[1].type == Format::Operand::REG)
-            format.operand[1].extend = 1;
-        BEGIN_OPERATION() {
-            DEST = (uint8_t)SRC;
-        } END_OPERATION;
-        break;
-    case 0xB7:
-        BEGIN_OPERATION() {
-            DEST = (uint16_t)SRC;
-        } END_OPERATION;
-        break;
+    case 0xB6:  BEGIN_OPERATION() { DEST = (uint8_t)SRC; } END_OPERATION;   break;
+    case 0xB7:  BEGIN_OPERATION() { DEST = (uint16_t)SRC; } END_OPERATION;  break;
     }
 }
 //------------------------------------------------------------------------------

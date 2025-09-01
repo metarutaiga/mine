@@ -35,6 +35,7 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         case 2: Decode(format, opcode, "RCL", 1, 0, opcode[0] & 0b01);  break;
         case 3: Decode(format, opcode, "RCR", 1, 0, opcode[0] & 0b01);  break;
         }
+        format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = REG(ECX);
         break;
@@ -82,8 +83,9 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
             if (SRC == 1)
                 OF = MSB(DEST) ^ CF;
             while (COUNT) {
+                typename std::remove_reference_t<decltype(DEST)> cf = CF;
                 int TEMP = LSB(DEST);
-                DEST = (DEST >> 1) + (std::remove_reference_t<decltype(DEST)>(CF) << (sizeof(DEST) * 8 - 1));
+                DEST = (DEST >> 1) + (cf << (sizeof(DEST) * 8 - 1));
                 CF = TEMP;
                 COUNT = COUNT - 1;
             }

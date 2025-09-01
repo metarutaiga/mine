@@ -16,12 +16,14 @@ struct x86_format
         struct Operand
         {
             enum Type : int8_t { NOP, ADR, IMM, REG, REL };
-            Type type = NOP;
+            Type type;
+
+            enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2 };
+            Flag flags;
 
             int8_t scale;
             int8_t index;
             int8_t base;
-            int8_t extend;
 #if HAVE_X64
             int64_t displacement;
             uint64_t address;

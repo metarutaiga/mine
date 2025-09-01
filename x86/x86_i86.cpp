@@ -87,7 +87,7 @@ bool x86_i86::Run()
 //------------------------------------------------------------------------------
 bool x86_i86::Step(int type)
 {
-    auto ip_over = EIP;
+    auto ip_over = IP;
     auto ip = IP;
     auto sp = SP;
     while (IP) {
