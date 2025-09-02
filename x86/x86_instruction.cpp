@@ -267,10 +267,14 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
             width = format.width;
             if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
             if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
+            if (width == 8 && format.address <= 32)                 width = -8;
             switch (width) {
-            case 8:  disasm += REG8[format.operand[i].base];  break;
-            case 16: disasm += REG16[format.operand[i].base]; break;
-            case 32: disasm += REG32[format.operand[i].base]; break;
+            case -8: disasm += REG8HL[format.operand[i].base]; break;
+#if HAVE_X64
+            case 8:  disasm += REG8[format.operand[i].base];   break;
+#endif
+            case 16: disasm += REG16[format.operand[i].base];  break;
+            case 32: disasm += REG32[format.operand[i].base];  break;
 #if HAVE_X64
             case 64: disasm += REG64[format.operand[i].base]; break;
 #endif
@@ -297,6 +301,7 @@ std::string x86_instruction::Disasm(const Format& format, x86_instruction& x86)
 //------------------------------------------------------------------------------
 void x86_instruction::Fixup(Format& format, x86_instruction& x86)
 {
+    int width;
     for (int i = 0; i < 3; ++i) {
         switch (format.operand[i].type) {
         case Format::Operand::NOP:
@@ -325,7 +330,11 @@ void x86_instruction::Fixup(Format& format, x86_instruction& x86)
             format.operand[i].memory = (uint8_t*)&format.operand[i].address;
             break;
         case Format::Operand::REG:
-            if ((format.width == 8 || format.operand[i].flags & Format::Operand::BIT8) && format.operand[i].base >= 4) {
+            width = format.width;
+            if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
+            if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
+            if (width == 8 && format.address <= 32)                 width = -8;
+            if (width == -8 && format.operand[i].base >= 4) {
                 format.operand[i].memory = &x86.regs[format.operand[i].base - 4].h;
             }
             else {
@@ -403,6 +412,18 @@ void x86_instruction::WAIT(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
+void x86_instruction::BSWAP(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "BSWAP";
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].base = opcode[1] & 0b111;
+
+    OPERATION() {
+        auto& DEST = *(uint32_t*)format.operand[0].memory;
+        DEST = __builtin_bswap32(DEST);
+    };
+}
+//------------------------------------------------------------------------------
 void x86_instruction::CALL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
@@ -421,29 +442,29 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::CDQ(Format& format, const uint8_t* opcode)
+void x86_instruction::CBW(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
     case 16:
-        format.instruction = "CWD";
+        format.instruction = "CBW";
 
         OPERATION() {
-            DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
+            AX = (int8_t)AL;
         };
         break;
     case 32:
-        format.instruction = "CDQ";
+        format.instruction = "CWDE";
 
         OPERATION() {
-            EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
+            EAX = (int16_t)AX;
         };
         break;
 #if HAVE_X64
     case 64:
-        format.instruction = "CQO";
+        format.instruction = "CDQE";
 
         OPERATION() {
-            RDX = (int64_t)RAX < 0 ? 0xFFFFFFFFFFFFFFFFull : 0x0000000000000000ull;
+            RAX = (int32_t)EAX;
         };
         break;
 #endif
@@ -477,29 +498,46 @@ void x86_instruction::CMC(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::CWDE(Format& format, const uint8_t* opcode)
+void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "CMPXCHG", 2, -1, opcode[1] & 0b01);
+
+    BEGIN_OPERATION() {
+        auto& accumulator = *(std::remove_reference_t<decltype(DEST)>*)&EAX;
+        if (accumulator == DEST) {
+            ZF = 1;
+            DEST = SRC;
+        }
+        else {
+            ZF = 0;
+            accumulator = DEST;
+        }
+    } END_OPERATION;
+}
+//------------------------------------------------------------------------------
+void x86_instruction::CWD(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
     case 16:
-        format.instruction = "CBW";
+        format.instruction = "CWD";
 
         OPERATION() {
-            AX = (int8_t)AL;
+            DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
         };
         break;
     case 32:
-        format.instruction = "CWDE";
+        format.instruction = "CDQ";
 
         OPERATION() {
-            EAX = (int16_t)AX;
+            EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
         };
         break;
 #if HAVE_X64
     case 64:
-        format.instruction = "CDQE";
+        format.instruction = "CQO";
 
         OPERATION() {
-            RAX = (int32_t)EAX;
+            RDX = (int64_t)RAX < 0 ? 0xFFFFFFFFFFFFFFFFull : 0x0000000000000000ull;
         };
         break;
 #endif
@@ -792,29 +830,58 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
+void x86_instruction::POPA(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "POPAD";
+    switch (format.address) {
+    case 16:
+        format.instruction = "POPA";
 
-    OPERATION() {
-        EDI = Pop32();
-        ESI = Pop32();
-        EBP = Pop32();
-        Pop32();
-        EBX = Pop32();
-        EDX = Pop32();
-        ECX = Pop32();
-        EAX = Pop32();
-    };
+        OPERATION() {
+            DI = Pop16();
+            SI = Pop16();
+            BP = Pop16();
+            Pop16();
+            BX = Pop16();
+            DX = Pop16();
+            CX = Pop16();
+            AX = Pop16();
+        };
+        break;
+    case 32:
+        format.instruction = "POPAD";
+
+        OPERATION() {
+            EDI = Pop32();
+            ESI = Pop32();
+            EBP = Pop32();
+            Pop32();
+            EBX = Pop32();
+            EDX = Pop32();
+            ECX = Pop32();
+            EAX = Pop32();
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
-void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
+void x86_instruction::POPF(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "POPFD";
+    switch (format.address) {
+    case 16:
+        format.instruction = "POPF";
 
-    OPERATION() {
-        EFLAGS = Pop32();
-    };
+        OPERATION() {
+            FLAGS = Pop16();
+        };
+        break;
+    case 32:
+        format.instruction = "POPFD";
+
+        OPERATION() {
+            EFLAGS = Pop32();
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
@@ -841,30 +908,60 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
-void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
+void x86_instruction::PUSHA(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PUSHAD";
+    switch (format.address) {
+    case 16:
+        format.instruction = "PUSHA";
 
-    OPERATION() {
-        auto Temp = ESP;
-        Push32(EAX);
-        Push32(ECX);
-        Push32(EDX);
-        Push32(EBX);
-        Push32(Temp);
-        Push32(EBP);
-        Push32(ESI);
-        Push32(EDI);
-    };
+        OPERATION() {
+            auto Temp = SP;
+            Push16(AX);
+            Push16(CX);
+            Push16(DX);
+            Push16(BX);
+            Push16(Temp);
+            Push16(BP);
+            Push16(SI);
+            Push16(DI);
+        };
+        break;
+    case 32:
+        format.instruction = "PUSHAD";
+
+        OPERATION() {
+            auto Temp = ESP;
+            Push32(EAX);
+            Push32(ECX);
+            Push32(EDX);
+            Push32(EBX);
+            Push32(Temp);
+            Push32(EBP);
+            Push32(ESI);
+            Push32(EDI);
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
-void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
+void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PUSHFD";
+    switch (format.address) {
+    case 16:
+        format.instruction = "PUSHF";
 
-    OPERATION() {
-        Push32(EFLAGS);
-    };
+        OPERATION() {
+            Push16(FLAGS);
+        };
+        break;
+    case 32:
+        format.instruction = "PUSHFD";
+
+        OPERATION() {
+            Push32(EFLAGS);
+        };
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RET(Format& format, const uint8_t* opcode)
@@ -954,6 +1051,18 @@ void x86_instruction::STD(Format& format, const uint8_t* opcode)
     OPERATION() {
         DF = 1;
     };
+}
+//------------------------------------------------------------------------------
+void x86_instruction::XADD(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "XADD", 2, -1, opcode[1] & 0b01);
+
+    BEGIN_OPERATION() {
+        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
+        auto TEMP = DEST;
+        DEST = TEMP + SRC;
+        SRC = TEMP;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::XCHG(Format& format, const uint8_t* opcode)

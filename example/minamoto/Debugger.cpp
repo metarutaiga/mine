@@ -11,7 +11,7 @@
 #include "format/coff/pe.h"
 #include "syscall/simple_allocator.h"
 #include "syscall/syscall.h"
-#include "syscall/syscall_windows.h"
+#include "syscall/windows/syscall_windows.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
 

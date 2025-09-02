@@ -69,6 +69,8 @@ size_t syscall_recalloc(const void* stack, struct allocator_t* allocator);
 int syscall_splitpath(const void* memory, const void* stack);
 int syscall_stricmp(const void* memory, const void* stack);
 int syscall_strnicmp(const void* memory, const void* stack);
+int syscall__CIatan(void* cpu);
+int syscall__CIsqrt(void* cpu);
 int syscall__controlfp(const void* stack, void* cpu);
 int syscall__controlfp_s(const void* memory, const void* stack, void* cpu);
 int syscall__decode_pointer(const void* stack);

@@ -506,6 +506,8 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
 #endif
     auto slash = path.find_last_of("/\\");
 
+    log("%s - %s", "LoadLibraryA", lpLibFileName);
+
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
         miCPU* cpu = (miCPU*)userdata;
         return cpu->Memory(base, size);

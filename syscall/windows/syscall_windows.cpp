@@ -1,15 +1,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
-#include "allocator.h"
-#include "syscall.h"
-#include "syscall_internal.h"
+#include "syscall/allocator.h"
+#include "syscall/syscall.h"
+#include "syscall/syscall_internal.h"
 #include "syscall_windows.h"
 #include "x86/x86_i386.h"
 #include "x86/x86_register.inl"
 #include "x86/x86_instruction.inl"
-#include "windows/msvcrt.h"
-#include "windows/windows.h"
+#include "msvcrt.h"
+#include "windows.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,6 +111,8 @@ static const struct {
     { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                    },
     { "_callnewh",                  INT32(0, 1)                                                     },
     { "_cexit",                     INT32(0, syscall_exit(stack))                                   },
+    { "_CIatan",                    INT32(0, syscall__CIatan(cpu))                                  },
+    { "_CIsqrt",                    INT32(0, syscall__CIsqrt(cpu))                                  },
     { "_controlfp",                 INT32(0, syscall__controlfp(stack, cpu))                        },
     { "_controlfp_s",               INT32(0, syscall__controlfp_s(memory, stack, cpu))              },
     { "_crt_debugger_hook",         INT32(0, 0)                                                     },

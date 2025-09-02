@@ -157,6 +157,20 @@ int syscall_strnicmp(uint8_t* memory, const uint32_t* stack)
     return strncasecmp(str1, str2, num);
 }
 
+int syscall__CIatan(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = atan(ST(0));
+    return 0;
+}
+
+int syscall__CIsqrt(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = sqrt(ST(0));
+    return 0;
+}
+
 int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
 {
     auto control = stack[1];

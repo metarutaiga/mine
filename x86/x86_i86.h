@@ -13,8 +13,6 @@
 struct x86_i86 : public miCPU
                , public x87_instruction
 {
-    allocator_t* allocator = nullptr;
-
 public:
     virtual ~x86_i86();
     bool Initialize(allocator_t* allocator, size_t stack) override;
@@ -32,6 +30,8 @@ public:
 
 protected:
     void StepInternal(Format& format);
+
+    allocator_t* allocator = nullptr;
 
 protected:
     static instruction ESC;

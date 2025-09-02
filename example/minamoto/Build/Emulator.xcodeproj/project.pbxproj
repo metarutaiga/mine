@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -31,7 +31,6 @@
 		F595EF032E655232000498EB /* stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF65E2E520CB000E9B209 /* stdlib.cpp */; };
 		F595EF042E655232000498EB /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
 		F595EF072E655232000498EB /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
-		F595EF0A2E655232000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
 		F595EF0C2E655232000498EB /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F595EF0D2E655232000498EB /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
 		F595EF0E2E655232000498EB /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
@@ -69,7 +68,6 @@
 		F595EF392E6568DA000498EB /* stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF65E2E520CB000E9B209 /* stdlib.cpp */; };
 		F595EF3A2E6568DA000498EB /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
 		F595EF3B2E6568DA000498EB /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
-		F595EF3C2E6568DA000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
 		F595EF3D2E6568DA000498EB /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F595EF3E2E6568DA000498EB /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
 		F595EF3F2E6568DA000498EB /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
@@ -107,7 +105,6 @@
 		F595EF642E656970000498EB /* stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF65E2E520CB000E9B209 /* stdlib.cpp */; };
 		F595EF652E656970000498EB /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
 		F595EF662E656970000498EB /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
-		F595EF672E656970000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
 		F595EF682E656970000498EB /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F595EF692E656970000498EB /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
 		F595EF6A2E656970000498EB /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
@@ -145,7 +142,6 @@
 		F595EF8D2E6569A9000498EB /* stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF65E2E520CB000E9B209 /* stdlib.cpp */; };
 		F595EF8E2E6569A9000498EB /* string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5511FCA2E4E2A650076E961 /* string.cpp */; };
 		F595EF8F2E6569A9000498EB /* syscall_i386.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */; };
-		F595EF902E6569A9000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56ED7672E56C150007395ED /* syscall_windows.cpp */; };
 		F595EF912E6569A9000498EB /* time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F51AF6632E521AB000E9B209 /* time.cpp */; };
 		F595EF922E6569A9000498EB /* wchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */; };
 		F595EF932E6569A9000498EB /* wctype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5FCAED82E61ECB3007401E1 /* wctype.cpp */; };
@@ -165,6 +161,26 @@
 		F595EFA42E6569C3000498EB /* x87_floating.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */; };
 		F595EFA52E6569C3000498EB /* x87_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */; };
 		F595EFA62E6569C3000498EB /* x87_integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5F1B2C12E41C03600D2FF10 /* x87_integer.cpp */; };
+		F595EFCF2E66C1CB000498EB /* msvcrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCD2E66C1CB000498EB /* msvcrt.cpp */; };
+		F595EFD02E66C1CB000498EB /* msvcprt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCB2E66C1CB000498EB /* msvcprt.cpp */; };
+		F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCA2E66C1CB000498EB /* kernel32.cpp */; };
+		F595EFD22E66C1CB000498EB /* msvcrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCD2E66C1CB000498EB /* msvcrt.cpp */; };
+		F595EFD32E66C1CB000498EB /* msvcprt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCB2E66C1CB000498EB /* msvcprt.cpp */; };
+		F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCA2E66C1CB000498EB /* kernel32.cpp */; };
+		F595EFD52E66C1CB000498EB /* msvcrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCD2E66C1CB000498EB /* msvcrt.cpp */; };
+		F595EFD62E66C1CB000498EB /* msvcprt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCB2E66C1CB000498EB /* msvcprt.cpp */; };
+		F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCA2E66C1CB000498EB /* kernel32.cpp */; };
+		F595EFD82E66C1CB000498EB /* msvcrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCD2E66C1CB000498EB /* msvcrt.cpp */; };
+		F595EFD92E66C1CB000498EB /* msvcprt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCB2E66C1CB000498EB /* msvcprt.cpp */; };
+		F595EFDA2E66C1CB000498EB /* kernel32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFCA2E66C1CB000498EB /* kernel32.cpp */; };
+		F595EFDD2E66CEB3000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */; };
+		F595EFDE2E66CEB3000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */; };
+		F595EFDF2E66CEB3000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */; };
+		F595EFE02E66CEB3000498EB /* syscall_windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */; };
+		F595EFE32E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
+		F595EFE42E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
+		F595EFE52E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
+		F595EFE62E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -296,8 +312,15 @@
 		F56C54312E4B110B00534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
 		F56C54322E4B110B00534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
 		F56C54392E4B110B00534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mz.h; sourceTree = "<group>"; };
-		F56ED7662E56BFE5007395ED /* syscall_windows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_windows.h; sourceTree = "<group>"; };
-		F56ED7672E56C150007395ED /* syscall_windows.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_windows.cpp; sourceTree = "<group>"; };
+		F595EFCA2E66C1CB000498EB /* kernel32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kernel32.cpp; sourceTree = "<group>"; };
+		F595EFCB2E66C1CB000498EB /* msvcprt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = msvcprt.cpp; sourceTree = "<group>"; };
+		F595EFCC2E66C1CB000498EB /* msvcrt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = msvcrt.h; sourceTree = "<group>"; };
+		F595EFCD2E66C1CB000498EB /* msvcrt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = msvcrt.cpp; sourceTree = "<group>"; };
+		F595EFCE2E66C1CB000498EB /* windows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = windows.h; sourceTree = "<group>"; };
+		F595EFDB2E66CEB3000498EB /* syscall_windows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_windows.h; sourceTree = "<group>"; };
+		F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_windows.cpp; sourceTree = "<group>"; };
+		F595EFE12E6738E9000498EB /* x86_i486.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i486.h; sourceTree = "<group>"; };
+		F595EFE22E6739E5000498EB /* x86_i486.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i486.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -322,10 +345,6 @@
 		F5FCAED82E61ECB3007401E1 /* wctype.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wctype.cpp; sourceTree = "<group>"; };
 		F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wchar.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		F595EEC22E6333EA000498EB /* windows */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = windows; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		30A9A7CA25ADC7D3000FA104 /* Frameworks */ = {
@@ -434,6 +453,8 @@
 				D6D7594A2E25044F00E5C09D /* x86_i86.h */,
 				D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */,
 				D6909FBA2E1AC68C0023F7B5 /* x86_i386.h */,
+				F595EFE22E6739E5000498EB /* x86_i486.cpp */,
+				F595EFE12E6738E9000498EB /* x86_i486.h */,
 				D6D759402E24F98E00E5C09D /* x86_instruction.cpp */,
 				D6D7593F2E24F98E00E5C09D /* x86_instruction.h */,
 				D6C5FE3B2E2A1B5D00A8E110 /* x86_instruction.inl */,
@@ -508,7 +529,7 @@
 		F5511FBD2E4B96F20076E961 /* syscall */ = {
 			isa = PBXGroup;
 			children = (
-				F595EEC22E6333EA000498EB /* windows */,
+				F595EFC92E66C197000498EB /* windows */,
 				F5511FC62E4B97130076E961 /* allocator.h */,
 				F5511FD42E4F7EF90076E961 /* assert.cpp */,
 				F5511FD92E4F7F660076E961 /* ctype.cpp */,
@@ -524,15 +545,13 @@
 				F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */,
 				F51AF6682E521FD800E9B209 /* syscall_internal.h */,
 				D6DA48E22E5A0AF000B2E822 /* syscall_table.h */,
-				F56ED7672E56C150007395ED /* syscall_windows.cpp */,
-				F56ED7662E56BFE5007395ED /* syscall_windows.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,
 				F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */,
 				F5FCAED82E61ECB3007401E1 /* wctype.cpp */,
 			);
 			name = syscall;
 			path = ../../../syscall;
-			sourceTree = SOURCE_ROOT;
+			sourceTree = "<group>";
 		};
 		F56C54242E4B110B00534B1D /* coff */ = {
 			isa = PBXGroup;
@@ -577,6 +596,20 @@
 			path = ../../../format;
 			sourceTree = SOURCE_ROOT;
 		};
+		F595EFC92E66C197000498EB /* windows */ = {
+			isa = PBXGroup;
+			children = (
+				F595EFCA2E66C1CB000498EB /* kernel32.cpp */,
+				F595EFCB2E66C1CB000498EB /* msvcprt.cpp */,
+				F595EFCC2E66C1CB000498EB /* msvcrt.h */,
+				F595EFCD2E66C1CB000498EB /* msvcrt.cpp */,
+				F595EFDB2E66CEB3000498EB /* syscall_windows.h */,
+				F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */,
+				F595EFCE2E66C1CB000498EB /* windows.h */,
+			);
+			path = windows;
+			sourceTree = "<group>";
+		};
 		F5E5B0C62D6C5669008E0D21 /* example */ = {
 			isa = PBXGroup;
 			children = (
@@ -603,9 +636,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				F595EEC22E6333EA000498EB /* windows */,
-			);
 			name = "Emulator-Android";
 			productName = "Emulator-Android";
 			productReference = 30A9A7CC25ADC7D3000FA104 /* libEmulator.so */;
@@ -623,9 +653,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				F595EEC22E6333EA000498EB /* windows */,
-			);
 			name = "Emulator-Windows";
 			productName = "Emulator-Windows";
 			productReference = CE93603325AC470300CEF503 /* Emulator.dll */;
@@ -641,9 +668,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				F595EEC22E6333EA000498EB /* windows */,
 			);
 			name = "Emulator-iOS";
 			productName = Emulator;
@@ -661,9 +685,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				F595EEC22E6333EA000498EB /* windows */,
 			);
 			name = "Emulator-macOS";
 			productName = Emulator;
@@ -726,6 +747,7 @@
 				F595EF722E656989000498EB /* x86_i386.cpp in Sources */,
 				F595EF732E656989000498EB /* x86_instruction.cpp in Sources */,
 				F595EF742E656989000498EB /* x86_logical.cpp in Sources */,
+				F595EFE32E6739E7000498EB /* x86_i486.cpp in Sources */,
 				F595EF752E656989000498EB /* x86_register.cpp in Sources */,
 				F595EF762E656989000498EB /* x86_rotate.cpp in Sources */,
 				F595EF772E656989000498EB /* x86_shift.cpp in Sources */,
@@ -735,6 +757,10 @@
 				F595EF7B2E656989000498EB /* x87_floating.cpp in Sources */,
 				F595EF7C2E656989000498EB /* x87_instruction.cpp in Sources */,
 				F595EF7D2E656989000498EB /* x87_integer.cpp in Sources */,
+				F595EFD22E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFE02E66CEB3000498EB /* syscall_windows.cpp in Sources */,
+				F595EFD32E66C1CB000498EB /* msvcprt.cpp in Sources */,
+				F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EF5D2E656970000498EB /* assert.cpp in Sources */,
 				F595EF5E2E656970000498EB /* ctype.cpp in Sources */,
 				F595EF5F2E656970000498EB /* locale.cpp in Sources */,
@@ -745,7 +771,6 @@
 				F595EF642E656970000498EB /* stdlib.cpp in Sources */,
 				F595EF652E656970000498EB /* string.cpp in Sources */,
 				F595EF662E656970000498EB /* syscall_i386.cpp in Sources */,
-				F595EF672E656970000498EB /* syscall_windows.cpp in Sources */,
 				F595EF682E656970000498EB /* time.cpp in Sources */,
 				F595EF692E656970000498EB /* wchar.cpp in Sources */,
 				F595EF6A2E656970000498EB /* wctype.cpp in Sources */,
@@ -764,6 +789,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F595EFE42E6739E7000498EB /* x86_i486.cpp in Sources */,
 				F595EF482E656900000498EB /* x86_arithmetic.cpp in Sources */,
 				F595EF492E656900000498EB /* x86_bcd.cpp in Sources */,
 				F595EF4A2E656900000498EB /* x86_bitwise.cpp in Sources */,
@@ -780,8 +806,12 @@
 				F595EF452E6568F2000498EB /* x87_floating.cpp in Sources */,
 				F595EF462E6568F2000498EB /* x87_instruction.cpp in Sources */,
 				F595EF472E6568F2000498EB /* x87_integer.cpp in Sources */,
+				F595EFD82E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFD92E66C1CB000498EB /* msvcprt.cpp in Sources */,
+				F595EFDA2E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EF322E6568DA000498EB /* assert.cpp in Sources */,
 				F595EF332E6568DA000498EB /* ctype.cpp in Sources */,
+				F595EFDF2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595EF342E6568DA000498EB /* locale.cpp in Sources */,
 				F595EF352E6568DA000498EB /* math.cpp in Sources */,
 				F595EF362E6568DA000498EB /* setjmp.cpp in Sources */,
@@ -790,7 +820,6 @@
 				F595EF392E6568DA000498EB /* stdlib.cpp in Sources */,
 				F595EF3A2E6568DA000498EB /* string.cpp in Sources */,
 				F595EF3B2E6568DA000498EB /* syscall_i386.cpp in Sources */,
-				F595EF3C2E6568DA000498EB /* syscall_windows.cpp in Sources */,
 				F595EF3D2E6568DA000498EB /* time.cpp in Sources */,
 				F595EF3E2E6568DA000498EB /* wchar.cpp in Sources */,
 				F595EF3F2E6568DA000498EB /* wctype.cpp in Sources */,
@@ -821,6 +850,7 @@
 				F595EF9B2E6569C3000498EB /* x86_i386.cpp in Sources */,
 				F595EF9C2E6569C3000498EB /* x86_instruction.cpp in Sources */,
 				F595EF9D2E6569C3000498EB /* x86_logical.cpp in Sources */,
+				F595EFE62E6739E7000498EB /* x86_i486.cpp in Sources */,
 				F595EF9E2E6569C3000498EB /* x86_register.cpp in Sources */,
 				F595EF9F2E6569C3000498EB /* x86_rotate.cpp in Sources */,
 				F595EFA02E6569C3000498EB /* x86_shift.cpp in Sources */,
@@ -830,6 +860,10 @@
 				F595EFA42E6569C3000498EB /* x87_floating.cpp in Sources */,
 				F595EFA52E6569C3000498EB /* x87_instruction.cpp in Sources */,
 				F595EFA62E6569C3000498EB /* x87_integer.cpp in Sources */,
+				F595EFD52E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFDD2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
+				F595EFD62E66C1CB000498EB /* msvcprt.cpp in Sources */,
+				F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EF862E6569A9000498EB /* assert.cpp in Sources */,
 				F595EF872E6569A9000498EB /* ctype.cpp in Sources */,
 				F595EF882E6569A9000498EB /* locale.cpp in Sources */,
@@ -840,7 +874,6 @@
 				F595EF8D2E6569A9000498EB /* stdlib.cpp in Sources */,
 				F595EF8E2E6569A9000498EB /* string.cpp in Sources */,
 				F595EF8F2E6569A9000498EB /* syscall_i386.cpp in Sources */,
-				F595EF902E6569A9000498EB /* syscall_windows.cpp in Sources */,
 				F595EF912E6569A9000498EB /* time.cpp in Sources */,
 				F595EF922E6569A9000498EB /* wchar.cpp in Sources */,
 				F595EF932E6569A9000498EB /* wctype.cpp in Sources */,
@@ -866,6 +899,7 @@
 				F595EF162E65525E000498EB /* x86_i386.cpp in Sources */,
 				F595EF182E65525E000498EB /* x86_instruction.cpp in Sources */,
 				F595EF1B2E65525E000498EB /* x86_logical.cpp in Sources */,
+				F595EFE52E6739E7000498EB /* x86_i486.cpp in Sources */,
 				F595EF1C2E65525E000498EB /* x86_register.cpp in Sources */,
 				F595EF1F2E65525E000498EB /* x86_rotate.cpp in Sources */,
 				F595EF202E65525E000498EB /* x86_shift.cpp in Sources */,
@@ -875,6 +909,10 @@
 				F595EF242E65525E000498EB /* x87_floating.cpp in Sources */,
 				F595EF252E65525E000498EB /* x87_instruction.cpp in Sources */,
 				F595EF282E65525E000498EB /* x87_integer.cpp in Sources */,
+				F595EFCF2E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFDE2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
+				F595EFD02E66C1CB000498EB /* msvcprt.cpp in Sources */,
+				F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EEFC2E655232000498EB /* assert.cpp in Sources */,
 				F595EEFD2E655232000498EB /* ctype.cpp in Sources */,
 				F595EEFE2E655232000498EB /* locale.cpp in Sources */,
@@ -885,7 +923,6 @@
 				F595EF032E655232000498EB /* stdlib.cpp in Sources */,
 				F595EF042E655232000498EB /* string.cpp in Sources */,
 				F595EF072E655232000498EB /* syscall_i386.cpp in Sources */,
-				F595EF0A2E655232000498EB /* syscall_windows.cpp in Sources */,
 				F595EF0C2E655232000498EB /* time.cpp in Sources */,
 				F595EF0D2E655232000498EB /* wchar.cpp in Sources */,
 				F595EF0E2E655232000498EB /* wctype.cpp in Sources */,
