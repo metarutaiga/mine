@@ -83,7 +83,7 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
             if (SRC == 1)
                 OF = MSB(DEST) ^ CF;
             while (COUNT) {
-                typename std::remove_reference_t<decltype(DEST)> cf = CF;
+                auto cf = (DEST & 0) | CF;
                 int TEMP = LSB(DEST);
                 DEST = (DEST >> 1) + (cf << (sizeof(DEST) * 8 - 1));
                 CF = TEMP;

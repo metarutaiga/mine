@@ -1,11 +1,5 @@
 #pragma once
 
-#include <bit>
-
-//------------------------------------------------------------------------------
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wshift-count-overflow"
-#endif
 //------------------------------------------------------------------------------
 static x86_register x86;
 //------------------------------------------------------------------------------
@@ -30,29 +24,39 @@ static auto specialize(auto lambda) {
 //------------------------------------------------------------------------------
 #define OPERATION() \
         format.operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, void* dest, const void* src1, const void* src2)
+//------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
         auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
             const auto& SRC = SRC1; (void)SRC;
-#define END_OPERATION }; \
-        switch (format.width) { \
-        case 8:  format.operation = specialize<uint8_t>(operation);  break; \
-        case 16: format.operation = specialize<uint16_t>(operation); break; \
-        case 32: format.operation = specialize<uint32_t>(operation); break; \
-        } \
+//------------------------------------------------------------------------------
+#define END_OPERATION_RANGE(low, high) }; \
+        if (format.width == 8 && format.width >= low && format.width <= high) \
+            format.operation = specialize<uint8_t>(operation); \
+        if (format.width == 16 && format.width >= low && format.width <= high) \
+            format.operation = specialize<uint16_t>(operation); \
+        if (format.width == 32 && format.width >= low && format.width <= high) \
+            format.operation = specialize<uint32_t>(operation); \
+        if (format.width == 64 && format.width >= low && format.width <= high) \
+            format.operation = specialize<uint64_t>(operation); \
     }
 //------------------------------------------------------------------------------
-#define END_OPERATION_64 }; \
-        switch (format.width) { \
-        case 8:  format.operation = specialize<uint8_t>(operation);  break; \
-        case 16: format.operation = specialize<uint16_t>(operation); break; \
-        case 32: format.operation = specialize<uint32_t>(operation); break; \
-        case 64: format.operation = specialize<uint64_t>(operation); break; \
-        } \
+#define END_OPERATION_RANGE_SIGNED(low, high) }; \
+        if (format.width == 8 && format.width >= low && format.width <= high) \
+            format.operation = specialize<int8_t>(operation); \
+        if (format.width == 16 && format.width >= low && format.width <= high) \
+            format.operation = specialize<int16_t>(operation); \
+        if (format.width == 32 && format.width >= low && format.width <= high) \
+            format.operation = specialize<int32_t>(operation); \
+        if (format.width == 64 && format.width >= low && format.width <= high) \
+            format.operation = specialize<int64_t>(operation); \
     }
 //------------------------------------------------------------------------------
 #if HAVE_X64
-#undef END_OPERATION
-#define END_OPERATION END_OPERATION_64
+#define END_OPERATION END_OPERATION_RANGE(8, 64)
+#define END_OPERATION_SIGNED END_OPERATION_RANGE_SIGNED(8, 64)
+#else
+#define END_OPERATION END_OPERATION_RANGE(8, 32)
+#define END_OPERATION_SIGNED END_OPERATION_RANGE_SIGNED(8, 32)
 #endif
 //------------------------------------------------------------------------------
 #define _____C  0b000001

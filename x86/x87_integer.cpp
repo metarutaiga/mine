@@ -21,10 +21,9 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = ST(0) + dest;
+        ST(0) = ST(0) + DEST;
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
@@ -33,12 +32,11 @@ void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        C0 = ST(0) < dest;
+        C0 = ST(0) < DEST;
         C1 = 0;
         C2 = 0;
-        C3 = ST(0) == dest;
-    } END_OPERATION;
+        C3 = ST(0) == DEST;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
@@ -47,13 +45,12 @@ void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        C0 = ST(0) < dest;
+        C0 = ST(0) < DEST;
         C1 = 0;
         C2 = 0;
-        C3 = ST(0) == dest;
+        C3 = ST(0) == DEST;
         TOP = TOP + 1;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
@@ -66,10 +63,9 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = ST(0) / dest;
+        ST(0) = ST(0) / DEST;
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
@@ -82,10 +78,9 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = dest / ST(0);
+        ST(0) = DEST / ST(0);
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FILD(Format& format, const uint8_t* opcode)
@@ -103,11 +98,10 @@ void x87_instruction::FILD(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
         TOP = TOP - 1;
-        ST(0) = dest;
+        ST(0) = DEST;
         C1 = 0;
-    } END_OPERATION_64;
+    } END_OPERATION_RANGE_SIGNED(16, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
@@ -120,10 +114,9 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = ST(0) * dest;
+        ST(0) = ST(0) * DEST;
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIST(Format& format, const uint8_t* opcode)
@@ -148,7 +141,7 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
         DEST = std::remove_reference_t<decltype(DEST)>(llrint(ST(0)));
         fesetround(origin);
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
@@ -179,7 +172,7 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
         fesetround(origin);
         C1 = 0;
         TOP = TOP + 1;
-    } END_OPERATION_64;
+    } END_OPERATION_RANGE_SIGNED(16, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
@@ -192,10 +185,9 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = ST(0) - dest;
+        ST(0) = ST(0) - DEST;
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
@@ -208,9 +200,8 @@ void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
-        ST(0) = dest - ST(0);
+        ST(0) = DEST - ST(0);
         C1 = 0;
-    } END_OPERATION;
+    } END_OPERATION_RANGE_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------

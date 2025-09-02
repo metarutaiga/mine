@@ -56,17 +56,15 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         break;
     case 6:
         BEGIN_OPERATION() {
-            typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
             int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, dest << COUNT);
-        } END_OPERATION;
+            UpdateFlags<_SZ_P_>(x86, DEST, DEST << COUNT);
+        } END_OPERATION_SIGNED;
         break;
     case 7:
         BEGIN_OPERATION() {
-            typename std::make_signed_t<std::remove_reference_t<decltype(DEST)>> dest = DEST;
             int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, dest >> COUNT);
-        } END_OPERATION;
+            UpdateFlags<_SZ_P_>(x86, DEST, DEST >> COUNT);
+        } END_OPERATION_SIGNED;
         break;
     }
 }
