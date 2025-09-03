@@ -181,6 +181,10 @@
 		F595EFE42E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
 		F595EFE52E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
 		F595EFE62E6739E7000498EB /* x86_i486.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE22E6739E5000498EB /* x86_i486.cpp */; };
+		F595EFE92E689B50000498EB /* x86_i586.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE82E689B4E000498EB /* x86_i586.cpp */; };
+		F595EFEA2E689B50000498EB /* x86_i586.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE82E689B4E000498EB /* x86_i586.cpp */; };
+		F595EFEB2E689B50000498EB /* x86_i586.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE82E689B4E000498EB /* x86_i586.cpp */; };
+		F595EFEC2E689B50000498EB /* x86_i586.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595EFE82E689B4E000498EB /* x86_i586.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -321,6 +325,8 @@
 		F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_windows.cpp; sourceTree = "<group>"; };
 		F595EFE12E6738E9000498EB /* x86_i486.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i486.h; sourceTree = "<group>"; };
 		F595EFE22E6739E5000498EB /* x86_i486.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i486.cpp; sourceTree = "<group>"; };
+		F595EFE72E689B45000498EB /* x86_i586.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i586.h; sourceTree = "<group>"; };
+		F595EFE82E689B4E000498EB /* x86_i586.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i586.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -455,6 +461,8 @@
 				D6909FBA2E1AC68C0023F7B5 /* x86_i386.h */,
 				F595EFE22E6739E5000498EB /* x86_i486.cpp */,
 				F595EFE12E6738E9000498EB /* x86_i486.h */,
+				F595EFE82E689B4E000498EB /* x86_i586.cpp */,
+				F595EFE72E689B45000498EB /* x86_i586.h */,
 				D6D759402E24F98E00E5C09D /* x86_instruction.cpp */,
 				D6D7593F2E24F98E00E5C09D /* x86_instruction.h */,
 				D6C5FE3B2E2A1B5D00A8E110 /* x86_instruction.inl */,
@@ -758,6 +766,7 @@
 				F595EF7C2E656989000498EB /* x87_instruction.cpp in Sources */,
 				F595EF7D2E656989000498EB /* x87_integer.cpp in Sources */,
 				F595EFD22E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFEB2E689B50000498EB /* x86_i586.cpp in Sources */,
 				F595EFE02E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595EFD32E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */,
@@ -835,6 +844,7 @@
 				F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
+				F595EFE92E689B50000498EB /* x86_i586.cpp in Sources */,
 				D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -861,6 +871,7 @@
 				F595EFA52E6569C3000498EB /* x87_instruction.cpp in Sources */,
 				F595EFA62E6569C3000498EB /* x87_integer.cpp in Sources */,
 				F595EFD52E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFEC2E689B50000498EB /* x86_i586.cpp in Sources */,
 				F595EFDD2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595EFD62E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */,
@@ -910,6 +921,7 @@
 				F595EF252E65525E000498EB /* x87_instruction.cpp in Sources */,
 				F595EF282E65525E000498EB /* x87_integer.cpp in Sources */,
 				F595EFCF2E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F595EFEA2E689B50000498EB /* x86_i586.cpp in Sources */,
 				F595EFDE2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595EFD02E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */,

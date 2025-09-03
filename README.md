@@ -1,9 +1,10 @@
 ﻿﻿## miCPU - Minimal CPU Emulator (User-Mode)
 
 * x86
-  * [x] 80386 
-  * [x] 80387
-  * [x] 80486
+  * [x] Intel 80386 
+  * [x] Intel 80387
+  * [x] Intel 80486
+  * [x] Intel Pentium
   * [ ] ~~Interrupt~~
   * [ ] ~~Lock~~
   * [ ] ~~Long Double Floating Point~~

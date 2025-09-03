@@ -515,6 +515,26 @@ void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
+void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "CMPXCHG8B", 2);
+    format.operand[1].type = Format::Operand::NOP;
+
+    OPERATION() {
+        auto& DEST = *(uint64_t*)format.operand[0].memory;
+        auto TEMP64 = DEST;
+        if ((uint64_t(EDX) << 32 | EAX) == TEMP64) {
+            ZF = 1;
+            DEST = (uint64_t(ECX) << 32 | EBX);
+        }
+        else {
+            ZF = 0;
+            EDX = uint32_t(TEMP64 >> 32);
+            EAX = uint32_t(TEMP64);
+        }
+    };
+}
+//------------------------------------------------------------------------------
 void x86_instruction::CWD(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
@@ -962,6 +982,16 @@ void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
         };
         break;
     }
+}
+//------------------------------------------------------------------------------
+void x86_instruction::RDTSC(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "RDTSC";
+
+    OPERATION() {
+        EDX = 0;
+        EAX = 0;
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RET(Format& format, const uint8_t* opcode)
