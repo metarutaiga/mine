@@ -498,6 +498,30 @@ void x86_instruction::CMC(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
+void x86_instruction::CMOVcc(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "CMOVcc", 2);
+
+    switch (opcode[1]) {
+    case 0x40: BEGIN_OPERATION() { if (((OF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVO
+    case 0x41: BEGIN_OPERATION() { if (((OF)          ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVNO
+    case 0x42: BEGIN_OPERATION() { if (((CF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVC
+    case 0x43: BEGIN_OPERATION() { if (((CF)          ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVNC
+    case 0x44: BEGIN_OPERATION() { if (((ZF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVZ
+    case 0x45: BEGIN_OPERATION() { if (((ZF)          ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVNZ
+    case 0x46: BEGIN_OPERATION() { if (((CF | ZF)     ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVBE
+    case 0x47: BEGIN_OPERATION() { if (((CF | ZF)     ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVA
+    case 0x48: BEGIN_OPERATION() { if (((SF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVS
+    case 0x49: BEGIN_OPERATION() { if (((SF)          ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVNS
+    case 0x4A: BEGIN_OPERATION() { if (((PF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVPE
+    case 0x4B: BEGIN_OPERATION() { if (((PF)          ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVPO
+    case 0x4C: BEGIN_OPERATION() { if (((SF ^ OF)     ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVL
+    case 0x4D: BEGIN_OPERATION() { if (((SF ^ OF)     ) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVGE
+    case 0x4E: BEGIN_OPERATION() { if (((SF ^ OF) | ZF) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVLE
+    case 0x4F: BEGIN_OPERATION() { if (((SF ^ OF) | ZF) == 0) DEST = SRC; } END_OPERATION;  break;  // CMOVG
+    }
+}
+//------------------------------------------------------------------------------
 void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CMPXCHG", 2, -1, opcode[1] & 0b01);
@@ -982,6 +1006,16 @@ void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
         };
         break;
     }
+}
+//------------------------------------------------------------------------------
+void x86_instruction::RDPMC(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "RDPMC";
+
+    OPERATION() {
+        EDX = 0;
+        EAX = 0;
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RDTSC(Format& format, const uint8_t* opcode)
