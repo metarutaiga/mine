@@ -8,9 +8,11 @@
 
 #include "miCPU.h"
 
+#include "x86_instruction.h"
 #include "x87_instruction.h"
 
 struct x86_i86 : public miCPU
+               , public x86_instruction
                , public x87_instruction
 {
 public:

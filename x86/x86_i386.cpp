@@ -356,10 +356,10 @@ std::string x86_i386::Disassemble(int count) const
 //------------------------------------------------------------------------------
 void x86_i386::StepImplement(x86_i386& x86, Format& format)
 {
+    format.type = Format::X86;
     format.width = 32;
     format.length = 1;
     format.address = 32;
-    format.floating = false;
     format.repeat = false;
 
     auto eip = EIP;
@@ -381,8 +381,8 @@ void x86_i386::StepImplement(x86_i386& x86, Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::ESC(Format& format, const uint8_t* opcode)
 {
+    format.type = Format::X87;
     format.length = 2;
-    format.floating = true;
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;
         index |= (opcode[0] & 0b00000111) << 6;

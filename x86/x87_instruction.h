@@ -1,9 +1,9 @@
 #pragma once
 
-#include "x86_instruction.h"
+#include "x86_format.h"
 #include "x87_register.h"
 
-struct x87_instruction : public x86_instruction
+struct x87_instruction : public x86_format
                        , public x87_register
 {
     x87_instruction& x87 = (*this);

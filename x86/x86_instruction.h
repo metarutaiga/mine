@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include "x86_format.h"
 #include "x86_register.h"
 
@@ -19,28 +17,10 @@ struct x86_instruction : public x86_format
     size_t (*exception)(struct miCPU*, size_t) = [](struct miCPU*, size_t) { return size_t(0); };
 
 protected:
-
-    enum
-    {
-        OPERAND_SIZE    = 0b000001,
-        DIRECTION       = 0b000010,
-        IMMEDIATE       = 0b000100,
-        INDIRECT        = 0b001000,
-        RELATIVE        = 0b010000,
-        THREE_OPERAND   = 0b100000,
-    };
-
-    static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
-    static std::string  Disasm(const Format& format, x86_instruction& x86);
-    static void         Fixup(Format& format, x86_instruction& x86);
-
     template<int F, bool B, typename L, typename R, typename X = int, typename Y = int>
     static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());
 
 protected:
-    typedef void instruction(Format&, const uint8_t*);
-    typedef void (*instruction_pointer)(Format&, const uint8_t*);
-
     static instruction _;
 
     static instruction CS;          // CS segment override prefix

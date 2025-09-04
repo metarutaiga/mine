@@ -55,10 +55,4 @@ struct x86_register
     register_t ip = {};
     flags_t flags = {};
     uint16_t segments = {};
-
-    static const char* const REG8HL[8];
-    static const char* const REG8[8];
-    static const char* const REG16[8];
-    static const char* const REG32[8];
-    static const char* const REG64[8];
 };

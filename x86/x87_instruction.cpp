@@ -155,8 +155,8 @@ void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FLDCW", 1);
+    format.type = Format::X86;
     format.width = 16;
-    format.floating = false;
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
@@ -200,8 +200,8 @@ void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
 void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSTCW", 1);
+    format.type = Format::X86;
     format.width = 16;
-    format.floating = false;
     format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
@@ -212,8 +212,8 @@ void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSTSW", 1);
+    format.type = Format::X86;
     format.width = 16;
-    format.floating = false;
     format.length = (opcode[0] == 0xDF) ? 2 : format.length;
     format.operand[0].base = (opcode[0] == 0xDF) ? 0 : format.operand[0].base;
     format.operand[1].type = Format::Operand::NOP;
