@@ -184,7 +184,7 @@ size_t syscall_windows_new(void* data, const char* path, void* image, int argc, 
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
-    auto* allocator = cpu->Allocator();
+    auto* allocator = cpu->Allocator;
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     msvcrt->iob[0][0] = 1;
     msvcrt->iob[1][0] = 2;
@@ -267,7 +267,7 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto& x87 = cpu->x87;
         auto* memory = cpu->Memory();
         auto* stack = (uint32_t*)(memory + cpu->Stack());
-        auto* allocator = cpu->Allocator();
+        auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
         return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
     }

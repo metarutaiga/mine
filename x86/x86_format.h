@@ -5,8 +5,10 @@
 
 #define HAVE_X64 0
 
-struct x86_instruction;
-struct x87_instruction;
+struct x86_register;
+struct x87_register;
+struct mmx_register;
+struct sse_register;
 
 struct x86_format
 {
@@ -45,7 +47,7 @@ struct x86_format
         const char* segment = "";
         Operand operand[3] = {};
 
-        void (*operation)(x86_instruction&, x87_instruction&, const Format&, void*, const void*, const void*) = nullptr;
+        void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, const void*, const void*) = nullptr;
     };
 
     enum
@@ -59,8 +61,8 @@ struct x86_format
     };
 
     static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
-    static std::string  Disasm(const Format& format, x86_instruction& x86);
-    static void         Fixup(Format& format, x86_instruction& x86);
+    static std::string  Disasm(const Format& format, x86_register& x86);
+    static void         Fixup(Format& format, x86_register& x86);
 
     typedef void instruction(Format&, const uint8_t*);
     typedef void (*instruction_pointer)(Format&, const uint8_t*);

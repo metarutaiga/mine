@@ -4,6 +4,7 @@
 //
 // INTEL CORPORATION 1987
 //==============================================================================
+#include <stdarg.h>
 #include "x86_i386.h"
 #include "x86_register.h"
 #include "x86_register.inl"
@@ -127,21 +128,16 @@ const x86_instruction::instruction_pointer x86_i386::escMOD[8][8] =
 #undef o
 #undef x
 //------------------------------------------------------------------------------
-x86_i386::x86_i386(void(*step)(x86_i386&, Format&))
-{
-    StepInternal = step;
-}
-//------------------------------------------------------------------------------
 x86_i386::~x86_i386()
 {
-    delete allocator;
+    delete Allocator;
 }
 //------------------------------------------------------------------------------
 bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 {
     if (allocator == nullptr)
         return false;
-    this->allocator = allocator;
+    Allocator = allocator;
 
     memory_size = allocator->max_size();
     memory_address = (uint8_t*)allocator->allocate(stack, 0);
@@ -159,7 +155,7 @@ bool x86_i386::Run()
     while (EIP) {
         if (Step('INTO') == false)
             return false;
-        if (EIP == breakpoint)
+        if (EIP == Breakpoint)
             return false;
     }
     return true;
@@ -167,6 +163,11 @@ bool x86_i386::Run()
 //------------------------------------------------------------------------------
 bool x86_i386::Step(int type)
 {
+    auto& x86 = *(x86_register*)this;
+    auto& x87 = *(x87_register*)this;
+    auto& mmx = *(mmx_register*)Register('mmx ');
+    auto& sse = *(sse_register*)Register('sse ');
+
     auto eip_over = EIP;
     auto eip = EIP;
     auto esp = ESP;
@@ -177,7 +178,7 @@ bool x86_i386::Step(int type)
         if (format.operation == nullptr)
             return false;
         if (format.repeat == false || format.string == false || ECX != 0) {
-            format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+            format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
             if (format.repeat && format.string) {
                 ECX -= 1;
                 EIP = eip;
@@ -188,7 +189,7 @@ bool x86_i386::Step(int type)
             return false;
         }
         if (EIP >= memory_size) {
-            auto count = exception(this, EIP);
+            auto count = Exception(this, EIP);
             EIP = Pop32();
             ESP += count;
         }
@@ -217,21 +218,6 @@ bool x86_i386::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void x86_i386::Breakpoint(size_t address)
-{
-    breakpoint = address;
-}
-//------------------------------------------------------------------------------
-void x86_i386::Exception(size_t(*callback)(miCPU*, size_t))
-{
-    exception = callback;
-}
-//------------------------------------------------------------------------------
-allocator_t* x86_i386::Allocator() const
-{
-    return allocator;
-}
-//------------------------------------------------------------------------------
 uint8_t* x86_i386::Memory(size_t base, size_t size) const
 {
     if (size == 0) {
@@ -239,7 +225,18 @@ uint8_t* x86_i386::Memory(size_t base, size_t size) const
             return nullptr;
         return memory_address + base;
     }
-    return (uint8_t*)allocator->allocate(size, base);
+    return (uint8_t*)Allocator->allocate(size, base);
+}
+//------------------------------------------------------------------------------
+void* x86_i386::Register(int type) const
+{
+    switch (type) {
+    case 'x86 ':
+        return (x86_register*)this;
+    case 'x87 ':
+        return (x87_register*)this;
+    }
+    return nullptr;
 }
 //------------------------------------------------------------------------------
 size_t x86_i386::Stack() const
@@ -354,7 +351,7 @@ std::string x86_i386::Disassemble(int count) const
     return output;
 }
 //------------------------------------------------------------------------------
-void x86_i386::StepImplement(x86_i386& x86, Format& format)
+void x86_i386::StepInternal(x86_i386& x86, Format& format) const
 {
     format.type = Format::X86;
     format.width = 32;

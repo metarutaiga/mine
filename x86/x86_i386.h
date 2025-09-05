@@ -16,26 +16,20 @@ struct x86_i386 : public miCPU
                 , public x87_instruction
 {
 public:
-    x86_i386(void(*step)(x86_i386&, Format&) = StepImplement);
     virtual ~x86_i386();
     bool Initialize(allocator_t* allocator, size_t stack) override;
     bool Run() override;
     bool Step(int type) override;
     bool Jump(size_t address) override;
-    void Breakpoint(size_t address) override;
-    void Exception(size_t(*callback)(miCPU*, size_t)) override;
-    allocator_t* Allocator() const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;
+    void* Register(int type) const override;
     size_t Stack() const override;
     size_t Program() const override;
     std::string Status() const override;
     std::string Disassemble(int count) const override;
 
 protected:
-    static void StepImplement(x86_i386& x86, Format& format);
-
-    allocator_t* allocator = nullptr;
-    void (*StepInternal)(x86_i386& x86, Format& format) = nullptr;
+    virtual void StepInternal(x86_i386& x86, Format& format) const;
 
 protected:
     static instruction ESC;

@@ -9,11 +9,8 @@
 
 struct x86_i486 : public x86_i386
 {
-public:
-    x86_i486(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i386(step) {}
-
 protected:
-    static void StepImplement(x86_i386& x86, Format& format);
+    virtual void StepInternal(x86_i386& x86, Format& format) const;
 
 protected:
     static instruction TWO;

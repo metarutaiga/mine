@@ -66,7 +66,7 @@ size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, 
         auto& x87 = cpu->x87;
         auto* memory = cpu->Memory();
         auto* stack = memory + cpu->Stack();
-        auto* allocator = cpu->Allocator();
+        auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
         syscall(x86, x87, memory, stack, allocator, syslog, log);
     }

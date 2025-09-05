@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 
 struct x86_register
@@ -55,4 +56,13 @@ struct x86_register
     register_t ip = {};
     flags_t flags = {};
     uint16_t segments = {};
+
+    size_t memory_size = 0;
+    uint8_t* memory_address = nullptr;
+    uint8_t* stack_address = nullptr;
+    uint8_t* opcode = nullptr;
+
+protected:
+    template<int F, bool B, typename L, typename R, typename X = int, typename Y = int>
+    static void UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());
 };

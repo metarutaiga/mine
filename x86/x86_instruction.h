@@ -8,18 +8,6 @@ struct x86_instruction : public x86_format
 {
     x86_instruction& x86 = (*this);
 
-    size_t memory_size = 0;
-    uint8_t* memory_address = nullptr;
-    uint8_t* stack_address = nullptr;
-    uint8_t* opcode = nullptr;
-
-    size_t breakpoint = 0;
-    size_t (*exception)(struct miCPU*, size_t) = [](struct miCPU*, size_t) { return size_t(0); };
-
-protected:
-    template<int F, bool B, typename L, typename R, typename X = int, typename Y = int>
-    static void UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());
-
 protected:
     static instruction _;
 

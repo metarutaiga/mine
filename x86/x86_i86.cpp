@@ -4,6 +4,7 @@
 //
 // Intel Corporation 1978, 1979
 //==============================================================================
+#include <stdarg.h>
 #include "x86_i86.h"
 #include "x86_register.h"
 #include "x86_register.inl"
@@ -79,7 +80,7 @@ bool x86_i86::Run()
     while (IP) {
         if (Step('INTO') == false)
             return false;
-        if (IP == breakpoint)
+        if (IP == Breakpoint)
             return false;
     }
     return true;
@@ -87,6 +88,11 @@ bool x86_i86::Run()
 //------------------------------------------------------------------------------
 bool x86_i86::Step(int type)
 {
+    auto& x86 = *(x86_register*)this;
+    auto& x87 = *(x87_register*)this;
+    auto& mmx = *(mmx_register*)Register('mmx ');
+    auto& sse = *(sse_register*)Register('sse ');
+
     auto ip_over = IP;
     auto ip = IP;
     auto sp = SP;
@@ -97,7 +103,7 @@ bool x86_i86::Step(int type)
         if (format.operation == nullptr)
             return false;
         if (format.repeat == false || format.string == false || CX != 0) {
-            format.operation(*this, *this, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+            format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
             if (format.repeat && format.string) {
                 CX -= 1;
                 IP = ip;
@@ -108,7 +114,7 @@ bool x86_i86::Step(int type)
             return false;
         }
         if (IP >= memory_size) {
-            auto count = (uint16_t)exception(this, IP);
+            auto count = (uint16_t)Exception(this, IP);
             IP = Pop16();
             SP += count;
         }
@@ -137,21 +143,6 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void x86_i86::Breakpoint(size_t address)
-{
-    breakpoint = address;
-}
-//------------------------------------------------------------------------------
-void x86_i86::Exception(size_t(*callback)(miCPU*, size_t))
-{
-    exception = callback;
-}
-//------------------------------------------------------------------------------
-allocator_t* x86_i86::Allocator() const
-{
-    return allocator;
-}
-//------------------------------------------------------------------------------
 uint8_t* x86_i86::Memory(size_t base, size_t size) const
 {
     if (size == 0) {
@@ -160,6 +151,17 @@ uint8_t* x86_i86::Memory(size_t base, size_t size) const
         return memory_address + base;
     }
     return (uint8_t*)allocator->allocate(size, base);
+}
+//------------------------------------------------------------------------------
+void* x86_i86::Register(int type) const
+{
+    switch (type) {
+    case 'x86 ':
+        return (x86_register*)this;
+    case 'x87 ':
+        return (x87_register*)this;
+    }
+    return nullptr;
 }
 //------------------------------------------------------------------------------
 size_t x86_i86::Stack() const

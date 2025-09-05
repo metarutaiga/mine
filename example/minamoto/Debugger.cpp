@@ -300,7 +300,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             ImGui::Checkbox("Memory", &showMemoryEditor);
             ImGui::InputTextEx("Argument", nullptr, arguments);
             if (ImGui::InputInt("Breakpoint", &breakpoint, 0, 0, ImGuiInputTextFlags_CharsHexadecimal)) {
-                if (cpu) cpu->Breakpoint(breakpoint);
+                if (cpu) cpu->Breakpoint = breakpoint;
             }
             ImGui::Separator();
             for (auto& [name, path] : samples) {
@@ -351,8 +351,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
-            cpu->Breakpoint(breakpoint);
-            cpu->Exception(Exception);
+            cpu->Breakpoint = breakpoint;
+            cpu->Exception = Exception;
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
@@ -376,7 +376,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                             disasm.pop_back();
                         size_t space = disasm.find("  ");
                         if (space == std::string::npos)
-                            break;
+                            space = 15;
                         size_t address = strtoll(disasm.c_str(), nullptr, 16);
                         disasms[address] = disasm;
                         begin += (space - 8 - 3) / 2;
@@ -448,7 +448,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         if (showMemoryEditor) {
             static MemoryEditor memoryEditor;
             if (cpu) {
-                auto allocator = cpu->Allocator();
+                auto allocator = cpu->Allocator;
                 ImGui::Begin("Memory", &showMemoryEditor, ImGuiWindowFlags_NoScrollbar);
                 ImGui::End();
                 memoryEditor.DrawWindow("Memory", allocator->address(), allocator->max_size());

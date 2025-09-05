@@ -38,29 +38,68 @@ const x86_instruction::instruction_pointer x86_i686::one[256] =
 // Two-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i686::two[256] =
-{      // 0         1         2        3        4        5        6        7           8        9        A        B        C        D        E        F
-/* 0 */ o grp6    x grp7    x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 1 */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 2 */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 3 */ x RDTSC   x _       x _      x RDPMC  x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 4 */ x CMOVcc  x CMOVcc  x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc    x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc x CMOVcc
-/* 5 */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 6 */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 7 */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* 8 */ x Jcc     x Jcc     x Jcc    x Jcc    x Jcc    x Jcc    x Jcc    x Jcc       x Jcc    x Jcc    x Jcc    x Jcc    x Jcc    x Jcc    x Jcc    x Jcc
-/* 9 */ x SETcc   x SETcc   x SETcc  x SETcc  x SETcc  x SETcc  x SETcc  x SETcc     x SETcc  x SETcc  x SETcc  x SETcc  x SETcc  x SETcc  x SETcc  x SETcc
-/* A */ x _       x _       x CPUID  x BT     x SHxD   x SHxD   x _      x _         x _      x _      x _      x BTS    x SHxD   x SHxD   x _      x IMUL
-/* B */ x CMPXCHG x CMPXCHG x _      x BTR    x _      x _      x MOVZX  x MOVZX     x _      x _      x grp8   x BTC    x BSF    x BSR    x MOVSX  x MOVSX
-/* C */ x XADD    x XADD    x _      x _      x _      x _      x _      x CMPXCHG8B x BSWAP  x BSWAP  x BSWAP  x BSWAP  x BSWAP  x BSWAP  x BSWAP  x BSWAP
-/* D */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* E */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
-/* F */ x _       x _       x _      x _      x _      x _      x _      x _         x _      x _      x _      x _      x _      x _      x _      x _
+{      // 0           1           2           3          4          5          6         7          8           9           A           B          C           D          E         F
+/* 0 */ o grp6      x grp7      x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 1 */ x MOVUPS    x MOVUPS    x MOVLPS    x MOVLPS   x UNPCKLPS x UNPCKHPS x MOVHPS  x MOVHPS   x grp17     x _         x _         x _        x _         x _        x _       x _
+/* 2 */ x _         x _         x _         x _        x _        x _        x _       x _        x MOVAPS    x MOVAPS    x CVTPI2PS  x MOVNTPS  x CVTTPS2PI x CVTPS2PI x UCOMISS x COMISS
+/* 3 */ x _         x RDTSC     x _         x RDPMC    x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 4 */ x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc   x CMOVcc   x CMOVcc  x CMOVcc   x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc   x CMOVcc  x CMOVcc
+/* 5 */ x MOVMSKPS  x SQRTPS    x RSQRTPS   x RCPPS    x ANDPS    x ANDNPS   x ORPS    x XORPS    x ADDPS     x MULPS     x _         x _        x SUBPS     x MINPS    x DIVPS   x MAXPS
+/* 6 */ x PUNPCKLBW x PUNPCKLWD x PUNPCKLDQ x PACKSSWB x PCMPGTB  x PCMPGTW  x PCMPGTD x PACKUSWB x PUNPCKHBW x PUNPCKHWD x PUNPCKHDQ x PACKSSDW x _         x _        x MOVD    x MOVQ
+/* 7 */ x PSHUFW    x grp13     x grp14     x grp15    x PCMPEQB  x PCMPEQW  x PCMPEQD x EMMS     x _         x _         x _         x _        x _         x _        x MOVD    x MOVQ
+/* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc      x Jcc      x Jcc     x Jcc      x Jcc       x Jcc       x Jcc       x Jcc      x Jcc       x Jcc      x Jcc     x Jcc
+/* 9 */ x SETcc     x SETcc     x SETcc     x SETcc    x SETcc    x SETcc    x SETcc   x SETcc    x SETcc     x SETcc     x SETcc     x SETcc    x SETcc     x SETcc    x SETcc   x SETcc
+/* A */ x _         x _         x CPUID     x BT       x SHxD     x SHxD     x _       x _        x _         x _         x _         x BTS      x SHxD      x SHxD     x grp16   x IMUL
+/* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _        x _        x MOVZX   x MOVZX    x _         x _         x grp8      x BTC      x BSF       x BSR      x MOVSX   x MOVSX
+/* C */ x XADD      x XADD      x CMPPS     x _        x PINSRW   x PEXTRW   x SHUFPS  x grp9     x BSWAP     x BSWAP     x BSWAP     x BSWAP    x BSWAP     x BSWAP    x BSWAP   x BSWAP
+/* D */ x _         x PSRLW     x PSRLD     x PSRLQ    x _        x PMULLW   x _       x PMOVMSKB x PSUBUSB   x PSUBUSW   x PMINUB    x PAND     x PADDUSB   x PADDUSW  x PMAXUB  x PANDN
+/* E */ x PAVGB     x PSRAW     x PSRAD     x PAVGW    x PMULHUW  x PMULHW   x _       x MOVNTQ   x PSUBSB    x PSUBSW    x PMINSW    x POR      x PADDSB    x PADDSW   x PMAXSW  x PXOR
+/* F */ x _         x PSLLW     x PSLLD     x PSLLQ    x _        x PMADDWD  x PSADBW  x _        x PSUBB     x PSUBW     x PSUBD     x _        x PADDB     x PADDW    x PADDD   x _
+};
+//------------------------------------------------------------------------------
+// Opcodes determined by bits 5,4,3 of modR/M byte
+//------------------------------------------------------------------------------
+const x86_instruction::instruction_pointer x86_i686::group[18][8] =
+{        // 0             1           2           3           4       5      6       7
+/*  0 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/*  1 */{ o ADD         x OR        x ADC       x SBB       x AND   x SUB  x XOR   x CMP    },
+/*  2 */{ o Rxx         x Rxx       x Rxx       x Rxx       x Sxx   x Sxx  x _     x Sxx    },
+/*  3 */{ o TEST        x _         x NOT       x NEG       x MUL   x IMUL x DIV   x IDIV   },
+/*  4 */{ o INC         x DEC       x _         x _         x _     x _    x _     x _      },
+/*  5 */{ o INC         x DEC       x CALL      x _         x JMP   x _    x PUSH  x _      },
+/*  6 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/*  7 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/*  8 */{ o _           x _         x _         x _         x BT    x BTS  x BTR   x BTC    },
+/*  9 */{ o _           x CMPXCHG8B x _         x _         x _     x _    x _     x _      },
+/* 10 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/* 11 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/* 12 */{ o _           x _         x _         x _         x _     x _    x _     x _      },
+/* 13 */{ o _           x _         x PSRLW     x _         x PSRAW x _    x PSLLW x _      },
+/* 14 */{ o _           x _         x PSRLD     x _         x PSRAD x _    x PSLLD x _      },
+/* 15 */{ o _           x _         x PSRLQ     x _         x _     x _    x PSLLQ x _      },
+/* 16 */{ o _           x _         x LDMXCSR   x STMXCSR   x _     x _    x _     x SFENCE },
+/* 17 */{ o PREFETCHNTA x PREFETCH0 x PREFETCH1 x PREFETCH2 x _     x _    x _     x _      },
 };
 //------------------------------------------------------------------------------
 #undef o
 #undef x
 //------------------------------------------------------------------------------
-void x86_i686::StepImplement(x86_i386& x86, Format& format)
+void* x86_i686::Register(int type) const
+{
+    switch (type) {
+    case 'x86 ':
+        return (x86_register*)this;
+    case 'x87 ':
+        return (x87_register*)this;
+    case 'mmx ':
+        return (mmx_register*)this;
+    case 'sse ':
+        return (sse_register*)this;
+    }
+    return nullptr;
+}
+//------------------------------------------------------------------------------
+void x86_i686::StepInternal(x86_i386& x86, Format& format) const
 {
     format.type = Format::X86;
     format.width = 32;
@@ -83,11 +122,101 @@ void x86_i686::StepImplement(x86_i386& x86, Format& format)
     }
 }
 //------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
 void x86_i686::TWO(Format& format, const uint8_t* opcode)
 {
     format.length = 2;
     two[opcode[1]](format, opcode);
 }
+//------------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------------
+void x86_i686::grp1(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    group[1][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp2(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    group[2][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp3(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    group[3][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp4(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    group[4][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp5(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[1] >> 3) & 0b111;
+    group[5][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp6(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[6][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp7(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[7][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp8(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[8][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp9(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[9][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp13(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[13][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp14(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[14][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp15(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[15][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp16(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[16][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+void x86_i686::grp17(Format& format, const uint8_t* opcode)
+{
+    int nnn = (opcode[2] >> 3) & 0b111;
+    group[17][nnn](format, opcode);
+}
+//------------------------------------------------------------------------------
+//
 //------------------------------------------------------------------------------
 void x86_i686::CPUID(Format& format, const uint8_t* opcode)
 {
@@ -112,7 +241,8 @@ void x86_i686::CPUID(Format& format, const uint8_t* opcode)
             EDX |= (1 <<  0);   // FPU
             EDX |= (1 <<  4);   // TSC
             EDX |= (1 << 15);   // CMOV
-//          EDX |= (1 << 23);   // MMX
+            EDX |= (1 << 23);   // MMX
+            EDX |= (1 << 25);   // SSE
             break;
         }
     };

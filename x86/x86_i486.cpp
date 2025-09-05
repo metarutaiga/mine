@@ -60,7 +60,7 @@ const x86_instruction::instruction_pointer x86_i486::two[256] =
 #undef o
 #undef x
 //------------------------------------------------------------------------------
-void x86_i486::StepImplement(x86_i386& x86, Format& format)
+void x86_i486::StepInternal(x86_i386& x86, Format& format) const
 {
     format.type = Format::X86;
     format.width = 32;

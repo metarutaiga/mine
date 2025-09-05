@@ -14,19 +14,21 @@ static x86_register x86;
 #define Pop32()         (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
 #define Pop64()         (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
 //------------------------------------------------------------------------------
+#define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
+//------------------------------------------------------------------------------
 template<typename T>
 static auto specialize(auto lambda) {
     static const auto static_lambda = lambda;
-    return [](x86_instruction& x86, x87_instruction& x87, const x86_format::Format& format, void* dest, const void* src1, const void* src2) {
-        return static_lambda(x86, x87, format, *(T*)dest, *(T*)src1, *(T*)src2);
+    return [](REGISTER_ARGS, const x86_format::Format& format, void* dest, const void* src1, const void* src2) {
+        return static_lambda(x86, x87, mmx, sse, format, *(T*)dest, *(T*)src1, *(T*)src2);
     };
 }
 //------------------------------------------------------------------------------
 #define OPERATION() \
-        format.operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, void* dest, const void* src1, const void* src2)
+        format.operation = [](REGISTER_ARGS, const Format& format, void* dest, const void* src1, const void* src2)
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
-        auto operation = [](x86_instruction& x86, x87_instruction& x87, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
+        auto operation = [](REGISTER_ARGS, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
             const auto& SRC = SRC1; (void)SRC;
 //------------------------------------------------------------------------------
 #define END_OPERATION_RANGE(low, high) }; \
@@ -58,35 +60,4 @@ static auto specialize(auto lambda) {
 #define END_OPERATION END_OPERATION_RANGE(8, 32)
 #define END_OPERATION_SIGNED END_OPERATION_RANGE_SIGNED(8, 32)
 #endif
-//------------------------------------------------------------------------------
-#define _____C  0b000001
-#define ____P_  0b000010
-#define ___A__  0b000100
-#define __Z___  0b001000
-#define _S____  0b010000
-#define O_____  0b100000
-#define _SZ_P_  0b011010
-#define OSZAP_  0b111110
-#define OSZAPC  0b111111
-#define CARRY   false
-#define BORROW  true
-//------------------------------------------------------------------------------
-template<int F, bool B = false, typename L, typename R, typename X, typename Y>
-inline void x86_instruction::UpdateFlags(x86_instruction& x86, L& DEST, R TEMP, X SRC1, Y SRC2)
-{
-    uint64_t bc = ( TEMP & (~SRC1 | SRC2)) | (~SRC1 & SRC2);
-    uint64_t cc = (~TEMP & ( SRC1 | SRC2)) | ( SRC1 & SRC2);
-    uint64_t pp = std::popcount((uint8_t)TEMP) ^ 1;
-    uint64_t bits = sizeof(L) * 8;
-    uint64_t sign = (uint64_t)1 << (bits - 1);
-    uint64_t sign2 = (uint64_t)1 << (bits - 2);
-    uint64_t c = B ? bc : cc;
-    if (F & _____C) CF = c &               sign ? 1 : 0;
-    if (F & ____P_) PF = pp &                 1 ? 1 : 0;
-    if (F & ___A__) AF = c &                  8 ? 1 : 0;
-    if (F & __Z___) ZF = TEMP ==              0 ? 1 : 0;
-    if (F & _S____) SF = TEMP &            sign ? 1 : 0;
-    if (F & O_____) OF = (c ^ (c >> 1)) & sign2 ? 1 : 0;
-    DEST = TEMP;
-}
 //------------------------------------------------------------------------------

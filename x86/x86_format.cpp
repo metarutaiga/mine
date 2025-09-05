@@ -163,7 +163,7 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
     }
 }
 //------------------------------------------------------------------------------
-std::string x86_format::Disasm(const Format& format, x86_instruction& x86)
+std::string x86_format::Disasm(const Format& format, x86_register& x86)
 {
     auto hex = [](auto imm, bool sign) {
         char temp[64];
@@ -306,7 +306,7 @@ std::string x86_format::Disasm(const Format& format, x86_instruction& x86)
     return disasm;
 }
 //------------------------------------------------------------------------------
-void x86_format::Fixup(Format& format, x86_instruction& x86)
+void x86_format::Fixup(Format& format, x86_register& x86)
 {
     int width;
     for (int i = 0; i < 3; ++i) {
