@@ -16,6 +16,7 @@ struct x86_i386 : public miCPU
                 , public x87_instruction
 {
 public:
+    x86_i386(void(*step)(x86_i386&, Format&) = StepImplement) : StepInternal(step) {}
     virtual ~x86_i386();
     bool Initialize(allocator_t* allocator, size_t stack) override;
     bool Run() override;
@@ -29,7 +30,9 @@ public:
     std::string Disassemble(int count) const override;
 
 protected:
-    virtual void StepInternal(x86_i386& x86, Format& format) const;
+    static void StepImplement(x86_i386& x86, Format& format);
+
+    void (*StepInternal)(x86_i386& x86, Format& format) = nullptr;
 
 protected:
     static instruction ESC;

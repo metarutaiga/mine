@@ -99,7 +99,7 @@ void* x86_i686::Register(int type) const
     return nullptr;
 }
 //------------------------------------------------------------------------------
-void x86_i686::StepInternal(x86_i386& x86, Format& format) const
+void x86_i686::StepImplement(x86_i386& x86, Format& format)
 {
     format.type = Format::X86;
     format.width = 32;

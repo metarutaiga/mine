@@ -11,9 +11,14 @@
 struct x86_i586 : public x86_i486
                 , public mmx_instruction
 {
+public:
+    x86_i586(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i486(step) {}
+
 protected:
     void* Register(int type) const override;
-    void StepInternal(x86_i386& x86, Format& format) const override;
+
+protected:
+    static void StepImplement(x86_i386& x86, Format& format);
 
 protected:
     static instruction TWO;

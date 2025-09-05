@@ -313,7 +313,7 @@ std::string x86_i386::Disassemble(int count) const
 {
     std::string output;
 
-    x86_i386 x86;
+    x86_i386 x86(StepInternal);
     for (int i = 0; i < 8; ++i)
         x86.regs[i] = regs[i];
     x86.flags = flags;
@@ -333,7 +333,7 @@ std::string x86_i386::Disassemble(int count) const
         size_t insert = output.size();
 
         Format format;
-        StepInternal(x86, format);
+        x86.StepInternal(x86, format);
         output += Disasm(format, x86);
         output += '\n';
 
@@ -351,7 +351,7 @@ std::string x86_i386::Disassemble(int count) const
     return output;
 }
 //------------------------------------------------------------------------------
-void x86_i386::StepInternal(x86_i386& x86, Format& format) const
+void x86_i386::StepImplement(x86_i386& x86, Format& format)
 {
     format.type = Format::X86;
     format.width = 32;
