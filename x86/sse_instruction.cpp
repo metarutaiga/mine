@@ -33,8 +33,10 @@ void sse_instruction::ANDNPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[0] = ~DEST.i64[0] & SRC.i64[0];
-        DEST.i64[1] = ~DEST.i64[1] & SRC.i64[1];
+        DEST.i32[0] = ~DEST.i32[0] & SRC.i32[0];
+        DEST.i32[1] = ~DEST.i32[1] & SRC.i32[1];
+        DEST.i32[2] = ~DEST.i32[2] & SRC.i32[2];
+        DEST.i32[3] = ~DEST.i32[3] & SRC.i32[3];
     };
 }
 //------------------------------------------------------------------------------
@@ -45,8 +47,10 @@ void sse_instruction::ANDPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[0] = DEST.i64[0] & SRC.i64[0];
-        DEST.i64[1] = DEST.i64[1] & SRC.i64[1];
+        DEST.i32[0] = DEST.i32[0] & SRC.i32[0];
+        DEST.i32[1] = DEST.i32[1] & SRC.i32[1];
+        DEST.i32[2] = DEST.i32[2] & SRC.i32[2];
+        DEST.i32[3] = DEST.i32[3] & SRC.i32[3];
     };
 }
 //------------------------------------------------------------------------------
@@ -229,7 +233,7 @@ void sse_instruction::LDMXCSR(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[2] & 0b111;
 
     OPERATION() {
-        sse.mxcsr = x86.regs[format.operand[0].base].d;
+        MXCSR.d = REG(format.operand[0].base).d;
     };
 }
 //------------------------------------------------------------------------------
@@ -239,7 +243,7 @@ void sse_instruction::MASKMOVQ(Format& format, const uint8_t* opcode)
     format.operand[2] = format.operand[1];
     format.operand[1] = format.operand[0];
     format.operand[0].type = Format::Operand::ADR;
-    format.operand[0].base = REG(EDI);
+    format.operand[0].base = IndexREG(EDI);
 
     OPERATION() {
         auto& DEST = CastMM(format.operand[0]);
@@ -302,8 +306,8 @@ void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[2] = SRC.i64[0];
-        DEST.i64[3] = SRC.i64[1];
+        DEST.f32[2] = SRC.f32[0];
+        DEST.f32[3] = SRC.f32[1];
     };
 }
 //------------------------------------------------------------------------------
@@ -314,8 +318,8 @@ void sse_instruction::MOVLPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[0] = SRC.i64[0];
-        DEST.i64[1] = SRC.i64[1];
+        DEST.f32[0] = SRC.f32[0];
+        DEST.f32[1] = SRC.f32[1];
     };
 }
 //------------------------------------------------------------------------------
@@ -324,13 +328,13 @@ void sse_instruction::MOVMSKPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVMSKPS", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = x86.regs[format.operand[0].base].d;
+        auto& DEST = REG(format.operand[0].base).d;
         auto SRC = XMM(format.operand[1].base);
         DEST = 0;
-        DEST |= SRC.u32[0] & 0x80000000 ? 1 : 0;
-        DEST |= SRC.u32[1] & 0x80000000 ? 2 : 0;
-        DEST |= SRC.u32[2] & 0x80000000 ? 4 : 0;
-        DEST |= SRC.u32[3] & 0x80000000 ? 8 : 0;
+        DEST |= SRC.i32[0] & 0x80000000 ? 1 : 0;
+        DEST |= SRC.i32[1] & 0x80000000 ? 2 : 0;
+        DEST |= SRC.i32[2] & 0x80000000 ? 4 : 0;
+        DEST |= SRC.i32[3] & 0x80000000 ? 8 : 0;
     };
 }
 //------------------------------------------------------------------------------
@@ -388,8 +392,10 @@ void sse_instruction::ORPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[0] = DEST.i64[0] | SRC.i64[0];
-        DEST.i64[1] = DEST.i64[1] | SRC.i64[1];
+        DEST.i32[0] = DEST.i32[0] | SRC.i32[0];
+        DEST.i32[1] = DEST.i32[1] | SRC.i32[1];
+        DEST.i32[2] = DEST.i32[2] | SRC.i32[2];
+        DEST.i32[3] = DEST.i32[3] | SRC.i32[3];
     };
 }
 //------------------------------------------------------------------------------
@@ -398,8 +404,8 @@ void sse_instruction::PAVGB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PAVGB", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.u8[0] = (DEST.u8[0] + SRC.u8[0]) / 2;
         DEST.u8[1] = (DEST.u8[1] + SRC.u8[1]) / 2;
         DEST.u8[2] = (DEST.u8[2] + SRC.u8[2]) / 2;
@@ -416,8 +422,8 @@ void sse_instruction::PAVGW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PAVGW", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.u16[0] = (DEST.u16[0] + SRC.u16[0]) / 2;
         DEST.u16[1] = (DEST.u16[1] + SRC.u16[1]) / 2;
         DEST.u16[2] = (DEST.u16[2] + SRC.u16[2]) / 2;
@@ -430,7 +436,7 @@ void sse_instruction::PEXTRW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PEXTRW", 2, 8, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = x86.regs[format.operand[0].base].d;
+        auto& DEST = REG(format.operand[0].base).d;
         auto SRC = MM(format.operand[1].base);
         auto SEL = format.operand[2].displacement % 4;
         DEST = SRC.u16[SEL];
@@ -443,7 +449,7 @@ void sse_instruction::PINSRW(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         auto DEST = MM(format.operand[0].base);
-        auto SRC = x86.regs[format.operand[1].base].d;
+        auto SRC = REG(format.operand[1].base).d;
         auto SEL = format.operand[2].displacement % 4;
         DEST.u16[SEL] = SRC;
     };
@@ -454,8 +460,8 @@ void sse_instruction::PMAXSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMAXSW", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.i16[0] = std::max(DEST.i16[0], SRC.i16[0]);
         DEST.i16[1] = std::max(DEST.i16[1], SRC.i16[1]);
         DEST.i16[2] = std::max(DEST.i16[2], SRC.i16[2]);
@@ -468,8 +474,8 @@ void sse_instruction::PMAXUB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMAXUB", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.u8[0] = std::max(DEST.u8[0], SRC.u8[0]);
         DEST.u8[1] = std::max(DEST.u8[1], SRC.u8[1]);
         DEST.u8[2] = std::max(DEST.u8[2], SRC.u8[2]);
@@ -486,8 +492,8 @@ void sse_instruction::PMINSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMINSW", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.i16[0] = std::min(DEST.i16[0], SRC.i16[0]);
         DEST.i16[1] = std::min(DEST.i16[1], SRC.i16[1]);
         DEST.i16[2] = std::min(DEST.i16[2], SRC.i16[2]);
@@ -500,8 +506,8 @@ void sse_instruction::PMINUB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMINUB", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.u8[0] = std::min(DEST.u8[0], SRC.u8[0]);
         DEST.u8[1] = std::min(DEST.u8[1], SRC.u8[1]);
         DEST.u8[2] = std::min(DEST.u8[2], SRC.u8[2]);
@@ -518,7 +524,7 @@ void sse_instruction::PMOVMSKB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMOVMSKB", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = x86.regs[format.operand[0].base].d;
+        auto& DEST = REG(format.operand[0].base).d;
         auto SRC = MM(format.operand[1].base);
         DEST = 0;
         DEST |= SRC.u8[0] & 0x80 ? 0x01 : 0;
@@ -583,8 +589,8 @@ void sse_instruction::PSADBW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSADBW", 2, 0, OPERAND_SIZE | DIRECTION);
 
     OPERATION() {
-        auto& DEST = XMM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto& DEST = MM(format.operand[0].base);
+        auto SRC = CastMM(format.operand[1]);
         DEST.u16[0] = 0;
         DEST.u16[0] += std::abs(DEST.u8[0] - SRC.u8[0]);
         DEST.u16[0] += std::abs(DEST.u8[1] - SRC.u8[1]);
@@ -606,7 +612,7 @@ void sse_instruction::PSHUFW(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         auto& DEST = MM(format.operand[0].base);
-        auto SRC = CastXMM(format.operand[1]);
+        auto SRC = CastMM(format.operand[1]);
         auto SEL = format.operand[2].displacement;
         DEST.i16[0] = SRC.i16[(SEL >> 0) & 0x3];
         DEST.i16[1] = SRC.i16[(SEL >> 2) & 0x3];
@@ -680,7 +686,7 @@ void sse_instruction::STMXCSR(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[2] & 0b111;
 
     OPERATION() {
-        x86.regs[format.operand[0].base].d = sse.mxcsr;
+        REG(format.operand[0].base).d = MXCSR.d;
     };
 }
 //------------------------------------------------------------------------------
@@ -766,8 +772,10 @@ void sse_instruction::XORPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.i64[0] = DEST.i64[0] ^ SRC.i64[0];
-        DEST.i64[1] = DEST.i64[1] ^ SRC.i64[1];
+        DEST.i32[0] = DEST.i32[0] ^ SRC.i32[0];
+        DEST.i32[1] = DEST.i32[1] ^ SRC.i32[1];
+        DEST.i32[2] = DEST.i32[2] ^ SRC.i32[2];
+        DEST.i32[3] = DEST.i32[3] ^ SRC.i32[3];
     };
 }
 //------------------------------------------------------------------------------

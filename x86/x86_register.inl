@@ -1,5 +1,6 @@
 #pragma once
 
+#define REG(i)          x86.regs[i & 0b111]
 #define AL              x86.regs[0].l
 #define AH              x86.regs[0].h
 #define AX              x86.regs[0].w
@@ -44,6 +45,10 @@
 #define SF              x86.flags._SF
 #define DF              x86.flags._DF
 #define OF              x86.flags._OF
+//------------------------------------------------------------------------------
+namespace internal { static x86_register x86; };
+//------------------------------------------------------------------------------
+#define IndexREG(reg)   ((int)((& internal :: reg - & internal :: EAX) / (& internal :: ECX - & internal :: EAX)))
 //------------------------------------------------------------------------------
 #define _____C  0b000001
 #define ____P_  0b000010

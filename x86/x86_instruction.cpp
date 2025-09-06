@@ -422,11 +422,11 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
     case 0xA1:  Decode(format, opcode, "MOV", 1, 32, (opcode[0] & 0b01) | INDIRECT);
                 format.operand[1] = format.operand[0];
                 format.operand[0].type = Format::Operand::REG;
-                format.operand[0].base = REG(EAX);                      break;
+                format.operand[0].base = IndexREG(EAX);                 break;
     case 0xA2:
     case 0xA3:  Decode(format, opcode, "MOV", 1, 32, (opcode[0] & 0b01) | INDIRECT);
                 format.operand[1].type = Format::Operand::REG;
-                format.operand[1].base = REG(EAX);                      break;
+                format.operand[1].base = IndexREG(EAX);                 break;
     case 0xB0:
     case 0xB1:
     case 0xB2:
@@ -786,7 +786,7 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
         format.instruction = "XCHG";
         format.operand[0].type = Format::Operand::REG;
         format.operand[1].type = Format::Operand::REG;
-        format.operand[0].base = REG(EAX);
+        format.operand[0].base = IndexREG(EAX);
         format.operand[1].base = (opcode[0] & 0b111);
         break;
     case 0x86:

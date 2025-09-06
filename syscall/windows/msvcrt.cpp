@@ -225,6 +225,7 @@ int syscall__setjmp3(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto buf = physical(JUMP_BUFFER*, stack[1]);
 
+    auto& x86 = cpu->x86;
     buf->Ebp = EBP;
     buf->Ebx = EBX;
     buf->Edi = EDI;

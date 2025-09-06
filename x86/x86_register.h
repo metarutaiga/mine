@@ -51,12 +51,11 @@ struct x86_register
             uint32_t _ID:1;     // X ID Flag (ID)
         };
     };
-    register_t empty = {};
-    register_t regs[16] = {};
+    register_t regs[8] = {};
     register_t ip = {};
     flags_t flags = {};
-    uint16_t segments = {};
 
+public:
     size_t memory_size = 0;
     uint8_t* memory_address = nullptr;
     uint8_t* stack_address = nullptr;

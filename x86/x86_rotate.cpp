@@ -37,7 +37,7 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         }
         format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
-        format.operand[1].base = REG(ECX);
+        format.operand[1].base = IndexREG(ECX);
         break;
     }
 
