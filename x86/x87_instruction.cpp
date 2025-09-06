@@ -235,53 +235,6 @@ void x87_instruction::FTST(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
-{
-    format.instruction = "FUCOM";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
-
-    OPERATION() {
-        auto SRC = ST(format.operand[0].base);
-        C0 = ST(0) < SRC;
-        C1 = 0;
-        C2 = 0;
-        C3 = ST(0) == SRC;
-    };
-}
-//------------------------------------------------------------------------------
-void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
-{
-    format.instruction = "FUCOMP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
-
-    OPERATION() {
-        auto SRC = ST(format.operand[0].base);
-        C0 = ST(0) < SRC;
-        C1 = 0;
-        C2 = 0;
-        C3 = ST(0) == SRC;
-        TOP = TOP + 1;
-    };
-}
-//------------------------------------------------------------------------------
-void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
-{
-    format.instruction = "FUCOMPP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
-
-    OPERATION() {
-        auto SRC = ST(format.operand[0].base);
-        C0 = ST(0) < SRC;
-        C1 = 0;
-        C2 = 0;
-        C3 = ST(0) == SRC;
-        TOP = TOP + 2;
-    };
-}
-//------------------------------------------------------------------------------
 void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXAM";

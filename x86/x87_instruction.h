@@ -21,7 +21,6 @@ protected:
     static instruction FCOM;        // Floating point compare
     static instruction FCOMP;       // Floating point compare and pop
     static instruction FCOMPP;      // Floating point compare and pop twice
-    static instruction FCOS;        // Floating point cosine (387+)
     static instruction FDECSTP;     // Decrement floating point stack pointer
 //  static instruction FDISI;       // Disable interrupts (8087 only, others do fnop)
 //  static instruction FNDISI;      // Disable interrupts, no wait (8087 only, others do fnop)
@@ -61,7 +60,6 @@ protected:
 //  static instruction FNOP;        // no operation
     static instruction FPATAN;      // Partial arctangent
     static instruction FPREM;       // Partial remainder
-    static instruction FPREM1;      // Partial remainder (IEEE compatible, 387+)
     static instruction FPTAN;       // Partial tangent
     static instruction FRNDINT;     // Round to integer
 //  static instruction FRSTOR;      // Restore saved state
@@ -72,9 +70,6 @@ protected:
 //  static instruction FNSAVEW;     // Save FPU state, no wait, 16-bit format (387+)
 //  static instruction FNSAVED;     // Save FPU state, no wait, 32-bit format (387+)
     static instruction FSCALE;      // Scale by factor of 2
-//  static instruction FSETPM;      // Set protected mode (287 only, 387+ = fnop)
-    static instruction FSIN;        // Sine (387+)
-    static instruction FSINCOS;     // Sine and cosine (387+)
     static instruction FSQRT;       // Square root
     static instruction FST;         // Floating point store
     static instruction FSTP;        // Floating point store and pop
@@ -93,13 +88,29 @@ protected:
     static instruction FSUBR;       // Floating point reverse subtract
     static instruction FSUBRP;      // Floating point reverse subtract and pop
     static instruction FTST;        // Floating point test for zero
-    static instruction FUCOM;       // Unordered floating point compare (387+)
-    static instruction FUCOMP;      // Unordered floating point compare and pop (387+)
-    static instruction FUCOMPP;     // Unordered floating point compare and pop twice (387+)
 //  static instruction FWAIT;       // Wait while FPU is executing
     static instruction FXAM;        // Examine condition flags
     static instruction FXCH;        // Exchange floating point registers
     static instruction FXTRACT;     // Extract exponent and significand
     static instruction FYL2X;       // Compute Y * log2(x)
     static instruction FYL2XP1;     // Compute Y * log2(x+1)
+
+    // 80287 - 1982
+//  static instruction FSETPM;      // Set protected mode (287 only, 387+ = fnop)
+
+    // 80387 - 1985
+    static instruction FCOS;        // Floating point cosine (387+)
+    static instruction FPREM1;      // Partial remainder (IEEE compatible, 387+)
+    static instruction FSIN;        // Sine (387+)
+    static instruction FSINCOS;     // Sine and cosine (387+)
+    static instruction FUCOM;       // Unordered floating point compare (387+)
+    static instruction FUCOMP;      // Unordered floating point compare and pop (387+)
+    static instruction FUCOMPP;     // Unordered floating point compare and pop twice (387+)
+
+    // Pentium Pro - 1995
+    static instruction FCMOVcc;     // Floating point conditional move (P6+)
+    static instruction FCOMI;       // Compare real and set EFLAGS (P6+)
+    static instruction FCOMIP;      // Compare real and set EFLAGS and pop (P6+)
+    static instruction FUCOMI;      // Unordered compare real and set EFLAGS (P6+)
+    static instruction FUCOMIP;     // Unordered compare real and set EFLAGS and pop (P6+)
 };

@@ -81,6 +81,44 @@ const x86_instruction::instruction_pointer x86_i686::group[18][8] =
 /* 17 */{ o PREFETCHNTA x PREFETCH0 x PREFETCH1 x PREFETCH2 x _     x _    x _     x _      },
 };
 //------------------------------------------------------------------------------
+// Escape Opcode Map
+//------------------------------------------------------------------------------
+const x86_instruction::instruction_pointer x86_i686::esc[512] =
+{            // 0         1         2         3         4         5         6         7         8         9         A         B         C         D         E         F
+/* D8 048C */ o FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL
+/* D8 159D */ x FCOM    x FCOM    x FCOM    x FCOM    x FCOM    x FCOM    x FCOM    x FCOM    x FCOMP   x FCOMP   x FCOMP   x FCOMP   x FCOMP   x FCOMP   x FCOMP   x FCOMP
+/* D8 26AE */ x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR
+/* D8 37BF */ x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR
+/* D9 048C */ x FLD     x FLD     x FLD     x FLD     x FLD     x FLD     x FLD     x FLD     x FXCH    x FXCH    x FXCH    x FXCH    x FXCH    x FXCH    x FXCH    x FXCH
+/* D9 159D */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* D9 26AE */ x FCHS    x FABS    x _       x _       x FTST    x FXAM    x _       x _       x FLD1    x FLDL2T  x FLDL2E  x FLDPI   x FLDLG2  x FLDLN2  x FLDZ    x _
+/* D9 37BF */ x F2XM1   x FYL2X   x FPTAN   x FPATAN  x FXTRACT x FPREM1  x FDECSTP x FINCSTP x FPREM   x FYL2XP1 x FSQRT   x FSINCOS x FRNDINT x FSCALE  x FSIN    x FCOS
+/* DA 048C */ x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc
+/* DA 159D */ x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc
+/* DA 26AE */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x FUCOMPP x _       x _       x _       x _       x _       x _
+/* DA 37BF */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DB 048C */ x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc
+/* DB 159D */ x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc x FCMOVcc
+/* DB 26AE */ x _       x _       x FCLEX   x _       x _       x _       x _       x _       x FUCOMI  x FUCOMI  x FUCOMI  x FUCOMI  x FUCOMI  x FUCOMI  x FUCOMI  x FUCOMI
+/* DB 37BF */ x FCOMI   x FCOMI   x FCOMI   x FCOMI   x FCOMI   x FCOMI   x FCOMI   x FCOMI   x _       x _       x _       x _       x _       x _       x _       x _
+/* DC 048C */ x FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FADD    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL    x FMUL
+/* DC 159D */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DC 26AE */ x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUBR   x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB    x FSUB
+/* DC 37BF */ x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIVR   x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV    x FDIV
+/* DD 048C */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DD 159D */ x FST     x FST     x FST     x FST     x FST     x FST     x FST     x FST     x FSTP    x FSTP    x FSTP    x FSTP    x FSTP    x FSTP    x FSTP    x FSTP
+/* DD 26AE */ x FUCOM   x FUCOM   x FUCOM   x FUCOM   x FUCOM   x FUCOM   x FUCOM   x FUCOM   x FUCOMP  x FUCOMP  x FUCOMP  x FUCOMP  x FUCOMP  x FUCOMP  x FUCOMP  x FUCOMP
+/* DD 37BF */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DE 048C */ x FADDP   x FADDP   x FADDP   x FADDP   x FADDP   x FADDP   x FADDP   x FADDP   x FMULP   x FMULP   x FMULP   x FMULP   x FMULP   x FMULP   x FMULP   x FMULP
+/* DE 159D */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x FCOMPP  x _       x _       x _       x _       x _       x _
+/* DE 26AE */ x FSUBRP  x FSUBRP  x FSUBRP  x FSUBRP  x FSUBRP  x FSUBRP  x FSUBRP  x FSUBRP  x FSUBP   x FSUBP   x FSUBP   x FSUBP   x FSUBP   x FSUBP   x FSUBP   x FSUBP
+/* DE 37BF */ x FDIVRP  x FDIVRP  x FDIVRP  x FDIVRP  x FDIVRP  x FDIVRP  x FDIVRP  x FDIVRP  x FDIVP   x FDIVP   x FDIVP   x FDIVP   x FDIVP   x FDIVP   x FDIVP   x FDIVP
+/* DF 048C */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DF 159D */ x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _       x _
+/* DF 26AE */ x FSTSW   x _       x _       x _       x _       x _       x _       x _       x FUCOMIP x FUCOMIP x FUCOMIP x FUCOMIP x FUCOMIP x FUCOMIP x FUCOMIP x FUCOMIP
+/* DF 37BF */ x FCOMIP  x FCOMIP  x FCOMIP  x FCOMIP  x FCOMIP  x FCOMIP  x FCOMIP  x FCOMIP  x _       x _       x _       x _       x _       x _       x _       x _
+};
+//------------------------------------------------------------------------------
 #undef o
 #undef x
 //------------------------------------------------------------------------------
@@ -123,6 +161,23 @@ void x86_i686::StepImplement(x86_i386& x86, Format& format)
 }
 //------------------------------------------------------------------------------
 //
+//------------------------------------------------------------------------------
+void x86_i686::ESC(Format& format, const uint8_t* opcode)
+{
+    format.type = Format::X87;
+    format.length = 2;
+    if ((opcode[1] & 0b11000000) == 0b11000000) {
+        uint16_t index = 0;
+        index |= (opcode[0] & 0b00000111) << 6;
+        index |= (opcode[1] & 0b00111111);
+        esc[index](format, opcode);
+    }
+    else {
+        uint8_t l = (opcode[0] & 0b00000111);
+        uint8_t r = (opcode[1] & 0b00111000) >> 3;
+        escMOD[l][r](format, opcode);
+    }
+}
 //------------------------------------------------------------------------------
 void x86_i686::TWO(Format& format, const uint8_t* opcode)
 {

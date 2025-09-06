@@ -677,7 +677,7 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
     format.instruction = "RET";
     switch (opcode[0]) {
     case 0xC2:
-        format.length += 2;
+        format.length = 3;
         format.operand[0].type = Format::Operand::IMM;
         format.operand[0].displacement = IMM16(opcode, 1);
         break;

@@ -21,6 +21,7 @@ protected:
     static void StepImplement(x86_i386& x86, Format& format);
 
 protected:
+    static instruction ESC;
     static instruction TWO;
 
     static instruction grp1;
@@ -43,4 +44,6 @@ protected:
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];
     static const instruction_pointer group[18][8];
+
+    static const instruction_pointer esc[512];
 };

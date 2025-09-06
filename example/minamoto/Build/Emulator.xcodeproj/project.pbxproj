@@ -197,6 +197,10 @@
 		F595F0052E6A99EF000498EB /* sse_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0032E6A99EE000498EB /* sse_instruction.cpp */; };
 		F595F0062E6A99EF000498EB /* sse_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0032E6A99EE000498EB /* sse_instruction.cpp */; };
 		F595F0072E6A99EF000498EB /* sse_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0032E6A99EE000498EB /* sse_instruction.cpp */; };
+		F595F01B2E6C16C0000498EB /* x87_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F01A2E6C166A000498EB /* x87_compare.cpp */; };
+		F595F01C2E6C16C0000498EB /* x87_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F01A2E6C166A000498EB /* x87_compare.cpp */; };
+		F595F01D2E6C16C0000498EB /* x87_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F01A2E6C166A000498EB /* x87_compare.cpp */; };
+		F595F01E2E6C16C0000498EB /* x87_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F01A2E6C166A000498EB /* x87_compare.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -350,6 +354,7 @@
 		F595F0012E6A999A000498EB /* sse_register.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = sse_register.inl; sourceTree = "<group>"; };
 		F595F0022E6A99C6000498EB /* sse_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sse_instruction.h; sourceTree = "<group>"; };
 		F595F0032E6A99EE000498EB /* sse_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse_instruction.cpp; sourceTree = "<group>"; };
+		F595F01A2E6C166A000498EB /* x87_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_compare.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -506,6 +511,7 @@
 				D6C5FE512E2D535000A8E110 /* x86_shift.cpp */,
 				D6C5FE3C2E2A1B5D00A8E110 /* x86_string.cpp */,
 				F5F1B2CB2E41ED3C00D2FF10 /* x87_bcd.cpp */,
+				F595F01A2E6C166A000498EB /* x87_compare.cpp */,
 				F5F1B2C62E41D73600D2FF10 /* x87_compute.cpp */,
 				F5F1B2BC2E41B56200D2FF10 /* x87_floating.cpp */,
 				F5F1B2B62E41058C00D2FF10 /* x87_instruction.cpp */,
@@ -803,6 +809,7 @@
 				F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EF5D2E656970000498EB /* assert.cpp in Sources */,
 				F595EFEF2E68AF21000498EB /* x86_i686.cpp in Sources */,
+				F595F01B2E6C16C0000498EB /* x87_compare.cpp in Sources */,
 				F595EF5E2E656970000498EB /* ctype.cpp in Sources */,
 				F595EF5F2E656970000498EB /* locale.cpp in Sources */,
 				F595EF602E656970000498EB /* math.cpp in Sources */,
@@ -882,6 +889,7 @@
 				F5E5B1A32D6C65EC008E0D21 /* except.cpp in Sources */,
 				D6169D0A2BB17E3100E5490C /* new.cpp in Sources */,
 				F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */,
+				F595F01E2E6C16C0000498EB /* x87_compare.cpp in Sources */,
 				F595EFE92E689B50000498EB /* x86_i586.cpp in Sources */,
 				D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */,
 			);
@@ -914,6 +922,7 @@
 				F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EF862E6569A9000498EB /* assert.cpp in Sources */,
 				F595EFF12E68AF21000498EB /* x86_i686.cpp in Sources */,
+				F595F01C2E6C16C0000498EB /* x87_compare.cpp in Sources */,
 				F595EF872E6569A9000498EB /* ctype.cpp in Sources */,
 				F595EF882E6569A9000498EB /* locale.cpp in Sources */,
 				F595EF892E6569A9000498EB /* math.cpp in Sources */,
@@ -967,6 +976,7 @@
 				F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EEFC2E655232000498EB /* assert.cpp in Sources */,
 				F595EFF22E68AF21000498EB /* x86_i686.cpp in Sources */,
+				F595F01D2E6C16C0000498EB /* x87_compare.cpp in Sources */,
 				F595EEFD2E655232000498EB /* ctype.cpp in Sources */,
 				F595EEFE2E655232000498EB /* locale.cpp in Sources */,
 				F595EEFF2E655232000498EB /* math.cpp in Sources */,
