@@ -45,22 +45,23 @@ void x87_instruction::FADDP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = DEST + ST(0);
+    BEGIN_OPERATION() {
+        DEST = DEST + SRC;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FCHS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCHS";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
-    OPERATION() {
-        ST(0) = -(ST(0));
+    BEGIN_OPERATION() {
+        DEST = -DEST;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FDIV(Format& format, const uint8_t* opcode)
@@ -97,12 +98,11 @@ void x87_instruction::FDIVP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = DEST / ST(0);
+    BEGIN_OPERATION() {
+        DEST = DEST / SRC;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FDIVR(Format& format, const uint8_t* opcode)
@@ -139,12 +139,11 @@ void x87_instruction::FDIVRP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = ST(0) / DEST;
+    BEGIN_OPERATION() {
+        DEST = SRC / DEST;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLD(Format& format, const uint8_t* opcode)
@@ -206,19 +205,28 @@ void x87_instruction::FMULP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = DEST * ST(0);
+    BEGIN_OPERATION() {
+        DEST = DEST * SRC;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FRNDINT";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
+#if 1
+        switch (RC) {
+        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(DEST));    break;
+        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(DEST));    break;
+        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(DEST));     break;
+        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(DEST));    break;
+        }
+#else
         int origin = fegetround();
         int round = FE_TOWARDZERO;
         switch (RC) {
@@ -228,10 +236,11 @@ void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
         case RoundChop:     round = FE_TOWARDZERO;  break;
         }
         fesetround(round);
-        ST(0) = nearbyint(ST(0));
+        DEST = nearbyint(DEST);
         fesetround(origin);
+#endif
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FST(Format& format, const uint8_t* opcode)
@@ -242,12 +251,13 @@ void x87_instruction::FST(Format& format, const uint8_t* opcode)
     case 0xDD:  format.width = 64;  break;
     case 0xDB:  format.width = 80;  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = 0;
 
     BEGIN_OPERATION() {
-        DEST = ST(0);
+        DEST = SRC;
         C1 = 0;
-    } END_OPERATION_RANGE_FLOAT_STORE(32, 80);
+    } END_OPERATION_RANGE_FLOAT_REVERSE(32, 80);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
@@ -258,13 +268,14 @@ void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
     case 0xDD:  format.width = 64;  break;
     case 0xDB:  format.width = 80;  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = 0;
 
     BEGIN_OPERATION() {
-        DEST = ST(0);
+        DEST = SRC;
         C1 = 0;
         TOP = TOP + 1;
-    } END_OPERATION_RANGE_FLOAT_STORE(32, 80);
+    } END_OPERATION_RANGE_FLOAT_REVERSE(32, 80);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSUB(Format& format, const uint8_t* opcode)
@@ -301,12 +312,11 @@ void x87_instruction::FSUBP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = DEST - ST(0);
+    BEGIN_OPERATION() {
+        DEST = DEST - SRC;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSUBR(Format& format, const uint8_t* opcode)
@@ -343,11 +353,10 @@ void x87_instruction::FSUBRP(Format& format, const uint8_t* opcode)
     format.operand[0].base = opcode[1] & 0b111;
     format.operand[1].base = 0;
 
-    OPERATION() {
-        auto& DEST = ST(format.operand[0].base);
-        DEST = ST(0) - DEST;
+    BEGIN_OPERATION() {
+        DEST = SRC - DEST;
         C1 = 0;
         TOP = TOP + 1;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------

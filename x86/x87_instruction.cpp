@@ -126,7 +126,7 @@ void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         FPUControlWord = SRC;
-    } END_OPERATION;
+    } END_OPERATION_RANGE(16, 16);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
@@ -137,7 +137,7 @@ void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         DEST = FPUControlWord;
-    } END_OPERATION;
+    } END_OPERATION_RANGE(16, 16);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
@@ -150,53 +150,58 @@ void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         DEST = FPUStatusWord;
-    } END_OPERATION;
+    } END_OPERATION_RANGE(16, 16);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FTST";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
-    OPERATION() {
-        C0 = ST(0) < 0.0;
-        C1 = 0;
+    BEGIN_OPERATION() {
+        C0 = DEST < 0.0;
         C2 = 0;
-        C3 = ST(0) == 0.0;
-    };
+        C3 = DEST == 0.0;
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXAM";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         C0 = 0;
-        C1 = ST(0) < 0.0;
+        C1 = DEST < 0.0;
         C2 = 0;
         C3 = 0;
-        switch (fpclassify(ST(0))) {
+        switch (fpclassify(DEST)) {
         case FP_NAN:        C3 = 0; C2 = 0; C0 = 1; break;
         case FP_NORMAL:     C3 = 0; C2 = 1; C0 = 0; break;
         case FP_INFINITE:   C3 = 0; C2 = 1; C0 = 1; break;
         case FP_ZERO:       C3 = 1; C2 = 0; C0 = 0; break;
         case FP_SUBNORMAL:  C3 = 1; C2 = 1; C0 = 0; break;
         }
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXCH";
     format.operand[0].type = Format::Operand::X87;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[0].base = 0;
+    format.operand[1].base = opcode[1] & 0b111;
 
-    OPERATION() {
-        int i = format.operand[0].base;
-        auto TEMP = ST(0);
-        ST(0) = ST(i);
-        ST(1) = TEMP;
+    BEGIN_OPERATION() {
+        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
+        auto TEMP = DEST;
+        DEST = SRC;
+        SRC = TEMP;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FXTRACT(Format& format, const uint8_t* opcode)

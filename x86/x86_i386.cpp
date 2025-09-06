@@ -381,6 +381,7 @@ void x86_i386::StepImplement(x86_i386& x86, Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::ESC(Format& format, const uint8_t* opcode)
 {
+    format.width = 64;
     format.length = 2;
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;

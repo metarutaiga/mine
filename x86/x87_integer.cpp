@@ -18,12 +18,13 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = ST(0) + SRC;
+        DEST = DEST + SRC;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
@@ -33,13 +34,14 @@ void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        C0 = ST(0) < SRC;
+        C0 = DEST < SRC;
         C2 = 0;
-        C3 = ST(0) == SRC;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+        C3 = DEST == SRC;
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
@@ -49,14 +51,15 @@ void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        C0 = ST(0) < SRC;
+        C0 = DEST < SRC;
         C2 = 0;
-        C3 = ST(0) == SRC;
+        C3 = DEST == SRC;
         TOP = TOP + 1;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
@@ -66,12 +69,13 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = ST(0) / SRC;
+        DEST = DEST / SRC;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
@@ -81,12 +85,13 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = SRC / ST(0);
+        DEST = SRC / DEST;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FILD(Format& format, const uint8_t* opcode)
@@ -117,12 +122,13 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = ST(0) * SRC;
+        DEST = DEST * SRC;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FIST(Format& format, const uint8_t* opcode)
@@ -132,9 +138,18 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
     case 0xDB:  format.width = 32;  break;
     case 0xDF:  format.width = 16;  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = 0;
 
     BEGIN_OPERATION() {
+#if 1
+        switch (RC) {
+        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(SRC));     break;
+        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(SRC));     break;
+        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(SRC));      break;
+        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(SRC));     break;
+        }
+#else
         int origin = fegetround();
         int round = FE_TOWARDZERO;
         switch (RC) {
@@ -144,10 +159,11 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
         case RoundChop:     round = FE_TOWARDZERO;  break;
         }
         fesetround(round);
-        DEST = std::remove_reference_t<decltype(DEST)>(llrint(ST(0)));
+        DEST = std::remove_reference_t<decltype(DEST)>(llrint(SRC));
         fesetround(origin);
+#endif
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_SIGNED_FLOAT(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
@@ -162,9 +178,18 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
         }
         break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = 0;
 
     BEGIN_OPERATION() {
+#if 1
+        switch (RC) {
+        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(SRC));     break;
+        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(SRC));     break;
+        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(SRC));      break;
+        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(SRC));     break;
+        }
+#else
         int origin = fegetround();
         int round = FE_TOWARDZERO;
         switch (RC) {
@@ -174,11 +199,12 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
         case RoundChop:     round = FE_TOWARDZERO;  break;
         }
         fesetround(round);
-        DEST = std::remove_reference_t<decltype(DEST)>(llrint(ST(0)));
+        DEST = std::remove_reference_t<decltype(DEST)>(llrint(SRC));
         fesetround(origin);
+#endif
         C1 = 0;
         TOP = TOP + 1;
-    } END_OPERATION_RANGE_SIGNED(16, 64);
+    } END_OPERATION_RANGE_SIGNED_FLOAT(16, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
@@ -188,12 +214,13 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = ST(0) - SRC;
+        DEST = DEST - SRC;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
@@ -203,11 +230,12 @@ void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        ST(0) = SRC - ST(0);
+        DEST = SRC - DEST;
         C1 = 0;
-    } END_OPERATION_RANGE_SIGNED(16, 32);
+    } END_OPERATION_RANGE_FLOAT_SIGNED(16, 32);
 }
 //------------------------------------------------------------------------------
