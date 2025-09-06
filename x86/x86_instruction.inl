@@ -13,11 +13,11 @@
 //------------------------------------------------------------------------------
 #define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
 //------------------------------------------------------------------------------
-template<typename T>
+template<typename D, typename S>
 static auto specialize(auto lambda) {
     static const auto static_lambda = lambda;
     return [](REGISTER_ARGS, const x86_format::Format& format, void* dest, const void* src1, const void* src2) {
-        return static_lambda(x86, x87, mmx, sse, format, *(T*)dest, *(T*)src1, *(T*)src2);
+        return static_lambda(x86, x87, mmx, sse, format, *(D*)dest, *(S*)src1, *(S*)src2);
     };
 }
 //------------------------------------------------------------------------------
@@ -30,24 +30,24 @@ static auto specialize(auto lambda) {
 //------------------------------------------------------------------------------
 #define END_OPERATION_RANGE(low, high) }; \
         if (format.width == 8 && format.width >= low && format.width <= high) \
-            format.operation = specialize<uint8_t>(operation); \
+            format.operation = specialize<uint8_t, uint8_t>(operation); \
         if (format.width == 16 && format.width >= low && format.width <= high) \
-            format.operation = specialize<uint16_t>(operation); \
+            format.operation = specialize<uint16_t, uint16_t>(operation); \
         if (format.width == 32 && format.width >= low && format.width <= high) \
-            format.operation = specialize<uint32_t>(operation); \
+            format.operation = specialize<uint32_t, uint32_t>(operation); \
         if (format.width == 64 && format.width >= low && format.width <= high) \
-            format.operation = specialize<uint64_t>(operation); \
+            format.operation = specialize<uint64_t, uint64_t>(operation); \
     }
 //------------------------------------------------------------------------------
 #define END_OPERATION_RANGE_SIGNED(low, high) }; \
         if (format.width == 8 && format.width >= low && format.width <= high) \
-            format.operation = specialize<int8_t>(operation); \
+            format.operation = specialize<int8_t, int8_t>(operation); \
         if (format.width == 16 && format.width >= low && format.width <= high) \
-            format.operation = specialize<int16_t>(operation); \
+            format.operation = specialize<int16_t, int16_t>(operation); \
         if (format.width == 32 && format.width >= low && format.width <= high) \
-            format.operation = specialize<int32_t>(operation); \
+            format.operation = specialize<int32_t, int32_t>(operation); \
         if (format.width == 64 && format.width >= low && format.width <= high) \
-            format.operation = specialize<int64_t>(operation); \
+            format.operation = specialize<int64_t, int64_t>(operation); \
     }
 //------------------------------------------------------------------------------
 #if HAVE_X64

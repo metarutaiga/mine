@@ -52,7 +52,7 @@ int main(int argc, const char* argv[])
 
     miCPU* cpu = new x86_i386;
     cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
-    cpu->Exception(run_exception);
+    cpu->Exception = run_exception;
 
     void* image = PE::Load(argv[1], [](size_t base, size_t size, void* userdata) {
         miCPU* cpu = (miCPU*)userdata;

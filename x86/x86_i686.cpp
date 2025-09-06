@@ -139,7 +139,6 @@ void* x86_i686::Register(int type) const
 //------------------------------------------------------------------------------
 void x86_i686::StepImplement(x86_i386& x86, Format& format)
 {
-    format.type = Format::X86;
     format.width = 32;
     format.length = 1;
     format.address = 32;
@@ -164,7 +163,6 @@ void x86_i686::StepImplement(x86_i386& x86, Format& format)
 //------------------------------------------------------------------------------
 void x86_i686::ESC(Format& format, const uint8_t* opcode)
 {
-    format.type = Format::X87;
     format.length = 2;
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;
@@ -291,10 +289,11 @@ void x86_i686::CPUID(Format& format, const uint8_t* opcode)
             EDX = 0;
             ECX = 0;
             EAX |= (1 <<  0);   // Stepping
-            EAX |= (1 <<  4);   // Model
+            EAX |= (7 <<  4);   // Model
             EAX |= (6 <<  8);   // Family
             EDX |= (1 <<  0);   // FPU
             EDX |= (1 <<  4);   // TSC
+            EDX |= (1 <<  8);   // CX8
             EDX |= (1 << 15);   // CMOV
             EDX |= (1 << 23);   // MMX
             EDX |= (1 << 25);   // SSE

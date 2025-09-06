@@ -3,6 +3,12 @@
 #include "x86_register.inl"
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
+#include "x87_register.h"
+#include "x87_register.inl"
+#include "mmx_register.h"
+#include "mmx_register.inl"
+#include "sse_register.h"
+#include "sse_register.inl"
 
 //------------------------------------------------------------------------------
 //
@@ -121,21 +127,41 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
                 format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
                 break;
             case 0b11:
-                format.operand[MODRM].type = Format::Operand::REG;
+                switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+                default:            format.operand[MODRM].type = Format::Operand::REG;  break;
+                case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
+                case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
+                case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
+                }
                 format.operand[MODRM].base = RM;
                 break;
             }
             break;
         }
-        format.operand[OPREG].type = Format::Operand::REG;
+        switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+        default:            format.operand[OPREG].type = Format::Operand::REG;  break;
+        case X87_REGISTER:  format.operand[OPREG].type = Format::Operand::X87;  break;
+        case MMX_REGISTER:  format.operand[OPREG].type = Format::Operand::MMX;  break;
+        case SSE_REGISTER:  format.operand[OPREG].type = Format::Operand::SSE;  break;
+        }
         format.operand[OPREG].base = REG;
         if (flags & THREE_OPERAND) {
             OPREG = 2;
         }
     }
     else {
-        format.operand[MODRM].type = Format::Operand::REG;
-        format.operand[OPREG].type = Format::Operand::REG;
+        switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+        default:            format.operand[MODRM].type = Format::Operand::REG;  break;
+        case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
+        case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
+        case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
+        }
+        switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+        default:            format.operand[OPREG].type = Format::Operand::REG;  break;
+        case X87_REGISTER:  format.operand[OPREG].type = Format::Operand::X87;  break;
+        case MMX_REGISTER:  format.operand[OPREG].type = Format::Operand::MMX;  break;
+        case SSE_REGISTER:  format.operand[OPREG].type = Format::Operand::SSE;  break;
+        }
         format.operand[MODRM].base = 0;
         format.operand[OPREG].base = 0;
     }
@@ -163,7 +189,7 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
     }
 }
 //------------------------------------------------------------------------------
-std::string x86_format::Disasm(const Format& format, x86_register& x86)
+std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse)
 {
     auto hex = [](auto imm, bool sign) {
         char temp[64];
@@ -264,13 +290,6 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86)
             disasm += hex(format.operand[i].displacement, false);
             break;
         case Format::Operand::REG:
-            if (format.type == Format::X87) {
-                disasm += "ST";
-                disasm += '(';
-                disasm += '0' + format.operand[i].base;
-                disasm += ')';
-                break;
-            }
             width = format.width;
             if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
             if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
@@ -294,6 +313,20 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86)
             disasm += hex(x86.ip.d + format.operand[i].displacement, false);
 #endif
             break;
+        case Format::Operand::X87:
+            disasm += "ST";
+            disasm += '(';
+            disasm += '0' + format.operand[i].base;
+            disasm += ')';
+            break;
+        case Format::Operand::MMX:
+            disasm += "MM";
+            disasm += '0' + format.operand[i].base;
+            break;
+        case Format::Operand::SSE:
+            disasm += "XMM";
+            disasm += '0' + format.operand[i].base;
+            break;
         default:
             if (disasm.size() > offset)
                 disasm.pop_back();
@@ -306,7 +339,7 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86)
     return disasm;
 }
 //------------------------------------------------------------------------------
-void x86_format::Fixup(Format& format, x86_register& x86)
+void x86_format::Fixup(Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse)
 {
     int width;
     for (int i = 0; i < 3; ++i) {
@@ -362,6 +395,15 @@ void x86_format::Fixup(Format& format, x86_register& x86)
 #endif
             }
             format.operand[i].memory = (uint8_t*)&format.operand[i].address;
+            break;
+        case Format::Operand::X87:
+            format.operand[i].memory = (uint8_t*)&ST(format.operand[i].base);
+            break;
+        case Format::Operand::MMX:
+            format.operand[i].memory = (uint8_t*)&MM(format.operand[i].base);
+            break;
+        case Format::Operand::SSE:
+            format.operand[i].memory = (uint8_t*)&XMM(format.operand[i].base);
             break;
         default:
             break;

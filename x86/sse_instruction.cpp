@@ -592,14 +592,14 @@ void sse_instruction::PSADBW(Format& format, const uint8_t* opcode)
         auto& DEST = MM(format.operand[0].base);
         auto SRC = CastMM(format.operand[1]);
         DEST.u16[0] = 0;
-        DEST.u16[0] += std::abs(DEST.u8[0] - SRC.u8[0]);
-        DEST.u16[0] += std::abs(DEST.u8[1] - SRC.u8[1]);
-        DEST.u16[0] += std::abs(DEST.u8[2] - SRC.u8[2]);
-        DEST.u16[0] += std::abs(DEST.u8[3] - SRC.u8[3]);
-        DEST.u16[0] += std::abs(DEST.u8[4] - SRC.u8[4]);
-        DEST.u16[0] += std::abs(DEST.u8[5] - SRC.u8[5]);
-        DEST.u16[0] += std::abs(DEST.u8[6] - SRC.u8[6]);
-        DEST.u16[0] += std::abs(DEST.u8[7] - SRC.u8[7]);
+        DEST.u16[0] += abs(DEST.u8[0] - SRC.u8[0]);
+        DEST.u16[0] += abs(DEST.u8[1] - SRC.u8[1]);
+        DEST.u16[0] += abs(DEST.u8[2] - SRC.u8[2]);
+        DEST.u16[0] += abs(DEST.u8[3] - SRC.u8[3]);
+        DEST.u16[0] += abs(DEST.u8[4] - SRC.u8[4]);
+        DEST.u16[0] += abs(DEST.u8[5] - SRC.u8[5]);
+        DEST.u16[0] += abs(DEST.u8[6] - SRC.u8[6]);
+        DEST.u16[0] += abs(DEST.u8[7] - SRC.u8[7]);
         DEST.u16[1] = 0;
         DEST.u16[2] = 0;
         DEST.u16[3] = 0;
@@ -642,10 +642,10 @@ void sse_instruction::RSQRTPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.f32[0] = 1.0f / std::sqrtf(SRC.f32[0]);
-        DEST.f32[1] = 1.0f / std::sqrtf(SRC.f32[1]);
-        DEST.f32[2] = 1.0f / std::sqrtf(SRC.f32[2]);
-        DEST.f32[3] = 1.0f / std::sqrtf(SRC.f32[3]);
+        DEST.f32[0] = 1.0f / sqrtf(SRC.f32[0]);
+        DEST.f32[1] = 1.0f / sqrtf(SRC.f32[1]);
+        DEST.f32[2] = 1.0f / sqrtf(SRC.f32[2]);
+        DEST.f32[3] = 1.0f / sqrtf(SRC.f32[3]);
     };
 }
 //------------------------------------------------------------------------------
@@ -671,10 +671,10 @@ void sse_instruction::SQRTPS(Format& format, const uint8_t* opcode)
     OPERATION() {
         auto& DEST = XMM(format.operand[0].base);
         auto SRC = CastXMM(format.operand[1]);
-        DEST.f32[0] = std::sqrtf(SRC.f32[0]);
-        DEST.f32[1] = std::sqrtf(SRC.f32[1]);
-        DEST.f32[2] = std::sqrtf(SRC.f32[2]);
-        DEST.f32[3] = std::sqrtf(SRC.f32[3]);
+        DEST.f32[0] = sqrtf(SRC.f32[0]);
+        DEST.f32[1] = sqrtf(SRC.f32[1]);
+        DEST.f32[2] = sqrtf(SRC.f32[2]);
+        DEST.f32[3] = sqrtf(SRC.f32[3]);
     };
 }
 //------------------------------------------------------------------------------

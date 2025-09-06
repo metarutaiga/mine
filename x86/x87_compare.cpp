@@ -30,9 +30,7 @@ void x87_instruction::FCMOVcc(Format& format, const uint8_t* opcode)
         }
         break;
     }
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[1].type = Format::Operand::REG;
-    format.operand[0].base = 0;
+    format.operand[1].type = Format::Operand::X87;
     format.operand[1].base = opcode[1] & 0b111;
 
     switch (opcode[0]) {
@@ -57,84 +55,51 @@ void x87_instruction::FCMOVcc(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOM", 1);
+    Decode(format, opcode, "FCOM", 1, 0, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
     switch (opcode[1] & 0xF8) {
-    case 0xD0:
-        format.length = 2;
-        format.operand[0].type = Format::Operand::REG;
-        format.operand[1].type = Format::Operand::REG;
-        format.operand[0].base = (opcode[0] == 0xD8) ? 0 : opcode[1] & 0b111;
-        format.operand[1].base = (opcode[0] == 0xDC) ? 0 : opcode[1] & 0b111;
-        break;
+    case 0xD0:  format.width = 64;  break;
     }
+    format.operand[0].type = Format::Operand::NOP;
 
-    if (format.operand[0].type == Format::Operand::ADR) {
-        BEGIN_OPERATION() {
-            C0 = ST(0) < DEST;
-            C2 = 0;
-            C3 = ST(0) == DEST;
-        } END_OPERATION_FLOAT;
-    }
-    else {
-        OPERATION() {
-            auto SRC = ST(format.operand[0].base);
-            C0 = ST(0) < SRC;
-            C2 = 0;
-            C3 = ST(0) == SRC;
-        };
-    }
+    BEGIN_OPERATION() {
+        C0 = ST(0) < SRC;
+        C2 = 0;
+        C3 = ST(0) == SRC;
+    } END_OPERATION_RANGE_FLOAT(32, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOMP", 1);
+    Decode(format, opcode, "FCOMP", 1, 0, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
     switch (opcode[1] & 0xF8) {
-    case 0xD8:
-        format.length = 2;
-        format.operand[0].type = Format::Operand::REG;
-        format.operand[1].type = Format::Operand::REG;
-        format.operand[0].base = (opcode[0] == 0xD8) ? 0 : opcode[1] & 0b111;
-        format.operand[1].base = (opcode[0] == 0xDC) ? 0 : opcode[1] & 0b111;
-        break;
+    case 0xD8:  format.width = 64;  break;
     }
+    format.operand[0].type = Format::Operand::NOP;
 
-    if (format.operand[0].type == Format::Operand::ADR) {
-        BEGIN_OPERATION() {
-            C0 = ST(0) < DEST;
-            C2 = 0;
-            C3 = ST(0) == DEST;
-            TOP = TOP + 1;
-        } END_OPERATION_FLOAT;
-    }
-    else {
-        OPERATION() {
-            auto SRC = ST(format.operand[0].base);
-            C0 = ST(0) < SRC;
-            C2 = 0;
-            C3 = ST(0) == SRC;
-            TOP = TOP + 1;
-        };
-    }
+    BEGIN_OPERATION() {
+        C0 = ST(0) < SRC;
+        C2 = 0;
+        C3 = ST(0) == SRC;
+        TOP = TOP + 1;
+    } END_OPERATION_RANGE_FLOAT(32, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FCOMPP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMPP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         C0 = ST(0) < SRC;
         C2 = 0;
         C3 = ST(0) == SRC;
@@ -145,11 +110,11 @@ void x87_instruction::FCOMPP(Format& format, const uint8_t* opcode)
 void x87_instruction::FCOMI(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMI";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         CF = ST(0) < SRC;
         PF = 0;
         ZF = ST(0) == SRC;
@@ -159,11 +124,11 @@ void x87_instruction::FCOMI(Format& format, const uint8_t* opcode)
 void x87_instruction::FCOMIP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMIP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         CF = ST(0) < SRC;
         PF = 0;
         ZF = ST(0) == SRC;
@@ -174,11 +139,11 @@ void x87_instruction::FCOMIP(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOM";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         C0 = isunordered(ST(0), SRC) || ST(0) < SRC;
         C2 = isunordered(ST(0), SRC);
         C3 = isunordered(ST(0), SRC) || ST(0) == SRC;
@@ -188,11 +153,11 @@ void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         C0 = isunordered(ST(0), SRC) || ST(0) < SRC;
         C2 = isunordered(ST(0), SRC);
         C3 = isunordered(ST(0), SRC) || ST(0) == SRC;
@@ -203,11 +168,11 @@ void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FUCOMPP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         C0 = isunordered(ST(0), SRC) || ST(0) < SRC;
         C2 = isunordered(ST(0), SRC);
         C3 = isunordered(ST(0), SRC) || ST(0) == SRC;
@@ -218,11 +183,11 @@ void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMI(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMI";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         CF = isunordered(ST(0), SRC) || ST(0) < SRC;
         PF = isunordered(ST(0), SRC);
         ZF = isunordered(ST(0), SRC) || ST(0) == SRC;
@@ -232,11 +197,11 @@ void x87_instruction::FUCOMI(Format& format, const uint8_t* opcode)
 void x87_instruction::FUCOMIP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOMIP";
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[1] & 0b111;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = opcode[1] & 0b111;
 
     OPERATION() {
-        auto SRC = ST(format.operand[0].base);
+        auto SRC = ST(format.operand[1].base);
         CF = isunordered(ST(0), SRC) || ST(0) < SRC;
         PF = isunordered(ST(0), SRC);
         ZF = isunordered(ST(0), SRC) || ST(0) == SRC;

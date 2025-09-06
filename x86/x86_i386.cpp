@@ -174,7 +174,7 @@ bool x86_i386::Step(int type)
     while (EIP) {
         Format format;
         StepInternal(*this, format);
-        Fixup(format, *this);
+        Fixup(format, x86, x87, mmx, sse);
         if (format.operation == nullptr)
             return false;
         if (format.repeat == false || format.string == false || ECX != 0) {
@@ -321,6 +321,10 @@ std::string x86_i386::Disassemble(int count) const
     x86.memory_size = memory_size;
     x86.memory_address = memory_address;
 
+    auto& x87 = x86.x87;
+    auto& mmx = *(mmx_register*)x86.Register('mmx ');
+    auto& sse = *(sse_register*)x86.Register('sse ');
+
     for (int i = 0; i < count; ++i) {
         char temp[64];
 
@@ -334,7 +338,7 @@ std::string x86_i386::Disassemble(int count) const
 
         Format format;
         x86.StepInternal(x86, format);
-        output += Disasm(format, x86);
+        output += Disasm(format, x86, x87, mmx, sse);
         output += '\n';
 
         for (uint32_t i = 0; i < 16; ++i) {
@@ -353,7 +357,6 @@ std::string x86_i386::Disassemble(int count) const
 //------------------------------------------------------------------------------
 void x86_i386::StepImplement(x86_i386& x86, Format& format)
 {
-    format.type = Format::X86;
     format.width = 32;
     format.length = 1;
     format.address = 32;
@@ -378,7 +381,6 @@ void x86_i386::StepImplement(x86_i386& x86, Format& format)
 //------------------------------------------------------------------------------
 void x86_i386::ESC(Format& format, const uint8_t* opcode)
 {
-    format.type = Format::X87;
     format.length = 2;
     if ((opcode[1] & 0b11000000) == 0b11000000) {
         uint16_t index = 0;

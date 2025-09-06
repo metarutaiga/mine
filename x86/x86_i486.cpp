@@ -62,7 +62,6 @@ const x86_instruction::instruction_pointer x86_i486::two[256] =
 //------------------------------------------------------------------------------
 void x86_i486::StepImplement(x86_i386& x86, Format& format)
 {
-    format.type = Format::X86;
     format.width = 32;
     format.length = 1;
     format.address = 32;

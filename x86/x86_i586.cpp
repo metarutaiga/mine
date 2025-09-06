@@ -99,7 +99,6 @@ void* x86_i586::Register(int type) const
 //------------------------------------------------------------------------------
 void x86_i586::StepImplement(x86_i386& x86, Format& format)
 {
-    format.type = Format::X86;
     format.width = 32;
     format.length = 1;
     format.address = 32;
@@ -222,10 +221,11 @@ void x86_i586::CPUID(Format& format, const uint8_t* opcode)
             EDX = 0;
             ECX = 0;
             EAX |= (1 <<  0);   // Stepping
-            EAX |= (1 <<  4);   // Model
+            EAX |= (4 <<  4);   // Model
             EAX |= (5 <<  8);   // Family
             EDX |= (1 <<  0);   // FPU
             EDX |= (1 <<  4);   // TSC
+            EDX |= (1 <<  8);   // CX8
             EDX |= (1 << 23);   // MMX
             break;
         }

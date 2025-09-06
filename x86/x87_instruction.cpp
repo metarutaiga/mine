@@ -41,40 +41,6 @@ void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x87_instruction::FLD(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "FLD", 1);
-    switch (opcode[0]) {
-    case 0xD9:  format.width = 32;  break;
-    case 0xDD:  format.width = 64;  break;
-    case 0xDB:  format.width = 80;  break;
-    }
-    format.operand[1].type = Format::Operand::NOP;
-    switch (opcode[1] & 0xF8) {
-    case 0xC0:
-        format.length = 2;
-        format.operand[0].type = Format::Operand::REG;
-        format.operand[0].base = opcode[1] & 0b111;
-        break;
-    }
-
-    if (format.operand[0].type == Format::Operand::ADR) {
-        BEGIN_OPERATION() {
-            TOP = TOP - 1;
-            ST(0) = DEST;
-            C1 = 0;
-        } END_OPERATION_FLOAT;
-    }
-    else {
-        OPERATION() {
-            int i = format.operand[0].base;
-            TOP = TOP - 1;
-            ST(0) = ST(i + 1);
-            C1 = 0;
-        };
-    }
-}
-//------------------------------------------------------------------------------
 void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDZ";
@@ -154,53 +120,18 @@ void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FLDCW", 1);
-    format.type = Format::X86;
+    Decode(format, opcode, "FLDCW", 1, 0, DIRECTION);
     format.width = 16;
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
-        FPUControlWord = DEST;
+        FPUControlWord = SRC;
     } END_OPERATION;
-}
-//------------------------------------------------------------------------------
-void x87_instruction::FST(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "FST", 1);
-    switch (opcode[0]) {
-    case 0xD9:  format.width = 32;  break;
-    case 0xDD:  format.width = 64;  break;
-    case 0xDB:  format.width = 80;  break;
-    }
-    format.operand[1].type = Format::Operand::NOP;
-
-    BEGIN_OPERATION() {
-        DEST = ST(0);
-        C1 = 0;
-    } END_OPERATION_FLOAT;
-}
-//------------------------------------------------------------------------------
-void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "FSTP", 1);
-    switch (opcode[0]) {
-    case 0xD9:  format.width = 32;  break;
-    case 0xDD:  format.width = 64;  break;
-    case 0xDB:  format.width = 80;  break;
-    }
-    format.operand[1].type = Format::Operand::NOP;
-
-    BEGIN_OPERATION() {
-        DEST = ST(0);
-        C1 = 0;
-        TOP = TOP + 1;
-    } END_OPERATION_FLOAT;
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSTCW", 1);
-    format.type = Format::X86;
     format.width = 16;
     format.operand[1].type = Format::Operand::NOP;
 
@@ -212,7 +143,6 @@ void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSTSW", 1);
-    format.type = Format::X86;
     format.width = 16;
     format.length = (opcode[0] == 0xDF) ? 2 : format.length;
     format.operand[0].base = (opcode[0] == 0xDF) ? 0 : format.operand[0].base;
@@ -257,7 +187,7 @@ void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXCH";
-    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = opcode[1] & 0b111;
 
     OPERATION() {

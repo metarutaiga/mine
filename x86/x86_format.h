@@ -16,7 +16,7 @@ struct x86_format
     {
         struct Operand
         {
-            enum Type : int8_t { NOP, ADR, IMM, REG, REL };
+            enum Type : int8_t { NOP, ADR, IMM, REG, REL, X87, MMX, SSE };
             Type type;
 
             enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2 };
@@ -35,8 +35,6 @@ struct x86_format
 
             uint8_t* memory;
         };
-        enum Type : int8_t { X86, X87, MMX, SSE };
-        Type type = X86;
 
         char width = 0;
         char length = 0;
@@ -52,17 +50,20 @@ struct x86_format
 
     enum
     {
-        OPERAND_SIZE    = 0b000001,
-        DIRECTION       = 0b000010,
-        IMMEDIATE       = 0b000100,
-        INDIRECT        = 0b001000,
-        RELATIVE        = 0b010000,
-        THREE_OPERAND   = 0b100000,
+        OPERAND_SIZE    = 0b00000001,
+        DIRECTION       = 0b00000010,
+        IMMEDIATE       = 0b00000100,
+        INDIRECT        = 0b00001000,
+        RELATIVE        = 0b00010000,
+        THREE_OPERAND   = 0b00100000,
+        X87_REGISTER    = 0b01000000,
+        MMX_REGISTER    = 0b10000000,
+        SSE_REGISTER    = 0b11000000,
     };
 
     static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
-    static std::string  Disasm(const Format& format, x86_register& x86);
-    static void         Fixup(Format& format, x86_register& x86);
+    static std::string  Disasm(const Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse);
+    static void         Fixup(Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse);
 
     typedef void instruction(Format&, const uint8_t*);
     typedef void (*instruction_pointer)(Format&, const uint8_t*);
