@@ -26,6 +26,8 @@ static auto specialize(auto lambda) {
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
         auto operation = [](REGISTER_ARGS, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
+            auto& DEST1 = DEST; (void)DEST1; \
+            auto& DEST2 = (decltype(DEST)&)SRC1; (void)DEST2; \
             const auto& SRC = SRC1; (void)SRC;
 //------------------------------------------------------------------------------
 #define END_OPERATION_RANGE(low, high) }; \

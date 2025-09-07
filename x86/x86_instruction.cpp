@@ -62,10 +62,9 @@ void x86_instruction::BSWAP(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = opcode[1] & 0b111;
 
-    OPERATION() {
-        auto& DEST = *(uint32_t*)format.operand[0].memory;
-        DEST = __builtin_bswap32(DEST);
-    };
+    BEGIN_OPERATION() {
+        DEST = __builtin_bswap32((uint32_t)DEST);
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::CALL(Format& format, const uint8_t* opcode)
@@ -80,10 +79,10 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
     }
     format.operand[1].type = Format::Operand::NOP;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         Push32(EIP);
-        EIP = *(uint32_t*)format.operand[0].memory;
-    };
+        EIP = (uint32_t)DEST;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::CBW(Format& format, const uint8_t* opcode)
@@ -168,10 +167,10 @@ void x86_instruction::CMOVcc(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPXCHG", 2, -1, opcode[1] & 0b01);
+    Decode(format, opcode, "CMPXCHG", 2, 0, opcode[1] & 0b01);
 
     BEGIN_OPERATION() {
-        auto& accumulator = *(std::remove_reference_t<decltype(DEST)>*)&EAX;
+        auto& accumulator = (decltype(DEST)&)EAX;
         if (accumulator == DEST) {
             ZF = 1;
             DEST = SRC;
@@ -345,7 +344,7 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xE9:  Decode(format, opcode, "JMP", 1, -1, OPERAND_SIZE | RELATIVE);              break;
-    case 0xEB:  Decode(format, opcode, "JMP", 1,  8, RELATIVE);                             break;
+    case 0xEB:  Decode(format, opcode, "JMP", 1,  8, OPERAND_SIZE | RELATIVE);              break;
     case 0xFF:
         switch (opcode[1] & 0b00111000) {
         case 0b00100000:    Decode(format, opcode, "JMP", 1, 0, OPERAND_SIZE);              break;
@@ -354,9 +353,9 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
     }
     format.operand[1].type = Format::Operand::NOP;
 
-    OPERATION() {
-        EIP = *(uint32_t*)format.operand[0].memory;
-    };
+    BEGIN_OPERATION() {
+        EIP = (uint32_t)DEST;
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::LAHF(Format& format, const uint8_t* opcode)
@@ -763,10 +762,10 @@ void x86_instruction::STD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::XADD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "XADD", 2, -1, opcode[1] & 0b01);
+    Decode(format, opcode, "XADD", 2, 0, opcode[1] & 0b01);
 
     BEGIN_OPERATION() {
-        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
+        auto& SRC = (decltype(DEST)&)SRC1;
         auto TEMP = DEST;
         DEST = TEMP + SRC;
         SRC = TEMP;
@@ -796,7 +795,7 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
+        auto& SRC = (decltype(DEST)&)SRC1;
         auto TEMP = DEST;
         DEST = SRC;
         SRC = TEMP;

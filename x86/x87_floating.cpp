@@ -154,7 +154,8 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
     case 0xDD:  format.width = 64;  break;
     case 0xDB:  format.width = 80;  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
     switch (opcode[1] & 0xF8) {
     case 0xC0:
         format.width = 64;
@@ -166,7 +167,7 @@ void x87_instruction::FLD(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = SRC;
+        DEST = SRC;
         C1 = 0;
     } END_OPERATION_RANGE_FLOAT(32, 80);
 }
@@ -219,33 +220,19 @@ void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
     format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-#if 1
         switch (RC) {
         case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(DEST));    break;
         case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(DEST));    break;
         case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(DEST));     break;
         case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(DEST));    break;
         }
-#else
-        int origin = fegetround();
-        int round = FE_TOWARDZERO;
-        switch (RC) {
-        case RoundNearest:  round = FE_TONEAREST;   break;
-        case RoundDown:     round = FE_DOWNWARD;    break;
-        case RoundUp:       round = FE_UPWARD;      break;
-        case RoundChop:     round = FE_TOWARDZERO;  break;
-        }
-        fesetround(round);
-        DEST = nearbyint(DEST);
-        fesetround(origin);
-#endif
         C1 = 0;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FST(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FST", 1);
+    Decode(format, opcode, "FST", 1, 0, X87_REGISTER);
     switch (opcode[0]) {
     case 0xD9:  format.width = 32;  break;
     case 0xDD:  format.width = 64;  break;
@@ -262,7 +249,7 @@ void x87_instruction::FST(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FSTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FSTP", 1);
+    Decode(format, opcode, "FSTP", 1, 0, X87_REGISTER);
     switch (opcode[0]) {
     case 0xD9:  format.width = 32;  break;
     case 0xDD:  format.width = 64;  break;

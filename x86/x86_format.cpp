@@ -285,10 +285,10 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             if (disasm.back() == '[')
                 disasm += '0';
             disasm += ']';
-            break;
+            continue;
         case Format::Operand::IMM:
             disasm += hex(format.operand[i].displacement, false);
-            break;
+            continue;
         case Format::Operand::REG:
             width = format.width;
             if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
@@ -305,35 +305,38 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             case 64: disasm += REG64[format.operand[i].base]; break;
 #endif
             }
-            break;
+            continue;
         case Format::Operand::REL:
 #if HAVE_X64
             disasm += hex(x86.ip.q + format.operand[i].displacement, false);
 #else
             disasm += hex(x86.ip.d + format.operand[i].displacement, false);
 #endif
-            break;
+            continue;
         case Format::Operand::X87:
-            disasm += "ST";
-            disasm += '(';
-            disasm += '0' + format.operand[i].base;
-            disasm += ')';
+            if (format.operand[i].base >= 0) {
+                disasm += "ST";
+                disasm += '(';
+                disasm += '0' + format.operand[i].base;
+                disasm += ')';
+                continue;
+            }
             break;
         case Format::Operand::MMX:
             disasm += "MM";
             disasm += '0' + format.operand[i].base;
-            break;
+            continue;
         case Format::Operand::SSE:
             disasm += "XMM";
             disasm += '0' + format.operand[i].base;
-            break;
+            continue;
         default:
-            if (disasm.size() > offset)
-                disasm.pop_back();
-            if (disasm.size() > offset)
-                disasm.pop_back();
             break;
         }
+        if (disasm.size() > offset)
+            disasm.pop_back();
+        if (disasm.size() > offset)
+            disasm.pop_back();
     }
 
     return disasm;

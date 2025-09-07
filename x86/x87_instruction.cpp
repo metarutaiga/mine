@@ -44,78 +44,92 @@ void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDZ";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = 0.0;
+        DEST = 0.0;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLD1(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLD1";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = 1.0;
+        DEST = 1.0;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDL2E(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2E";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = M_LOG2E;
+        DEST = M_LOG2E;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDL2T(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2T";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = M_LN10 * M_LOG2E;
+        DEST = M_LN10 * M_LOG2E;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDLG2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLG2";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = M_LN2 * M_LOG10E;
+        DEST = M_LN2 * M_LOG10E;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDLN2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLN2";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = M_LN2;
+        DEST = M_LN2;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDPI";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[0].base = -1;
 
-    OPERATION() {
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = M_PI;
+        DEST = M_PI;
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
 void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
@@ -196,10 +210,7 @@ void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        auto& SRC = *(std::remove_reference_t<decltype(DEST)>*)format.operand[1].memory;
-        auto TEMP = DEST;
-        DEST = SRC;
-        SRC = TEMP;
+        std::swap(DEST1, DEST2);
         C1 = 0;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
@@ -207,13 +218,16 @@ void x87_instruction::FXCH(Format& format, const uint8_t* opcode)
 void x87_instruction::FXTRACT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXTRACT";
+    format.operand[0].type = Format::Operand::X87;
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[0].base = -1;
+    format.operand[1].base = 0;
 
-    OPERATION() {
-        auto TEMP = copysign(0.0, ST(0));
-        ST(0) = exp(ST(0));
+    BEGIN_OPERATION() {
         TOP = TOP - 1;
-        ST(0) = TEMP;
+        DEST1 = copysign(0.0, SRC);
+        DEST2 = exp(SRC);
         C1 = 0;
-    };
+    } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
