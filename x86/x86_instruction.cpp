@@ -45,9 +45,16 @@ void x86_instruction::GS(Format& format, const uint8_t* opcode)
     format.segment = "GS";
 }
 //------------------------------------------------------------------------------
-void x86_instruction::REP(Format& format, const uint8_t* opcode)
+void x86_instruction::REPE(Format& format, const uint8_t* opcode)
 {
-    format.repeat = true;
+    format.repeatF2 = false;
+    format.repeatF3 = true;
+}
+//------------------------------------------------------------------------------
+void x86_instruction::REPNE(Format& format, const uint8_t* opcode)
+{
+    format.repeatF2 = true;
+    format.repeatF3 = false;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::WAIT(Format& format, const uint8_t* opcode)

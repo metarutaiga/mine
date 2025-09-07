@@ -39,8 +39,8 @@ struct x86_format
         char width = 0;
         char length = 0;
         char address = 0;
-        bool repeat = false;
-        bool string = false;
+        bool repeatF2 = false;
+        bool repeatF3 = false;
         const char* instruction = "";
         const char* segment = "";
         Operand operand[3] = {};
@@ -50,15 +50,15 @@ struct x86_format
 
     enum
     {
-        OPERAND_SIZE    = 0b00000001,
-        DIRECTION       = 0b00000010,
-        IMMEDIATE       = 0b00000100,
-        INDIRECT        = 0b00001000,
-        RELATIVE        = 0b00010000,
-        THREE_OPERAND   = 0b00100000,
-        X87_REGISTER    = 0b01000000,
-        MMX_REGISTER    = 0b10000000,
-        SSE_REGISTER    = 0b11000000,
+        OPERAND_SIZE    = 0b0000001,
+        DIRECTION       = 0b0000010,
+        THREE_OPERAND   = 0b0000100,
+        IMMEDIATE       = 0b0001000,
+        INDIRECT        = 0b0010000,
+        RELATIVE        = 0b0011000,
+        X87_REGISTER    = 0b0100000,
+        MMX_REGISTER    = 0b1000000,
+        SSE_REGISTER    = 0b1100000,
     };
 
     static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);

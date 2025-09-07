@@ -19,13 +19,28 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
-    format.string = true;
 
     BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
-        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+        for (;;) {
+            if (format.repeatF2 || format.repeatF3) {
+                if (ECX == 0)
+                    break;
+                ECX--;
+            }
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
+            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
+            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            if (format.repeatF2 || format.repeatF3) {
+                if (format.repeatF2 && ZF == 1)
+                    break;
+                if (format.repeatF3 && ZF == 0)
+                    break;
+                continue;
+            }
+            break;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -44,11 +59,22 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EAX);
     format.operand[1].base = IndexREG(ESI);
-    format.string = true;
 
     BEGIN_OPERATION() {
-        DEST = SRC;
-        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
+        for (;;) {
+            if (format.repeatF3) {
+                if (ECX == 0)
+                    break;
+                ECX--;
+            }
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            DEST = SRC;
+            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
+            if (format.repeatF3) {
+                continue;
+            }
+            break;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -67,12 +93,24 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
-    format.string = true;
 
     BEGIN_OPERATION() {
-        DEST = SRC;
-        ESI = DF == 0 ? ESI + sizeof(SRC) : ESI + sizeof(SRC);
-        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+        for (;;) {
+            if (format.repeatF3) {
+                if (ECX == 0)
+                    break;
+                ECX--;
+            }
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            TEMP = SRC;
+            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
+            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            if (format.repeatF3) {
+                continue;
+            }
+            break;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -91,12 +129,26 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
-    format.string = true;
 
     BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        UpdateFlags<OSZAPC, BORROW>(x86, TEMP, SRC - TEMP, SRC, TEMP);
-        EDI = DF == 0 ? EDI + sizeof(DEST) : EDI + sizeof(DEST);
+        for (;;) {
+            if (format.repeatF2 || format.repeatF3) {
+                if (ECX == 0)
+                    break;
+                ECX--;
+            }
+            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
+            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            if (format.repeatF2 || format.repeatF3) {
+                if (format.repeatF2 && ZF == 1)
+                    break;
+                if (format.repeatF3 && ZF == 0)
+                    break;
+                continue;
+            }
+            break;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -115,11 +167,22 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::REG;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
-    format.string = true;
 
     BEGIN_OPERATION() {
-        DEST = SRC;
-        EDI = DF == 0 ? EDI + sizeof(SRC) : EDI + sizeof(SRC);
+        for (;;) {
+            if (format.repeatF3) {
+                if (ECX == 0)
+                    break;
+                ECX--;
+            }
+            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            TEMP = SRC;
+            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            if (format.repeatF3) {
+                continue;
+            }
+            break;
+        }
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

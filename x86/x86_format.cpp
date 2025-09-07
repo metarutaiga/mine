@@ -25,118 +25,104 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
     format.length = offset;
     format.instruction = instruction;
 
-    if (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
-        if (immediate_size < 0)
-            immediate_size = format.width;
-        if (flags & IMMEDIATE)  format.operand[0].type = Format::Operand::IMM;
-        if (flags & INDIRECT)   format.operand[0].type = Format::Operand::ADR;
-        if (flags & RELATIVE)   format.operand[0].type = Format::Operand::REL;
-        format.operand[0].scale = 0;
-        format.operand[0].index = 0;
-        format.operand[0].base = -1;
-        switch (immediate_size) {
-        case 8:
-            format.length += 1;
-            format.operand[0].displacement = IMM8(opcode, format.length - 1);
-            break;
-        case 16:
-            format.length += 2;
-            format.operand[0].displacement = IMM16(opcode, format.length - 2);
-            break;
-        case 32:
-            format.length += 4;
-            format.operand[0].displacement = IMM32(opcode, format.length - 4);
-            break;
-        }
-        return;
-    }
-
-    format.length += 1;
-    int OPREG = (flags & DIRECTION) ? 0 : 1;
     int MODRM = (flags & DIRECTION) ? 1 : 0;
-    if (offset) {
-        int MOD = (opcode[offset] >> 6) & 0b11;
-        int REG = (opcode[offset] >> 3) & 0b111;
-        int RM = (opcode[offset] >> 0) & 0b111;
-
-        int SS = (opcode[offset + 1] >> 6) & 0b11;
-        int INDEX = (opcode[offset + 1] >> 3) & 0b111;
-        int BASE = (opcode[offset + 1] >> 0) & 0b111;
-
-        switch (opcode[offset] & 0b11000111) {
-        case 0b00000100:
-            format.length += 1;
-            format.operand[MODRM].type = Format::Operand::ADR;
-            format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
-            format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
-            format.operand[MODRM].base = BASE;
-            format.operand[MODRM].displacement = 0;
-            if (BASE == 0b101) {
-                format.length += 4;
-                format.operand[MODRM].base = -1;
-                format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
-            }
-            break;
-        case 0b00000101:
-            format.length += 4;
-            format.operand[MODRM].type = Format::Operand::ADR;
-            format.operand[MODRM].scale = 0;
-            format.operand[MODRM].index = -1;
-            format.operand[MODRM].base = -1;
-            format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
-            break;
-        case 0b01000100:
-            format.length += 2;
-            format.operand[MODRM].type = Format::Operand::ADR;
-            format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
-            format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
-            format.operand[MODRM].base = BASE;
-            format.operand[MODRM].displacement = IMM8(opcode, format.length - 1);
-            break;
-        case 0b10000100:
-            format.length += 5;
-            format.operand[MODRM].type = Format::Operand::ADR;
-            format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
-            format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
-            format.operand[MODRM].base = BASE;
-            format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
-            break;
-        default:
-            switch (MOD) {
-            case 0b00:
-                format.operand[MODRM].type = Format::Operand::ADR;
-                format.operand[MODRM].scale = 0;
-                format.operand[MODRM].index = -1;
-                format.operand[MODRM].base = RM;
-                format.operand[MODRM].displacement = 0;
-                break;
-            case 0b01:
+    int OPREG = (flags & DIRECTION) ? 0 : 1;
+    switch (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
+    default:
+        format.length += 1;
+        if (offset) {
+            int MOD     = (opcode[offset + 0] >> 6) & 0b11;
+            int REG     = (opcode[offset + 0] >> 3) & 0b111;
+            int RM      = (opcode[offset + 0] >> 0) & 0b111;
+            int SS      = (opcode[offset + 1] >> 6) & 0b11;
+            int INDEX   = (opcode[offset + 1] >> 3) & 0b111;
+            int BASE    = (opcode[offset + 1] >> 0) & 0b111;
+            switch (opcode[offset] & 0b11000111) {
+            case 0b00000100:
                 format.length += 1;
                 format.operand[MODRM].type = Format::Operand::ADR;
-                format.operand[MODRM].scale = 0;
-                format.operand[MODRM].index = -1;
-                format.operand[MODRM].base = RM;
-                format.operand[MODRM].displacement = IMM8(opcode, format.length - 1);
+                format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
+                format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
+                format.operand[MODRM].base = BASE;
+                format.operand[MODRM].displacement = 0;
+                if (BASE == 0b101) {
+                    format.length += 4;
+                    format.operand[MODRM].base = -1;
+                    format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+                }
                 break;
-            case 0b10:
+            case 0b00000101:
                 format.length += 4;
                 format.operand[MODRM].type = Format::Operand::ADR;
                 format.operand[MODRM].scale = 0;
                 format.operand[MODRM].index = -1;
-                format.operand[MODRM].base = RM;
+                format.operand[MODRM].base = -1;
                 format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
                 break;
-            case 0b11:
-                switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
-                default:            format.operand[MODRM].type = Format::Operand::REG;  break;
-                case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
-                case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
-                case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
+            case 0b01000100:
+                format.length += 2;
+                format.operand[MODRM].type = Format::Operand::ADR;
+                format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
+                format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
+                format.operand[MODRM].base = BASE;
+                format.operand[MODRM].displacement = IMM8(opcode, format.length - 1);
+                break;
+            case 0b10000100:
+                format.length += 5;
+                format.operand[MODRM].type = Format::Operand::ADR;
+                format.operand[MODRM].scale = (INDEX == 0b100) ? 0 : (1 << SS);
+                format.operand[MODRM].index = (INDEX == 0b100) ? -1 : INDEX;
+                format.operand[MODRM].base = BASE;
+                format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+                break;
+            default:
+                switch (MOD) {
+                case 0b00:
+                    format.operand[MODRM].type = Format::Operand::ADR;
+                    format.operand[MODRM].scale = 0;
+                    format.operand[MODRM].index = -1;
+                    format.operand[MODRM].base = RM;
+                    format.operand[MODRM].displacement = 0;
+                    break;
+                case 0b01:
+                    format.length += 1;
+                    format.operand[MODRM].type = Format::Operand::ADR;
+                    format.operand[MODRM].scale = 0;
+                    format.operand[MODRM].index = -1;
+                    format.operand[MODRM].base = RM;
+                    format.operand[MODRM].displacement = IMM8(opcode, format.length - 1);
+                    break;
+                case 0b10:
+                    format.length += 4;
+                    format.operand[MODRM].type = Format::Operand::ADR;
+                    format.operand[MODRM].scale = 0;
+                    format.operand[MODRM].index = -1;
+                    format.operand[MODRM].base = RM;
+                    format.operand[MODRM].displacement = IMM32(opcode, format.length - 4);
+                    break;
+                case 0b11:
+                    switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+                    default:            format.operand[MODRM].type = Format::Operand::REG;  break;
+                    case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
+                    case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
+                    case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
+                    }
+                    format.operand[MODRM].base = RM;
+                    break;
                 }
-                format.operand[MODRM].base = RM;
                 break;
             }
-            break;
+            format.operand[OPREG].base = REG;
+        }
+        else {
+            switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+            default:            format.operand[MODRM].type = Format::Operand::REG;  break;
+            case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
+            case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
+            case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
+            }
+            format.operand[MODRM].base = 0;
+            format.operand[OPREG].base = 0;
         }
         switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
         default:            format.operand[OPREG].type = Format::Operand::REG;  break;
@@ -144,45 +130,40 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
         case MMX_REGISTER:  format.operand[OPREG].type = Format::Operand::MMX;  break;
         case SSE_REGISTER:  format.operand[OPREG].type = Format::Operand::SSE;  break;
         }
-        format.operand[OPREG].base = REG;
         if (flags & THREE_OPERAND) {
             OPREG = 2;
         }
-    }
-    else {
-        switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
-        default:            format.operand[MODRM].type = Format::Operand::REG;  break;
-        case X87_REGISTER:  format.operand[MODRM].type = Format::Operand::X87;  break;
-        case MMX_REGISTER:  format.operand[MODRM].type = Format::Operand::MMX;  break;
-        case SSE_REGISTER:  format.operand[MODRM].type = Format::Operand::SSE;  break;
-        }
-        switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
-        default:            format.operand[OPREG].type = Format::Operand::REG;  break;
-        case X87_REGISTER:  format.operand[OPREG].type = Format::Operand::X87;  break;
-        case MMX_REGISTER:  format.operand[OPREG].type = Format::Operand::MMX;  break;
-        case SSE_REGISTER:  format.operand[OPREG].type = Format::Operand::SSE;  break;
-        }
-        format.operand[MODRM].base = 0;
-        format.operand[OPREG].base = 0;
+        break;
+    case IMMEDIATE:
+    case INDIRECT:
+    case RELATIVE:
+        OPREG = 0;
+        format.operand[OPREG].scale = 0;
+        format.operand[OPREG].index = 0;
+        format.operand[OPREG].base = -1;
+        break;
     }
 
     if (immediate_size) {
         if (immediate_size < 0)
             immediate_size = format.width;
+        switch (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
+        default:
+        case IMMEDIATE: format.operand[OPREG].type = Format::Operand::IMM;  break;
+        case INDIRECT:  format.operand[OPREG].type = Format::Operand::ADR;  break;
+        case RELATIVE:  format.operand[OPREG].type = Format::Operand::REL;  break;
+        }
         switch (immediate_size) {
         case 8:
             format.length += 1;
-            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM8(opcode, format.length - 1);
             break;
         case 16:
             format.length += 2;
-            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM16(opcode, format.length - 2);
             break;
         case 32:
             format.length += 4;
-            format.operand[OPREG].type = Format::Operand::IMM;
             format.operand[OPREG].displacement = IMM32(opcode, format.length - 4);
             break;
         }
@@ -223,8 +204,12 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
     };
 
     std::string disasm;
-    if (format.repeat) {
-        disasm += "REP";
+    if (format.repeatF2) {
+        disasm += "REPNE";
+        disasm += ' ';
+    }
+    if (format.repeatF3) {
+        disasm += "REPE";
         disasm += ' ';
     }
     disasm += format.instruction;

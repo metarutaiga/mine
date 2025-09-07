@@ -18,7 +18,8 @@ protected:
     static instruction FS;          // FS segment override prefix
     static instruction GS;          // GS segment override prefix
 
-    static instruction REP;         // Repeat Following String Operation
+    static instruction REPE;        // Repeat Following String Operation
+    static instruction REPNE;       // Repeat Following String Operation
     static instruction WAIT;        // Wait until BUSY# Pin is Inactive (HIGH)
 
     static instruction AAA;         // ASCII Adjust after Addition
