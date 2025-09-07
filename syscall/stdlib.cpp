@@ -99,8 +99,8 @@ div_t syscall_div(const uint32_t* stack)
 
 int syscall_exit(const uint32_t* stack)
 {
-//  auto status = stack[1];
-//  exit(status);
+    auto status = stack[1];
+    exit(status);
     return 0;
 }
 

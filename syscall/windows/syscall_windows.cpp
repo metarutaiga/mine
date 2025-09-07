@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define SYMBOL_INDEX 1001
+#define SYMBOL_INDEX 1000
 
 #define CALLBACK_ARGUMENT \
     x86_i386* cpu,          \
@@ -38,15 +38,6 @@ static const struct {
     const char* name;
     size_t (*syscall)(CALLBACK_ARGUMENT);
 } syscall_table[] = {
-
-    // kernel32
-    { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
-    { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
-    { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
-    { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
-    { "GetLastError",               INT32(0, 0)                                                     },
-    { "LocalAlloc",                 INT32(2, syscall_malloc(stack + 1, allocator))                  },
-    { "TerminateProcess",           INT32(2, 0)                                                     },
 
     // kernel32 - atomic
     { "InterlockedCompareExchange", INT32(3, syscall_InterlockedCompareExchange(memory, stack))     },
@@ -72,6 +63,7 @@ static const struct {
     { "CreateFileA",                INT32(7, syscall_CreateFileA(memory, stack, allocator))         },
     { "CreateFileMappingA",         INT32(6, syscall_CreateFileMappingA(memory, stack, allocator))  },
     { "GetFileSize",                INT32(2, syscall_GetFileSize(memory, stack))                    },
+    { "GetFullPathNameA",           INT32(4, syscall_GetFullPathNameA(memory, stack))               },
     { "MapViewOfFile",              INT32(5, syscall_MapViewOfFile(memory, stack, allocator))       },
     { "UnmapViewOfFile",            INT32(1, syscall_UnmapViewOfFile(memory, stack, allocator))     },
 
@@ -89,10 +81,27 @@ static const struct {
     { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack, syslog))         },
     { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu, syslog))      },
 
+    // kernel32 - memory
+    { "LocalAlloc",                 INT32(2, syscall_LocalAlloc(memory, stack, allocator))          },
+    { "LocalFree",                  INT32(1, syscall_LocalFree(memory, stack, allocator))           },
+    { "VirtualAlloc",               INT32(4, syscall_VirtualAlloc(memory, stack, allocator))        },
+    { "VirtualFree",                INT32(3, syscall_VirtualFree(memory, stack, allocator))         },
+
+    // kernel32 - system
+    { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
+    { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
+    { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
+    { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
+    { "GetLastError",               INT32(0, 0)                                                     },
+    { "GetSystemInfo",              INT32(1, 0)                                                     },
+    { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack, syslog))     },
+    { "TerminateProcess",           INT32(2, 0)                                                     },
+
     // kernel32 - time
     { "GetSystemTimeAsFileTime",    INT32(1, syscall_GetSystemTimeAsFileTime(memory, stack))        },
     { "GetTickCount",               INT32(0, syscall_GetTickCount())                                },
     { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
+    { "QueryPerformanceFrequency",  INT32(1, syscall_QueryPerformanceFrequency(memory, stack))      },
 
     // kernel32 - unimplemented
 //  { "CreateProcessA",             INT32(10, false)                                                },
@@ -119,20 +128,18 @@ static const struct {
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
     { "_decode_pointer",            INT32(0, syscall__decode_pointer(stack))                        },
     { "_encode_pointer",            INT32(0, syscall__encode_pointer(stack))                        },
-    { "_exit",                      INT32(0, syscall_exit(stack))                                   },
     { "_expand",                    INT32(0, syscall_expand(stack, allocator))                      },
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
     { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
-    { "_isnan",                     INT32(0, syscall_isnan(stack))                                  },
     { "_lock",                      INT32(0, 0)                                                     },
     { "_malloc_crt",                INT32(0, syscall_malloc(stack, allocator))                      },
     { "_msize",                     INT32(0, syscall_msize(stack, allocator))                       },
     { "_onexit",                    INT32(0, 0)                                                     },
     { "_setjmp3",                   INT32(0, syscall__setjmp3(memory, stack, cpu))                  },
-    { "_snprintf",                  INT32(0, syscall_snprintf(memory, stack))                       },
     { "_splitpath",                 INT32(0, syscall_splitpath(memory, stack))                      },
+    { "_strdup",                    INT32(0, syscall_strdup(memory, stack, allocator))              },
     { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                        },
     { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                       },
     { "_unlock",                    INT32(0, 0)                                                     },
@@ -147,6 +154,12 @@ static const struct {
     { "??3@YAXPAX@Z",               INT32(0, syscall_free(stack, allocator))                        },
     { "??_U@YAPAXI@Z",              INT32(0, syscall_malloc(stack, allocator))                      },
     { "??_V@YAXPAX@Z",              INT32(0, syscall_free(stack, allocator))                        },
+
+    // msvcrt - duplicated
+//  { "_exit",                      INT32(0, syscall_exit(stack))                                   },
+//  { "_isnan",                     INT32(0, syscall_isnan(stack))                                  },
+//  { "_snprintf",                  INT32(0, syscall_snprintf(memory, stack))                       },
+//  { "_vsnprintf",                 INT32(0, syscall_vsnprintf(memory, stack))                      },
 
     // msvcrt - unimplemented
 //  { "_amsg_exit",                 INT32(0, 0)                                                     },
@@ -260,8 +273,6 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
 
     size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     if (index < count) {
-        syslog("%s\n", syscall_table[index].name);
-
         auto* cpu = (x86_i386*)data;
         auto& x86 = cpu->x86;
         auto& x87 = cpu->x87;
@@ -269,6 +280,9 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto* stack = (uint32_t*)(memory + cpu->Stack());
         auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
+        if (syslog) {
+            syslog("[CALL] %s", syscall_table[index].name);
+        }
         return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
     }
 

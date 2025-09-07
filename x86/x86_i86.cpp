@@ -103,14 +103,14 @@ bool x86_i86::Step(int type)
         if (format.operation == nullptr)
             return false;
         format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-        if (IP == 0) {
-            IP = ip;
-            return false;
-        }
         if (IP >= memory_size) {
             auto count = (uint16_t)Exception(this, IP);
             IP = Pop16();
             SP += count;
+        }
+        if (IP == 0) {
+            IP = ip;
+            return false;
         }
         switch (type) {
         case 'INTO':

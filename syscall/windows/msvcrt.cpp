@@ -142,6 +142,19 @@ int syscall_splitpath(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
+size_t syscall_strdup(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto str = physical(char*, stack[1]);
+
+    size_t size = strlen(str) + 1;
+    auto result = (char*)allocator->allocate(size);
+    if (result == nullptr)
+        return 0;
+
+    strncpy(result, str, size);
+    return virtual(size_t, result);
+}
+
 int syscall_stricmp(uint8_t* memory, const uint32_t* stack)
 {
     auto str1 = physical(char*, stack[1]);

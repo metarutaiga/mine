@@ -24,8 +24,8 @@ static const struct {
     { "toupper",        INT32(syscall_toupper(stack))                   },
 
     // locale
-    { "localeconv",     INT32(syscall_localeconv(memory))               },
-    { "setlocale",      INT32(syscall_setlocale(memory, stack))         },
+    { "localeconv",     INT32(syscall_localeconv(memory))                   },
+    { "setlocale",      INT32(syscall_setlocale(memory, stack, allocator))  },
 
     // math
     { "acos",           FLT64(syscall_acos(stack))                      },

@@ -175,19 +175,17 @@ bool x86_i386::Step(int type)
         Format format;
         StepInternal(*this, format);
         Fixup(format, x86, x87, mmx, sse);
-            return false;
-        }
         if (format.operation == nullptr)
             return false;
         format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-        if (EIP == 0) {
-            EIP = eip;
-            return false;
-        }
         if (EIP >= memory_size) {
             auto count = Exception(this, EIP);
             EIP = Pop32();
             ESP += count;
+        }
+        if (EIP == 0) {
+            EIP = eip;
+            return false;
         }
         switch (type) {
         case 'INTO':

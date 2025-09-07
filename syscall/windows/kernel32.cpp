@@ -265,6 +265,34 @@ uint32_t syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
     return uint32_t(size);
 }
 
+uint32_t syscall_GetFullPathNameA(uint8_t* memory, uint32_t* stack)
+{
+    auto lpFileName = physical(char*, stack[1]);
+    auto nBufferLength = stack[2];
+    auto lpBuffer = physical(char*, stack[3]);
+    auto lpFilePart = physical(char**, stack[4]);
+
+    if (lpBuffer == nullptr) {
+        return uint32_t(strlen(lpFileName) + 1);
+    }
+
+    if (lpFilePart) {
+        (*lpFilePart) = virtual(char*, lpBuffer);
+    }
+
+    for (uint32_t i = 0; i < nBufferLength; ++i) {
+        char c = lpFileName[i];
+        lpBuffer[i] = c;
+        if (c == 0)
+            return i;
+        if (c == '\\' && lpFilePart) {
+            (*lpFilePart) = virtual(char*, lpBuffer + i + 1);
+        }
+    }
+
+    return nBufferLength;
+}
+
 size_t syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFileMappingObject = physical(FILE**, stack[1]);
@@ -478,7 +506,7 @@ size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const 
         auto& data = *(Data*)sym_data;
         if (strcmp(data.name, name) == 0) {
             data.address = address;
-            data.log("Symbol : [%08zX] %s", data.address, data.name);
+            data.log("%-12s : [%08zX] %s", "Symbol", data.address, data.name);
         }
     }, &data);
 
@@ -506,7 +534,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
 #endif
     auto slash = path.find_last_of("/\\");
 
-    log("%s - %s", "LoadLibraryA", lpLibFileName);
+    log("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
 
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
         miCPU* cpu = (miCPU*)userdata;
@@ -570,6 +598,63 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
     return virtual(size_t, image);
 }
 
+// Memory
+size_t syscall_LocalAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto uFlags = stack[1];
+    auto uBytes = stack[2];
+
+    void* pointer = allocator->allocate(uBytes);
+    if (pointer && (uFlags & 0x0040)) {
+        memset(pointer, 0, uBytes);
+    }
+
+    return virtual(size_t, pointer);
+}
+
+size_t syscall_LocalFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto hMem = physical(void*, stack[1]);
+
+    allocator->deallocate(hMem);
+
+    return 0;
+}
+
+size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) __attribute__((optnone))
+{
+    auto lpAddress = physical(void*, stack[1]);
+    auto dwSize = stack[2];
+//  auto flAllocationType = stack[3];
+//  auto flProtect = stack[4];
+
+    if (lpAddress) {
+        size_t size = allocator->size(lpAddress);
+        if (size && size >= dwSize) {
+            return virtual(size_t, lpAddress);
+        }
+        return 0;
+    }
+
+    lpAddress = allocator->allocate(dwSize);
+    if (lpAddress) {
+        memset(lpAddress, 0, dwSize);
+    }
+
+    return virtual(size_t, lpAddress);
+}
+
+int syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto lpAddress = physical(void*, stack[1]);
+//  auto dwSize = stack[2];
+//  auto dwFreeType = stack[3];
+
+    allocator->deallocate(lpAddress);
+
+    return true;
+}
+
 // System
 int syscall_GetCurrentProcessId()
 {
@@ -587,6 +672,13 @@ int syscall_GetCurrentThreadId()
 #else
     return (int)(size_t)pthread_self();
 #endif
+}
+
+int syscall_OutputDebugStringA(uint8_t* memory, uint32_t* stack, int(*log)(const char*, ...))
+{
+    auto lpOutputString = physical(char*, stack[1]);
+    log("%s", lpOutputString);
+    return 0;
 }
 
 // Time
@@ -630,6 +722,19 @@ int syscall_QueryPerformanceCounter(uint8_t* memory, uint32_t* stack)
     clock_gettime(CLOCK_REALTIME, &ts);
 
     (*lpPerformanceCount) = ts.tv_sec * 1'000'000'000ull + ts.tv_nsec;
+    return true;
+#endif
+}
+
+int syscall_QueryPerformanceFrequency(uint8_t* memory, uint32_t* stack)
+{
+#if defined(_WIN32)
+    auto lpFrequency = physical(LARGE_INTEGER*, stack[1]);
+    return QueryPerformanceFrequency(lpFrequency);
+#else
+    auto lpFrequency = physical(uint64_t*, stack[1]);
+
+    (*lpFrequency) = 1'000'000'000ull;
     return true;
 #endif
 }

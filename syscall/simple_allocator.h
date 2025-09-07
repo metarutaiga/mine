@@ -10,7 +10,7 @@ struct simple_allocator : public allocator_t {
     std::vector<uint8_t> status;
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
         if (size == 0)
-            return nullptr;
+            size = 1;
         uint8_t exp = std::bit_width(std::bit_ceil(size) / MINBLOCK);
         if (exp > 0)
             exp = exp - 1;

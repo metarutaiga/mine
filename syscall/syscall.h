@@ -28,7 +28,7 @@ int syscall_toupper(const void* stack);
 
 // locale
 int syscall_localeconv(const void* memory);
-int syscall_setlocale(const void* memory, const void* stack);
+int syscall_setlocale(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // math
 double syscall_acos(const void* stack);

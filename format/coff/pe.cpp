@@ -240,7 +240,7 @@ void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(
                 size_t symbol = sym(file, name);
                 memcpy(iats, &symbol, sizeof(uint32_t));
                 if (symbol == 0) {
-                    log("Symbol : [%08zX] %s.%s is not found", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);
+                    log("%-12s : [%08zX] %s.%s is not found", "Symbol", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);
                 }
                 ints++;
                 iats++;
@@ -290,7 +290,7 @@ void PE::Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*,
                 *(uint32_t*)(image8 + address) += delta;
                 break;
             default:
-                log("Relocate : %02X:%04X (%08X) Unknown", type, offset, address);
+                log("%-12s : %02X:%04X (%08X) Unknown", "Relocate", type, offset, address);
                 break;
             }
         }

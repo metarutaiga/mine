@@ -19,27 +19,35 @@
 static miCPU* cpu;
 static std::string arguments;
 static std::string status;
-static std::string logs[2];
+static std::string logs[3];
 static std::map<size_t, std::string> disasms;
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
 //------------------------------------------------------------------------------
 static std::vector<std::pair<std::string, std::string>> samples;
 //------------------------------------------------------------------------------
-#define SYSLOG  0
-#define CONSOLE 1
+#define CONSOLE 0
+#define SYSTEM  1
+#define CALL    2
 //------------------------------------------------------------------------------
 template<int INDEX>
 static int LoggerV(const char* format, va_list va)
 {
+    int index = INDEX;
     int length = vsnprintf(nullptr, 0, format, va) + 1;
-    size_t offset = logs[INDEX].size();
-    logs[INDEX].resize(offset + length);
-    vsnprintf(logs[INDEX].data() + offset, length, format, va);
-    logs[INDEX].pop_back();
-    if (INDEX == SYSLOG) {
-        if (logs[INDEX].empty() == false && logs[INDEX].back() != '\n')
-            logs[INDEX] += '\n';
+    if (index == SYSTEM) {
+        if (strncmp(format, "[CALL]", 6) == 0) {
+            index = CALL;
+        }
+    }
+    size_t offset = logs[index].size();
+    logs[index].resize(offset + length);
+    vsnprintf(logs[index].data() + offset, length, format, va);
+    logs[index].pop_back();
+    if (index == SYSTEM || index == CALL) {
+        if (logs[index].empty() == false && logs[index].back() != '\n') {
+            logs[index] += '\n';
+        }
     }
     return length;
 }
@@ -54,14 +62,49 @@ static int Logger(const char* format, ...)
     return length;
 }
 //------------------------------------------------------------------------------
+static const char* Name(size_t index)
+{
+    const char* name = nullptr;
+    if (name == nullptr) {
+        switch (index) {
+        case uint32_t(-1):
+            return "exit";
+        case uint32_t(-2):
+            return "_exit";
+        case uint32_t(-3):
+            return "_cexit";
+        case uint32_t(-4):
+            return "_c_exit";
+        }
+    }
+    if (name == nullptr) {
+        name = syscall_windows_name(index);
+    }
+    if (name == nullptr) {
+        name = syscall_i386_name(index);
+    }
+    return name;
+}
+//------------------------------------------------------------------------------
 static size_t Exception(miCPU* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, Logger<SYSLOG>, Logger<CONSOLE>);
+        switch (index) {
+        case uint32_t(-1):
+        case uint32_t(-2):
+        case uint32_t(-3):
+        case uint32_t(-4):
+            Logger<SYSTEM>("[CALL] %s", Name(index));
+            memset(data->Memory() + data->Stack(), 0, sizeof(uint32_t));
+            return 0;
+        }
     }
     if (result == 0) {
-        result = syscall_i386_execute(cpu, index, LoggerV<SYSLOG>, LoggerV<CONSOLE>);
+        result = syscall_windows_execute(data, index, Logger<SYSTEM>, Logger<CONSOLE>);
+    }
+    if (result == 0) {
+        result = syscall_i386_execute(cpu, index, LoggerV<SYSTEM>, LoggerV<CONSOLE>);
     }
     return result;
 }
@@ -70,24 +113,24 @@ static size_t Symbol(const char* file, const char* name)
 {
     size_t address = 0;
     if (address == 0) {
+        switch (operator""_CC(name, strlen(name))) {
+        case "exit"_CC:
+            return uint32_t(-1);
+        case "_exit"_CC:
+            return uint32_t(-2);
+        case "_cexit"_CC:
+            return uint32_t(-3);
+        case "_c_exit"_CC:
+            return uint32_t(-4);
+        }
+    }
+    if (address == 0) {
         address = syscall_windows_symbol(file, name);
     }
     if (address == 0) {
         address = syscall_i386_symbol(file, name);
     }
     return address;
-}
-//------------------------------------------------------------------------------
-static const char* Name(size_t index)
-{
-    const char* name = nullptr;
-    if (name == nullptr) {
-        name = syscall_windows_name(index);
-    }
-    if (name == nullptr) {
-        name = syscall_i386_name(index);
-    }
-    return name;
 }
 //------------------------------------------------------------------------------
 void Debugger::Initialize()
@@ -116,6 +159,7 @@ void Debugger::Shutdown()
     exports = std::vector<std::pair<std::string, size_t>>();
     logs[0] = std::string();
     logs[1] = std::string();
+    logs[2] = std::string();
     disasms = std::map<size_t, std::string>();
     samples = std::vector<std::pair<std::string, std::string>>();
 }
@@ -159,8 +203,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             ImGui::DockBuilderDockWindow("Stack", middleBottom);
             ImGui::DockBuilderDockWindow("Export", rightTop);
             ImGui::DockBuilderDockWindow("Menu", rightBottom);
-            ImGui::DockBuilderDockWindow("Syslog", bottomLeft);
             ImGui::DockBuilderDockWindow("Console", bottomRight);
+            ImGui::DockBuilderDockWindow("System", bottomLeft);
+            ImGui::DockBuilderDockWindow("Call", bottomLeft);
             ImGui::DockBuilderFinish(id);
 
             id = ImGui::GetID("Debugger");
@@ -315,7 +360,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             }
         }
         ImGui::End();
-        if (ImGui::Begin("Syslog", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+        if (ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             ImGui::InputTextMultiline("##100", logs[0], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
             ImGui::BeginChild("##100");
             if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
@@ -323,9 +368,17 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             ImGui::EndChild();
         }
         ImGui::End();
-        if (ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+        if (ImGui::Begin("System", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             ImGui::InputTextMultiline("##101", logs[1], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
             ImGui::BeginChild("##101");
+            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+            ImGui::EndChild();
+        }
+        ImGui::End();
+        if (ImGui::Begin("Call", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::InputTextMultiline("##102", logs[2], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+            ImGui::BeginChild("##102");
             if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
                 ImGui::SetScrollHereY(1.0f);
             ImGui::EndChild();
@@ -339,6 +392,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             status.clear();
             logs[0].clear();
             logs[1].clear();
+            logs[2].clear();
             disasms.clear();
             exportIndex = 0;
             exports.clear();
@@ -357,7 +411,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
                 miCPU* cpu = (miCPU*)userdata;
                 return cpu->Memory(base, size);
-            }, cpu, Logger<SYSLOG>);
+            }, cpu, Logger<SYSTEM>);
             if (image) {
                 auto disassembly = [](void* image) {
                     size_t base = 0;
@@ -407,7 +461,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 syscall_windows_debug(cpu, disassembly);
 
                 exports.emplace_back("Entry", PE::Entry(image));
-                PE::Imports(image, Symbol, Logger<SYSLOG>);
+                PE::Imports(image, Symbol, Logger<SYSTEM>);
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
                     auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                     exports.emplace_back(name, address);

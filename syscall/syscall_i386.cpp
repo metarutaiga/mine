@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#define SYMBOL_INDEX 1
+#define SYMBOL_INDEX 10
 
 #define CALLBACK_ARGUMENT \
     x86_instruction& x86,   \
@@ -59,8 +59,6 @@ size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, 
 
     size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     if (index < count) {
-        syslog("%s\n", (va_list)&syscall_table[index].name);
-
         auto* cpu = (x86_i386*)data;
         auto& x86 = cpu->x86;
         auto& x87 = cpu->x87;
@@ -68,6 +66,9 @@ size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, 
         auto* stack = memory + cpu->Stack();
         auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
+        if (syslog) {
+            syslog("[CALL] %s", (va_list)&syscall_table[index].name);
+        }
         syscall(x86, x87, memory, stack, allocator, syslog, log);
     }
 
@@ -81,7 +82,8 @@ size_t syscall_i386_symbol(const char* file, const char* name)
 
     size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     for (size_t index = 0; index < count; ++index) {
-        if (strcmp(syscall_table[index].name, name) == 0)
+        int shift = (name[0] == '_') ? 1 : 0;
+        if (strcmp(syscall_table[index].name, name + shift) == 0)
             return (uint32_t)(-index - SYMBOL_INDEX);
     }
 
