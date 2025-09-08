@@ -49,12 +49,11 @@ uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* sta
     auto Destination = physical(uint32_t*, stack[1]);
     auto ExChange = physical(uint32_t, stack[2]);
     auto Comperand = physical(uint32_t, stack[3]);
+    auto result = (*Destination);
     if ((*Destination) == Comperand) {
-        auto result = (*Destination);
         (*Destination) = ExChange;
-        return result;
     }
-    return ExChange;
+    return result;
 }
 
 uint32_t syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
@@ -703,6 +702,23 @@ int syscall_GetCurrentThreadId()
 #else
     return (int)(size_t)pthread_self();
 #endif
+}
+
+int syscall_GetSystemInfo(uint8_t* memory, const uint32_t* stack)
+{
+    auto* tib = (TIB*)memory;
+    auto lpSystemInfo = physical(SystemInfo*, stack[1]);
+    lpSystemInfo->dwOemId = 0;
+    lpSystemInfo->dwPageSize = 4096;
+    lpSystemInfo->lpMinimumApplicationAddress = 4096;
+    lpSystemInfo->lpMaximumApplicationAddress = tib->StackLimit;
+    lpSystemInfo->dwActiveProcessorMask = 1;
+    lpSystemInfo->dwNumberOfProcessors = 1;
+    lpSystemInfo->dwProcessorType = 386;
+    lpSystemInfo->dwAllocationGranularity = 65536;
+    lpSystemInfo->wProcessorLevel = 3;
+    lpSystemInfo->wProcessorRevision = 0;
+    return 0;
 }
 
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack, int(*log)(const char*, va_list))

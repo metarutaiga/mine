@@ -27,8 +27,8 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
                     break;
                 ECX--;
             }
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
             auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
             ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
@@ -101,8 +101,8 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
                     break;
                 ECX--;
             }
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
             auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
             TEMP = SRC;
             ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);

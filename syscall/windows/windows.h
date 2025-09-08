@@ -22,3 +22,16 @@ struct Windows {
     char commandLine[256];
     char currentDirectory[260];
 };
+
+struct SystemInfo {
+    uint32_t    dwOemId;
+    uint32_t    dwPageSize;
+    uint32_t    lpMinimumApplicationAddress;
+    uint32_t    lpMaximumApplicationAddress;
+    uint32_t    dwActiveProcessorMask;
+    uint32_t    dwNumberOfProcessors;
+    uint32_t    dwProcessorType;
+    uint32_t    dwAllocationGranularity;
+    uint16_t    wProcessorLevel;
+    uint16_t    wProcessorRevision;
+};

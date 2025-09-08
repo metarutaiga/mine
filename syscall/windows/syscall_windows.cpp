@@ -97,7 +97,7 @@ static const struct {
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
     { "GetLastError",               INT32(0, 0)                                                     },
-    { "GetSystemInfo",              INT32(1, 0)                                                     },
+    { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack, syslog))     },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },

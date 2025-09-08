@@ -48,6 +48,8 @@ struct simple_allocator : public allocator_t {
         uint8_t exp = status[pos];
         if (exp == FREED)
             return;
+        if ((exp & HEAD) == 0)
+            return;
         exp = exp & ~HEAD;
         status[pos] = FREED;
         size_t block = (1 << exp);
@@ -65,6 +67,8 @@ struct simple_allocator : public allocator_t {
             return 0;
         uint8_t exp = status[pos];
         if (exp == FREED)
+            return 0;
+        if ((exp & HEAD) == 0)
             return 0;
         exp = exp & ~HEAD;
         size_t count = 1;

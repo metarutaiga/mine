@@ -87,12 +87,21 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
             break;
         }
 
+        // File Name
+        const char* name = strrchr(path, '/');
+        if (name == nullptr)
+            name = strrchr(path, '\\');
+        if (name == nullptr)
+            name = path - 1;
+        name += 1;
+
         // File Header
         FileHeader fileHeader = {};
         if (fread(&fileHeader, sizeof(FileHeader), 1, file) != 1) {
             log("get the PE/COFF File Header is failed");
             break;
         }
+        log("%-12s : %s", "file", name);
         log("%-12s : %s", "f_magic", GetMagic(fileHeader.f_magic));
         log("%-12s : %d", "f_nscns", fileHeader.f_nscns);
         log("%-12s : 0x%08x", "f_timdat", fileHeader.f_timdat);

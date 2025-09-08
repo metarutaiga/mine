@@ -58,6 +58,7 @@ int syscall_VirtualFree(const void* memory, const void* stack, struct allocator_
 size_t syscall_GetCommandLineA(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
+int syscall_GetSystemInfo(const void* memory, const void* stack);
 int syscall_OutputDebugStringA(const void* memory, const void* stack, int(*log)(const char*, va_list));
 
 // kernel32 - time
