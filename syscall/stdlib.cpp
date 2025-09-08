@@ -11,8 +11,8 @@ extern "C" {
 
 int syscall__Exit(const uint32_t* stack)
 {
-//  auto status = stack[1];
-//  _Exit(status);
+    auto status = stack[1];
+    _Exit(status);
     return 0;
 }
 

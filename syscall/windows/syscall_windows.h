@@ -7,7 +7,7 @@ extern "C" {
 size_t syscall_windows_new(void* data, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[]);
 size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*));
 size_t syscall_windows_delete(void* data);
-size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, ...), int(*log)(const char*, ...));
+size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
 
@@ -23,6 +23,7 @@ int syscall_LeaveCriticalSection(const void* memory, const void* stack);
 int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
 
 // kernel32 - directory
+uint32_t syscall_GetCurrentDirectoryA(const void* memory, const void* stack);
 int syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
 
 // kernel32 - file
@@ -44,8 +45,8 @@ int syscall_FreeLibrary(const void* memory, const void* stack);
 size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleFileNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleA(const void* memory, const void* stack);
-size_t syscall_GetProcAddress(const void* memory, const void* stack, int(*log)(const char*, ...));
-size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu, int(*log)(const char*, ...));
+size_t syscall_GetProcAddress(const void* memory, const void* stack, int(*log)(const char*, va_list));
+size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu, int(*log)(const char*, va_list));
 
 // kernel32 - memory
 size_t syscall_LocalAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -54,9 +55,10 @@ size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct alloca
 int syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - system
+size_t syscall_GetCommandLineA(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
-int syscall_OutputDebugStringA(const void* memory, const void* stack, int(*log)(const char*, ...));
+int syscall_OutputDebugStringA(const void* memory, const void* stack, int(*log)(const char*, va_list));
 
 // kernel32 - time
 int syscall_GetSystemTimeAsFileTime(const void* memory, const void* stack);
@@ -65,17 +67,28 @@ int syscall_QueryPerformanceCounter(const void* memory, const void* stack);
 int syscall_QueryPerformanceFrequency(const void* memory, const void* stack);
 
 // msvcprt
+size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory);
 size_t syscall_basic_string_char_copy_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
 size_t syscall_basic_string_char_cstr_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator);
-size_t syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator);
+int syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator);
+size_t syscall_basic_string_char_assign(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_assign_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+char syscall_basic_string_char_at(size_t thiz, uint8_t* memory, const uint32_t* stack);
+size_t syscall_basic_string_char_append(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_append_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_substr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
+bool syscall_basic_string_char_eq_cstr(uint8_t* memory, const uint32_t* stack);
+bool syscall_basic_string_char_neq_cstr(uint8_t* memory, const uint32_t* stack);
 
 // msvcrt
 size_t syscall_expand(const void* stack, struct allocator_t* allocator);
+int syscall_fopen_s(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_memmove_s(const void* memory, const void* stack);
 size_t syscall_msize(const void* stack, struct allocator_t* allocator);
 size_t syscall_recalloc(const void* stack, struct allocator_t* allocator);
 int syscall_splitpath(const void* memory, const void* stack);
+size_t syscall_strcat_s(const void* memory, const void* stack);
 size_t syscall_strdup(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_stricmp(const void* memory, const void* stack);
 int syscall_strnicmp(const void* memory, const void* stack);
@@ -87,11 +100,16 @@ int syscall__decode_pointer(const void* stack);
 int syscall__encode_pointer(const void* stack);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);
 int syscall__setjmp3(const void* memory, const void* stack, void* cpu);
+size_t syscall___acrt_iob_func(const void* memory, const void* stack);
 int syscall___getmainargs(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall___iob_func(const void* memory);
 size_t syscall___p__commode(const void* memory);
 size_t syscall___p__fmode(const void* memory);
 size_t syscall___p___initenv(const void* memory);
+
+// ucrt
+int syscall___stdio_common_vfprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall___stdio_common_vsprintf(const void* memory, const void* stack);
 
 #ifdef __cplusplus
 }

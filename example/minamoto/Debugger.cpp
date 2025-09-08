@@ -66,18 +66,6 @@ static const char* Name(size_t index)
 {
     const char* name = nullptr;
     if (name == nullptr) {
-        switch (index) {
-        case uint32_t(-1):
-            return "exit";
-        case uint32_t(-2):
-            return "_exit";
-        case uint32_t(-3):
-            return "_cexit";
-        case uint32_t(-4):
-            return "_c_exit";
-        }
-    }
-    if (name == nullptr) {
         name = syscall_windows_name(index);
     }
     if (name == nullptr) {
@@ -90,18 +78,7 @@ static size_t Exception(miCPU* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        switch (index) {
-        case uint32_t(-1):
-        case uint32_t(-2):
-        case uint32_t(-3):
-        case uint32_t(-4):
-            Logger<SYSTEM>("[CALL] %s", Name(index));
-            memset(data->Memory() + data->Stack(), 0, sizeof(uint32_t));
-            return 0;
-        }
-    }
-    if (result == 0) {
-        result = syscall_windows_execute(data, index, Logger<SYSTEM>, Logger<CONSOLE>);
+        result = syscall_windows_execute(data, index, LoggerV<SYSTEM>, LoggerV<CONSOLE>);
     }
     if (result == 0) {
         result = syscall_i386_execute(cpu, index, LoggerV<SYSTEM>, LoggerV<CONSOLE>);
@@ -112,18 +89,6 @@ static size_t Exception(miCPU* data, size_t index)
 static size_t Symbol(const char* file, const char* name)
 {
     size_t address = 0;
-    if (address == 0) {
-        switch (operator""_CC(name, strlen(name))) {
-        case "exit"_CC:
-            return uint32_t(-1);
-        case "_exit"_CC:
-            return uint32_t(-2);
-        case "_cexit"_CC:
-            return uint32_t(-3);
-        case "_c_exit"_CC:
-            return uint32_t(-4);
-        }
-    }
     if (address == 0) {
         address = syscall_windows_symbol(file, name);
     }
@@ -254,15 +219,18 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 }
 
                 int column = 8 + 3 + 32 + 40;
-                if (comment[0]) {
-                    snprintf(local.temp, 128, "%*s", column, "");
-                    auto pos = ImGui::GetCursorPos();
-                    ImGui::Selectable(local.temp);
-                    if (ImGui::IsItemHovered()) {
+                snprintf(local.temp, 128, "%*s", column, "");
+                auto pos = ImGui::GetCursorPos();
+                ImGui::Selectable(local.temp);
+                if (ImGui::IsItemHovered()) {
+                    if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+                        cpu->Breakpoint = breakpoint = (int)address;
+                    }
+                    if (comment[0]) {
                         ImGui::SetTooltip("%s", comment);
                     }
-                    ImGui::SetCursorPos(pos);
                 }
+                ImGui::SetCursorPos(pos);
                 snprintf(local.temp, 128, "%-*s%s", column, disasm.c_str(), comment);
                 for (int i = column; i < column + 16; ++i) {
                     if (local.temp[i] == '\r' || local.temp[i] == '\n')
@@ -290,7 +258,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 if (cpu == nullptr)
                     return "";
 
-                size_t stack = index * sizeof(uint32_t);
+                auto allocator = cpu->Allocator;
+                size_t memory_size = allocator->max_size();
+                size_t stack = memory_size - stackSize + index * sizeof(uint32_t);
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
@@ -494,7 +464,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
                 }
 
-                stackIndex = stackFocus = (int)(cpu->Stack() / sizeof(uint32_t));
+                auto allocator = cpu->Allocator;
+                size_t memory_size = allocator->max_size();
+                stackIndex = stackFocus = (int)((cpu->Stack() - (memory_size - stackSize)) / sizeof(uint32_t));
             }
             updateCount = 3;
         }

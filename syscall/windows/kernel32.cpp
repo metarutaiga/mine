@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 // Atomic
+
 uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* stack)
 {
     auto Destination = physical(uint32_t*, stack[1]);
@@ -142,6 +143,17 @@ int syscall_TryEnterCriticalSection(uint8_t* memory, const uint32_t* stack)
 }
 
 // Directory
+
+uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
+{
+    auto nBufferLength = stack[1];
+    auto lpBuffer = physical(char*, stack[2]);
+
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    strncpy(lpBuffer, windows->currentDirectory, nBufferLength);
+
+    return uint32_t(strlen(lpBuffer));
+}
 
 int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
 {
@@ -489,7 +501,7 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
     return 0;
 }
 
-size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const char*, ...))
+size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const char*, va_list))
 {
     if (stack[1] == 0 || stack[2] == 0)
         return 0;
@@ -497,23 +509,24 @@ size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const 
     auto lpProcName = physical(char*, stack[2]);
 
     struct Data {
-        const char* name;
+        const char* symbol;
         size_t address;
-        int(*log)(const char*, ...);
-    } data = { lpProcName, 0, log };
+        const char* name;
+        int(*log)(const char*, va_list);
+    } data = { "Symbol", 0, lpProcName, log };
 
     PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
         auto& data = *(Data*)sym_data;
         if (strcmp(data.name, name) == 0) {
             data.address = address;
-            data.log("%-12s : [%08zX] %s", "Symbol", data.address, data.name);
+            data.log("%-12s : [%08zX] %s", (va_list)sym_data);
         }
     }, &data);
 
     return data.address;
 }
 
-size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*log)(const char*, ...))
+size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*log)(const char*, va_list))
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -534,12 +547,22 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
 #endif
     auto slash = path.find_last_of("/\\");
 
-    log("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
+    static auto slog = log;
+    struct Local {
+        static int log(const char* format, ...) {
+            va_list va;
+            va_start(va, format);
+            int length = slog(format, va);
+            va_end(va);
+            return length;
+        };
+    };
+    Local::log("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
 
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
         miCPU* cpu = (miCPU*)userdata;
         return cpu->Memory(base, size);
-    }, cpu, log);
+    }, cpu, Local::log);
     PE::Imports(image, [](const char* file, const char* name) {
         extern size_t syscall_windows_symbol(const char* file, const char* name);
         extern size_t syscall_i386_symbol(const char* file, const char* name);
@@ -549,7 +572,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
         if (address == 0)
             address = syscall_i386_symbol(file, name);
         return address;
-    }, log);
+    }, Local::log);
     windows->modules.emplace_back(path.substr(slash + 1).c_str(), image);
     if (windows->loadLibraryCallback) {
         windows->loadLibraryCallback(image);
@@ -599,6 +622,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int
 }
 
 // Memory
+
 size_t syscall_LocalAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto uFlags = stack[1];
@@ -656,6 +680,13 @@ int syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocator
 }
 
 // System
+
+size_t syscall_GetCommandLineA(uint8_t* memory)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    return virtual(size_t, windows->commandLine);
+}
+
 int syscall_GetCurrentProcessId()
 {
 #if defined(_WIN32)
@@ -674,14 +705,15 @@ int syscall_GetCurrentThreadId()
 #endif
 }
 
-int syscall_OutputDebugStringA(uint8_t* memory, uint32_t* stack, int(*log)(const char*, ...))
+int syscall_OutputDebugStringA(uint8_t* memory, uint32_t* stack, int(*log)(const char*, va_list))
 {
     auto lpOutputString = physical(char*, stack[1]);
-    log("%s", lpOutputString);
+    log("%s", (va_list)&lpOutputString);
     return 0;
 }
 
 // Time
+
 int syscall_GetSystemTimeAsFileTime(uint8_t* memory, uint32_t* stack)
 {
 #if defined(_WIN32)

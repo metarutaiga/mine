@@ -65,11 +65,12 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
     this->allocator = allocator;
 
     memory_size = allocator->max_size();
-    memory_address = (uint8_t*)allocator->allocate(stack, 0);
-    stack_address = memory_address + stack - 16;
+    stack_size = stack;
+    memory_address = (uint8_t*)allocator->allocate(256, 0);
+    stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
 
-    IP = (uint32_t)stack;
-    SP = (uint32_t)stack - 16;
+    IP = 0;
+    SP = (uint32_t)memory_size - 16;
     FLAGS = 0b0000001000000010;
 
     return true;
@@ -77,13 +78,16 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i86::Run()
 {
-    while (IP) {
-        if (Step('INTO') == false)
-            return false;
-        if (IP == Breakpoint)
-            return false;
+    if (Breakpoint) {
+        while (EIP) {
+            if (Step('INTO') == false)
+                return false;
+            if (EIP == Breakpoint)
+                return false;
+        }
+        return true;
     }
-    return true;
+    return Step('LOOP');
 }
 //------------------------------------------------------------------------------
 bool x86_i86::Step(int type)

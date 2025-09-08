@@ -57,6 +57,7 @@ struct x86_register
 
 public:
     size_t memory_size = 0;
+    size_t stack_size = 0;
     uint8_t* memory_address = nullptr;
     uint8_t* stack_address = nullptr;
     uint8_t* opcode = nullptr;

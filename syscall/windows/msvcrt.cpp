@@ -33,6 +33,17 @@ size_t syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
     return pointer;
 }
 
+int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto pFile = physical(uint32_t*, stack[1]);
+    if (pFile) {
+        (*pFile) = uint32_t(syscall_fopen(memory, stack + 1, allocator));
+    }
+    if (pFile == nullptr || (*pFile) == 0)
+        return -1;
+    return 0;
+}
+
 size_t syscall_memmove_s(char* memory, const uint32_t* stack)
 {
     auto destination = physical(char*, stack[1]);
@@ -140,6 +151,15 @@ int syscall_splitpath(uint8_t* memory, const uint32_t* stack)
     }
 
     return 0;
+}
+
+size_t syscall_strcat_s(char* memory, const uint32_t* stack)
+{
+    auto destination = physical(char*, stack[1]);
+    auto num = stack[2];
+    auto source = physical(char*, stack[3]);
+    strncat(destination, source, num);
+    return stack[1];
 }
 
 size_t syscall_strdup(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
@@ -250,6 +270,13 @@ int syscall__setjmp3(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
     buf->Cookie = 0x56433230;
 
     return 0;
+}
+
+size_t syscall___acrt_iob_func(uint8_t* memory, const uint32_t* stack)
+{
+    auto i = stack[1];
+    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+    return virtual(size_t, &msvcrt->iob[i]);
 }
 
 int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)

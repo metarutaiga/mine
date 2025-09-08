@@ -24,8 +24,8 @@ extern "C" {
     uint8_t* memory,        \
     uint32_t* stack,        \
     allocator_t* allocator, \
-    int(*syslog)(const char*, ...), \
-    int(*log)(const char*, ...)
+    int(*syslog)(const char*, va_list), \
+    int(*log)(const char*, va_list)
 
 #define INT32(count, value) \
     [](CALLBACK_ARGUMENT) -> size_t {   \
@@ -86,15 +86,20 @@ static const struct {
     { "LocalFree",                  INT32(1, syscall_LocalFree(memory, stack, allocator))           },
     { "VirtualAlloc",               INT32(4, syscall_VirtualAlloc(memory, stack, allocator))        },
     { "VirtualFree",                INT32(3, syscall_VirtualFree(memory, stack, allocator))         },
+    { "VirtualProtect",             INT32(4, true)                                                  },
+    { "WriteProcessMemory",         INT32(5, syscall_memcpy(memory, stack + 1))                     },
 
     // kernel32 - system
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
+    { "GetCommandLineA",            INT32(0, syscall_GetCommandLineA(memory))                       },
+    { "GetCurrentDirectoryA",       INT32(2, syscall_GetCurrentDirectoryA(memory, stack))           },
     { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
     { "GetLastError",               INT32(0, 0)                                                     },
     { "GetSystemInfo",              INT32(1, 0)                                                     },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack, syslog))     },
+    { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
     // kernel32 - time
@@ -116,8 +121,10 @@ static const struct {
     { "RegQueryValueExA",           INT32(6, 2)                                                     },
 
     // msvcrt
+    { "fopen_s",                    INT32(0, syscall_fopen_s(memory, stack, allocator))             },
     { "memmove_s",                  INT32(0, syscall_memmove_s(memory, stack))                      },
     { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                    },
+    { "strcat_s",                   INT32(0, syscall_strcat_s(memory, stack))                       },
     { "_callnewh",                  INT32(0, 1)                                                     },
     { "_cexit",                     INT32(0, syscall_exit(stack))                                   },
     { "_CIatan",                    INT32(0, syscall__CIatan(cpu))                                  },
@@ -143,6 +150,7 @@ static const struct {
     { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                        },
     { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                       },
     { "_unlock",                    INT32(0, 0)                                                     },
+    { "__acrt_iob_func",            INT32(0, syscall___acrt_iob_func(memory, stack))                },
     { "__dllonexit",                INT32(0, 0)                                                     },
     { "__getmainargs",              INT32(0, syscall___getmainargs(memory, stack, allocator))       },
     { "__iob_func",                 INT32(0, syscall___iob_func(memory))                            },
@@ -183,11 +191,26 @@ static const struct {
 //  { "??0exception@@QAE@ABV0@@Z",  INT32(0, 0)                                                     },
 //  { "??1type_info@@UAE@XZ",       INT32(0, 0)                                                     },
 
+    // ucrt
+    { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack, log))   },
+    { "__stdio_common_vsprintf",    INT32(0, syscall___stdio_common_vsprintf(memory, stack))        },
+
     // std::string
-    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",   INT32(0, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator)) },
-    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",      INT32(0, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator)) },
-    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_constructor(ECX, memory, allocator))             },
-    { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",         INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))           },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",             INT32(0, syscall_basic_string_char_constructor(ECX, memory))                                },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@@Z",       INT32(1, syscall_basic_string_char_copy_constructor(ECX, memory, stack, allocator))         },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@ABV01@II@Z",     INT32(3, syscall_basic_string_char_copy_range_constructor(ECX, memory, stack, allocator))   },
+    { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z",          INT32(1, syscall_basic_string_char_cstr_constructor(ECX, memory, stack, allocator))         },
+    { "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",             INT32(0, syscall_basic_string_char_deconstructor(ECX, memory, allocator))                   },
+    { "??4?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@ABV01@@Z",  INT32(1, syscall_basic_string_char_assign(ECX, memory, stack, allocator))                   },
+    { "??4?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@PBD@Z",     INT32(1, syscall_basic_string_char_assign_cstr(ECX, memory, stack, allocator))              },
+    { "??A?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAADI@Z",          INT32(1, syscall_basic_string_char_at(ECX, memory, stack))                                  },
+    { "??Y?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@ABV01@@Z",  INT32(1, syscall_basic_string_char_append(ECX, memory, stack, allocator))                   },
+    { "??Y?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@PBD@Z",     INT32(1, syscall_basic_string_char_append_cstr(ECX, memory, stack, allocator))              },
+    { "?substr@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QBE?AV12@II@Z", INT32(3, syscall_basic_string_char_substr(ECX, memory, stack, allocator))                   },
+
+    // std::string comparsion
+    { "??$?8DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_eq_cstr(memory, stack))  },
+    { "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_neq_cstr(memory, stack)) },
 };
 
 size_t syscall_windows_new(void* data, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[])
@@ -229,6 +252,10 @@ size_t syscall_windows_new(void* data, const char* path, void* image, int argc, 
         windows->image = virtual(uint32_t, image);
         new (windows) Windows;
     }
+    for (int i = 0; i < argc; ++i) {
+        if (i) strncat(windows->commandLine, " ", 256);
+        strncat(windows->commandLine, argv[i], 256);
+    }
 #if defined(_WIN32)
     strncpy(windows->currentDirectory, path, 260);
 #else
@@ -267,7 +294,7 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, ...), int(*log)(const char*, ...))
+size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))
 {
     index = uint32_t(-index - SYMBOL_INDEX);
 
@@ -281,7 +308,7 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
         if (syslog) {
-            syslog("[CALL] %s", syscall_table[index].name);
+            syslog("[CALL] %s", (va_list)&syscall_table[index].name);
         }
         return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
     }

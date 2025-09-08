@@ -140,11 +140,12 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
     Allocator = allocator;
 
     memory_size = allocator->max_size();
-    memory_address = (uint8_t*)allocator->allocate(stack, 0);
-    stack_address = memory_address + stack - 16;
+    stack_size = stack;
+    memory_address = (uint8_t*)allocator->allocate(4096, 0);
+    stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
 
-    EIP = (uint32_t)stack;
-    ESP = (uint32_t)stack - 16;
+    EIP = 0;
+    ESP = (uint32_t)memory_size - 16;
     EFLAGS = 0b0000001000000010;
 
     return true;
@@ -152,13 +153,16 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i386::Run()
 {
-    while (EIP) {
-        if (Step('INTO') == false)
-            return false;
-        if (EIP == Breakpoint)
-            return false;
+    if (Breakpoint) {
+        while (EIP) {
+            if (Step('INTO') == false)
+                return false;
+            if (EIP == Breakpoint)
+                return false;
+        }
+        return true;
     }
-    return true;
+    return Step('LOOP');
 }
 //------------------------------------------------------------------------------
 bool x86_i386::Step(int type)
