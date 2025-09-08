@@ -28,9 +28,9 @@ size_t syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
     auto memory = (char*)allocator->address();
     auto old_pointer = physical(char*, pointer);
     auto old_size = allocator->size(old_pointer);
-    if (old_size < new_size)
-        return 0;
-    return pointer;
+    if (old_size >= new_size)
+        return pointer;
+    return 0;
 }
 
 int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* allocator)
@@ -50,7 +50,7 @@ size_t syscall_memmove_s(char* memory, const uint32_t* stack)
     auto source = physical(char*, stack[3]);
     auto num = stack[4];
     memmove(destination, source, num);
-    return stack[1];
+    return 0;
 }
 
 size_t syscall_msize(const uint32_t* stack, struct allocator_t* allocator)
@@ -67,9 +67,9 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     auto memory = (char*)allocator->address();
     auto old_pointer = physical(char*, pointer);
     auto old_size = allocator->size(old_pointer);
-    if (old_size == new_size)
+    if (old_size >= new_size)
         return pointer;
-    auto new_pointer = (uint8_t*)allocator->allocate(new_size);
+    auto new_pointer = allocator->allocate(new_size);
     if (new_pointer == nullptr)
         return 0;
     if (pointer) {
@@ -82,7 +82,7 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     return virtual(size_t, new_pointer);
 }
 
-int syscall_splitpath(uint8_t* memory, const uint32_t* stack)
+int syscall_splitpath(char* memory, const uint32_t* stack)
 {
     auto path = physical(char*, stack[1]);
     auto drive = physical(char*, stack[2]);
@@ -162,7 +162,7 @@ size_t syscall_strcat_s(char* memory, const uint32_t* stack)
     return stack[1];
 }
 
-size_t syscall_strdup(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_strdup(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto str = physical(char*, stack[1]);
 
@@ -175,14 +175,14 @@ size_t syscall_strdup(uint8_t* memory, const uint32_t* stack, struct allocator_t
     return virtual(size_t, result);
 }
 
-int syscall_stricmp(uint8_t* memory, const uint32_t* stack)
+int syscall_stricmp(char* memory, const uint32_t* stack)
 {
     auto str1 = physical(char*, stack[1]);
     auto str2 = physical(char*, stack[2]);
     return strcasecmp(str1, str2);
 }
 
-int syscall_strnicmp(uint8_t* memory, const uint32_t* stack)
+int syscall_strnicmp(char* memory, const uint32_t* stack)
 {
     auto str1 = physical(char*, stack[1]);
     auto str2 = physical(char*, stack[2]);
@@ -215,7 +215,7 @@ int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
-int syscall__controlfp_s(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+int syscall__controlfp_s(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto current = physical(int*, stack[1]);
     auto control = stack[2];
@@ -239,7 +239,7 @@ int syscall__encode_pointer(const uint32_t* stack)
     return stack[1];
 }
 
-int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto begin = physical(uint32_t*, stack[1]);
     auto end = physical(uint32_t*, stack[2]);
@@ -254,7 +254,7 @@ int syscall__initterm(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
-int syscall__setjmp3(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+int syscall__setjmp3(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto buf = physical(JUMP_BUFFER*, stack[1]);
 
@@ -272,14 +272,14 @@ int syscall__setjmp3(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
-size_t syscall___acrt_iob_func(uint8_t* memory, const uint32_t* stack)
+size_t syscall___acrt_iob_func(char* memory, const uint32_t* stack)
 {
     auto i = stack[1];
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     return virtual(size_t, &msvcrt->iob[i]);
 }
 
-int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+int syscall___getmainargs(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto argc = physical(int*, stack[1]);
     auto argv = physical(int*, stack[2]);
@@ -296,25 +296,25 @@ int syscall___getmainargs(uint8_t* memory, const uint32_t* stack, struct allocat
     return 0;
 }
 
-size_t syscall___iob_func(uint8_t* memory)
+size_t syscall___iob_func(char* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     return virtual(int, msvcrt->iob);
 }
 
-size_t syscall___p__commode(uint8_t* memory)
+size_t syscall___p__commode(char* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     return virtual(size_t, &msvcrt->commode);
 }
 
-size_t syscall___p__fmode(uint8_t* memory)
+size_t syscall___p__fmode(char* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     return virtual(size_t, &msvcrt->fmode);
 }
 
-size_t syscall___p___initenv(uint8_t* memory)
+size_t syscall___p___initenv(char* memory)
 {
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     return virtual(size_t, &msvcrt->initenv);

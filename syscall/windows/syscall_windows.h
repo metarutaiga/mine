@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-size_t syscall_windows_new(void* data, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[]);
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[]);
 size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*));
 size_t syscall_windows_delete(void* data);
 size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
@@ -67,19 +67,19 @@ int syscall_QueryPerformanceCounter(const void* memory, const void* stack);
 int syscall_QueryPerformanceFrequency(const void* memory, const void* stack);
 
 // msvcprt
-size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory);
-size_t syscall_basic_string_char_copy_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_cstr_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-int syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator);
-size_t syscall_basic_string_char_assign(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_assign_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-char syscall_basic_string_char_at(size_t thiz, uint8_t* memory, const uint32_t* stack);
-size_t syscall_basic_string_char_append(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_append_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-size_t syscall_basic_string_char_substr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator);
-bool syscall_basic_string_char_eq_cstr(uint8_t* memory, const uint32_t* stack);
-bool syscall_basic_string_char_neq_cstr(uint8_t* memory, const uint32_t* stack);
+size_t syscall_basic_string_char_constructor(size_t thiz, const void* memory);
+size_t syscall_basic_string_char_copy_constructor(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_cstr_constructor(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+int syscall_basic_string_char_deconstructor(size_t thiz, const void* memory, struct allocator_t* allocator);
+size_t syscall_basic_string_char_assign(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_assign_cstr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+char syscall_basic_string_char_at(size_t thiz, const void* memory, const void* stack);
+size_t syscall_basic_string_char_append(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_append_cstr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_basic_string_char_substr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_basic_string_char_eq_cstr(const void* memory, const void* stack);
+bool syscall_basic_string_char_neq_cstr(const void* memory, const void* stack);
 
 // msvcrt
 size_t syscall_expand(const void* stack, struct allocator_t* allocator);

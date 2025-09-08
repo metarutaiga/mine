@@ -213,7 +213,7 @@ static const struct {
     { "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_neq_cstr(memory, stack)) },
 };
 
-size_t syscall_windows_new(void* data, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[])
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[])
 {
     if (data == nullptr)
         return 0;
@@ -221,6 +221,15 @@ size_t syscall_windows_new(void* data, const char* path, void* image, int argc, 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* allocator = cpu->Allocator;
+
+    auto* tib = (TIB*)memory;
+    tib->ExceptionList = 0;
+    tib->StackBase = uint32_t(stack_base);
+    tib->StackLimit = uint32_t(stack_limit);
+    tib->Version = 0;
+    tib->ArbitraryUserPointer = 0;
+    tib->Self = 0;
+
     auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
     msvcrt->iob[0][0] = 1;
     msvcrt->iob[1][0] = 2;

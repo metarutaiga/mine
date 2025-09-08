@@ -1,6 +1,6 @@
 #pragma once
 
-#define TIB_MSVCRT 0x600
+#define TIB_MSVCRT 0xC00
 
 struct MSVCRT {
     uint32_t iob[3][8];

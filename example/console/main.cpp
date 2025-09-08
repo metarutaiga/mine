@@ -20,7 +20,7 @@ static size_t run_exception(miCPU* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, syslog, printf);
+        result = syscall_windows_execute(data, index, vsyslog, vprintf);
     }
     if (result == 0) {
         result = syscall_i386_execute(data, index, vsyslog, vprintf);
@@ -51,7 +51,7 @@ int main(int argc, const char* argv[])
     static const int stackSize = 65536;
 
     miCPU* cpu = new x86_i386;
-    cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
+    cpu->Initialize(simple_allocator<16>::construct(allocator_size), stack_size);
     cpu->Exception = run_exception;
 
     void* image = PE::Load(argv[1], [](size_t base, size_t size, void* userdata) {
@@ -59,7 +59,9 @@ int main(int argc, const char* argv[])
         return cpu->Memory(base, size);
     }, cpu, syslog);
     if (image) {
-        syscall_windows_new(cpu, ".", image, argc - 1, argv + 1, 0, nullptr);
+        size_t stack_base = allocator_size;
+        size_t stack_limit = allocator_size - stack_size;
+        syscall_windows_new(cpu, stack_base, stack_limit, ".", image, argc - 1, argv + 1, 0, nullptr);
 
         PE::Imports(image, get_symbol, syslog);
 

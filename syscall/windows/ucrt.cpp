@@ -10,7 +10,7 @@ std::vector<uint64_t> syscall_convert_format_argument(const char* format, const 
 extern "C" {
 #endif
 
-int syscall___stdio_common_vfprintf(uint8_t* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall___stdio_common_vfprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
 {
     auto stream = physical(FILE**, stack[3]);
     auto format = physical(char*, stack[4]);
@@ -27,7 +27,7 @@ int syscall___stdio_common_vfprintf(uint8_t* memory, const uint32_t* stack, int(
     return 0;
 }
 
-int syscall___stdio_common_vsprintf(uint8_t* memory, const uint32_t* stack)
+int syscall___stdio_common_vsprintf(char* memory, const uint32_t* stack)
 {
     auto buffer = physical(char*, stack[3]);
     auto length = stack[4];

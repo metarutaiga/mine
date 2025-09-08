@@ -427,7 +427,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     args.push_back(arg.data());
                 }
 
-                syscall_windows_new(cpu, file.substr(0, file.rfind('/')).c_str(), image, (int)args.size(), args.data(), 0, nullptr);
+                size_t stack_base = allocatorSize;
+                size_t stack_limit = allocatorSize - stackSize;
+                syscall_windows_new(cpu, stack_base, stack_limit, file.substr(0, file.rfind('/')).c_str(), image, (int)args.size(), args.data(), 0, nullptr);
                 syscall_windows_debug(cpu, disassembly);
 
                 exports.emplace_back("Entry", PE::Entry(image));

@@ -207,7 +207,7 @@ int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
     auto memory = allocator->address();
     auto old_pointer = physical(char*, pointer);
     auto old_size = allocator->size(old_pointer);
-    if (old_size == new_size)
+    if (old_size >= new_size)
         return pointer;
     auto new_pointer = allocator->allocate(new_size);
     if (new_pointer == nullptr)

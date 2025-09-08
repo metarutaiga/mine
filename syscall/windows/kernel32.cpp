@@ -155,7 +155,7 @@ uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     return uint32_t(strlen(lpBuffer));
 }
 
-int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
+int syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -174,7 +174,7 @@ int syscall_SetCurrentDirectoryA(uint8_t* memory, uint32_t* stack)
 
 // File
 
-int syscall_CloseHandle(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+int syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hObject = physical(FILE**, stack[1]);
     if (hObject && *hObject) {
@@ -184,7 +184,7 @@ int syscall_CloseHandle(uint8_t* memory, uint32_t* stack, struct allocator_t* al
     return true;
 }
 
-size_t syscall_CreateFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -248,7 +248,7 @@ size_t syscall_CreateFileA(uint8_t* memory, uint32_t* stack, struct allocator_t*
     return virtual(size_t, handle);
 }
 
-size_t syscall_CreateFileMappingA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_CreateFileMappingA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFile = physical(FILE**, stack[1]);
 //  auto lpFileMappingAttributes = physical(void*, stack[2]);
@@ -260,7 +260,7 @@ size_t syscall_CreateFileMappingA(uint8_t* memory, uint32_t* stack, struct alloc
     return virtual(size_t, hFile);
 }
 
-uint32_t syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
+uint32_t syscall_GetFileSize(uint8_t* memory, const uint32_t* stack)
 {
     auto hFile = physical(FILE**, stack[1]);
     auto lpFileSizeHigh = physical(uint32_t*, stack[2]);
@@ -277,7 +277,7 @@ uint32_t syscall_GetFileSize(uint8_t* memory, uint32_t* stack)
     return uint32_t(size);
 }
 
-uint32_t syscall_GetFullPathNameA(uint8_t* memory, uint32_t* stack)
+uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
 {
     auto lpFileName = physical(char*, stack[1]);
     auto nBufferLength = stack[2];
@@ -305,7 +305,7 @@ uint32_t syscall_GetFullPathNameA(uint8_t* memory, uint32_t* stack)
     return nBufferLength;
 }
 
-size_t syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_MapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFileMappingObject = physical(FILE**, stack[1]);
 //  auto dwDesiredAccess = stack[2];
@@ -332,7 +332,7 @@ size_t syscall_MapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_
     return virtual(size_t, map);
 }
 
-int syscall_UnmapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+int syscall_UnmapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto lpBaseAddress = physical(void*, stack[1]);
     allocator->deallocate(lpBaseAddress);
@@ -341,7 +341,7 @@ int syscall_UnmapViewOfFile(uint8_t* memory, uint32_t* stack, struct allocator_t
 
 // Find
 
-int syscall_FindClose(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+int syscall_FindClose(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto hFindFile = physical(HANDLE*, stack[1]);
@@ -356,7 +356,7 @@ int syscall_FindClose(uint8_t* memory, uint32_t* stack, struct allocator_t* allo
 #endif
 }
 
-int syscall_FindNextFileA(uint8_t* memory, uint32_t* stack)
+int syscall_FindNextFileA(uint8_t* memory, const uint32_t* stack)
 {
 #if defined(_WIN32)
     auto hFindFile = physical(HANDLE*, stack[1]);
@@ -447,18 +447,18 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
 // Library
 
-int syscall_FreeLibrary(uint8_t* memory, uint32_t* stack)
+int syscall_FreeLibrary(uint8_t* memory, const uint32_t* stack)
 {
     return 0;
 }
 
-size_t syscall_GetModuleBaseNameA(uint8_t* memory, uint32_t* stack)
+size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
 {
-    extern size_t syscall_GetModuleFileNameA(uint8_t* memory, uint32_t* stack);
+    extern size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack);
     return syscall_GetModuleFileNameA(memory, stack + 1);
 }
 
-size_t syscall_GetModuleFileNameA(uint8_t* memory, uint32_t* stack)
+size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -481,7 +481,7 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, uint32_t* stack)
     return 0;
 }
 
-size_t syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
+size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -501,7 +501,7 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, uint32_t* stack)
     return 0;
 }
 
-size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const char*, va_list))
+size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack, int(*log)(const char*, va_list))
 {
     if (stack[1] == 0 || stack[2] == 0)
         return 0;
@@ -526,7 +526,7 @@ size_t syscall_GetProcAddress(uint8_t* memory, uint32_t* stack, int(*log)(const 
     return data.address;
 }
 
-size_t syscall_LoadLibraryA(uint8_t* memory, uint32_t* stack, x86_i386* cpu, int(*log)(const char*, va_list))
+size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu, int(*log)(const char*, va_list))
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -705,7 +705,7 @@ int syscall_GetCurrentThreadId()
 #endif
 }
 
-int syscall_OutputDebugStringA(uint8_t* memory, uint32_t* stack, int(*log)(const char*, va_list))
+int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack, int(*log)(const char*, va_list))
 {
     auto lpOutputString = physical(char*, stack[1]);
     log("%s", (va_list)&lpOutputString);
@@ -714,7 +714,7 @@ int syscall_OutputDebugStringA(uint8_t* memory, uint32_t* stack, int(*log)(const
 
 // Time
 
-int syscall_GetSystemTimeAsFileTime(uint8_t* memory, uint32_t* stack)
+int syscall_GetSystemTimeAsFileTime(uint8_t* memory, const uint32_t* stack)
 {
 #if defined(_WIN32)
     auto lpSystemTimeAsFileTime = physical(FILETIME*, stack[1]);
@@ -742,7 +742,7 @@ int syscall_GetTickCount()
 #endif
 }
 
-int syscall_QueryPerformanceCounter(uint8_t* memory, uint32_t* stack)
+int syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
 {
 #if defined(_WIN32)
     auto lpPerformanceCount = physical(LARGE_INTEGER*, stack[1]);
@@ -758,7 +758,7 @@ int syscall_QueryPerformanceCounter(uint8_t* memory, uint32_t* stack)
 #endif
 }
 
-int syscall_QueryPerformanceFrequency(uint8_t* memory, uint32_t* stack)
+int syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 {
 #if defined(_WIN32)
     auto lpFrequency = physical(LARGE_INTEGER*, stack[1]);

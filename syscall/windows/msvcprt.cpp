@@ -18,7 +18,7 @@ struct syscall_basic_string {
 extern "C" {
 #endif
 
-static size_t syscall_basic_string_char_append(size_t thiz, uint8_t* memory, struct allocator_t* allocator, const char* other_ptr, size_t other_size)
+static size_t syscall_basic_string_char_append(size_t thiz, char* memory, struct allocator_t* allocator, const char* other_ptr, size_t other_size)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     size_t size = local.size + other_size;
@@ -48,7 +48,7 @@ static size_t syscall_basic_string_char_append(size_t thiz, uint8_t* memory, str
     return thiz;
 }
 
-size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory)
+size_t syscall_basic_string_char_constructor(size_t thiz, char* memory)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     local.allocator = 0;
@@ -58,7 +58,7 @@ size_t syscall_basic_string_char_constructor(size_t thiz, uint8_t* memory)
     return thiz;
 }
 
-size_t syscall_basic_string_char_copy_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_copy_constructor(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto& other = *physical(syscall_basic_string<char>*, stack[1]);
     auto* other_ptr = (other.res >= sizeof(other.buf)) ? physical(char*, other.ptr) : other.buf;
@@ -66,7 +66,7 @@ size_t syscall_basic_string_char_copy_constructor(size_t thiz, uint8_t* memory, 
     return syscall_basic_string_char_append(thiz, memory, allocator, other_ptr, other.size);
 }
 
-size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto& other = *physical(syscall_basic_string<char>*, stack[1]);
     auto pos = stack[2];
@@ -76,7 +76,7 @@ size_t syscall_basic_string_char_copy_range_constructor(size_t thiz, uint8_t* me
     return syscall_basic_string_char_append(thiz, memory, allocator, other_ptr + pos, (len == 0xFFFFFFFF) ? other.size - pos : len);
 }
 
-size_t syscall_basic_string_char_cstr_constructor(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_cstr_constructor(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto* other_ptr = physical(char*, stack[1]);
     auto other_size = strlen(other_ptr);
@@ -84,7 +84,7 @@ size_t syscall_basic_string_char_cstr_constructor(size_t thiz, uint8_t* memory, 
     return syscall_basic_string_char_append(thiz, memory, allocator, other_ptr, other_size);
 }
 
-int syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct allocator_t* allocator)
+int syscall_basic_string_char_deconstructor(size_t thiz, char* memory, struct allocator_t* allocator)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     if (local.res >= sizeof(local.buf)) {
@@ -93,40 +93,40 @@ int syscall_basic_string_char_deconstructor(size_t thiz, uint8_t* memory, struct
     return 0;
 }
 
-size_t syscall_basic_string_char_assign(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_assign(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     syscall_basic_string_char_deconstructor(thiz, memory, allocator);
     return syscall_basic_string_char_copy_constructor(thiz, memory, stack, allocator);
 }
 
-size_t syscall_basic_string_char_assign_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_assign_cstr(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     syscall_basic_string_char_deconstructor(thiz, memory, allocator);
     return syscall_basic_string_char_cstr_constructor(thiz, memory, stack, allocator);
 }
 
-char syscall_basic_string_char_at(size_t thiz, uint8_t* memory, const uint32_t* stack)
+char syscall_basic_string_char_at(size_t thiz, char* memory, const uint32_t* stack)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     auto* local_ptr = (local.res >= sizeof(local.buf)) ? physical(char*, local.ptr) : local.buf;
     return local_ptr[stack[1]];
 }
 
-size_t syscall_basic_string_char_append(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_append(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto& other = *physical(syscall_basic_string<char>*, stack[1]);
     char* other_ptr = (other.res >= sizeof(other.buf)) ? physical(char*, other.ptr) : other.buf;
     return syscall_basic_string_char_append(thiz, memory, allocator, other_ptr, other.size);
 }
 
-size_t syscall_basic_string_char_append_cstr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_append_cstr(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto* other_ptr = physical(char*, stack[1]);
     auto other_size = strlen(other_ptr);
     return syscall_basic_string_char_append(thiz, memory, allocator, other_ptr, other_size);
 }
 
-size_t syscall_basic_string_char_substr(size_t thiz, uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_basic_string_char_substr(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     auto other = stack[1];
@@ -137,7 +137,7 @@ size_t syscall_basic_string_char_substr(size_t thiz, uint8_t* memory, const uint
     return syscall_basic_string_char_append(other, memory, allocator, local_ptr + pos, (len == 0xFFFFFFFF) ? local.size - pos : len);
 }
 
-bool syscall_basic_string_char_eq_cstr(uint8_t* memory, const uint32_t* stack)
+bool syscall_basic_string_char_eq_cstr(char* memory, const uint32_t* stack)
 {
     auto& local = *physical(syscall_basic_string<char>*, stack[1]);
     auto* other_ptr = physical(char*, stack[2]);
@@ -145,7 +145,7 @@ bool syscall_basic_string_char_eq_cstr(uint8_t* memory, const uint32_t* stack)
     return strcmp(local_ptr, other_ptr) == 0;
 }
 
-bool syscall_basic_string_char_neq_cstr(uint8_t* memory, const uint32_t* stack)
+bool syscall_basic_string_char_neq_cstr(char* memory, const uint32_t* stack)
 {
     return syscall_basic_string_char_eq_cstr(memory, stack) == false;
 }
