@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[]);
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, void* image, int argc, const char* argv[], int envc, const char* envp[]);
 size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*));
 size_t syscall_windows_delete(void* data);
 size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));

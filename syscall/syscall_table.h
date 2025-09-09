@@ -229,6 +229,10 @@ static const struct {
     { "strftime",       INT32(syscall_strftime(memory, stack))          },
     { "time",           INT32(syscall_time(memory, stack))              },
 
+    // unistd
+    { "chdir",          INT32(syscall_chdir(memory, stack))             },
+    { "getcwd",         INT32(syscall_getcwd(memory, stack))            },
+
     // wchar
     { "btowc",          INT32(syscall_btowc(memory, stack))             },
     { "fgetwc",         INT32(syscall_fgetwc(memory, stack))            },

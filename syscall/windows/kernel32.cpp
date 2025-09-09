@@ -149,7 +149,7 @@ uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     auto lpBuffer = physical(char*, stack[2]);
 
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    strncpy(lpBuffer, windows->currentDirectory, nBufferLength);
+    strncpy(lpBuffer, windows->directory, nBufferLength);
 
     return uint32_t(strlen(lpBuffer));
 }
@@ -159,11 +159,11 @@ int syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
     char* lpPathName = physical(char*, stack[1]);
-    strncpy(windows->currentDirectory, lpPathName, 260);
+    strncpy(windows->directory, lpPathName, 260);
 #if defined(_WIN32)
     return true;
 #else
-    for (char& c : windows->currentDirectory) {
+    for (char& c : windows->directory) {
         if (c == '\\')
             c = '/';
     }
@@ -195,7 +195,7 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
 //  auto dwFlagsAndAttributes = stack[6];
 //  auto hTemplateFile = physical(FILE**, stack[7]);
 
-    std::string path = windows->currentDirectory;
+    std::string path = windows->directory;
     path += '\\';
     path += lpFileName;
 #if defined(_WIN32)
@@ -413,7 +413,7 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
         return SYSCALL_INVALID_HANDLE_VALUE;
     auto lpFileName = physical(char*, stack[1]);
 
-    std::string path = windows->currentDirectory;
+    std::string path = windows->directory;
     path += '\\';
     path += lpFileName;
 #if defined(_WIN32)
@@ -534,7 +534,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
         return module;
 
     auto lpLibFileName = physical(char*, stack[1]);
-    std::string path = windows->currentDirectory;
+    std::string path = windows->directory;
     path += '\\';
     path += lpLibFileName;
 #if defined(_WIN32)

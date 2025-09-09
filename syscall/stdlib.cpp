@@ -97,10 +97,14 @@ div_t syscall_div(const uint32_t* stack)
     return div(numer, denom);
 }
 
-int syscall_exit(const uint32_t* stack)
+int syscall_exit(uint32_t* stack)
 {
+#if 1
+    stack[0] = 0;
+#else
     auto status = stack[1];
     exit(status);
+#endif
     return 0;
 }
 

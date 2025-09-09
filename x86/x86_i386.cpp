@@ -153,11 +153,15 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i386::Run()
 {
-    if (Breakpoint) {
+    if (BreakpointDataAddress || BreakpointProgram) {
         while (EIP) {
             if (Step('INTO') == false)
                 return false;
-            if (EIP == Breakpoint)
+            if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
+                if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint32_t)) == 0)
+                    return false;
+            }
+            if (BreakpointProgram == EIP)
                 return false;
         }
         return true;

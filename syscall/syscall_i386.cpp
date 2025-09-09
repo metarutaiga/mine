@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "syscall.h"
+#include "syscall_internal.h"
 #include "x86/x86_i386.h"
 
 #ifdef __cplusplus
@@ -52,6 +53,29 @@ extern "C" {
     }
 
 #include "syscall_table.h"
+
+size_t syscall_i386_new(void* data, const char* path, int argc, const char* argv[], int envc, const char* envp[])
+{
+    auto* cpu = (x86_i386*)data;
+    auto* memory = cpu->Memory();
+
+    auto directory = physical(char*, offset_directory);
+    directory[0] = 0;
+#if defined(_WIN32)
+    strncpy(directory, path, 260);
+#else
+    realpath(path, directory);
+#endif
+
+    auto commandLine = physical(char*, offset_commandLine);
+    commandLine[0] = 0;
+    for (int i = 0; i < argc; ++i) {
+        if (i) strncat(commandLine, " ", 256);
+        strncat(commandLine, argv[i], 256);
+    }
+
+    return 0;
+}
 
 size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))
 {

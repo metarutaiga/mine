@@ -139,7 +139,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int updateCount = 0;
-        static int breakpoint = 0;
+        static int breakpointData[2] = {};
+        static int breakpointProgram = 0;
         static int disasmIndex = 0;
         static int disasmFocus = -1;
         static int stackIndex = 0;
@@ -224,7 +225,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 ImGui::Selectable(local.temp);
                 if (ImGui::IsItemHovered()) {
                     if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
-                        cpu->Breakpoint = breakpoint = (int)address;
+                        cpu->BreakpointProgram = breakpointProgram = (int)address;
                     }
                     if (comment[0]) {
                         ImGui::SetTooltip("%s", comment);
@@ -313,9 +314,14 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
-            ImGui::InputTextEx("Argument", nullptr, arguments);
-            if (ImGui::InputInt("Breakpoint", &breakpoint, 0, 0, ImGuiInputTextFlags_CharsHexadecimal)) {
-                if (cpu) cpu->Breakpoint = breakpoint;
+            ImGui::InputTextMultiline("Argument", arguments, ImVec2(0, ImGui::GetTextLineHeightWithSpacing() * 2));
+            ImGui::Separator();
+            if (ImGui::InputScalarN("Data", ImGuiDataType_U32, breakpointData, 2, nullptr, nullptr, "%08X")) {
+                if (cpu) cpu->BreakpointDataAddress = breakpointData[0];
+                if (cpu) cpu->BreakpointDataValue = breakpointData[1];
+            }
+            if (ImGui::InputInt("Program", &breakpointProgram, 0, 0, ImGuiInputTextFlags_CharsHexadecimal)) {
+                if (cpu) cpu->BreakpointProgram = breakpointProgram;
             }
             ImGui::Separator();
             for (auto& [name, path] : samples) {
@@ -375,7 +381,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
-            cpu->Breakpoint = breakpoint;
+            cpu->BreakpointDataAddress = breakpointData[0];
+            cpu->BreakpointDataValue = breakpointData[1];
+            cpu->BreakpointProgram = breakpointProgram;
             cpu->Exception = Exception;
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
@@ -429,8 +437,10 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
                 size_t stack_base = allocatorSize;
                 size_t stack_limit = allocatorSize - stackSize;
-                syscall_windows_new(cpu, stack_base, stack_limit, file.substr(0, file.rfind('/')).c_str(), image, (int)args.size(), args.data(), 0, nullptr);
+                syscall_windows_new(cpu, stack_base, stack_limit, image, (int)args.size(), args.data(), 0, nullptr);
                 syscall_windows_debug(cpu, disassembly);
+
+                syscall_i386_new(cpu, file.substr(0, file.rfind('/')).c_str(), (int)args.size(), args.data(), 0, nullptr);
 
                 exports.emplace_back("Entry", PE::Entry(image));
                 PE::Imports(image, Symbol, Logger<SYSTEM>);

@@ -24,6 +24,8 @@ struct miCPU
     virtual std::string Disassemble(int count) const = 0;
 
     allocator_t* Allocator = nullptr;
-    size_t Breakpoint = 0;
+    size_t BreakpointDataAddress = 0;
+    size_t BreakpointDataValue = 0;
+    size_t BreakpointProgram = 0;
     size_t (*Exception)(miCPU*, size_t) = [](miCPU*, size_t) { return size_t(0); };
 };

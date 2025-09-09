@@ -61,7 +61,8 @@ int main(int argc, const char* argv[])
     if (image) {
         size_t stack_base = allocator_size;
         size_t stack_limit = allocator_size - stack_size;
-        syscall_windows_new(cpu, stack_base, stack_limit, ".", image, argc - 1, argv + 1, 0, nullptr);
+        syscall_windows_new(cpu, stack_base, stack_limit, image, argc - 1, argv + 1, 0, nullptr);
+        syscall_i386_new(cpu, ".", argc - 1, argv + 1, 0, nullptr);
 
         PE::Imports(image, get_symbol, syslog);
 

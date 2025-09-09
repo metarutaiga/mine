@@ -160,7 +160,14 @@ size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* al
         return 0;
     auto filename = physical(char*, stack[1]);
     auto mode = physical(char*, stack[2]);
-    (*stream) = fopen(filename, mode);
+
+    auto directory = physical(char*, offset_directory);
+    char fullpath[260];
+    strncpy(fullpath, directory, 260);
+    strncat(fullpath, "/", 260);
+    strncat(fullpath, filename, 260);
+
+    (*stream) = fopen(fullpath, mode);
     if ((*stream) == nullptr) {
         allocator->deallocate(stream);
         return 0;

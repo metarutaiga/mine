@@ -205,6 +205,10 @@
 		F595F0222E6E8310000498EB /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0202E6E830F000498EB /* ucrt.cpp */; };
 		F595F0232E6E8310000498EB /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0202E6E830F000498EB /* ucrt.cpp */; };
 		F595F0242E6E8310000498EB /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0202E6E830F000498EB /* ucrt.cpp */; };
+		F595F0262E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
+		F595F0272E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
+		F595F0282E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
+		F595F0292E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -360,6 +364,7 @@
 		F595F0032E6A99EE000498EB /* sse_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse_instruction.cpp; sourceTree = "<group>"; };
 		F595F01A2E6C166A000498EB /* x87_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_compare.cpp; sourceTree = "<group>"; };
 		F595F0202E6E830F000498EB /* ucrt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ucrt.cpp; sourceTree = "<group>"; };
+		F595F0252E6FE28D000498EB /* unistd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unistd.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -597,6 +602,7 @@
 				F51AF6682E521FD800E9B209 /* syscall_internal.h */,
 				D6DA48E22E5A0AF000B2E822 /* syscall_table.h */,
 				F51AF6632E521AB000E9B209 /* time.cpp */,
+				F595F0252E6FE28D000498EB /* unistd.cpp */,
 				F5FCAEDD2E61EFAD007401E1 /* wchar.cpp */,
 				F5FCAED82E61ECB3007401E1 /* wctype.cpp */,
 			);
@@ -830,6 +836,7 @@
 				F595EF652E656970000498EB /* string.cpp in Sources */,
 				F595EF662E656970000498EB /* syscall_i386.cpp in Sources */,
 				F595EF682E656970000498EB /* time.cpp in Sources */,
+				F595F0282E6FE292000498EB /* unistd.cpp in Sources */,
 				F595EF692E656970000498EB /* wchar.cpp in Sources */,
 				F595EF6A2E656970000498EB /* wctype.cpp in Sources */,
 				F595EF572E65695D000498EB /* coff.cpp in Sources */,
@@ -885,6 +892,7 @@
 				F595EF3A2E6568DA000498EB /* string.cpp in Sources */,
 				F595EF3B2E6568DA000498EB /* syscall_i386.cpp in Sources */,
 				F595EF3D2E6568DA000498EB /* time.cpp in Sources */,
+				F595F0292E6FE292000498EB /* unistd.cpp in Sources */,
 				F595EF3E2E6568DA000498EB /* wchar.cpp in Sources */,
 				F595EF3F2E6568DA000498EB /* wctype.cpp in Sources */,
 				F595EF2C2E6568C5000498EB /* coff.cpp in Sources */,
@@ -945,6 +953,7 @@
 				F595EF8E2E6569A9000498EB /* string.cpp in Sources */,
 				F595EF8F2E6569A9000498EB /* syscall_i386.cpp in Sources */,
 				F595EF912E6569A9000498EB /* time.cpp in Sources */,
+				F595F0272E6FE292000498EB /* unistd.cpp in Sources */,
 				F595EF922E6569A9000498EB /* wchar.cpp in Sources */,
 				F595EF932E6569A9000498EB /* wctype.cpp in Sources */,
 				F595EF802E65699C000498EB /* coff.cpp in Sources */,
@@ -1000,6 +1009,7 @@
 				F595EF042E655232000498EB /* string.cpp in Sources */,
 				F595EF072E655232000498EB /* syscall_i386.cpp in Sources */,
 				F595EF0C2E655232000498EB /* time.cpp in Sources */,
+				F595F0262E6FE292000498EB /* unistd.cpp in Sources */,
 				F595EF0D2E655232000498EB /* wchar.cpp in Sources */,
 				F595EF0E2E655232000498EB /* wctype.cpp in Sources */,
 				F595EEF02E655225000498EB /* coff.cpp in Sources */,

@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+size_t syscall_i386_new(void* data, const char* path, int argc, const char* argv[], int envc, const char* envp[]);
 size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_i386_symbol(const char* file, const char* name);
 const char* syscall_i386_name(size_t index);
@@ -231,6 +232,10 @@ int syscall_localtime(const void* memory, const void* stack);
 int syscall_mktime(const void* memory, const void* stack);
 int syscall_strftime(const void* memory, const void* stack);
 int syscall_time(const void* memory, const void* stack);
+
+// unistd
+int syscall_chdir(const void* memory, const void* stack);
+size_t syscall_getcwd(const void* memory, const void* stack);
 
 // wchar
 int syscall_btowc(const void* memory, const void* stack);

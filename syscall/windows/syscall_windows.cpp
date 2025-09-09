@@ -213,7 +213,7 @@ static const struct {
     { "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_neq_cstr(memory, stack)) },
 };
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, const char* path, void* image, int argc, const char* argv[], int envc, const char* envp[])
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, void* image, int argc, const char* argv[], int envc, const char* envp[])
 {
     if (data == nullptr)
         return 0;
@@ -261,15 +261,8 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, co
         windows->image = virtual(uint32_t, image);
         new (windows) Windows;
     }
-    for (int i = 0; i < argc; ++i) {
-        if (i) strncat(windows->commandLine, " ", 256);
-        strncat(windows->commandLine, argv[i], 256);
-    }
-#if defined(_WIN32)
-    strncpy(windows->currentDirectory, path, 260);
-#else
-    realpath(path, windows->currentDirectory);
-#endif
+    static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
+    static_assert(TIB_WINDOWS + offsetof(Windows, commandLine) == offset_commandLine);
 
     return 0;
 }
