@@ -75,7 +75,7 @@ size_t syscall_basic_string_char_cstr_constructor(size_t thiz, const void* memor
 int syscall_basic_string_char_deconstructor(size_t thiz, const void* memory, struct allocator_t* allocator);
 size_t syscall_basic_string_char_assign(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_basic_string_char_assign_cstr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
-char syscall_basic_string_char_at(size_t thiz, const void* memory, const void* stack);
+size_t syscall_basic_string_char_at(size_t thiz, const void* memory, const void* stack);
 size_t syscall_basic_string_char_append(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_basic_string_char_append_cstr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_basic_string_char_substr(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);
@@ -94,6 +94,11 @@ size_t syscall_strdup(const void* memory, const void* stack, struct allocator_t*
 int syscall_stricmp(const void* memory, const void* stack);
 int syscall_strnicmp(const void* memory, const void* stack);
 int syscall__CIatan(void* cpu);
+int syscall__CIcos(void* cpu);
+int syscall__CIexp(void* cpu);
+int syscall__CIlog(void* cpu);
+int syscall__CIpow(void* cpu);
+int syscall__CIsin(void* cpu);
 int syscall__CIsqrt(void* cpu);
 int syscall__controlfp(const void* stack, void* cpu);
 int syscall__controlfp_s(const void* memory, const void* stack, void* cpu);

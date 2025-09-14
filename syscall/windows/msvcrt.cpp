@@ -197,6 +197,42 @@ int syscall__CIatan(x86_i386* cpu)
     return 0;
 }
 
+int syscall__CIcos(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = cos(ST(0));
+    return 0;
+}
+
+int syscall__CIexp(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = exp(ST(0));
+    return 0;
+}
+
+int syscall__CIlog(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = log(ST(0));
+    return 0;
+}
+
+int syscall__CIpow(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(1) = pow(ST(1), ST(0));
+    TOP = TOP + 1;
+    return 0;
+}
+
+int syscall__CIsin(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    ST(0) = sin(ST(0));
+    return 0;
+}
+
 int syscall__CIsqrt(x86_i386* cpu)
 {
     auto& x87 = cpu->x87;

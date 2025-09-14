@@ -30,19 +30,21 @@ static size_t syscall_basic_string_char_append(size_t thiz, char* memory, struct
         else {
             ptr = (char*)allocator->allocate(size + 1);
             if (local.res >= sizeof(local.buf)) {
-                memcpy(ptr, physical(char*, local.ptr), local.size + 1);
+                memcpy(ptr, physical(char*, local.ptr), local.size);
                 allocator->deallocate(physical(char*, local.ptr));
             }
             else {
-                memcpy(ptr, local.buf, local.size + 1);
+                memcpy(ptr, local.buf, local.size);
             }
             local.ptr = virtual(int, ptr);
             local.res = uint32_t(allocator->size(ptr)) - 1;
         }
-        memcpy(ptr + local.size, other_ptr, other_size + 1);
+        memcpy(ptr + local.size, other_ptr, other_size);
+        ptr[size] = 0;
     }
     else {
-        memcpy(local.buf + local.size, other_ptr, other_size + 1);
+        memcpy(local.buf + local.size, other_ptr, other_size);
+        local.buf[size] = 0;
     }
     local.size = uint32_t(size);
     return thiz;
@@ -105,11 +107,11 @@ size_t syscall_basic_string_char_assign_cstr(size_t thiz, char* memory, const ui
     return syscall_basic_string_char_cstr_constructor(thiz, memory, stack, allocator);
 }
 
-char syscall_basic_string_char_at(size_t thiz, char* memory, const uint32_t* stack)
+size_t syscall_basic_string_char_at(size_t thiz, char* memory, const uint32_t* stack)
 {
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     auto* local_ptr = (local.res >= sizeof(local.buf)) ? physical(char*, local.ptr) : local.buf;
-    return local_ptr[stack[1]];
+    return virtual(size_t, &local_ptr[stack[1]]);
 }
 
 size_t syscall_basic_string_char_append(size_t thiz, char* memory, const uint32_t* stack, struct allocator_t* allocator)

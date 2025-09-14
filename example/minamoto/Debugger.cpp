@@ -44,6 +44,17 @@ static int LoggerV(const char* format, va_list va)
     logs[index].resize(offset + length);
     vsnprintf(logs[index].data() + offset, length, format, va);
     logs[index].pop_back();
+    for (size_t i = offset, j = 0; i < logs[index].size(); ++i, ++j) {
+        char c = logs[index][i];
+        if (c == '\n')
+            j = size_t(0) - 1;
+        if (c != '\t')
+            continue;
+        size_t tab = 8 - (j % 8);
+        logs[index].replace(i, 1, tab, ' ');
+        i += tab - 1;
+        j += tab - 1;
+    }
     if (index == SYSTEM || index == CALL) {
         if (logs[index].empty() == false && logs[index].back() != '\n') {
             logs[index] += '\n';
