@@ -19,7 +19,7 @@ struct x86_format
             enum Type : int8_t { NOP, ADR, IMM, REG, REL, X87, MMX, SSE };
             Type type;
 
-            enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2 };
+            enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2, BIT32 = 3, HIDE = 4 };
             Flag flags;
 
             int8_t scale;

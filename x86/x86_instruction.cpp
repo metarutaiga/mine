@@ -95,28 +95,21 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
 void x86_instruction::CBW(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
-    case 16:
-        format.instruction = "CBW";
-
-        OPERATION() {
-            AX = (int8_t)AL;
-        };
-        break;
-    case 32:
-        format.instruction = "CWDE";
-
-        OPERATION() {
-            EAX = (int16_t)AX;
-        };
-        break;
+    case 16:    format.instruction = "CBW";     break;
+    case 32:    format.instruction = "CWDE";    break;
 #if HAVE_X64
-    case 64:
-        format.instruction = "CDQE";
+    case 64:    format.instruction = "CDQE";    break;
+#endif
+    }
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].flags = Format::Operand::HIDE;
+    format.operand[0].base = IndexREG(EAX);
 
-        OPERATION() {
-            RAX = (int32_t)EAX;
-        };
-        break;
+    switch (format.width) {
+    case 16:    BEGIN_OPERATION() { DEST = (int8_t)DEST;  } END_OPERATION_RANGE(16, 16);    break;
+    case 32:    BEGIN_OPERATION() { DEST = (int16_t)DEST; } END_OPERATION_RANGE(32, 32);    break;
+#if HAVE_X64
+    case 64:    BEGIN_OPERATION() { DEST = (int32_t)DEST; } END_OPERATION_RANGE(64, 64);    break;
 #endif
     }
 }
@@ -175,16 +168,20 @@ void x86_instruction::CMOVcc(Format& format, const uint8_t* opcode)
 void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CMPXCHG", 2, 0, opcode[1] & 0b01);
+    format.operand[2] = format.operand[1];
+    format.operand[1].type = Format::Operand::REG;
+    format.operand[1].flags = Format::Operand::HIDE;
+    format.operand[1].base = IndexREG(EAX);
 
     BEGIN_OPERATION() {
-        auto& accumulator = (decltype(DEST)&)EAX;
-        if (accumulator == DEST) {
+        const auto& SRC = SRC2;
+        if (DEST1 == DEST2) {
             ZF = 1;
-            DEST = SRC;
+            DEST1 = SRC;
         }
         else {
             ZF = 0;
-            accumulator = DEST;
+            DEST2 = DEST1;
         }
     } END_OPERATION;
 }
@@ -192,7 +189,6 @@ void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CMPXCHG8B", 2);
-    format.operand[1].type = Format::Operand::NOP;
 
     OPERATION() {
         auto& DEST = *(uint64_t*)format.operand[0].memory;
@@ -212,30 +208,23 @@ void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
 void x86_instruction::CWD(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
-    case 16:
-        format.instruction = "CWD";
-
-        OPERATION() {
-            DX = (int16_t)AX < 0 ? 0xFFFF : 0x0000;
-        };
-        break;
-    case 32:
-        format.instruction = "CDQ";
-
-        OPERATION() {
-            EDX = (int32_t)EAX < 0 ? 0xFFFFFFFF : 0x00000000;
-        };
-        break;
+    case 16:    format.instruction = "CWD"; break;
+    case 32:    format.instruction = "CDQ"; break;
 #if HAVE_X64
-    case 64:
-        format.instruction = "CQO";
-
-        OPERATION() {
-            RDX = (int64_t)RAX < 0 ? 0xFFFFFFFFFFFFFFFFull : 0x0000000000000000ull;
-        };
-        break;
+    case 64:    format.instruction = "CQO"; break;
 #endif
     }
+    format.operand[1].type = Format::Operand::REG;
+    format.operand[1].flags = Format::Operand::HIDE;
+    format.operand[1].base = IndexREG(EAX);
+    format.operand[0].type = Format::Operand::REG;
+    format.operand[0].flags = Format::Operand::HIDE;
+    format.operand[0].base = IndexREG(EDX);
+
+    BEGIN_OPERATION() {
+        const auto& SRC = (std::make_signed_t<std::remove_reference_t<decltype(SRC1)>>&)SRC1;
+        DEST = (SRC >> (sizeof(SRC) * 8 - 1));
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::ENTER(Format& format, const uint8_t* opcode)

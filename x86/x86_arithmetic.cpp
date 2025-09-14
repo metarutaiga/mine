@@ -92,22 +92,22 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "DIV", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::NOP;
+        format.operand[2] = format.operand[1];
+        format.operand[1].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[0].base = IndexREG(EAX);
         break;
     }
 
     BEGIN_OPERATION() {
-        auto Q = SRC;
-        auto R = SRC;
-        switch (sizeof(DEST)) {
-        case sizeof(uint8_t):  Q = AL / SRC;  R = AL % SRC;  AL = Q;  AH = R;  break;
-        case sizeof(uint16_t): Q = AX / SRC;  R = AX % SRC;  AX = Q;  DX = R;  break;
-        case sizeof(uint32_t): Q = EAX / SRC; R = EAX % SRC; EAX = Q; EDX = R; break;
-#if HAVE_X64
-        case sizeof(uint64_t): Q = RAX / SRC; R = RAX % SRC; RAX = Q; RDX = R; break;
-#endif
-        default: break;
-        }
+        const auto& SRC = SRC2;
+        auto Q = DEST1 / SRC;
+        auto R = DEST1 % SRC;
+        DEST1 = Q;
+        DEST2 = R;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -117,59 +117,59 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IDIV", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::NOP;
+        format.operand[2] = format.operand[1];
+        format.operand[1].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[0].base = IndexREG(EAX);
         break;
     }
 
     BEGIN_OPERATION() {
-        auto Q = SRC;
-        auto R = SRC;
-        switch (sizeof(DEST)) {
-        case sizeof(int8_t):  Q = AL / SRC;  R = AL % SRC;  AL = Q;  AH = R;  break;
-        case sizeof(int16_t): Q = AX / SRC;  R = AX % SRC;  AX = Q;  DX = R;  break;
-        case sizeof(int32_t): Q = EAX / SRC; R = EAX % SRC; EAX = Q; EDX = R; break;
-#if HAVE_X64
-        case sizeof(int64_t): Q = RAX / SRC; R = RAX % SRC; RAX = Q; RDX = R; break;
-#endif
-        default: break;
-        }
+        auto& DEST1 = (std::make_signed_t<std::remove_reference_t<decltype(DEST)>>&)DEST;
+        const auto& SRC = (std::make_signed_t<std::remove_reference_t<decltype(DEST)>>&)SRC2;
+        auto Q = DEST1 / SRC;
+        auto R = DEST1 % SRC;
+        DEST1 = Q;
+        DEST2 = R;
     } END_OPERATION_SIGNED;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0x0F:  Decode(format, opcode, "IMUL", 2,  0, OPERAND_SIZE | DIRECTION);                    break;
+    case 0x0F:
+        Decode(format, opcode, "IMUL", 2,  0, OPERAND_SIZE | DIRECTION);
+        format.operand[2] = format.operand[1];
+        format.operand[1] = format.operand[0];
+        format.operand[1].flags = Format::Operand::HIDE;
+        break;
     case 0x69:  Decode(format, opcode, "IMUL", 1, -1, OPERAND_SIZE | DIRECTION | THREE_OPERAND);    break;
     case 0x6B:  Decode(format, opcode, "IMUL", 1,  8, OPERAND_SIZE | DIRECTION | THREE_OPERAND);    break;
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IMUL", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::NOP;
+        format.operand[2] = format.operand[1];
+        format.operand[1].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[0].base = IndexREG(EAX);
         break;
     }
 
-    if (format.operand[0].type == Format::Operand::NOP) {
+    if (format.operand[0].flags == Format::Operand::HIDE) {
         BEGIN_OPERATION() {
+            const auto& SRC = SRC2;
             switch (sizeof(SRC)) {
-            case sizeof(int8_t):  { auto M = int16_t(SRC) * int8_t(AL);    AL = int8_t(M);   AH = (M >> 8);   CF = OF = (int8_t(M) != M);  break; }
-            case sizeof(int16_t): { auto M = int32_t(SRC) * int16_t(AX);   AX = int16_t(M);  DX = (M >> 16);  CF = OF = (int16_t(M) != M); break; }
-            case sizeof(int32_t): { auto M = int64_t(SRC) * int32_t(EAX);  EAX = int32_t(M); EDX = (M >> 32); CF = OF = (int32_t(M) != M); break; }
+            case sizeof(int8_t):  { auto M = int16_t(SRC) * int8_t(DEST1);   DEST1 = int8_t(M);  DEST2 = (M >> 8);  CF = OF = (int8_t(M) != M);  break; }
+            case sizeof(int16_t): { auto M = int32_t(SRC) * int16_t(DEST1);  DEST1 = int16_t(M); DEST2 = (M >> 16); CF = OF = (int16_t(M) != M); break; }
+            case sizeof(int32_t): { auto M = int64_t(SRC) * int32_t(DEST1);  DEST1 = int32_t(M); DEST2 = (M >> 32); CF = OF = (int32_t(M) != M); break; }
 #if HAVE_X64
-            case sizeof(int64_t): { auto M = int128_t(SRC) * int64_t(RAX); RAX = int64_t(M); RDX = (M >> 64); CF = OF = (int64_t(M) != M); break; }
-#endif
-            default: break;
-            }
-        } END_OPERATION_SIGNED;
-    }
-    else if (format.operand[2].type == Format::Operand::NOP) {
-        BEGIN_OPERATION() {
-            switch (sizeof(DEST)) {
-            case sizeof(int8_t):  { auto M = int16_t(DEST) * int8_t(SRC);   DEST = int8_t(M);  CF = OF = (int8_t(M) != M);  break; }
-            case sizeof(int16_t): { auto M = int32_t(DEST) * int16_t(SRC);  DEST = int16_t(M); CF = OF = (int16_t(M) != M); break; }
-            case sizeof(int32_t): { auto M = int64_t(DEST) * int32_t(SRC);  DEST = int32_t(M); CF = OF = (int32_t(M) != M); break; }
-#if HAVE_X64
-            case sizeof(int64_t): { auto M = int128_t(DEST) * int64_t(SRC); DEST = int64_t(M); CF = OF = (int64_t(M) != M); break; }
+            case sizeof(int64_t): { auto M = int128_t(SRC) * int64_t(DEST1); DEST1 = int64_t(M); DEST2 = (M >> 64); CF = OF = (int64_t(M) != M); break; }
 #endif
             default: break;
             }
@@ -220,17 +220,24 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "MUL", 1, 0, opcode[0] & 0b11);
-        format.operand[0].type = Format::Operand::NOP;
+        format.operand[2] = format.operand[1];
+        format.operand[1].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
+        format.operand[0].type = Format::Operand::REG;
+        format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[0].base = IndexREG(EAX);
         break;
     }
 
     BEGIN_OPERATION() {
+        const auto& SRC = SRC2;
         switch (sizeof(SRC)) {
-        case sizeof(uint8_t):  { auto M = uint16_t(SRC) * AL;   AL = uint8_t(M);   AH = (M >> 8);   CF = OF = (AL != M);  break; }
-        case sizeof(uint16_t): { auto M = uint32_t(SRC) * AX;   AX = uint16_t(M);  DX = (M >> 16);  CF = OF = (AX != M);  break; }
-        case sizeof(uint32_t): { auto M = uint64_t(SRC) * EAX;  EAX = uint32_t(M); EDX = (M >> 32); CF = OF = (EAX != M); break; }
+        case sizeof(uint8_t):  { auto M = uint16_t(SRC) * DEST1;  DEST1 = uint8_t(M);  DEST2 = (M >> 8);  CF = OF = (DEST1 != M); break; }
+        case sizeof(uint16_t): { auto M = uint32_t(SRC) * DEST1;  DEST1 = uint16_t(M); DEST2 = (M >> 16); CF = OF = (DEST1 != M); break; }
+        case sizeof(uint32_t): { auto M = uint64_t(SRC) * DEST1;  DEST1 = uint32_t(M); DEST2 = (M >> 32); CF = OF = (DEST1 != M); break; }
 #if HAVE_X64
-        case sizeof(uint64_t): { auto M = uint128_t(SRC) * RAX; RAX = uint64_t(M); RDX = (M >> 64); CF = OF = (RAX != M); break; }
+        case sizeof(uint64_t): { auto M = uint128_t(SRC) * DEST1; DEST1 = uint64_t(M); DEST2 = (M >> 64); CF = OF = (DEST1 != M); break; }
 #endif
         default: break;
         }

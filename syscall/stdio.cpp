@@ -5,84 +5,9 @@
 #define __deprecated_msg(_msg)
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
-#include <string>
-#include <vector>
 #include "allocator.h"
+#include "convert_format.h"
 #include "syscall_internal.h"
-
-std::string syscall_convert_format_specifier(const char* format)
-{
-    size_t pos;
-    std::string output = format;
-    while ((pos = output.find("%I64")) != std::string::npos) {
-        output.replace(pos, 4, "%ll");
-    }
-    return output;
-}
-
-std::vector<uint64_t> syscall_convert_format_argument(const char* format, const void* memory, const void* stack, bool scan)
-{
-    auto args = (const uint32_t*)stack;
-    size_t args_index = 0;
-    std::vector<uint64_t> output;
-    for (size_t i = 0; format[i]; ++i) {
-        char c = format[i];
-        if (c != '%')
-            continue;
-        int l = 0;
-        for (size_t j = i + 1; format[j]; ++j) {
-            char c = format[j];
-            switch (c) {
-            case 'l':
-                l++;
-                continue;
-            case 'c':
-            case 'd':
-            case 'i':
-            case 'o':
-            case 'p':
-            case 'u':
-            case 'x':
-            case 'X':
-                if (scan) {
-                    output.push_back((uint64_t)memory + args[args_index++]);
-                    break;
-                }
-                output.push_back((uint64_t)args[args_index++]);
-                if (l < 2)
-                    break;
-                output.back() |= (uint64_t)args[args_index++] << 32;
-                break;
-            case 'a':
-            case 'A':
-            case 'e':
-            case 'E':
-            case 'f':
-            case 'F':
-            case 'g':
-            case 'G':
-                if (scan) {
-                    output.push_back((uint64_t)memory + args[args_index++]);
-                    break;
-                }
-                output.push_back((uint64_t)args[args_index++]);
-                output.back() |= (uint64_t)args[args_index++] << 32;
-                break;
-            case 's':
-                output.push_back((uint64_t)memory + args[args_index++]);
-                break;
-            case '*':
-                output.push_back((uint64_t)args[args_index++]);
-                continue;
-            default:
-                continue;
-            }
-            i = j - 1;
-            break;
-        }
-    }
-    return output;
-}
 
 #ifdef __cplusplus
 extern "C" {

@@ -135,7 +135,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         return false;
 
     bool updated = false;
-    ImGui::SetNextWindowSize(ImVec2(1536.0f, 864.0f), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(1536.0f, 900.0f), ImGuiCond_Appearing);
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int updateCount = 0;
@@ -314,7 +314,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
-            ImGui::InputTextMultiline("Argument", arguments, ImVec2(0, ImGui::GetTextLineHeightWithSpacing() * 2));
+            ImGui::InputTextEx("Argument", nullptr, arguments);
             ImGui::Separator();
             if (ImGui::InputScalarN("Data", ImGuiDataType_U32, breakpointData, 2, nullptr, nullptr, "%08X")) {
                 if (cpu) cpu->BreakpointDataAddress = breakpointData[0];

@@ -340,6 +340,7 @@
 		F56C54312E4B110B00534B1D /* x86.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86.c; sourceTree = "<group>"; };
 		F56C54322E4B110B00534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
 		F56C54392E4B110B00534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mz.h; sourceTree = "<group>"; };
+		F58028AD2E76725800188C4C /* convert_format.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = convert_format.h; sourceTree = "<group>"; };
 		F595EFCA2E66C1CB000498EB /* kernel32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kernel32.cpp; sourceTree = "<group>"; };
 		F595EFCB2E66C1CB000498EB /* msvcprt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = msvcprt.cpp; sourceTree = "<group>"; };
 		F595EFCC2E66C1CB000498EB /* msvcrt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = msvcrt.h; sourceTree = "<group>"; };
@@ -365,6 +366,7 @@
 		F595F01A2E6C166A000498EB /* x87_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x87_compare.cpp; sourceTree = "<group>"; };
 		F595F0202E6E830F000498EB /* ucrt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ucrt.cpp; sourceTree = "<group>"; };
 		F595F0252E6FE28D000498EB /* unistd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unistd.cpp; sourceTree = "<group>"; };
+		F595F02A2E71D63F000498EB /* x87.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x87.c; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -538,12 +540,12 @@
 		D6D758BF2E23F56800E5C09D /* mips */ = {
 			isa = PBXGroup;
 			children = (
-				D6D758C12E23F59700E5C09D /* cop.h */,
 				D6D758C22E23F59700E5C09D /* cop.cpp */,
-				D6D758C32E23F59700E5C09D /* cpu.h */,
+				D6D758C12E23F59700E5C09D /* cop.h */,
 				D6D758C42E23F59700E5C09D /* cpu.cpp */,
-				D6D758C52E23F59700E5C09D /* fpu.h */,
+				D6D758C32E23F59700E5C09D /* cpu.h */,
 				D6D758C62E23F59700E5C09D /* fpu.cpp */,
+				D6D758C52E23F59700E5C09D /* fpu.h */,
 				D6D758C72E23F59700E5C09D /* instr.h */,
 				D6D758C82E23F59700E5C09D /* opcode.cpp */,
 				D6D758C92E23F59700E5C09D /* pcrel.cpp */,
@@ -551,8 +553,8 @@
 				D6D758CB2E23F59700E5C09D /* regimm.cpp */,
 				D6D758CC2E23F59700E5C09D /* special.cpp */,
 				D6D758CD2E23F59700E5C09D /* special3.cpp */,
-				D6D758CE2E23F59700E5C09D /* sysctl.h */,
 				D6D758CF2E23F59700E5C09D /* sysctl.cpp */,
+				D6D758CE2E23F59700E5C09D /* sysctl.h */,
 			);
 			name = mips;
 			path = ../../../mips;
@@ -561,8 +563,8 @@
 		D6D758C02E23F56F00E5C09D /* riscv */ = {
 			isa = PBXGroup;
 			children = (
-				D6D758F42E23F5AC00E5C09D /* riscv_cpu.h */,
 				D6D758F52E23F5AC00E5C09D /* riscv_cpu.cpp */,
+				D6D758F42E23F5AC00E5C09D /* riscv_cpu.h */,
 				D6D758F62E23F5AC00E5C09D /* riscv_float.h */,
 				D6D758F72E23F5AC00E5C09D /* riscv_instruction.h */,
 				D6D758F82E23F5AC00E5C09D /* riscv_rv32a.cpp */,
@@ -588,6 +590,7 @@
 				F595EFC92E66C197000498EB /* windows */,
 				F5511FC62E4B97130076E961 /* allocator.h */,
 				F5511FD42E4F7EF90076E961 /* assert.cpp */,
+				F58028AD2E76725800188C4C /* convert_format.h */,
 				F5511FD92E4F7F660076E961 /* ctype.cpp */,
 				F5511FDE2E4F82FC0076E961 /* locale.cpp */,
 				F5511FE32E4F84510076E961 /* math.cpp */,
@@ -613,18 +616,18 @@
 		F56C54242E4B110B00534B1D /* coff */ = {
 			isa = PBXGroup;
 			children = (
-				F56C54182E4B110B00534B1D /* coff.h */,
 				F56C54192E4B110B00534B1D /* coff.cpp */,
-				F56C541A2E4B110B00534B1D /* ecoff.h */,
+				F56C54182E4B110B00534B1D /* coff.h */,
 				F56C541B2E4B110B00534B1D /* ecoff.cpp */,
-				F56C541C2E4B110B00534B1D /* ecoff64.h */,
+				F56C541A2E4B110B00534B1D /* ecoff.h */,
 				F56C541D2E4B110B00534B1D /* ecoff64.cpp */,
-				F56C541E2E4B110B00534B1D /* pe.h */,
+				F56C541C2E4B110B00534B1D /* ecoff64.h */,
 				F56C541F2E4B110B00534B1D /* pe.cpp */,
-				F56C54202E4B110B00534B1D /* xcoff32.h */,
+				F56C541E2E4B110B00534B1D /* pe.h */,
 				F56C54212E4B110B00534B1D /* xcoff32.cpp */,
-				F56C54222E4B110B00534B1D /* xcoff64.h */,
+				F56C54202E4B110B00534B1D /* xcoff32.h */,
 				F56C54232E4B110B00534B1D /* xcoff64.cpp */,
+				F56C54222E4B110B00534B1D /* xcoff64.h */,
 			);
 			path = coff;
 			sourceTree = "<group>";
@@ -638,6 +641,7 @@
 				F56C54302E4B110B00534B1D /* printf.c */,
 				F56C54312E4B110B00534B1D /* x86.c */,
 				F56C54322E4B110B00534B1D /* x86_arithmetic.c */,
+				F595F02A2E71D63F000498EB /* x87.c */,
 			);
 			path = sample;
 			sourceTree = "<group>";

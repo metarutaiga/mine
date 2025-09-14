@@ -217,6 +217,8 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
     int width;
     size_t offset = disasm.size();
     for (int i = 0; i < 3; ++i) {
+        if (format.operand[i].flags & Format::Operand::HIDE)
+            continue;
         if (disasm.size() > offset)
             disasm += ',';
         disasm += ' ';
@@ -226,11 +228,12 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             if (format.operand[i].flags & Format::Operand::BIT8)    width = 8;
             if (format.operand[i].flags & Format::Operand::BIT16)   width = 16;
             switch (width) {
-            case 8:  disasm += "BYTE PTR";  break;
-            case 16: disasm += "WORD PTR";  break;
-            case 32: disasm += "DWORD PTR"; break;
-            case 64: disasm += "QWORD PTR"; break;
-            case 80: disasm += "TBYTE PTR"; break;
+            case 8:   disasm += "BYTE PTR";    break;
+            case 16:  disasm += "WORD PTR";    break;
+            case 32:  disasm += "DWORD PTR";   break;
+            case 64:  disasm += "QWORD PTR";   break;
+            case 80:  disasm += "TBYTE PTR";   break;
+            case 128: disasm += "XMMWORD PTR"; break;
             }
             disasm += ' ';
             if (format.segment[0]) {

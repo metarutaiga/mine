@@ -308,6 +308,15 @@ std::string x86_i386::Status() const
     push_second_line("%-8s%04X", "CONTROL", control.w);
     push_second_line("%-8s%04X", "STATUS", status.w);
 
+    for (int i = 0; i < 16; ++i) {
+        static const char* name = "B3TTT210ESPUOZDI";
+        temp[i] = (status.w & (1 << (15 - i))) ? name[i] : '.';
+    }
+    temp[2] = ' ';
+    temp[3] = '0' + status._TOP;
+    temp[4] = ' ';
+    push_second_line("%.16s", temp);
+
     return output;
 }
 //------------------------------------------------------------------------------

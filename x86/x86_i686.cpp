@@ -137,6 +137,21 @@ void* x86_i686::Register(int type) const
     return nullptr;
 }
 //------------------------------------------------------------------------------
+std::string x86_i686::Status() const
+{
+    std::string output = x86_i486::Status();
+
+    // SSE
+    for (int i = 0; i < 8; ++i) {
+        char temp[64];
+        snprintf(temp, 64, "XMM%d    %016llX%016llX", i, sse.sse_register::regs[i].u64[1], sse.sse_register::regs[i].u64[0]);
+        output += '\n';
+        output += temp;
+    }
+
+    return output;
+}
+//------------------------------------------------------------------------------
 void x86_i686::StepImplement(x86_i386& x86, Format& format)
 {
     format.width = 32;

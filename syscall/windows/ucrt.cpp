@@ -1,10 +1,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "syscall/convert_format.h"
 #include "syscall/syscall_internal.h"
-
-std::string syscall_convert_format_specifier(const char* format);
-std::vector<uint64_t> syscall_convert_format_argument(const char* format, const void* memory, const void* stack, bool scan);
 
 #ifdef __cplusplus
 extern "C" {

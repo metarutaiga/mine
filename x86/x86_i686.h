@@ -16,6 +16,7 @@ public:
 
 protected:
     void* Register(int type) const override;
+    std::string Status() const override;
 
 protected:
     static void StepImplement(x86_i386& x86, Format& format);
