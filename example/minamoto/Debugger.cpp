@@ -14,6 +14,9 @@
 #include "syscall/windows/syscall_windows.h"
 #include "x86/x86_i386.h"
 #include "Debugger.h"
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 
 //------------------------------------------------------------------------------
 static mine* cpu;
@@ -526,7 +529,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
         if (running) {
             if (cpu) {
-                uint64_t begin = 0;
+                uint32_t begin = 0;
                 for (;;) {
                     if (cpu->Step('INTO') == false) {
                         running = false;
@@ -534,9 +537,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     }
                     if (running == 1)
                         break;
+#if defined(_WIN32)
+                    uint32_t now = GetTickCount();
+#else
                     struct timespec ts = {};
                     clock_gettime(CLOCK_REALTIME, &ts);
-                    uint64_t now = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+                    uint32_t now = uint32_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+#endif
                     if (begin == 0)
                         begin = now;
                     if (begin < now - 16)
