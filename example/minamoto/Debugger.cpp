@@ -16,10 +16,11 @@
 #include "Debugger.h"
 
 //------------------------------------------------------------------------------
-static miCPU* cpu;
+static mine* cpu;
 static std::string arguments;
 static std::string status;
-static std::string logs[3];
+static std::vector<std::string> logs[3];
+static bool logsUpdated[3];
 static std::map<size_t, std::string> disasms;
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
@@ -40,26 +41,68 @@ static int LoggerV(const char* format, va_list va)
             index = CALL;
         }
     }
-    size_t offset = logs[index].size();
-    logs[index].resize(offset + length);
-    vsnprintf(logs[index].data() + offset, length, format, va);
-    logs[index].pop_back();
-    for (size_t i = offset, j = 0; i < logs[index].size(); ++i, ++j) {
-        char c = logs[index][i];
-        if (c == '\n')
-            j = size_t(0) - 1;
-        if (c != '\t')
-            continue;
-        size_t tab = 8 - (j % 8);
-        logs[index].replace(i, 1, tab, ' ');
-        i += tab - 1;
-        j += tab - 1;
-    }
     if (index == SYSTEM || index == CALL) {
-        if (logs[index].empty() == false && logs[index].back() != '\n') {
-            logs[index] += '\n';
+        logs[index].push_back(std::string());
+    }
+    else if (logs[index].empty()) {
+        logs[index].push_back(std::string());
+    }
+    std::string& log = logs[index].back();
+    size_t offset = log.size();
+    log.resize(offset + length);
+    vsnprintf(log.data() + offset, length, format, va);
+    log.pop_back();
+
+    if (index == CONSOLE) {
+
+        // Tab
+        for (size_t i = offset, j = 0; i < log.size(); ++i, ++j) {
+            char c = log[i];
+            if (c == '\n')
+                j = size_t(0) - 1;
+            if (c != '\t')
+                continue;
+            size_t tab = 8 - (j % 8);
+            log.replace(i, 1, tab, ' ');
+            i += tab - 1;
+            j += tab - 1;
+        }
+        
+        // Breakline
+        bool first = true;
+        size_t len = log.size();
+        std::vector<std::string> appends;
+        appends.push_back(std::string());
+        for (size_t i = offset; i < log.size(); ++i) {
+            char c = log[i];
+            if (c == '\n') {
+                if (first) {
+                    len = i;
+                }
+                first = false;
+                appends.push_back(std::string());
+                continue;
+            }
+            if (first) {
+                continue;
+            }
+            appends.back().push_back(c);
+        }
+        log.resize(len);
+        std::move(appends.begin() + 1, appends.end(), std::back_inserter(logs[index]));
+    }
+
+    // Call
+    if (index == CALL && logs[index].size() >= 2) {
+        auto back1 = logs[index][logs[index].size() - 2];
+        auto back2 = logs[index][logs[index].size() - 1];
+        if (back1.size() >= back2.size() && back1.compare(0, back2.size(), back2) == 0) {
+            logs[index].pop_back();
+            logs[index].back() += '.';
         }
     }
+
+    logsUpdated[index] = true;
     return length;
 }
 //------------------------------------------------------------------------------
@@ -85,7 +128,7 @@ static const char* Name(size_t index)
     return name;
 }
 //------------------------------------------------------------------------------
-static size_t Exception(miCPU* data, size_t index)
+static size_t Exception(mine* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
@@ -133,9 +176,9 @@ void Debugger::Shutdown()
     arguments = std::string();
     status = std::string();
     exports = std::vector<std::pair<std::string, size_t>>();
-    logs[0] = std::string();
-    logs[1] = std::string();
-    logs[2] = std::string();
+    logs[0].clear();
+    logs[1].clear();
+    logs[2].clear();
     disasms = std::map<size_t, std::string>();
     samples = std::vector<std::pair<std::string, std::string>>();
 }
@@ -152,12 +195,14 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static int updateCount = 0;
         static int breakpointData[2] = {};
         static int breakpointProgram = 0;
+        static int logsIndex[3] = {};
+        static int logsFocus[3] = { -1, -1, -1 };
         static int disasmIndex = 0;
         static int disasmFocus = -1;
         static int stackIndex = 0;
         static int stackFocus = -1;
         static bool refresh = false;
-        static bool running = false;
+        static int running = 0;
         static bool showMemoryEditor = false;
         static const int allocatorSize = 16777216;
         static const int stackSize = 65536;
@@ -318,9 +363,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
         ImGui::End();
         if (ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            const char* icon_fa_play_stop = running ? ICON_FA_STOP : ICON_FA_PLAY;
-            if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();          } ImGui::SameLine();
-            if (ImGui::Button(icon_fa_play_stop))   { running = !running;                           } ImGui::SameLine();
+            const char* icon_fa_forward_stop = running ? ICON_FA_STOP "##200" : ICON_FA_FORWARD;
+            const char* icon_fa_play_stop = running ? ICON_FA_STOP "##201" : ICON_FA_PLAY;
+//          if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();          } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_forward_stop)){ running = running ? false : 2;                } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_play_stop))   { running = running ? false : 1;                } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step('OVER');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step('INTO');   } ImGui::SameLine();
             if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step('OUT ');   } ImGui::SameLine();
@@ -348,27 +395,30 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
         ImGui::End();
         if (ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImGui::InputTextMultiline("##100", logs[0], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
-            ImGui::BeginChild("##100");
-            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
-            ImGui::EndChild();
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##100", &logsIndex[0], &logsFocus[0], [](void* user_data, int index) {
+                auto* logs = (std::string*)user_data;
+                return logs[index].c_str();
+            }, logs[0].data(), (int)logs[0].size());
+            logsFocus[0] = -1;
         }
         ImGui::End();
         if (ImGui::Begin("System", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImGui::InputTextMultiline("##101", logs[1], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
-            ImGui::BeginChild("##101");
-            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
-            ImGui::EndChild();
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##101", &logsIndex[1], &logsFocus[1], [](void* user_data, int index) {
+                auto* logs = (std::string*)user_data;
+                return logs[index].c_str();
+            }, logs[1].data(), (int)logs[1].size());
+            logsFocus[1] = -1;
         }
         ImGui::End();
         if (ImGui::Begin("Call", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            ImGui::InputTextMultiline("##102", logs[2], ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
-            ImGui::BeginChild("##102");
-            if (ImGui::GetScrollY() == ImGui::GetScrollMaxY())
-                ImGui::SetScrollHereY(1.0f);
-            ImGui::EndChild();
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##102", &logsIndex[2], &logsFocus[2], [](void* user_data, int index) {
+                auto* logs = (std::string*)user_data;
+                return logs[index].c_str();
+            }, logs[2].data(), (int)logs[2].size());
+            logsFocus[2] = -1;
         }
         ImGui::End();
 
@@ -383,6 +433,12 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             disasms.clear();
             exportIndex = 0;
             exports.clear();
+            logsIndex[0] = 0;
+            logsIndex[1] = 0;
+            logsIndex[2] = 0;
+            logsFocus[0] = -1;
+            logsFocus[1] = -1;
+            logsFocus[2] = -1;
             disasmIndex = 0;
             disasmFocus = -1;
             stackIndex = 0;
@@ -398,7 +454,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             cpu->Exception = Exception;
 
             void* image = PE::Load(file.c_str(), [](size_t base, size_t size, void* userdata) {
-                miCPU* cpu = (miCPU*)userdata;
+                mine* cpu = (mine*)userdata;
                 return cpu->Memory(base, size);
             }, cpu, Logger<SYSTEM>);
             if (image) {
@@ -449,7 +505,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 size_t stack_base = allocatorSize;
                 size_t stack_limit = allocatorSize - stackSize;
                 syscall_windows_new(cpu, stack_base, stack_limit, image, (int)args.size(), args.data(), 0, nullptr);
-                syscall_windows_debug(cpu, disassembly);
+                syscall_windows_debug(cpu, Logger<CALL>, disassembly);
 
                 syscall_i386_new(cpu, file.substr(0, file.rfind('/')).c_str(), (int)args.size(), args.data(), 0, nullptr);
 
@@ -469,7 +525,23 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         }
 
         if (running) {
-            if (cpu && cpu->Step('INTO')) {
+            if (cpu) {
+                uint64_t begin = 0;
+                for (;;) {
+                    if (cpu->Step('INTO') == false) {
+                        running = false;
+                        break;
+                    }
+                    if (running == 1)
+                        break;
+                    struct timespec ts = {};
+                    clock_gettime(CLOCK_REALTIME, &ts);
+                    uint64_t now = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+                    if (begin == 0)
+                        begin = now;
+                    if (begin < now - 16)
+                        break;
+                }
                 refresh = true;
             }
             else {
@@ -490,6 +562,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 auto allocator = cpu->Allocator;
                 size_t memory_size = allocator->max_size();
                 stackIndex = stackFocus = (int)((cpu->Stack() - (memory_size - stackSize)) / sizeof(uint32_t));
+
+                for (int i = 0; i < 3; ++i) {
+                    if (logsUpdated[i]) {
+                        logsUpdated[i] = false;
+                        logsFocus[i] = (int)logs[i].size() - 1;
+                    }
+                }
             }
             updateCount = 3;
         }

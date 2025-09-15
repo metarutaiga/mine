@@ -6,12 +6,12 @@
 //==============================================================================
 #pragma once
 
-#include "miCPU.h"
+#include "mine.h"
 
 #include "x86_instruction.h"
 #include "x87_instruction.h"
 
-struct x86_i386 : public miCPU
+struct x86_i386 : public mine
                 , public x86_instruction
                 , public x87_instruction
 {
@@ -19,7 +19,6 @@ public:
     x86_i386(void(*step)(x86_i386&, Format&) = StepImplement) : StepInternal(step) {}
     virtual ~x86_i386();
     bool Initialize(allocator_t* allocator, size_t stack) override;
-    bool Run() override;
     bool Step(int type) override;
     bool Jump(size_t address) override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;

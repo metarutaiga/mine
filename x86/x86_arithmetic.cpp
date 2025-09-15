@@ -165,11 +165,11 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
         BEGIN_OPERATION() {
             const auto& SRC = SRC2;
             switch (sizeof(SRC)) {
-            case sizeof(int8_t):  { auto M = int16_t(SRC) * int8_t(DEST1);   DEST1 = int8_t(M);  DEST2 = (M >> 8);  CF = OF = (int8_t(M) != M);  break; }
-            case sizeof(int16_t): { auto M = int32_t(SRC) * int16_t(DEST1);  DEST1 = int16_t(M); DEST2 = (M >> 16); CF = OF = (int16_t(M) != M); break; }
-            case sizeof(int32_t): { auto M = int64_t(SRC) * int32_t(DEST1);  DEST1 = int32_t(M); DEST2 = (M >> 32); CF = OF = (int32_t(M) != M); break; }
+            case sizeof(int8_t):  { auto M = int16_t(SRC) * int8_t(DEST1);   DEST1 = int8_t(M);  DEST2 = (M >> 8);  CF = OF = (DEST2 != 0 && DEST2 != -1); break; }
+            case sizeof(int16_t): { auto M = int32_t(SRC) * int16_t(DEST1);  DEST1 = int16_t(M); DEST2 = (M >> 16); CF = OF = (DEST2 != 0 && DEST2 != -1); break; }
+            case sizeof(int32_t): { auto M = int64_t(SRC) * int32_t(DEST1);  DEST1 = int32_t(M); DEST2 = (M >> 32); CF = OF = (DEST2 != 0 && DEST2 != -1); break; }
 #if HAVE_X64
-            case sizeof(int64_t): { auto M = int128_t(SRC) * int64_t(DEST1); DEST1 = int64_t(M); DEST2 = (M >> 64); CF = OF = (int64_t(M) != M); break; }
+            case sizeof(int64_t): { auto M = int128_t(SRC) * int64_t(DEST1); DEST1 = int64_t(M); DEST2 = (M >> 64); CF = OF = (DEST2 != 0 && DEST2 != -1); break; }
 #endif
             default: break;
             }
@@ -233,11 +233,11 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         const auto& SRC = SRC2;
         switch (sizeof(SRC)) {
-        case sizeof(uint8_t):  { auto M = uint16_t(SRC) * DEST1;  DEST1 = uint8_t(M);  DEST2 = (M >> 8);  CF = OF = (DEST1 != M); break; }
-        case sizeof(uint16_t): { auto M = uint32_t(SRC) * DEST1;  DEST1 = uint16_t(M); DEST2 = (M >> 16); CF = OF = (DEST1 != M); break; }
-        case sizeof(uint32_t): { auto M = uint64_t(SRC) * DEST1;  DEST1 = uint32_t(M); DEST2 = (M >> 32); CF = OF = (DEST1 != M); break; }
+        case sizeof(uint8_t):  { auto M = uint16_t(SRC) * DEST1;  DEST1 = uint8_t(M);  DEST2 = (M >> 8);  CF = OF = (DEST2 != 0); break; }
+        case sizeof(uint16_t): { auto M = uint32_t(SRC) * DEST1;  DEST1 = uint16_t(M); DEST2 = (M >> 16); CF = OF = (DEST2 != 0); break; }
+        case sizeof(uint32_t): { auto M = uint64_t(SRC) * DEST1;  DEST1 = uint32_t(M); DEST2 = (M >> 32); CF = OF = (DEST2 != 0); break; }
 #if HAVE_X64
-        case sizeof(uint64_t): { auto M = uint128_t(SRC) * DEST1; DEST1 = uint64_t(M); DEST2 = (M >> 64); CF = OF = (DEST1 != M); break; }
+        case sizeof(uint64_t): { auto M = uint128_t(SRC) * DEST1; DEST1 = uint64_t(M); DEST2 = (M >> 64); CF = OF = (DEST2 != 0); break; }
 #endif
         default: break;
         }

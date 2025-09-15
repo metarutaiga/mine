@@ -20,6 +20,9 @@ extern "C" {
 
 static size_t syscall_basic_string_char_append(size_t thiz, char* memory, struct allocator_t* allocator, const char* other_ptr, size_t other_size)
 {
+    if (other_size == 0)
+        return thiz;
+
     auto& local = *physical(syscall_basic_string<char>*, thiz);
     size_t size = local.size + other_size;
     if (size >= sizeof(local.buf)) {

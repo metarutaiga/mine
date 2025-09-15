@@ -272,7 +272,7 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, vo
     return 0;
 }
 
-size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*))
+size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), void(*loadLibraryCallback)(void*))
 {
     if (data == nullptr)
         return 0;
@@ -280,6 +280,7 @@ size_t syscall_windows_debug(void* data, void(*loadLibraryCallback)(void*))
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* windows = physical(Windows*, TIB_WINDOWS);
+    windows->debugPrintf = debugPrintf;
     windows->loadLibraryCallback = loadLibraryCallback;
 
     return 0;

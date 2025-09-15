@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
         size_t entry = PE::Entry(image);
         if (entry) {
              cpu->Jump(entry);
-             cpu->Run();
+             cpu->Step('LOOP');
         }
     }
 

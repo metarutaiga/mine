@@ -559,7 +559,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
     Local::log("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
 
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
-        miCPU* cpu = (miCPU*)userdata;
+        mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
     }, cpu, Local::log);
     PE::Imports(image, [](const char* file, const char* name) {

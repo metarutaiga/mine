@@ -254,7 +254,7 @@
 		D6909FAD2E1A7FFD0023F7B5 /* EmulatorPCH.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmulatorPCH.h; sourceTree = "<group>"; };
 		D6909FB22E1A9D310023F7B5 /* Debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Debugger.h; sourceTree = "<group>"; };
 		D6909FB32E1A9D500023F7B5 /* Debugger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Debugger.cpp; sourceTree = "<group>"; };
-		D6909FB82E1AA1F10023F7B5 /* miCPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = miCPU.h; path = ../../../miCPU.h; sourceTree = SOURCE_ROOT; };
+		D6909FB82E1AA1F10023F7B5 /* mine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mine.h; path = ../../../mine.h; sourceTree = SOURCE_ROOT; };
 		D6909FBA2E1AC68C0023F7B5 /* x86_i386.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_i386.h; sourceTree = "<group>"; };
 		D6909FBB2E1AC68C0023F7B5 /* x86_i386.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_i386.cpp; sourceTree = "<group>"; };
 		D6BF74512E262F6D00FAF8BD /* x86_register.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = x86_register.inl; sourceTree = "<group>"; };
@@ -470,7 +470,7 @@
 				D6D758C02E23F56F00E5C09D /* riscv */,
 				F5511FBD2E4B96F20076E961 /* syscall */,
 				D6909FB92E1AC6650023F7B5 /* x86 */,
-				D6909FB82E1AA1F10023F7B5 /* miCPU.h */,
+				D6909FB82E1AA1F10023F7B5 /* mine.h */,
 				D644A042231ED82900B75B77 /* Products */,
 				300264BD24266097004559E0 /* Frameworks */,
 			);

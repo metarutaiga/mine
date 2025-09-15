@@ -76,24 +76,6 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86_i86::Run()
-{
-    if (BreakpointDataAddress || BreakpointProgram) {
-        while (IP) {
-            if (Step('INTO') == false)
-                return false;
-            if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
-                if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint16_t)) == 0)
-                    return false;
-            }
-            if (BreakpointProgram == IP)
-                return false;
-        }
-        return true;
-    }
-    return Step('LOOP');
-}
-//------------------------------------------------------------------------------
 bool x86_i86::Step(int type)
 {
     auto& x86 = *(x86_register*)this;
@@ -119,6 +101,14 @@ bool x86_i86::Step(int type)
         if (IP == 0) {
             IP = ip;
             return false;
+        }
+        if (BreakpointDataAddress || BreakpointProgram) {
+            if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
+                if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint16_t)) == 0)
+                    return false;
+            }
+            if (BreakpointProgram == IP)
+                return false;
         }
         switch (type) {
         case 'INTO':

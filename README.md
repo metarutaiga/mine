@@ -1,4 +1,4 @@
-## miCPU - Minimal CPU Emulator (User-Mode)
+## mine - Minimal Emulator (User-Mode)
 
 * x86
   * [x] Intel 80386 

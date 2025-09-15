@@ -20,6 +20,7 @@ struct Windows {
     char directory[260];
     uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
+    int (*debugPrintf)(const char*, ...);
     void (*loadLibraryCallback)(void*);
 };
 

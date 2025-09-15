@@ -5,6 +5,7 @@
 // INTEL CORPORATION 1987
 //==============================================================================
 #include <stdarg.h>
+#include <fenv.h>
 #include "x86_i386.h"
 #include "x86_register.h"
 #include "x86_register.inl"
@@ -148,25 +149,11 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
     ESP = (uint32_t)memory_size - 16;
     EFLAGS = 0b0000001000000010;
 
+    FPUControlWord = 0x027F;
+    PC = DoublePrecision;
+    RC = RoundNearest;
+
     return true;
-}
-//------------------------------------------------------------------------------
-bool x86_i386::Run()
-{
-    if (BreakpointDataAddress || BreakpointProgram) {
-        while (EIP) {
-            if (Step('INTO') == false)
-                return false;
-            if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
-                if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint32_t)) == 0)
-                    return false;
-            }
-            if (BreakpointProgram == EIP)
-                return false;
-        }
-        return true;
-    }
-    return Step('LOOP');
 }
 //------------------------------------------------------------------------------
 bool x86_i386::Step(int type)
@@ -175,6 +162,19 @@ bool x86_i386::Step(int type)
     auto& x87 = *(x87_register*)this;
     auto& mmx = *(mmx_register*)Register('mmx ');
     auto& sse = *(sse_register*)Register('sse ');
+
+    struct ScopeGuard {
+        int round = fegetround();
+        ~ScopeGuard() {
+            fesetround(round);
+        }
+    } ScopeGuard;
+    switch (RC) {
+    case RoundNearest:  fesetround(FE_TONEAREST);   break;
+    case RoundDown:     fesetround(FE_UPWARD);      break;
+    case RoundUp:       fesetround(FE_DOWNWARD);    break;
+    case RoundChop:     fesetround(FE_TOWARDZERO);  break;
+    }
 
     auto eip_over = EIP;
     auto eip = EIP;
@@ -194,6 +194,14 @@ bool x86_i386::Step(int type)
         if (EIP == 0) {
             EIP = eip;
             return false;
+        }
+        if (BreakpointDataAddress || BreakpointProgram) {
+            if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
+                if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint32_t)) == 0)
+                    return false;
+            }
+            if (BreakpointProgram == EIP)
+                return false;
         }
         switch (type) {
         case 'INTO':

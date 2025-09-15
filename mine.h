@@ -1,5 +1,5 @@
 //==============================================================================
-// miCPU : miCPU Header
+// mine : mine Header
 //
 // Copyright (c) 2025 TAiGA
 // https://github.com/metarutaiga/miCPU
@@ -9,11 +9,10 @@
 #include <string>
 
 struct allocator_t;
-struct miCPU
+struct mine
 {
-    virtual ~miCPU() = default;
+    virtual ~mine() = default;
     virtual bool Initialize(allocator_t* allocator, size_t stack) = 0;
-    virtual bool Run() = 0;
     virtual bool Step(int type) = 0;
     virtual bool Jump(size_t address) = 0;
     virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;
@@ -27,5 +26,5 @@ struct miCPU
     size_t BreakpointDataAddress = 0;
     size_t BreakpointDataValue = 0;
     size_t BreakpointProgram = 0;
-    size_t (*Exception)(miCPU*, size_t) = [](miCPU*, size_t) { return size_t(0); };
+    size_t (*Exception)(mine*, size_t) = [](mine*, size_t) { return size_t(0); };
 };
