@@ -16,7 +16,7 @@ static int vsyslog(const char* format, va_list)
     return 0;
 }
 
-static size_t run_exception(miCPU* data, size_t index)
+static size_t run_exception(mine* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[])
     cpu->Exception = run_exception;
 
     void* image = PE::Load(argv[1], [](size_t base, size_t size, void* userdata) {
-        miCPU* cpu = (miCPU*)userdata;
+        mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
     }, cpu, syslog);
     if (image) {
