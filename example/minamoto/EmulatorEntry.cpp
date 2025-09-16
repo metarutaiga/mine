@@ -1,8 +1,8 @@
 //==============================================================================
-// miCPU : EmulatorEntry Source
+// mine : EmulatorEntry Source
 //
 // Copyright (c) 2025 TAiGA
-// https://github.com/metarutaiga/miCPU
+// https://github.com/metarutaiga/mine
 //==============================================================================
 #include "EmulatorPCH.h"
 #include "Debugger.h"

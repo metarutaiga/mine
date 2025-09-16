@@ -1,8 +1,8 @@
 //==============================================================================
-// miCPU : Debugger Header
+// mine : Debugger Header
 //
 // Copyright (c) 2025 TAiGA
-// https://github.com/metarutaiga/miCPU
+// https://github.com/metarutaiga/mine
 //==============================================================================
 #pragma once
 

@@ -6,7 +6,7 @@ LDFLAGS :=
 
 SRC_DIRS := ../../format/coff ../../syscall ../../syscall/windows ../../x86
 BUILD_DIR := build
-BIN := micpu
+BIN := mine
 
 # Find all .cpp files recursively in source dirs
 SOURCES := $(wildcard $(addsuffix /*.cpp,$(SRC_DIRS))) main.cpp

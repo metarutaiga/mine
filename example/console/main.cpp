@@ -50,7 +50,7 @@ int main(int argc, const char* argv[])
     static const int allocatorSize = 16777216;
     static const int stackSize = 65536;
 
-    miCPU* cpu = new x86_i386;
+    mine* cpu = new x86_i686;
     cpu->Initialize(simple_allocator<16>::construct(allocator_size), stack_size);
     cpu->Exception = run_exception;
 

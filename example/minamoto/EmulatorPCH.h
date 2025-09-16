@@ -1,8 +1,8 @@
 //==============================================================================
-// miCPU : EmulatorPCH Header
+// mine : EmulatorPCH Header
 //
 // Copyright (c) 2025 TAiGA
-// https://github.com/metarutaiga/miCPU
+// https://github.com/metarutaiga/mine
 //==============================================================================
 #pragma once
 

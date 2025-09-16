@@ -1,8 +1,8 @@
 //==============================================================================
-// miCPU : Debugger Source
+// mine : Debugger Source
 //
 // Copyright (c) 2025 TAiGA
-// https://github.com/metarutaiga/miCPU
+// https://github.com/metarutaiga/mine
 //==============================================================================
 #include "EmulatorPCH.h"
 #include <map>
@@ -161,7 +161,7 @@ void Debugger::Initialize()
 
     std::string folder;
     folder += xxGetExecutablePath();
-    folder += "/../../../../../SDK/miCPU/format/sample/pe.x86/";
+    folder += "/../../../../../SDK/mine/format/sample/pe.x86/";
 
     uint64_t handle = 0;
     while (char* filename = xxOpenDirectory(&handle, folder.c_str(), nullptr)) {
