@@ -44,6 +44,15 @@ int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* all
     return 0;
 }
 
+size_t syscall_memcpy_s(char* memory, const uint32_t* stack)
+{
+    auto destination = physical(char*, stack[1]);
+    auto source = physical(char*, stack[3]);
+    auto num = stack[4];
+    memcpy(destination, source, num);
+    return 0;
+}
+
 size_t syscall_memmove_s(char* memory, const uint32_t* stack)
 {
     auto destination = physical(char*, stack[1]);

@@ -231,7 +231,7 @@ bool PE::SectionCode(void* image, size_t* base, size_t* address, size_t* size)
     return true;
 }
 
-void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(const char*, ...))
+void PE::Imports(void* image, size_t(*sym)(const char*, const char*, void*), void* import_data, int(*log)(const char*, ...))
 {
     if (image == nullptr || sym == nullptr || log == nullptr)
         return;
@@ -246,7 +246,7 @@ void PE::Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(
             auto* iats = (uint32_t*)(image8 + directory->FirstThunk);
             while (*ints) {
                 auto name = (const char*)(image8 + (*ints)) + 2;
-                size_t symbol = sym(file, name);
+                size_t symbol = sym(file, name, import_data);
                 memcpy(iats, &symbol, sizeof(uint32_t));
                 if (symbol == 0) {
                     log("%-12s : [%08zX] %s.%s is not found", "Symbol", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);

@@ -28,7 +28,7 @@ static size_t run_exception(mine* data, size_t index)
     return result;
 }
 
-static size_t get_symbol(const char* file, const char* name)
+static size_t get_symbol(const char* file, const char* name, void* symbol_data)
 {
     size_t address = 0;
     if (address == 0) {
@@ -64,7 +64,7 @@ int main(int argc, const char* argv[])
         syscall_windows_new(cpu, stack_base, stack_limit, image, argc - 1, argv + 1, 0, nullptr);
         syscall_i386_new(cpu, ".", argc - 1, argv + 1, 0, nullptr);
 
-        PE::Imports(image, get_symbol, syslog);
+        PE::Imports(image, get_symbol, nullptr, syslog);
 
         size_t entry = PE::Entry(image);
         if (entry) {

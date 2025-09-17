@@ -562,19 +562,12 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
         mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
     }, cpu, Local::log);
-    PE::Imports(image, [](const char* file, const char* name) {
-        extern size_t syscall_windows_symbol(const char* file, const char* name);
-        extern size_t syscall_i386_symbol(const char* file, const char* name);
-        size_t address = 0;
-        if (address == 0)
-            address = syscall_windows_symbol(file, name);
-        if (address == 0)
-            address = syscall_i386_symbol(file, name);
-        return address;
-    }, Local::log);
+
+    void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_list));
     windows->modules.emplace_back(path.substr(slash + 1).c_str(), image);
-    if (windows->loadLibraryCallback) {
-        windows->loadLibraryCallback(image);
+    syscall_windows_import(cpu, image, log);
+    if (windows->loadLibraryCallback && image) {
+        windows->loadLibraryCallback(path.substr(slash + 1).c_str(), image);
     }
 
     // _DllMainCRTStartup

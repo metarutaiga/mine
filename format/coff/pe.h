@@ -255,7 +255,7 @@ struct PE : public COFF
     static void* Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data, int(*log)(const char*, ...));
     static size_t Entry(void* image);
     static bool SectionCode(void* image, size_t* base, size_t* address, size_t* size);
-    static void Imports(void* image, size_t(*sym)(const char*, const char*), int(*log)(const char*, ...));
-    static void Exports(void* image, void(*sym)(const char*, size_t, void*), void* sym_data);
+    static void Imports(void* image, size_t(*sym)(const char*, const char*, void*), void* import_data, int(*log)(const char*, ...));
+    static void Exports(void* image, void(*sym)(const char*, size_t, void*), void* export_data);
     static void Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...));
 };

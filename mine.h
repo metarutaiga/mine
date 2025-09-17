@@ -15,8 +15,8 @@ struct mine
     virtual bool Initialize(allocator_t* allocator, size_t stack) = 0;
     virtual bool Step(int type) = 0;
     virtual bool Jump(size_t address) = 0;
-    virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;
     virtual void* Register(int type) const = 0;
+    virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;
     virtual size_t Stack() const = 0;
     virtual size_t Program() const = 0;
     virtual std::string Status() const = 0;

@@ -135,16 +135,6 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-uint8_t* x86_i86::Memory(size_t base, size_t size) const
-{
-    if (size == 0) {
-        if (base + size >= memory_size)
-            return nullptr;
-        return memory_address + base;
-    }
-    return (uint8_t*)allocator->allocate(size, base);
-}
-//------------------------------------------------------------------------------
 void* x86_i86::Register(int type) const
 {
     switch (type) {
@@ -154,6 +144,16 @@ void* x86_i86::Register(int type) const
         return (x87_register*)this;
     }
     return nullptr;
+}
+//------------------------------------------------------------------------------
+uint8_t* x86_i86::Memory(size_t base, size_t size) const
+{
+    if (size == 0) {
+        if (base + size >= memory_size)
+            return nullptr;
+        return memory_address + base;
+    }
+    return (uint8_t*)allocator->allocate(size, base);
 }
 //------------------------------------------------------------------------------
 size_t x86_i86::Stack() const

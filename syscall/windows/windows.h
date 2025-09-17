@@ -21,7 +21,7 @@ struct Windows {
     uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
     int (*debugPrintf)(const char*, ...);
-    void (*loadLibraryCallback)(void*);
+    void (*loadLibraryCallback)(const char*, void*);
 };
 
 struct SystemInfo {

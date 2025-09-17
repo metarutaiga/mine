@@ -5,8 +5,9 @@ extern "C" {
 #endif
 
 size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, void* image, int argc, const char* argv[], int envc, const char* envp[]);
-size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), void(*loadLibraryCallback)(void*));
+size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), void(*loadLibraryCallback)(const char*, void*));
 size_t syscall_windows_delete(void* data);
+void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_list));
 size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
@@ -85,6 +86,7 @@ bool syscall_basic_string_char_neq_cstr(const void* memory, const void* stack);
 // msvcrt
 size_t syscall_expand(const void* stack, struct allocator_t* allocator);
 int syscall_fopen_s(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_memcpy_s(const void* memory, const void* stack);
 size_t syscall_memmove_s(const void* memory, const void* stack);
 size_t syscall_msize(const void* stack, struct allocator_t* allocator);
 size_t syscall_recalloc(const void* stack, struct allocator_t* allocator);

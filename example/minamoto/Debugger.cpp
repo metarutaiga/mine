@@ -24,7 +24,7 @@ static std::string arguments;
 static std::string status;
 static std::vector<std::string> logs[3];
 static bool logsUpdated[3];
-static std::map<size_t, std::string> disasms;
+static std::map<std::string, std::map<size_t, std::string>> disasmses;
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
 //------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ static size_t Exception(mine* data, size_t index)
     return result;
 }
 //------------------------------------------------------------------------------
-static size_t Symbol(const char* file, const char* name)
+static size_t Symbol(const char* file, const char* name, void* symbol_data)
 {
     size_t address = 0;
     if (address == 0) {
@@ -171,6 +171,8 @@ void Debugger::Initialize()
         xxFree(filename);
     }
     xxCloseDirectory(&handle);
+
+    disasmses["Disassembly"];
 }
 //------------------------------------------------------------------------------
 void Debugger::Shutdown()
@@ -182,7 +184,7 @@ void Debugger::Shutdown()
     logs[0].clear();
     logs[1].clear();
     logs[2].clear();
-    disasms = std::map<size_t, std::string>();
+    disasmses = std::map<std::string, std::map<size_t, std::string>>();
     samples = std::vector<std::pair<std::string, std::string>>();
 }
 //------------------------------------------------------------------------------
@@ -202,6 +204,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static int logsFocus[3] = { -1, -1, -1 };
         static int disasmIndex = 0;
         static int disasmFocus = -1;
+        static std::string disasmFocusTitle;
         static int stackIndex = 0;
         static int stackFocus = -1;
         static bool refresh = false;
@@ -209,6 +212,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static bool showMemoryEditor = false;
         static const int allocatorSize = 16777216;
         static const int stackSize = 65536;
+        static ImGuiID disassemblyDockID;
         std::string file;
 
         ImGuiID id = ImGui::GetID("Debugger");
@@ -233,79 +237,94 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             ImGui::DockBuilderDockWindow("Call", bottomLeft);
             ImGui::DockBuilderFinish(id);
 
+            disassemblyDockID = left;
+
             id = ImGui::GetID("Debugger");
         }
 
         ImGui::DockSpace(id);
 
-        if (ImGui::Begin("Disassembly", nullptr, ImGuiWindowFlags_NoScrollbar)) {
-            struct Local {
-                std::map<size_t, std::string>::iterator temp_it = disasms.begin();
-                int temp_index = 0;
-                char temp[128];
-            } local;
+        for (auto& [title, disasms] : disasmses) {
+            ImGui::DockBuilderDockWindow(title.c_str(), disassemblyDockID);
+            if (disasmFocusTitle == title) {
+                disasmFocusTitle.clear();
+                ImGuiWindow* window = ImGui::FindWindowByName(title.c_str());
+                if (window && window->DockNode && window->DockNode->TabBar)
+                    window->DockNode->TabBar->NextSelectedTabId = window->TabId;
+            }
+            if (ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar)) {
+                struct Local {
+                    std::map<size_t, std::string>& disasms;
+                    std::map<size_t, std::string>::iterator temp_it;
+                    int temp_index;
+                    char temp[128];
+                } local = {
+                    .disasms = disasms,
+                    .temp_it = disasms.begin(),
+                };
 
-            int disasmCount = (int)disasms.size();
-            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
-            ImGui::ListBox("##10", &disasmIndex, &disasmFocus, [](void* user_data, int index) -> const char* {
-                Local& local = *(Local*)user_data;
-                if (local.temp_index != index) {
-                    local.temp_index = index;
-                    local.temp_it = disasms.begin();
-                    std::advance(local.temp_it, index);
-                }
-                auto& [address, disasm] = (*local.temp_it++);
-                local.temp_index++;
+                int disasmCount = (int)disasms.size();
+                ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+                ImGui::ListBox("##10", &disasmIndex, &disasmFocus, [](void* user_data, int index) -> const char* {
+                    Local& local = *(Local*)user_data;
+                    if (local.temp_index != index) {
+                        local.temp_index = index;
+                        local.temp_it = local.disasms.begin();
+                        std::advance(local.temp_it, index);
+                    }
+                    auto& [address, disasm] = (*local.temp_it++);
+                    local.temp_index++;
 
-                const char* comment = nullptr;
-                auto comma = disasm.rfind(" ");
-                if (comma != std::string::npos) {
-                    size_t address = strtoll(disasm.c_str() + comma + 2, nullptr, 16);
-                    if (address) {
-                        auto it = disasms.lower_bound(address);
-                        if (it == disasms.end() || std::abs(int64_t(address - (*it).first)) > 16)
-                            comment = (char*)cpu->Memory(address);
-                        if (comment && (address + 4) <= allocatorSize) {
-                            uint32_t index = *(uint32_t*)comment;
-                            const char* name = Name(index);
-                            if (name) {
-                                comment = name;
+                    const char* comment = nullptr;
+                    auto comma = disasm.rfind(" ");
+                    if (comma != std::string::npos) {
+                        size_t address = strtoll(disasm.c_str() + comma + 2, nullptr, 16);
+                        if (address) {
+                            auto it = local.disasms.lower_bound(address);
+                            if (it == local.disasms.end() || std::abs(int64_t(address - (*it).first)) > 16)
+                                comment = (char*)cpu->Memory(address);
+                            if (comment && (address + 4) <= allocatorSize) {
+                                uint32_t index = *(uint32_t*)comment;
+                                const char* name = Name(index);
+                                if (name) {
+                                    comment = name;
+                                }
                             }
                         }
                     }
-                }
-                if (comment == nullptr || (comment[0] < 0x20 || comment[0] > 0x7E)) {
-                    comment = "";
-                }
-
-                int column = 8 + 3 + 32 + 40;
-                snprintf(local.temp, 128, "%*s", column, "");
-                auto pos = ImGui::GetCursorPos();
-                ImGui::Selectable(local.temp);
-                if (ImGui::IsItemHovered()) {
-                    if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
-                        cpu->BreakpointProgram = breakpointProgram = (int)address;
+                    if (comment == nullptr || (comment[0] < 0x20 || comment[0] > 0x7E)) {
+                        comment = "";
                     }
-                    if (comment[0]) {
-                        ImGui::SetTooltip("%s", comment);
-                    }
-                }
-                ImGui::SetCursorPos(pos);
-                snprintf(local.temp, 128, "%-*s%s", column, disasm.c_str(), comment);
-                for (int i = column; i < column + 16; ++i) {
-                    if (local.temp[i] == '\r' || local.temp[i] == '\n')
-                        local.temp[i] = ' ';
-                }
-                local.temp[column + 16] = '.';
-                local.temp[column + 17] = '.';
-                local.temp[column + 18] = '.';
-                local.temp[column + 19] = 0;
 
-                return local.temp;
-            }, &local, disasmCount);
-            disasmFocus = -1;
+                    int column = 8 + 3 + 32 + 40;
+                    snprintf(local.temp, 128, "%*s", column, "");
+                    auto pos = ImGui::GetCursorPos();
+                    ImGui::Selectable(local.temp);
+                    if (ImGui::IsItemHovered()) {
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+                            cpu->BreakpointProgram = breakpointProgram = (int)address;
+                        }
+                        if (comment[0]) {
+                            ImGui::SetTooltip("%s", comment);
+                        }
+                    }
+                    ImGui::SetCursorPos(pos);
+                    snprintf(local.temp, 128, "%-*s%s", column, disasm.c_str(), comment);
+                    for (int i = column; i < column + 16; ++i) {
+                        if (local.temp[i] == '\r' || local.temp[i] == '\n')
+                            local.temp[i] = ' ';
+                    }
+                    local.temp[column + 16] = '.';
+                    local.temp[column + 17] = '.';
+                    local.temp[column + 18] = '.';
+                    local.temp[column + 19] = 0;
+
+                    return local.temp;
+                }, &local, disasmCount);
+                disasmFocus = -1;
+            }
+            ImGui::End();
         }
-        ImGui::End();
         if (ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             ImGui::InputTextMultiline("##20", status, ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
         }
@@ -433,7 +452,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             logs[0].clear();
             logs[1].clear();
             logs[2].clear();
-            disasms.clear();
+            disasmses.clear();
+            disasmses["Disassembly"];
             exportIndex = 0;
             exports.clear();
             logsIndex[0] = 0;
@@ -461,7 +481,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 return cpu->Memory(base, size);
             }, cpu, Logger<SYSTEM>);
             if (image) {
-                auto disassembly = [](void* image) {
+                auto disassembly = [](const char* file, void* image) {
+                    auto& disasms = disasmses[file];
                     size_t base = 0;
                     size_t address = 0;
                     size_t size = 0;
@@ -513,13 +534,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 syscall_i386_new(cpu, file.substr(0, file.rfind('/')).c_str(), (int)args.size(), args.data(), 0, nullptr);
 
                 exports.emplace_back("Entry", PE::Entry(image));
-                PE::Imports(image, Symbol, Logger<SYSTEM>);
+                PE::Imports(image, Symbol, nullptr, Logger<SYSTEM>);
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
                     auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                     exports.emplace_back(name, address);
                 }, &exports);
 
-                disassembly(image);
+                disassembly("Disassembly", image);
 
                 if (exports.empty() == false) {
                     cpu->Jump(exports.front().second);
@@ -561,9 +582,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (cpu) {
                 status = cpu->Status();
 
-                auto it = disasms.find(cpu->Program());
-                if (it != disasms.end()) {
-                    disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
+                for (auto& [title, disasms] : disasmses) {
+                    auto it = disasms.find(cpu->Program());
+                    if (it != disasms.end()) {
+                        disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
+                        disasmFocusTitle = title;
+                        break;
+                    }
                 }
 
                 auto allocator = cpu->Allocator;
