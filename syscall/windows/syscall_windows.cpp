@@ -13,6 +13,10 @@
 #include "msvcrt.h"
 #include "windows.h"
 
+#if defined(_WIN32)
+#define strcasecmp _stricmp
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,9 +29,7 @@ extern "C" {
     x87_instruction& x87,   \
     uint8_t* memory,        \
     uint32_t* stack,        \
-    allocator_t* allocator, \
-    int(*syslog)(const char*, va_list), \
-    int(*log)(const char*, va_list)
+    allocator_t* allocator
 
 #define INT32(count, value) \
     [](CALLBACK_ARGUMENT) -> size_t {   \
@@ -80,8 +82,8 @@ static const struct {
     { "GetModuleBaseNameA",         INT32(4, syscall_GetModuleBaseNameA(memory, stack))             },
     { "GetModuleFileNameA",         INT32(3, syscall_GetModuleFileNameA(memory, stack))             },
     { "GetModuleHandleA",           INT32(1, syscall_GetModuleHandleA(memory, stack))               },
-    { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack, syslog))         },
-    { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu, syslog))      },
+    { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack))                 },
+    { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu))              },
 
     // kernel32 - memory
     { "LocalAlloc",                 INT32(2, syscall_LocalAlloc(memory, stack, allocator))          },
@@ -100,7 +102,7 @@ static const struct {
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
     { "GetLastError",               INT32(0, 0)                                                     },
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
-    { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack, syslog))     },
+    { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
@@ -200,7 +202,7 @@ static const struct {
 //  { "??1type_info@@UAE@XZ",       INT32(0, 0)                                                     },
 
     // ucrt
-    { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack, log))   },
+    { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack))        },
     { "__stdio_common_vsprintf",    INT32(0, syscall___stdio_common_vsprintf(memory, stack))        },
 
     // std::string
@@ -221,7 +223,7 @@ static const struct {
     { "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_neq_cstr(memory, stack)) },
 };
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, size_t(*symbol)(const char*, const char*, void*), void* image, int argc, const char* argv[], int envc, const char* envp[])
+size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
 {
     if (data == nullptr)
         return 0;
@@ -232,8 +234,8 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, si
 
     auto* tib = (TIB*)memory;
     tib->ExceptionList = 0;
-    tib->StackBase = uint32_t(stack_base);
-    tib->StackLimit = uint32_t(stack_limit);
+    tib->StackBase = uint32_t(syscall_windows->stack_base);
+    tib->StackLimit = uint32_t(syscall_windows->stack_limit);
     tib->Version = 0;
     tib->ArbitraryUserPointer = 0;
     tib->Self = 0;
@@ -243,49 +245,36 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, si
     msvcrt->iob[1][0] = 2;
     msvcrt->iob[2][0] = 3;
 
-    auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * argc);
-    for (int i = 0; i < argc; ++i) {
-        size_t length = strlen(argv[i]);
+    auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * syscall_windows->argc);
+    for (int i = 0; i < syscall_windows->argc; ++i) {
+        size_t length = strlen(syscall_windows->argv[i]);
         auto arg = allocator->allocate(length + 1);
-        memcpy(arg, argv[i], length);
+        memcpy(arg, syscall_windows->argv[i], length);
         args[i] = virtual(int, arg);
     }
 
-    auto envs = (uint32_t*)allocator->allocate(sizeof(uint32_t) * (envc + 1));
-    for (int i = 0; i < envc; ++i) {
-        size_t length = strlen(envp[i]);
+    auto envs = (uint32_t*)allocator->allocate(sizeof(uint32_t) * (syscall_windows->envc + 1));
+    for (int i = 0; i < syscall_windows->envc; ++i) {
+        size_t length = strlen(syscall_windows->envp[i]);
         auto env = allocator->allocate(length + 1);
-        memcpy(env, envp[i], length);
+        memcpy(env, syscall_windows->envp[i], length);
         envs[i] = virtual(int, env);
     }
-    envs[envc] = 0;
+    envs[syscall_windows->envc] = 0;
 
-    msvcrt->argc = argc;
+    msvcrt->argc = syscall_windows->argc;
     msvcrt->argv = virtual(int, args);
     msvcrt->envp = virtual(int, envs);
 
     auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image == 0) {
-        windows->image = virtual(uint32_t, image);
-        windows->symbol = symbol;
+        windows->image = virtual(uint32_t, syscall_windows->image);
+        windows->symbol = syscall_windows->symbol;
+        windows->debugModule = syscall_windows->debugModule;
         new (windows) Windows;
     }
     static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
     static_assert(TIB_WINDOWS + offsetof(Windows, commandLine) == offset_commandLine);
-
-    return 0;
-}
-
-size_t syscall_windows_debug(void* data, void(*debugModule)(const char*, void*), int(*debugPrintf)(const char*, ...))
-{
-    if (data == nullptr)
-        return 0;
-
-    auto* cpu = (x86_i386*)data;
-    auto* memory = cpu->Memory();
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    windows->debugModule = debugModule;
-    windows->debugPrintf = debugPrintf;
 
     return 0;
 }
@@ -306,25 +295,16 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list))
+void syscall_windows_import(void* data, const char* file, void* image)
 {
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
+    auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
-
-    static auto slog = log;
-    struct Local {
-        static int log(const char* format, ...) {
-            va_list va;
-            va_start(va, format);
-            int length = slog(format, va);
-            va_end(va);
-            return length;
-        };
-    };
 
     struct ImportData {
         mine* cpu;
+        Printf* printf;
         Windows* windows;
         std::vector<void*> loaded;
 
@@ -343,11 +323,11 @@ void syscall_windows_import(void* data, const char* file, void* image, int(*log)
                     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
                         mine* cpu = (mine*)userdata;
                         return cpu->Memory(base, size);
-                    }, data.cpu, Local::log);
+                    }, data.cpu, data.printf->debugPrintf);
                     if (image) {
                         size_t offset = modules.size();
                         modules.emplace_back(file, image);
-                        PE::Imports(image, Import, import_data, Local::log);
+                        PE::Imports(image, Import, import_data, data.printf->debugPrintf);
                         if (data.windows->debugModule && image) {
                             data.windows->debugModule(file, image);
                         }
@@ -360,12 +340,15 @@ void syscall_windows_import(void* data, const char* file, void* image, int(*log)
                 struct ExportData {
                     size_t address;
                     const char* name;
-                } export_data = { .name = name };
+                    Printf* printf;
+                } export_data = { .name = name, .printf = data.printf };
                 PE::Exports((*it).second, [](const char* name, size_t address, void* export_data) {
                     auto& data = *(ExportData*)export_data;
                     if (strcmp(data.name, name) == 0) {
                         data.address = address;
-                        Local::log("%-12s : [%08zX] %s", "Symbol", address, name);
+                        if (data.printf->debugPrintf) {
+                            data.printf->debugPrintf("%-12s : [%08zX] %s", "Symbol", address, name);
+                        }
                     }
                 }, &export_data);
                 return export_data.address;
@@ -376,16 +359,17 @@ void syscall_windows_import(void* data, const char* file, void* image, int(*log)
         };
     } import_data = {
         .cpu = cpu,
+        .printf = printf,
         .windows = windows,
     };
 
-    PE::Imports(image, ImportData::Import, &import_data, Local::log);
+    PE::Imports(image, ImportData::Import, &import_data, printf->debugPrintf);
     if (import_data.windows->debugModule && image) {
         import_data.windows->debugModule(file, image);
     }
 }
 
-size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))
+size_t syscall_windows_execute(void* data, size_t index)
 {
     index = uint32_t(-index - SYMBOL_INDEX);
 
@@ -398,10 +382,11 @@ size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char
         auto* stack = (uint32_t*)(memory + cpu->Stack());
         auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
-        if (syslog) {
-            syslog("[CALL] %s", (va_list)&syscall_table[index].name);
+        auto* printf = physical(Printf*, offset_printf);
+        if (printf->debugPrintf) {
+            printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        return syscall(cpu, x86, x87, memory, stack, allocator, syslog, log) * sizeof(uint32_t);
+        return syscall(cpu, x86, x87, memory, stack, allocator) * sizeof(uint32_t);
     }
 
     return 0;

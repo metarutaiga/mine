@@ -135,10 +135,10 @@ static size_t Exception(mine* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, LoggerV<SYSTEM>, LoggerV<CONSOLE>);
+        result = syscall_windows_execute(data, index);
     }
     if (result == 0) {
-        result = syscall_i386_execute(cpu, index, LoggerV<SYSTEM>, LoggerV<CONSOLE>);
+        result = syscall_i386_execute(cpu, index);
     }
     return result;
 }
@@ -526,13 +526,28 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     args.push_back(arg.data());
                 }
 
-                syscall_i386_new(cpu, file.substr(0, file.rfind('/')).c_str(), (int)args.size(), args.data(), 0, nullptr);
+                std::string basename = file.substr(0, file.rfind('/'));
+                Syscall syscall = {
+                    .path = basename.c_str(),
+                    .argc = (int)args.size(),
+                    .argv = args.data(),
+                    .printf = Logger<CONSOLE>,
+                    .vprintf = LoggerV<CONSOLE>,
+                    .debugPrintf = Logger<SYSTEM>,
+                    .debugVprintf = LoggerV<SYSTEM>,
+                };
+                syscall_i386_new(cpu, &syscall);
 
-                size_t stack_base = allocatorSize;
-                size_t stack_limit = allocatorSize - stackSize;
-                syscall_windows_new(cpu, stack_base, stack_limit, Symbol, image, (int)args.size(), args.data(), 0, nullptr);
-                syscall_windows_debug(cpu, disassembly, Logger<CALL>);
-                syscall_windows_import(cpu, "Disassembly", image, LoggerV<SYSTEM>);
+                SyscallWindows syscallWindows = {
+                    .stack_base = allocatorSize,
+                    .stack_limit = allocatorSize - stackSize,
+                    .symbol = Symbol,
+                    .debugModule = disassembly,
+                    .argc = (int)args.size(),
+                    .argv = args.data(),
+                };
+                syscall_windows_new(cpu, &syscallWindows);
+                syscall_windows_import(cpu, "Disassembly", image);
 
                 exports.emplace_back("Entry", PE::Entry(image));
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {

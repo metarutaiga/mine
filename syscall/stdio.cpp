@@ -100,8 +100,9 @@ size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* al
     return virtual(size_t, stream);
 }
 
-int syscall_fprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_fprintf(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = stack + 3;
@@ -112,7 +113,7 @@ int syscall_fprintf(char* memory, const uint32_t* stack, int(*function)(const ch
     case 0x1:   return 0;
     case 0x45ECDFB6:
     case 0x2:
-    case 0x3:   return function(format64.c_str(), (va_list)args64.data());
+    case 0x3:   return printf->vprintf(format64.c_str(), (va_list)args64.data());
     default:    return fprintf(*stream, format64.c_str(), (va_list)args64.data());
     }
     return 0;
@@ -219,13 +220,14 @@ int syscall_perror(char* memory, const uint32_t* stack)
     return 0;
 }
 
-int syscall_printf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_printf(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto format = physical(char*, stack[1]);
     auto args = stack + 2;
     auto format64 = syscall_convert_format_specifier(format);
     auto args64 = syscall_convert_format_argument(format, memory, args, false);
-    return function(format64.c_str(), (va_list)args64.data());
+    return printf->vprintf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_putc(char* memory, const uint32_t* stack)
@@ -235,16 +237,18 @@ int syscall_putc(char* memory, const uint32_t* stack)
     return putc(character, *stream);
 }
 
-int syscall_putchar(const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_putchar(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto character = stack[1];
-    return function("%c", (va_list)&character);
+    return printf->printf("%c", character);
 }
 
-int syscall_puts(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_puts(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto str = physical(char*, stack[1]);
-    return function("%s\n", (va_list)&str);
+    return printf->printf("%s\n", str);
 }
 
 int syscall_remove(char* memory, const uint32_t* stack)
@@ -347,8 +351,9 @@ int syscall_ungetc(char* memory, const uint32_t* stack)
     return ungetc(character, *stream);
 }
 
-int syscall_vfprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_vfprintf(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto stream = physical(FILE**, stack[1]);
     auto format = physical(char*, stack[2]);
     auto args = physical(va_list, stack[3]);
@@ -358,7 +363,7 @@ int syscall_vfprintf(char* memory, const uint32_t* stack, int(*function)(const c
     case 0x0:
     case 0x1:   return 0;
     case 0x2:
-    case 0x3:   return function(format64.c_str(), (va_list)args64.data());
+    case 0x3:   return printf->vprintf(format64.c_str(), (va_list)args64.data());
     default:    return vfprintf(*stream, format64.c_str(), (va_list)args64.data());
     }
     return 0;
@@ -374,13 +379,14 @@ int syscall_vfscanf(char* memory, const uint32_t* stack)
     return vfscanf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
-int syscall_vprintf(char* memory, const uint32_t* stack, int(*function)(const char*, va_list))
+int syscall_vprintf(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto format = physical(char*, stack[1]);
     auto args = physical(char*, stack[2]);
     auto format64 = syscall_convert_format_specifier(format);
     auto args64 = syscall_convert_format_argument(format, memory, args, false);
-    return function(format64.c_str(), (va_list)args64.data());
+    return printf->vprintf(format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vscanf(char* memory, const uint32_t* stack)

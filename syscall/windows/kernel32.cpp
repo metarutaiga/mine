@@ -500,33 +500,40 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack, int(*log)(const char*, va_list))
+size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
 {
+    auto* printf = physical(Printf*, offset_printf);
+
     if (stack[1] == 0 || stack[2] == 0)
         return 0;
     auto hModule = physical(void*, stack[1]);
     auto lpProcName = physical(char*, stack[2]);
 
     struct Data {
-        const char* symbol;
         size_t address;
         const char* name;
-        int(*log)(const char*, va_list);
-    } data = { "Symbol", 0, lpProcName, log };
+        int(*printf)(const char*, ...);
+    } data = {
+        .name = lpProcName,
+        .printf = printf->debugPrintf,
+    };
 
     PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
         auto& data = *(Data*)sym_data;
         if (strcmp(data.name, name) == 0) {
             data.address = address;
-            data.log("%-12s : [%08zX] %s", (va_list)sym_data);
+            if (data.printf) {
+                data.printf("%-12s : [%08zX] %s", "Symbol", address, name);
+            }
         }
     }, &data);
 
     return data.address;
 }
 
-size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu, int(*log)(const char*, va_list))
+size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
 {
+    auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
     size_t module = syscall_GetModuleHandleA(memory, stack);
@@ -546,27 +553,19 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
 #endif
     auto slash = path.find_last_of("/\\");
 
-    static auto slog = log;
-    struct Local {
-        static int log(const char* format, ...) {
-            va_list va;
-            va_start(va, format);
-            int length = slog(format, va);
-            va_end(va);
-            return length;
-        };
-    };
-    Local::log("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
+    if (printf->debugPrintf) {
+        printf->debugPrintf("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
+    }
 
     void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
         mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
-    }, cpu, Local::log);
+    }, cpu, printf->debugPrintf);
 
     std::string file = path.substr(slash + 1);
-    void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list));
+    void syscall_windows_import(void* data, const char* file, void* image);
     windows->modules.emplace_back(file.c_str(), image);
-    syscall_windows_import(cpu, file.c_str(), image, log);
+    syscall_windows_import(cpu, file.c_str(), image);
 
     // _DllMainCRTStartup
     size_t entry = PE::Entry(image);
@@ -712,10 +711,13 @@ int syscall_GetSystemInfo(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack, int(*log)(const char*, va_list))
+int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 {
+    auto* printf = physical(Printf*, offset_printf);
+
     auto lpOutputString = physical(char*, stack[1]);
-    log("%s", (va_list)&lpOutputString);
+    if (printf->debugPrintf)
+        printf->debugPrintf("%s", lpOutputString);
     return 0;
 }
 

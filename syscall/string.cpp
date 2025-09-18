@@ -98,10 +98,11 @@ size_t syscall_strcspn(char* memory, const uint32_t* stack)
     return strcspn(str1, str2);
 }
 
-size_t syscall_strerror(char* memory, const uint32_t* stack, int(*syslog)(const char*, va_list))
+size_t syscall_strerror(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto errnum = stack[1];
-    syslog("%s", (va_list)&errnum);
+    printf->debugPrintf("%d\n", errnum);
     return 0;
 }
 

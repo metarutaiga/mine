@@ -4,11 +4,24 @@
 extern "C" {
 #endif
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, size_t(*symbol)(const char*, const char*, void*), void* image, int argc, const char* argv[], int envc, const char* envp[]);
-size_t syscall_windows_debug(void* data, void(*debugModule)(const char*, void*), int(*debugPrintf)(const char*, ...));
+struct SyscallWindows {
+    size_t stack_base;
+    size_t stack_limit;
+
+    size_t(*symbol)(const char*, const char*, void*);
+    void(*debugModule)(const char*, void*);
+
+    void* image;
+    int argc;
+    const char* const* argv;
+    int envc;
+    const char* const* envp;
+};
+
+size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows);
 size_t syscall_windows_delete(void* data);
-void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list));
-size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
+void syscall_windows_import(void* data, const char* file, void* image);
+size_t syscall_windows_execute(void* data, size_t index);
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
 
@@ -46,8 +59,8 @@ int syscall_FreeLibrary(const void* memory, const void* stack);
 size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleFileNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleA(const void* memory, const void* stack);
-size_t syscall_GetProcAddress(const void* memory, const void* stack, int(*log)(const char*, va_list));
-size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu, int(*log)(const char*, va_list));
+size_t syscall_GetProcAddress(const void* memory, const void* stack);
+size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu);
 
 // kernel32 - memory
 size_t syscall_LocalAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -60,7 +73,7 @@ size_t syscall_GetCommandLineA(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
 int syscall_GetSystemInfo(const void* memory, const void* stack);
-int syscall_OutputDebugStringA(const void* memory, const void* stack, int(*log)(const char*, va_list));
+int syscall_OutputDebugStringA(const void* memory, const void* stack);
 
 // kernel32 - time
 int syscall_GetSystemTimeAsFileTime(const void* memory, const void* stack);
@@ -116,7 +129,7 @@ size_t syscall___p__fmode(const void* memory);
 size_t syscall___p___initenv(const void* memory);
 
 // ucrt
-int syscall___stdio_common_vfprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall___stdio_common_vfprintf(const void* memory, const void* stack);
 int syscall___stdio_common_vsprintf(const void* memory, const void* stack);
 
 #ifdef __cplusplus

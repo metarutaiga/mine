@@ -20,9 +20,8 @@ struct Windows {
     char directory[260];
     uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
-    size_t (*symbol)(const char*, const char*, void*);
-    void (*debugModule)(const char*, void*);
-    int (*debugPrintf)(const char*, ...);
+    size_t(*symbol)(const char*, const char*, void*);
+    void(*debugModule)(const char*, void*);
 };
 
 struct SystemInfo {

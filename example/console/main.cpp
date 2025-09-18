@@ -20,10 +20,10 @@ static size_t run_exception(mine* data, size_t index)
 {
     size_t result = 0;
     if (result == 0) {
-        result = syscall_windows_execute(data, index, vsyslog, vprintf);
+        result = syscall_windows_execute(data, index);
     }
     if (result == 0) {
-        result = syscall_i386_execute(data, index, vsyslog, vprintf);
+        result = syscall_i386_execute(data, index);
     }
     return result;
 }
@@ -59,12 +59,27 @@ int main(int argc, const char* argv[])
         return cpu->Memory(base, size);
     }, cpu, syslog);
     if (image) {
-        syscall_i386_new(cpu, ".", argc - 1, argv + 1, 0, nullptr);
+        Syscall syscall = {
+            .path = ".",
+            .argc = argc - 1,
+            .argv = argv + 1,
+            .printf = printf,
+            .vprintf = vprintf,
+            .debugPrintf = syslog,
+            .debugVprintf = vsyslog,
+        };
+        syscall_i386_new(cpu, &syscall);
 
-        size_t stack_base = allocator_size;
-        size_t stack_limit = allocator_size - stack_size;
-        syscall_windows_new(cpu, stack_base, stack_limit, get_symbol, image, argc - 1, argv + 1, 0, nullptr);
-        syscall_windows_import(cpu, "Disassembly", image, vsyslog);
+        SyscallWindows syscall_windows = {
+            .stack_base = allocator_size,
+            .stack_limit = allocator_size - stack_size,
+            .image = image,
+            .symbol = get_symbol,
+            .argc = argc - 1,
+            .argv = argv + 1,
+        };
+        syscall_windows_new(cpu, &syscall_windows);
+        syscall_windows_import(cpu, "main", image);
 
         size_t entry = PE::Entry(image);
         if (entry) {

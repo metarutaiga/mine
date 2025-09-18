@@ -4,8 +4,21 @@
 extern "C" {
 #endif
 
-size_t syscall_i386_new(void* data, const char* path, int argc, const char* argv[], int envc, const char* envp[]);
-size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
+struct Syscall {
+    const char* path;
+    int argc;
+    const char* const* argv;
+    int envc;
+    const char* const* envp;
+
+    int(*printf)(const char*, ...);
+    int(*vprintf)(const char*, va_list);
+    int(*debugPrintf)(const char*, ...);
+    int(*debugVprintf)(const char*, va_list);
+};
+
+size_t syscall_i386_new(void* data, Syscall* syscall);
+size_t syscall_i386_execute(void* data, size_t index);
 size_t syscall_i386_symbol(const char* file, const char* name);
 const char* syscall_i386_name(size_t index);
 
@@ -121,7 +134,7 @@ int syscall_fgetc(const void* memory, const void* stack);
 int syscall_fgetpos(const void* memory, const void* stack);
 size_t syscall_fgets(const void* memory, const void* stack);
 size_t syscall_fopen(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_fprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall_fprintf(const void* memory, const void* stack);
 int syscall_fputc(const void* memory, const void* stack);
 int syscall_fputs(const void* memory, const void* stack);
 size_t syscall_fread(const void* memory, const void* stack);
@@ -135,10 +148,10 @@ int syscall_getc(const void* memory, const void* stack);
 int syscall_getchar();
 size_t syscall_gets(const void* memory, const void* stack);
 int syscall_perror(const void* memory, const void* stack);
-int syscall_printf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall_printf(const void* memory, const void* stack);
 int syscall_putc(const void* memory, const void* stack);
-int syscall_putchar(const void* stack, int(*function)(const char*, va_list));
-int syscall_puts(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall_putchar(const void* memory, const void* stack);
+int syscall_puts(const void* memory, const void* stack);
 int syscall_remove(const void* memory, const void* stack);
 int syscall_rename(const void* memory, const void* stack);
 int syscall_rewind(const void* memory, const void* stack);
@@ -151,9 +164,9 @@ int syscall_sscanf(const void* memory, const void* stack);
 size_t syscall_tmpfile(const void* memory, struct allocator_t* allocator);
 size_t syscall_tmpnam(const void* memory, const void* stack);
 int syscall_ungetc(const void* memory, const void* stack);
-int syscall_vfprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall_vfprintf(const void* memory, const void* stack);
 int syscall_vfscanf(const void* memory, const void* stack);
-int syscall_vprintf(const void* memory, const void* stack, int(*function)(const char*, va_list));
+int syscall_vprintf(const void* memory, const void* stack);
 int syscall_vscanf(const void* memory, const void* stack);
 int syscall_vsnprintf(const void* memory, const void* stack);
 int syscall_vsprintf(const void* memory, const void* stack);
@@ -210,7 +223,7 @@ int syscall_strcmp(const void* memory, const void* stack);
 int syscall_strcoll(const void* memory, const void* stack);
 size_t syscall_strcpy(const void* memory, const void* stack);
 size_t syscall_strcspn(const void* memory, const void* stack);
-size_t syscall_strerror(const void* memory, const void* stack, int(*syslog)(const char*, va_list));
+size_t syscall_strerror(const void* memory, const void* stack);
 size_t syscall_strlen(const void* memory, const void* stack);
 size_t syscall_strncat(const void* memory, const void* stack);
 int syscall_strncmp(const void* memory, const void* stack);

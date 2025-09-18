@@ -16,9 +16,7 @@ extern "C" {
     x87_instruction& x87,   \
     void* memory,           \
     void* stack,            \
-    allocator_t* allocator, \
-    int(*syslog)(const char*, va_list), \
-    int(*log)(const char*, va_list)
+    allocator_t* allocator
 
 #define DIV32(value) \
     [](CALLBACK_ARGUMENT) { \
@@ -54,30 +52,36 @@ extern "C" {
 
 #include "syscall_table.h"
 
-size_t syscall_i386_new(void* data, const char* path, int argc, const char* argv[], int envc, const char* envp[])
+size_t syscall_i386_new(void* data, Syscall* syscall)
 {
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
 
+    auto printf = physical(Printf*, offset_printf);
+    printf->printf = syscall->printf;
+    printf->vprintf = syscall->vprintf;
+    printf->debugPrintf = syscall->debugPrintf;
+    printf->debugVprintf = syscall->debugVprintf;
+
     auto directory = physical(char*, offset_directory);
     directory[0] = 0;
 #if defined(_WIN32)
-    strncpy(directory, path, 260);
+    strncpy(directory, syscall->path, 260);
 #else
-    realpath(path, directory);
+    realpath(syscall->path, directory);
 #endif
 
     auto commandLine = physical(char*, offset_commandLine);
     commandLine[0] = 0;
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 0; i < syscall->argc; ++i) {
         if (i) strncat(commandLine, " ", 256);
-        strncat(commandLine, argv[i], 256);
+        strncat(commandLine, syscall->argv[i], 256);
     }
 
     return 0;
 }
 
-size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))
+size_t syscall_i386_execute(void* data, size_t index)
 {
     index = uint32_t(-index - SYMBOL_INDEX);
 
@@ -90,10 +94,11 @@ size_t syscall_i386_execute(void* data, size_t index, int(*syslog)(const char*, 
         auto* stack = memory + cpu->Stack();
         auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
-        if (syslog) {
-            syslog("[CALL] %s", (va_list)&syscall_table[index].name);
+        auto* printf = physical(Printf*, offset_printf);
+        if (printf->debugPrintf) {
+            printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        syscall(x86, x87, memory, stack, allocator, syslog, log);
+        syscall(x86, x87, memory, stack, allocator);
     }
 
     return 0;
