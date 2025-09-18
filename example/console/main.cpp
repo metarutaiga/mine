@@ -50,7 +50,7 @@ int main(int argc, const char* argv[])
     static const int allocatorSize = 16777216;
     static const int stackSize = 65536;
 
-    mine* cpu = new x86_i686;
+    mine* cpu = new x86_i386;
     cpu->Initialize(simple_allocator<16>::construct(allocator_size), stack_size);
     cpu->Exception = run_exception;
 
@@ -59,12 +59,12 @@ int main(int argc, const char* argv[])
         return cpu->Memory(base, size);
     }, cpu, syslog);
     if (image) {
-        size_t stack_base = allocator_size;
-        size_t stack_limit = allocator_size - stack_size;
-        syscall_windows_new(cpu, stack_base, stack_limit, image, argc - 1, argv + 1, 0, nullptr);
         syscall_i386_new(cpu, ".", argc - 1, argv + 1, 0, nullptr);
 
-        PE::Imports(image, get_symbol, nullptr, syslog);
+        size_t stack_base = allocator_size;
+        size_t stack_limit = allocator_size - stack_size;
+        syscall_windows_new(cpu, stack_base, stack_limit, get_symbol, image, argc - 1, argv + 1, 0, nullptr);
+        syscall_windows_import(cpu, "Disassembly", image, vsyslog);
 
         size_t entry = PE::Entry(image);
         if (entry) {

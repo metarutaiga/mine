@@ -526,21 +526,19 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     args.push_back(arg.data());
                 }
 
-                size_t stack_base = allocatorSize;
-                size_t stack_limit = allocatorSize - stackSize;
-                syscall_windows_new(cpu, stack_base, stack_limit, image, (int)args.size(), args.data(), 0, nullptr);
-                syscall_windows_debug(cpu, Logger<CALL>, disassembly);
-
                 syscall_i386_new(cpu, file.substr(0, file.rfind('/')).c_str(), (int)args.size(), args.data(), 0, nullptr);
 
+                size_t stack_base = allocatorSize;
+                size_t stack_limit = allocatorSize - stackSize;
+                syscall_windows_new(cpu, stack_base, stack_limit, Symbol, image, (int)args.size(), args.data(), 0, nullptr);
+                syscall_windows_debug(cpu, disassembly, Logger<CALL>);
+                syscall_windows_import(cpu, "Disassembly", image, LoggerV<SYSTEM>);
+
                 exports.emplace_back("Entry", PE::Entry(image));
-                PE::Imports(image, Symbol, nullptr, Logger<SYSTEM>);
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
                     auto& exports = *(std::vector<std::pair<std::string, size_t>>*)sym_data;
                     exports.emplace_back(name, address);
                 }, &exports);
-
-                disassembly("Disassembly", image);
 
                 if (exports.empty() == false) {
                     cpu->Jump(exports.front().second);

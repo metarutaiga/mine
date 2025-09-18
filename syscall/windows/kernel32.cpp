@@ -563,12 +563,10 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
         return cpu->Memory(base, size);
     }, cpu, Local::log);
 
-    void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_list));
-    windows->modules.emplace_back(path.substr(slash + 1).c_str(), image);
-    syscall_windows_import(cpu, image, log);
-    if (windows->loadLibraryCallback && image) {
-        windows->loadLibraryCallback(path.substr(slash + 1).c_str(), image);
-    }
+    std::string file = path.substr(slash + 1);
+    void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list));
+    windows->modules.emplace_back(file.c_str(), image);
+    syscall_windows_import(cpu, file.c_str(), image, log);
 
     // _DllMainCRTStartup
     size_t entry = PE::Entry(image);

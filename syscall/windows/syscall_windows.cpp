@@ -221,7 +221,7 @@ static const struct {
     { "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@PBD@Z",  INT32(0, syscall_basic_string_char_neq_cstr(memory, stack)) },
 };
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, void* image, int argc, const char* argv[], int envc, const char* envp[])
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, size_t(*symbol)(const char*, const char*, void*), void* image, int argc, const char* argv[], int envc, const char* envp[])
 {
     if (data == nullptr)
         return 0;
@@ -267,6 +267,7 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, vo
     auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image == 0) {
         windows->image = virtual(uint32_t, image);
+        windows->symbol = symbol;
         new (windows) Windows;
     }
     static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
@@ -275,7 +276,7 @@ size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, vo
     return 0;
 }
 
-size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), void(*loadLibraryCallback)(const char*, void*))
+size_t syscall_windows_debug(void* data, void(*debugModule)(const char*, void*), int(*debugPrintf)(const char*, ...))
 {
     if (data == nullptr)
         return 0;
@@ -283,8 +284,8 @@ size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), vo
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* windows = physical(Windows*, TIB_WINDOWS);
+    windows->debugModule = debugModule;
     windows->debugPrintf = debugPrintf;
-    windows->loadLibraryCallback = loadLibraryCallback;
 
     return 0;
 }
@@ -305,7 +306,7 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_list))
+void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list))
 {
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
@@ -327,8 +328,8 @@ void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_l
         Windows* windows;
         std::vector<void*> loaded;
 
-        static size_t Import(const char* file, const char* name, void* userdata) {
-            ImportData& data = *(ImportData*)userdata;
+        static size_t Import(const char* file, const char* name, void* import_data) {
+            ImportData& data = *(ImportData*)import_data;
             auto& modules = data.windows->modules;
             auto it = std::find_if(modules.begin(), modules.end(), [&](auto& pair) {
                 return strcasecmp(pair.first.c_str(), file) == 0;
@@ -346,9 +347,9 @@ void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_l
                     if (image) {
                         size_t offset = modules.size();
                         modules.emplace_back(file, image);
-                        PE::Imports(image, Import, userdata, Local::log);
-                        if (data.windows->loadLibraryCallback && image) {
-                            data.windows->loadLibraryCallback(file, image);
+                        PE::Imports(image, Import, import_data, Local::log);
+                        if (data.windows->debugModule && image) {
+                            data.windows->debugModule(file, image);
                         }
                         it = modules.begin() + offset;
                         data.loaded.emplace_back(image);
@@ -359,23 +360,19 @@ void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_l
                 struct ExportData {
                     size_t address;
                     const char* name;
-                } export_data = { 0, name };
+                } export_data = { .name = name };
                 PE::Exports((*it).second, [](const char* name, size_t address, void* export_data) {
                     auto& data = *(ExportData*)export_data;
                     if (strcmp(data.name, name) == 0) {
                         data.address = address;
+                        Local::log("%-12s : [%08zX] %s", "Symbol", address, name);
                     }
                 }, &export_data);
                 return export_data.address;
             }
-            extern size_t syscall_windows_symbol(const char* file, const char* name);
-            extern size_t syscall_i386_symbol(const char* file, const char* name);
-            size_t address = 0;
-            if (address == 0)
-                address = syscall_windows_symbol(file, name);
-            if (address == 0)
-                address = syscall_i386_symbol(file, name);
-            return address;
+            if (data.windows->symbol == nullptr)
+                return 0;
+            return data.windows->symbol(file, name, nullptr);
         };
     } import_data = {
         .cpu = cpu,
@@ -383,6 +380,9 @@ void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_l
     };
 
     PE::Imports(image, ImportData::Import, &import_data, Local::log);
+    if (import_data.windows->debugModule && image) {
+        import_data.windows->debugModule(file, image);
+    }
 }
 
 size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list))

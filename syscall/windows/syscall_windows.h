@@ -4,10 +4,10 @@
 extern "C" {
 #endif
 
-size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, void* image, int argc, const char* argv[], int envc, const char* envp[]);
-size_t syscall_windows_debug(void* data, int(*debugPrintf)(const char*, ...), void(*loadLibraryCallback)(const char*, void*));
+size_t syscall_windows_new(void* data, size_t stack_base, size_t stack_limit, size_t(*symbol)(const char*, const char*, void*), void* image, int argc, const char* argv[], int envc, const char* envp[]);
+size_t syscall_windows_debug(void* data, void(*debugModule)(const char*, void*), int(*debugPrintf)(const char*, ...));
 size_t syscall_windows_delete(void* data);
-void syscall_windows_import(void* data, void* image, int(*log)(const char*, va_list));
+void syscall_windows_import(void* data, const char* file, void* image, int(*log)(const char*, va_list));
 size_t syscall_windows_execute(void* data, size_t index, int(*syslog)(const char*, va_list), int(*log)(const char*, va_list));
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
