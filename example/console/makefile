@@ -1,8 +1,8 @@
 # Generated from ChatGPT (GPT-4 Omni)
 
 CXX := g++
-CXXFLAGS := -O3 --std=c++20 -I../.. -I../../format
-LDFLAGS :=
+CXXFLAGS := -O3 --std=c++20 -I../.. -I../../format -fdata-sections -ffunction-sections
+LDFLAGS := -Wl,-dead_strip
 
 SRC_DIRS := ../../format/coff ../../syscall ../../syscall/windows ../../x86
 BUILD_DIR := build

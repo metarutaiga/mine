@@ -25,15 +25,12 @@ extern "C" {
 
 #define CALLBACK_ARGUMENT \
     x86_i386* cpu,          \
-    x86_instruction& x86,   \
-    x87_instruction& x87,   \
     uint8_t* memory,        \
-    uint32_t* stack,        \
-    allocator_t* allocator
+    uint32_t* stack
 
 #define INT32(count, value) \
-    [](CALLBACK_ARGUMENT) -> size_t {   \
-        auto temp = value;              \
+    [](CALLBACK_ARGUMENT) -> size_t { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
+        auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         return count; \
     }
@@ -102,11 +99,13 @@ static const struct {
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
     { "GetLastError",               INT32(0, 0)                                                     },
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
+    { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
     // kernel32 - time
+    { "GetSystemTime",              INT32(1, syscall_GetSystemTime(memory, stack))                  },
     { "GetSystemTimeAsFileTime",    INT32(1, syscall_GetSystemTimeAsFileTime(memory, stack))        },
     { "GetTickCount",               INT32(0, syscall_GetTickCount())                                },
     { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
@@ -121,6 +120,7 @@ static const struct {
 
     // advapi32
     { "RegCloseKey",                INT32(1, 0)                                                     },
+    { "RegOpenKeyA",                INT32(3, 2)                                                     },
     { "RegOpenKeyExA",              INT32(5, 2)                                                     },
     { "RegQueryValueExA",           INT32(6, 2)                                                     },
 
@@ -204,6 +204,9 @@ static const struct {
     // ucrt
     { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack))        },
     { "__stdio_common_vsprintf",    INT32(0, syscall___stdio_common_vsprintf(memory, stack))        },
+
+    // user32
+    { "MessageBoxA",                INT32(4, syscall_puts(memory, stack + 1))                       },
 
     // std::string
     { "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ",             INT32(0, syscall_basic_string_char_constructor(ECX, memory))                                },
@@ -295,7 +298,7 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-void syscall_windows_import(void* data, const char* file, void* image)
+void syscall_windows_import(void* data, const char* file, void* image, bool execute)
 {
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
@@ -306,7 +309,6 @@ void syscall_windows_import(void* data, const char* file, void* image)
         mine* cpu;
         Printf* printf;
         Windows* windows;
-        std::vector<void*> loaded;
 
         static size_t Import(const char* file, const char* name, void* import_data) {
             ImportData& data = *(ImportData*)import_data;
@@ -327,12 +329,8 @@ void syscall_windows_import(void* data, const char* file, void* image)
                     if (image) {
                         size_t offset = modules.size();
                         modules.emplace_back(file, image);
-                        PE::Imports(image, Import, import_data, data.printf->debugPrintf);
-                        if (data.windows->debugModule && image) {
-                            data.windows->debugModule(file, image);
-                        }
+                        syscall_windows_import(data.cpu, file, image, false);
                         it = modules.begin() + offset;
-                        data.loaded.emplace_back(image);
                     }
                 }
             }
@@ -367,6 +365,24 @@ void syscall_windows_import(void* data, const char* file, void* image)
     if (import_data.windows->debugModule && image) {
         import_data.windows->debugModule(file, image);
     }
+
+    if (execute)
+        return;
+
+    size_t entry = PE::Entry(image);
+    if (entry) {
+        auto& x86 = cpu->x86;
+        uint32_t ret = Pop32();
+        Push32(0);
+        Push32(2);
+        Push32(0);
+        Push32(ret);
+        Push32(0);
+        Push32(1);
+        Push32(0);
+        Push32(entry);
+        Push32(entry);
+    }
 }
 
 size_t syscall_windows_execute(void* data, size_t index)
@@ -376,17 +392,14 @@ size_t syscall_windows_execute(void* data, size_t index)
     size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     if (index < count) {
         auto* cpu = (x86_i386*)data;
-        auto& x86 = cpu->x86;
-        auto& x87 = cpu->x87;
         auto* memory = cpu->Memory();
         auto* stack = (uint32_t*)(memory + cpu->Stack());
-        auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
         auto* printf = physical(Printf*, offset_printf);
         if (printf->debugPrintf) {
             printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        return syscall(cpu, x86, x87, memory, stack, allocator) * sizeof(uint32_t);
+        return syscall(cpu, memory, stack) * sizeof(uint32_t);
     }
 
     return 0;

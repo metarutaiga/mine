@@ -194,7 +194,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         return false;
 
     bool updated = false;
-    ImGui::SetNextWindowSize(ImVec2(1536.0f, 900.0f), ImGuiCond_Appearing);
+    ImGuiViewport* viewport = ImGui::GetWindowViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos + ImVec2((viewport->WorkSize.x - 1600.0f) / 2.0f, (viewport->WorkSize.y - 900.0f) / 2.0f), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(1600.0f, 900.0f), ImGuiCond_Once);
     if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
 
         static int updateCount = 0;
@@ -547,7 +549,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     .argv = args.data(),
                 };
                 syscall_windows_new(cpu, &syscallWindows);
-                syscall_windows_import(cpu, "Disassembly", image);
+                syscall_windows_import(cpu, "Disassembly", image, true);
 
                 exports.emplace_back("Entry", PE::Entry(image));
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {

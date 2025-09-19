@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
 #include <sys/stat.h>
-#include "windows.h"
 #include "syscall/allocator.h"
 #include "syscall/syscall.h"
 #include "syscall/syscall_internal.h"
@@ -9,6 +8,7 @@
 #include "x86/x86_i386.h"
 #include "x86/x86_register.inl"
 #include "x86/x86_instruction.inl"
+#include "windows.h"
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -21,6 +21,24 @@
 #include <sys/dir.h>
 static_assert(true);
 #pragma pack(push, 1)
+struct OSVERSIONINFOA {
+    uint32_t    dwOSVersionInfoSize;
+    uint32_t    dwMajorVersion;
+    uint32_t    dwMinorVersion;
+    uint32_t    dwBuildNumber;
+    uint32_t    dwPlatformId;
+    char        szCSDVersion[128];
+};
+struct SYSTEMTIME {
+    uint16_t    wYear;
+    uint16_t    wMonth;
+    uint16_t    wDayOfWeek;
+    uint16_t    wDay;
+    uint16_t    wHour;
+    uint16_t    wMinute;
+    uint16_t    wSecond;
+    uint16_t    wMilliseconds;
+};
 struct WIN32_FIND_DATAA {
     uint32_t    dwFileAttributes;
     uint64_t    ftCreationTime;
@@ -528,6 +546,12 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
         }
     }, &data);
 
+    if (data.address == 0) {
+        if (data.printf) {
+            data.printf("%-12s : %s is not found", "Symbol", lpProcName);
+        }
+    }
+
     return data.address;
 }
 
@@ -561,51 +585,47 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
         mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
     }, cpu, printf->debugPrintf);
+    if (image == nullptr)
+        return 0;
 
+    // _DllMainCRTStartup - pre
+    auto& x86 = cpu->x86;
+
+    //                  _DllMainCRTStartup
+    //                  _DllMainCRTStartup
+    //                  _DllMainCRTStartup
+    //                  hDllHandle
+    //                  dwReason
+    //                  lpreserved
+    //                  $$$$$$$$
+    //                  hDllHandle
+    //                  dwReason
+    //                  lpreserved
+    // LoadLibraryA     LoadLibraryA
+    // lpLibFileName    lpLibFileName
+    uint32_t ret;
+
+    // 58 POP EAX
+    // 58 POP EAX
+    // C3 RET
+    // C3 RET
+    ret = Pop32();
+    Pop32();
+    Push32(ret);
+    Push32(virtual(int, image));
+    Push32(0xC3C35858);
+    uint32_t eax = ESP;
+    Push32(eax);
+
+    void syscall_windows_import(void* data, const char* file, void* image, bool execute);
     std::string file = path.substr(slash + 1);
-    void syscall_windows_import(void* data, const char* file, void* image);
     windows->modules.emplace_back(file.c_str(), image);
-    syscall_windows_import(cpu, file.c_str(), image);
+    syscall_windows_import(cpu, file.c_str(), image, false);
 
-    // _DllMainCRTStartup
-    size_t entry = PE::Entry(image);
-    if (entry) {
-        auto& x86 = cpu->x86;
-
-        //                  _DllMainCRTStartup
-        //                  _DllMainCRTStartup
-        //                  _DllMainCRTStartup
-        //                  hDllHandle
-        //                  dwReason
-        //                  lpreserved
-        //                  $$$$$$$$
-        //                  hDllHandle
-        //                  dwReason
-        //                  lpreserved
-        // LoadLibraryA     LoadLibraryA
-        // lpLibFileName    lpLibFileName
-
-        // 58 POP EAX
-        // 58 POP EAX
-        // C3 RET
-        // C3 RET
-        uint32_t ret = Pop32();
-        Pop32();
-        Push32(ret);
-        Push32(virtual(int, image));
-        Push32(0xC3C35858);
-        uint32_t eax = ESP;
-        Push32(0);
-        Push32(2);
-        Push32(0);
-        Push32(eax);
-        Push32(0);
-        Push32(1);
-        Push32(0);
-        Push32(entry);
-        Push32(entry);
-        Push32(entry);
-    }
+    // _DllMainCRTStartup - post
+    ret = Pop32();
+    Push32(ret);
+    Push32(ret);
 
     return virtual(size_t, image);
 }
@@ -711,6 +731,17 @@ int syscall_GetSystemInfo(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
+int syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
+{
+    auto lpVersionInformation = physical(OSVERSIONINFOA*, stack[1]);
+    lpVersionInformation->dwMajorVersion = 5;
+    lpVersionInformation->dwMinorVersion = 0;
+    lpVersionInformation->dwBuildNumber = 0;
+    lpVersionInformation->dwPlatformId = 1;
+    lpVersionInformation->szCSDVersion[0] = 0;
+    return 0;
+}
+
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 {
     auto* printf = physical(Printf*, offset_printf);
@@ -722,6 +753,29 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 }
 
 // Time
+
+int syscall_GetSystemTime(uint8_t* memory, const uint32_t* stack)
+{
+#if defined(_WIN32)
+    auto lpSystemTime = physical(SYSTEMTIME*, stack[1]);
+    GetSystemTime(lpSystemTime);
+#else
+    auto lpSystemTime = physical(SYSTEMTIME*, stack[1]);
+
+    time_t t = time(nullptr);
+    struct tm* tm = gmtime(&t);
+
+    lpSystemTime->wYear = tm->tm_year + 1900;
+    lpSystemTime->wMonth = tm->tm_mon + 1;
+    lpSystemTime->wDayOfWeek = tm->tm_wday;
+    lpSystemTime->wDay = tm->tm_mday;
+    lpSystemTime->wHour = tm->tm_hour;
+    lpSystemTime->wMinute = tm->tm_min;
+    lpSystemTime->wSecond = tm->tm_sec;
+    lpSystemTime->wMilliseconds = 0;
+#endif
+    return 0;
+}
 
 int syscall_GetSystemTimeAsFileTime(uint8_t* memory, const uint32_t* stack)
 {

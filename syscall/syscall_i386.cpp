@@ -12,20 +12,19 @@ extern "C" {
 #define SYMBOL_INDEX 10
 
 #define CALLBACK_ARGUMENT \
-    x86_instruction& x86,   \
-    x87_instruction& x87,   \
+    x86_i386* cpu,          \
     void* memory,           \
-    void* stack,            \
-    allocator_t* allocator
+    void* stack
 
 #define DIV32(value) \
-    [](CALLBACK_ARGUMENT) { \
+    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp.quot); \
         x86.regs[2].d = uint32_t(temp.rem); \
     }
 #define DIV64(value) \
-    [](CALLBACK_ARGUMENT) { auto stack32 = (uint32_t*)stack; \
+    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
+        auto stack32 = (uint32_t*)stack; \
         { \
             auto stack = stack32 + 1; \
             auto result = (lldiv_t*)(stack[0] + (size_t)memory); \
@@ -34,18 +33,18 @@ extern "C" {
         } \
     }
 #define INT32(value) \
-    [](CALLBACK_ARGUMENT) { \
+    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
     }
 #define INT64(value) \
-    [](CALLBACK_ARGUMENT) { \
+    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         x86.regs[2].d = uint32_t(temp >> 32); \
     }
 #define FLT64(value) \
-    [](CALLBACK_ARGUMENT) { \
+    [](CALLBACK_ARGUMENT) { x87_instruction& x87 = cpu->x87; \
         auto temp = value; \
         x87.sts[x87.status._TOP -= 1].d = temp; \
     }
@@ -88,17 +87,14 @@ size_t syscall_i386_execute(void* data, size_t index)
     size_t count = sizeof(syscall_table) / sizeof(syscall_table[0]);
     if (index < count) {
         auto* cpu = (x86_i386*)data;
-        auto& x86 = cpu->x86;
-        auto& x87 = cpu->x87;
         auto* memory = cpu->Memory();
         auto* stack = memory + cpu->Stack();
-        auto* allocator = cpu->Allocator;
         auto* syscall = syscall_table[index].syscall;
         auto* printf = physical(Printf*, offset_printf);
         if (printf->debugPrintf) {
             printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        syscall(x86, x87, memory, stack, allocator);
+        syscall(cpu, memory, stack);
     }
 
     return 0;

@@ -79,7 +79,7 @@ int main(int argc, const char* argv[])
             .argv = argv + 1,
         };
         syscall_windows_new(cpu, &syscall_windows);
-        syscall_windows_import(cpu, "main", image);
+        syscall_windows_import(cpu, "main", image, true);
 
         size_t entry = PE::Entry(image);
         if (entry) {

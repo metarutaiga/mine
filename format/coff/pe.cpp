@@ -137,9 +137,12 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
         }
 
         // Load sections to memory
+        bool dynamic = false;
+        dynamic |= (fileHeader.f_flags & IMAGE_FILE_DLL);
+        dynamic |= (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size != 0);
         log("%-12s : 0x%08X", "Base", optionalHeader.ImageBase);
         log("%-12s : 0x%08X", "Size", optionalHeader.SizeOfImage);
-        image = mmap(optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
+        image = mmap(dynamic ? 0 : optionalHeader.ImageBase, optionalHeader.SizeOfImage, mmap_data);
         if (image == nullptr) {
             log("out of memory");
             break;
@@ -215,7 +218,7 @@ size_t PE::Entry(void* image)
         return optionalHeader.ImageBase + optionalHeader.AddressOfEntryPoint;
     }
 
-    return optionalHeader.ImageBase + optionalHeader.BaseOfCode;
+    return 0;
 }
 
 bool PE::SectionCode(void* image, size_t* base, size_t* address, size_t* size)
