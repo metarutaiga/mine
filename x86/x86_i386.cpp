@@ -11,6 +11,10 @@
 #include "x86_register.inl"
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
+#include "x87_register.h"
+#include "x87_register.inl"
+#include "x87_instruction.h"
+#include "x87_instruction.inl"
 #include "syscall/allocator.h"
 
 //------------------------------------------------------------------------------
@@ -20,23 +24,23 @@
 // One-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::one[256] =
-{      // 0       1      2       3      4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ o ADD   x ADD  x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR    x OR    x _     x TWO
-/* 1 */ x ADC   x ADC  x ADC   x ADC  x ADC   x ADC   x _     x _     x SBB   x SBB   x SBB   x SBB   x SBB   x SBB   x _     x _
-/* 2 */ x AND   x AND  x AND   x AND  x AND   x AND   x ES    x _     x SUB   x SUB   x SUB   x SUB   x SUB   x SUB   x CS    x _
-/* 3 */ x XOR   x XOR  x XOR   x XOR  x XOR   x XOR   x SS    x _     x CMP   x CMP   x CMP   x CMP   x CMP   x CMP   x DS    x _
-/* 4 */ x INC   x INC  x INC   x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC   x DEC   x DEC   x DEC
-/* 5 */ x PUSH  x PUSH x PUSH  x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP   x POP   x POP   x POP
-/* 6 */ x PUSHA x POPA x _     x _    x FS    x GS    x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _     x _     x _     x _
-/* 7 */ x Jcc   x Jcc  x Jcc   x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
-/* 8 */ x grp1  x grp1 x _     x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV   x LEA   x MOV   x POP
-/* 9 */ x NOP   x XCHG x XCHG  x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CBW   x CWD   x _     x WAIT  x PUSHF x POPF  x SAHF  x LAHF
-/* A */ x MOV   x MOV  x MOV   x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx x LODSx x SCASx x SCASx
-/* B */ x MOV   x MOV  x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV
-/* C */ x grp2  x grp2 x RET   x RET  x _     x _     x MOV   x MOV   x ENTER x LEAVE x _     x _     x _     x _     x _     x _
-/* D */ x grp2  x grp2 x grp2  x grp2 x _     x _     x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC   x ESC   x ESC   x ESC
-/* E */ x LOOP  x LOOP x LOOP  x Jcc  x _     x _     x _     x _     x CALL  x JMP   x _     x JMP   x _     x _     x _     x _
-/* F */ x _     x _    x REPNE x REPE x _     x CMC   x grp3  x grp3  x CLC   x STC   x _     x _     x CLD   x STD   x grp4  x grp5
+{      // 0        1       2       3      4       5       6       7       8       9       A       B       C        D       E       F
+/* 0 */ o ADD    x ADD   x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
+/* 1 */ x ADC    x ADC   x ADC   x ADC  x ADC   x ADC   x _     x _     x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x _     x _
+/* 2 */ x AND    x AND   x AND   x AND  x AND   x AND   x ES    x _     x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x CS    x _
+/* 3 */ x XOR    x XOR   x XOR   x XOR  x XOR   x XOR   x SS    x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x DS    x _
+/* 4 */ x INC    x INC   x INC   x INC  x INC   x INC   x INC   x INC   x DEC   x DEC   x DEC   x DEC   x DEC    x DEC   x DEC   x DEC
+/* 5 */ x PUSH   x PUSH  x PUSH  x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
+/* 6 */ x PUSHAD x POPAD x _     x _    x FS    x GS    x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
+/* 7 */ x Jcc    x Jcc   x Jcc   x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
+/* 8 */ x grp1   x grp1  x _     x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
+/* 9 */ x NOP    x XCHG  x XCHG  x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CBW   x CWD   x _     x WAIT  x PUSHFD x POPFD x SAHF  x LAHF
+/* A */ x MOV    x MOV   x MOV   x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
+/* B */ x MOV    x MOV   x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
+/* C */ x grp2   x grp2  x RET   x RET  x _     x _     x MOV   x MOV   x ENTER x LEAVE x _     x _     x _      x _     x _     x _
+/* D */ x grp2   x grp2  x grp2  x grp2 x _     x _     x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
+/* E */ x LOOP   x LOOP  x LOOP  x Jcc  x _     x _     x _     x _     x CALL  x JMP   x _     x JMP   x _      x _     x _     x _
+/* F */ x _      x _     x REPNE x REPE x _     x CMC   x grp3  x grp3  x CLC   x STC   x _     x _     x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
 // Two-Byte Opcode Map
@@ -183,18 +187,75 @@ bool x86_i386::Step(int type)
         Format format;
         StepInternal(*this, format);
         Fixup(format, x86, x87, mmx, sse);
+#if 0
+        for (int i = 0; i < 3; ++i) {
+            if (strcmp(format.instruction, "CALL") == 0)
+                break;
+            if (strcmp(format.instruction, "JMP") == 0)
+                break;
+            if (strcmp(format.instruction, "LEA") == 0)
+                break;
+            if (format.operand[i].type != Format::Operand::ADR)
+                continue;
+            if (format.operand[i].memory >= memory_address && format.operand[i].memory < memory_address + memory_size)
+                continue;
+            EIP -= format.length;
+            return false;
+        }
+#endif
         if (format.operation == nullptr)
             return false;
         format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
+//      if (isnan(ST(0))) {
+//          EIP = eip;
+//          return false;
+//      }
+//      if (memcmp(memory_address + 0xFDE8, "\x20\x00\x00\x00", 4) == 0) {
+//          EIP = eip;
+//          return false;
+//      }
+//      if (EIP == 0x0001001F) {
+//          EIP = eip;
+//          return false;
+//      }
+//      if (EIP == 0x03020100) {
+//          EIP = eip;
+//          return false;
+//      }
+//      if (ESP > memory_size - 16) {
+//          return false;
+//      }
+//      for (int i = 0; i < 3; ++i) {
+//          if (format.operand[i].address == 0xFFFF3C0)
+//              return false;
+//      }
+//      for (int i = 0; i < 8; ++i) {
+//          if (x86.regs[i].d == 0x90008)
+//              return false;
+//      }
         if (EIP >= memory_size) {
+//          auto esp = ESP;
             auto count = Exception(this, EIP);
             EIP = Pop32();
             ESP += count;
+//          if (ESP != esp + count + sizeof(uint32_t))
+//              return false;
         }
         if (EIP == 0) {
             EIP = eip;
             return false;
         }
+//      if (ESP < (memory_size - stack_size + 1024)) {
+//          return false;
+//      }
+//      if (1) {
+//          auto a = Pop32();
+//          auto b = Pop32();
+//          Push32(b);
+//          Push32(a);
+//          if (b == 0x90000)
+//              return false;
+//      }
         if (BreakpointDataAddress || BreakpointProgram) {
             if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
                 if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint32_t)) == 0)

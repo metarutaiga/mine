@@ -14,6 +14,10 @@
 		D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
 		F595EEEE2E65521A000498EB /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FB32E1A9D500023F7B5 /* Debugger.cpp */; };
+		F582D68E2E8052B900D70BDC /* x86_atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F582D68D2E8052B200D70BDC /* x86_atomic.cpp */; };
+		F582D68F2E8052B900D70BDC /* x86_atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F582D68D2E8052B200D70BDC /* x86_atomic.cpp */; };
+		F582D6902E8052B900D70BDC /* x86_atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F582D68D2E8052B200D70BDC /* x86_atomic.cpp */; };
+		F582D6912E8052B900D70BDC /* x86_atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F582D68D2E8052B200D70BDC /* x86_atomic.cpp */; };
 		F595EEEF2E65521A000498EB /* EmulatorEntry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */; };
 		F595EEF02E655225000498EB /* coff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C54192E4B110B00534B1D /* coff.cpp */; };
 		F595EEF12E655225000498EB /* ecoff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F56C541B2E4B110B00534B1D /* ecoff.cpp */; };
@@ -341,6 +345,7 @@
 		F56C54322E4B110B00534B1D /* x86_arithmetic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x86_arithmetic.c; sourceTree = "<group>"; };
 		F56C54392E4B110B00534B1D /* mz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mz.h; sourceTree = "<group>"; };
 		F58028AD2E76725800188C4C /* convert_format.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = convert_format.h; sourceTree = "<group>"; };
+		F582D68D2E8052B200D70BDC /* x86_atomic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_atomic.cpp; sourceTree = "<group>"; };
 		F595EFCA2E66C1CB000498EB /* kernel32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = kernel32.cpp; sourceTree = "<group>"; };
 		F595EFCB2E66C1CB000498EB /* msvcprt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = msvcprt.cpp; sourceTree = "<group>"; };
 		F595EFCC2E66C1CB000498EB /* msvcrt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = msvcrt.h; sourceTree = "<group>"; };
@@ -499,6 +504,7 @@
 				F595EFF32E69D953000498EB /* mmx_register.h */,
 				F595EFFF2E69F132000498EB /* mmx_register.inl */,
 				D6C5FE4B2E2D51DB00A8E110 /* x86_arithmetic.cpp */,
+				F582D68D2E8052B200D70BDC /* x86_atomic.cpp */,
 				D6C5FE362E2A139B00A8E110 /* x86_bcd.cpp */,
 				D6C5FE412E2D4F2500A8E110 /* x86_bitwise.cpp */,
 				F595EFFA2E69DFE4000498EB /* x86_format.cpp */,
@@ -760,7 +766,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					30A9A7CB25ADC7D3000FA104 = {
 						CreatedOnToolsVersion = 12.3;
@@ -805,16 +811,17 @@
 				F595F0052E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F595EFF72E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F595EF6E2E656989000498EB /* x86_arithmetic.cpp in Sources */,
+				F582D6902E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF6F2E656989000498EB /* x86_bcd.cpp in Sources */,
 				F595EF702E656989000498EB /* x86_bitwise.cpp in Sources */,
 				F595EFFD2E69DFE9000498EB /* x86_format.cpp in Sources */,
 				F595EF712E656989000498EB /* x86_i86.cpp in Sources */,
 				F595EF722E656989000498EB /* x86_i386.cpp in Sources */,
-				F595EF732E656989000498EB /* x86_instruction.cpp in Sources */,
-				F595EF742E656989000498EB /* x86_logical.cpp in Sources */,
 				F595EFE32E6739E7000498EB /* x86_i486.cpp in Sources */,
 				F595EFEB2E689B50000498EB /* x86_i586.cpp in Sources */,
 				F595EFEF2E68AF21000498EB /* x86_i686.cpp in Sources */,
+				F595EF732E656989000498EB /* x86_instruction.cpp in Sources */,
+				F595EF742E656989000498EB /* x86_logical.cpp in Sources */,
 				F595EF762E656989000498EB /* x86_rotate.cpp in Sources */,
 				F595EF772E656989000498EB /* x86_shift.cpp in Sources */,
 				F595EF782E656989000498EB /* x86_string.cpp in Sources */,
@@ -861,6 +868,7 @@
 				F595F0042E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F595EFF82E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F595EF482E656900000498EB /* x86_arithmetic.cpp in Sources */,
+				F582D68F2E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF492E656900000498EB /* x86_bcd.cpp in Sources */,
 				F595EF4A2E656900000498EB /* x86_bitwise.cpp in Sources */,
 				F595EFFC2E69DFE9000498EB /* x86_format.cpp in Sources */,
@@ -922,6 +930,7 @@
 				F595F0072E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F595EFF62E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F595EF972E6569C3000498EB /* x86_arithmetic.cpp in Sources */,
+				F582D68E2E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF982E6569C3000498EB /* x86_bcd.cpp in Sources */,
 				F595EF992E6569C3000498EB /* x86_bitwise.cpp in Sources */,
 				F595EFFE2E69DFE9000498EB /* x86_format.cpp in Sources */,
@@ -978,6 +987,7 @@
 				F595F0062E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F595EFF92E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F595EF102E65525E000498EB /* x86_arithmetic.cpp in Sources */,
+				F582D6912E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF112E65525E000498EB /* x86_bcd.cpp in Sources */,
 				F595EF122E65525E000498EB /* x86_bitwise.cpp in Sources */,
 				F595EFFB2E69DFE9000498EB /* x86_format.cpp in Sources */,
@@ -1166,6 +1176,7 @@
 				PRODUCT_NAME = Emulator;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SYMROOT = ../../../../../bin;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1249,6 +1260,7 @@
 				PRODUCT_NAME = Emulator;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SYMROOT = ../../../../../bin;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

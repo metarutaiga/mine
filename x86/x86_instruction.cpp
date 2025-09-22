@@ -165,46 +165,6 @@ void x86_instruction::CMOVcc(Format& format, const uint8_t* opcode)
     }
 }
 //------------------------------------------------------------------------------
-void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "CMPXCHG", 2, 0, opcode[1] & 0b01);
-    format.operand[2] = format.operand[1];
-    format.operand[1].type = Format::Operand::REG;
-    format.operand[1].flags = Format::Operand::HIDE;
-    format.operand[1].base = IndexREG(EAX);
-
-    BEGIN_OPERATION() {
-        const auto& SRC = SRC2;
-        if (DEST1 == DEST2) {
-            ZF = 1;
-            DEST1 = SRC;
-        }
-        else {
-            ZF = 0;
-            DEST2 = DEST1;
-        }
-    } END_OPERATION;
-}
-//------------------------------------------------------------------------------
-void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "CMPXCHG8B", 2);
-
-    OPERATION() {
-        auto& DEST = *(uint64_t*)format.operand[0].memory;
-        auto TEMP64 = DEST;
-        if ((uint64_t(EDX) << 32 | EAX) == TEMP64) {
-            ZF = 1;
-            DEST = (uint64_t(ECX) << 32 | EBX);
-        }
-        else {
-            ZF = 0;
-            EDX = uint32_t(TEMP64 >> 32);
-            EAX = uint32_t(TEMP64);
-        }
-    };
-}
-//------------------------------------------------------------------------------
 void x86_instruction::CWD(Format& format, const uint8_t* opcode)
 {
     switch (format.width) {
@@ -389,11 +349,15 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
     case 0xE1:  Decode(format, opcode, "LOOPZ", 1, 8, OPERAND_SIZE | RELATIVE);     break;
     case 0xE2:  Decode(format, opcode, "LOOP", 1, 8, OPERAND_SIZE | RELATIVE);      break;
     }
+    format.operand[1].type = Format::Operand::REG;
+    format.operand[1].flags = Format::Operand::HIDE;
+    format.operand[1].base = IndexREG(ECX);
+    format.operand[0].type = Format::Operand::NOP;
 
-    OPERATION() {
-        uint32_t CountReg = (format.width == 16) ? CX : ECX;
+    BEGIN_OPERATION() {
+        auto CountReg = SRC;
         if (CountReg) {
-            (format.width == 16) ? CX = CX - 1 : ECX = ECX - 1;
+            SRC = SRC - 1;
             bool BranchCond = true;
             switch (x86.opcode[0]) {
             case 0xE0:  BranchCond = (ZF == 0); break;
@@ -403,7 +367,7 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
                 EIP += format.operand[0].displacement;
             }
         }
-    };
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::MOV(Format& format, const uint8_t* opcode)
@@ -515,56 +479,52 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::POPA(Format& format, const uint8_t* opcode)
 {
-    switch (format.address) {
-    case 16:
-        format.instruction = "POPA";
+    format.instruction = "POPA";
 
-        OPERATION() {
-            DI = Pop16();
-            SI = Pop16();
-            BP = Pop16();
-            Pop16();
-            BX = Pop16();
-            DX = Pop16();
-            CX = Pop16();
-            AX = Pop16();
-        };
-        break;
-    case 32:
-        format.instruction = "POPAD";
+    OPERATION() {
+        DI = Pop16();
+        SI = Pop16();
+        BP = Pop16();
+        Pop16();
+        BX = Pop16();
+        DX = Pop16();
+        CX = Pop16();
+        AX = Pop16();
+    };
+}
+//------------------------------------------------------------------------------
+void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "POPAD";
 
-        OPERATION() {
-            EDI = Pop32();
-            ESI = Pop32();
-            EBP = Pop32();
-            Pop32();
-            EBX = Pop32();
-            EDX = Pop32();
-            ECX = Pop32();
-            EAX = Pop32();
-        };
-        break;
-    }
+    OPERATION() {
+        EDI = Pop32();
+        ESI = Pop32();
+        EBP = Pop32();
+        Pop32();
+        EBX = Pop32();
+        EDX = Pop32();
+        ECX = Pop32();
+        EAX = Pop32();
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::POPF(Format& format, const uint8_t* opcode)
 {
-    switch (format.address) {
-    case 16:
-        format.instruction = "POPF";
+    format.instruction = "POPF";
 
-        OPERATION() {
-            FLAGS = Pop16();
-        };
-        break;
-    case 32:
-        format.instruction = "POPFD";
+    OPERATION() {
+        FLAGS = Pop16();
+    };
+}
+//------------------------------------------------------------------------------
+void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "POPFD";
 
-        OPERATION() {
-            EFLAGS = Pop32();
-        };
-        break;
-    }
+    OPERATION() {
+        EFLAGS = Pop32();
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
@@ -593,58 +553,54 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::PUSHA(Format& format, const uint8_t* opcode)
 {
-    switch (format.address) {
-    case 16:
-        format.instruction = "PUSHA";
+     format.instruction = "PUSHA";
 
-        OPERATION() {
-            auto Temp = SP;
-            Push16(AX);
-            Push16(CX);
-            Push16(DX);
-            Push16(BX);
-            Push16(Temp);
-            Push16(BP);
-            Push16(SI);
-            Push16(DI);
-        };
-        break;
-    case 32:
-        format.instruction = "PUSHAD";
+    OPERATION() {
+        auto Temp = SP;
+        Push16(AX);
+        Push16(CX);
+        Push16(DX);
+        Push16(BX);
+        Push16(Temp);
+        Push16(BP);
+        Push16(SI);
+        Push16(DI);
+    };
+}
+//------------------------------------------------------------------------------
+void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "PUSHAD";
 
-        OPERATION() {
-            auto Temp = ESP;
-            Push32(EAX);
-            Push32(ECX);
-            Push32(EDX);
-            Push32(EBX);
-            Push32(Temp);
-            Push32(EBP);
-            Push32(ESI);
-            Push32(EDI);
-        };
-        break;
-    }
+    OPERATION() {
+        auto Temp = ESP;
+        Push32(EAX);
+        Push32(ECX);
+        Push32(EDX);
+        Push32(EBX);
+        Push32(Temp);
+        Push32(EBP);
+        Push32(ESI);
+        Push32(EDI);
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
 {
-    switch (format.address) {
-    case 16:
-        format.instruction = "PUSHF";
+    format.instruction = "PUSHF";
 
-        OPERATION() {
-            Push16(FLAGS);
-        };
-        break;
-    case 32:
-        format.instruction = "PUSHFD";
+    OPERATION() {
+        Push16(FLAGS);
+    };
+}
+//------------------------------------------------------------------------------
+void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
+{
+    format.instruction = "PUSHFD";
 
-        OPERATION() {
-            Push32(EFLAGS);
-        };
-        break;
-    }
+    OPERATION() {
+        Push32(EFLAGS);
+    };
 }
 //------------------------------------------------------------------------------
 void x86_instruction::RDPMC(Format& format, const uint8_t* opcode)
@@ -756,18 +712,6 @@ void x86_instruction::STD(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
-void x86_instruction::XADD(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "XADD", 2, 0, opcode[1] & 0b01);
-
-    BEGIN_OPERATION() {
-        auto& SRC = (decltype(DEST)&)SRC1;
-        auto TEMP = DEST;
-        DEST = TEMP + SRC;
-        SRC = TEMP;
-    } END_OPERATION;
-}
-//------------------------------------------------------------------------------
 void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
@@ -782,7 +726,7 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
         format.operand[0].type = Format::Operand::REG;
         format.operand[1].type = Format::Operand::REG;
         format.operand[0].base = IndexREG(EAX);
-        format.operand[1].base = (opcode[0] & 0b111);
+        format.operand[1].base = opcode[0] & 0b111;
         break;
     case 0x86:
     case 0x87:
@@ -791,7 +735,6 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto& SRC = (decltype(DEST)&)SRC1;
         auto TEMP = DEST;
         DEST = SRC;
         SRC = TEMP;

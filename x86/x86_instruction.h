@@ -70,9 +70,9 @@ protected:
     static instruction OR;          // Logical Inclusive OR
 //  static instruction OUT;         // Output to Port
     static instruction POP;         // Pop a Word from the Stack
-    static instruction POPF;        // Pop Stack into FLAGS or EFLAGS Register
+    static instruction POPF;        // Pop Stack into FLAGS Register
     static instruction PUSH;        // Push Operand onto the Stack
-    static instruction PUSHF;       // Push Flags Register onto the Stack
+    static instruction PUSHF;       // Push FLAGS Register onto the Stack
     static instruction Rxx;         // Rotate
     static instruction RET;         // Return from Procedure
     static instruction SAHF;        // Store AH into Flags
@@ -120,6 +120,10 @@ protected:
     static instruction BTS;         // Bit Test and Set
     static instruction MOVSX;       // Move with Sign-Extend
     static instruction MOVZX;       // Move with Zero-Extend
+    static instruction POPAD;       // Pop all General Registers
+    static instruction POPFD;       // Pop Stack into EFLAGS Register
+    static instruction PUSHAD;      // Push all General Registers
+    static instruction PUSHFD;      // Push EFLAGS Register onto the Stack
     static instruction SETcc;       // Byte Set on Condition
     static instruction SHxD;        // Double Precision Shift
 

@@ -16,19 +16,19 @@
 template<typename D, typename S>
 static auto specialize(auto lambda) {
     static const auto static_lambda = lambda;
-    return [](REGISTER_ARGS, const x86_format::Format& format, void* dest, const void* src1, const void* src2) {
+    return [](REGISTER_ARGS, const x86_format::Format& format, void* dest, void* src1, void* src2) {
         return static_lambda(x86, x87, mmx, sse, format, *(D*)dest, *(S*)src1, *(S*)src2);
     };
 }
 //------------------------------------------------------------------------------
 #define OPERATION() \
-        format.operation = [](REGISTER_ARGS, const Format& format, void* dest, const void* src1, const void* src2)
+        format.operation = [](REGISTER_ARGS, const Format& format, void* dest, void* src1, void* src2)
 //------------------------------------------------------------------------------
 #define BEGIN_OPERATION() { \
-        auto operation = [](REGISTER_ARGS, const Format& format, auto& DEST, const auto& SRC1, const auto& SRC2) { \
+        auto operation = [](REGISTER_ARGS, const Format& format, auto& DEST, auto& SRC1, auto& SRC2) { \
             auto& DEST1 = DEST; (void)DEST1; \
             auto& DEST2 = (decltype(DEST)&)SRC1; (void)DEST2; \
-            const auto& SRC = SRC1; (void)SRC;
+            auto& SRC = SRC1; (void)SRC;
 //------------------------------------------------------------------------------
 #define END_OPERATION_RANGE(low, high) }; \
         if (format.width == 8 && format.width >= low && format.width <= high) \

@@ -45,7 +45,7 @@ struct x86_format
         const char* segment = "";
         Operand operand[3] = {};
 
-        void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, const void*, const void*) = nullptr;
+        void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, void*, void*) = nullptr;
     };
 
     enum

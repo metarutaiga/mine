@@ -43,7 +43,7 @@ static size_t get_symbol(const char* file, const char* name, void* symbol_data)
 int main(int argc, const char* argv[])
 {
     if (argc <= 1) {
-        printf("micpu exe ...\n");
+        printf("mine exe ...\n");
         return 0;
     }
 
