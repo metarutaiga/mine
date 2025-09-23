@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bit>
 #include <vector>
 #include "allocator.h"
 

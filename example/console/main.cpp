@@ -47,8 +47,8 @@ int main(int argc, const char* argv[])
         return 0;
     }
 
-    static const int allocatorSize = 16777216;
-    static const int stackSize = 65536;
+    static const int allocator_size = 16777216;
+    static const int stack_size = 65536;
 
     mine* cpu = new x86_i386;
     cpu->Initialize(simple_allocator<16>::construct(allocator_size), stack_size);
