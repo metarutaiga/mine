@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <string.h>
-#include "syscall/allocator.h"
-#include "syscall/syscall_internal.h"
+#include "../allocator.h"
+#include "../syscall_internal.h"
 
 template<typename T>
 struct syscall_basic_string {

@@ -179,7 +179,7 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             auto value = uint64_t(std::abs(int64_t(imm)));
             if (value > 0x9FFFFFFF)  snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "", 16, value);
 #else
-            auto value = uint64_t(std::abs(int32_t(imm)));
+            auto value = uint64_t(abs(int32_t(imm)));
             if (0) {}
 #endif
             else if (value > 0x9FFF) snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "",  8, value);

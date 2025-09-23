@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "syscall/syscall.h"
-#include "syscall/syscall_internal.h"
+#include "../syscall.h"
+#include "../syscall_internal.h"
 #include "windows.h"
 
 #ifdef __cplusplus

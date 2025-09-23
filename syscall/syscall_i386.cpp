@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "syscall.h"
 #include "syscall_internal.h"
-#include "x86/x86_i386.h"
+#include "../x86/x86_i386.h"
 
 #ifdef __cplusplus
 extern "C" {

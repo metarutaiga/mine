@@ -2,14 +2,14 @@
 #include <sys/stat.h>
 #include <string>
 #include <vector>
-#include "format/coff/pe.h"
-#include "syscall/allocator.h"
-#include "syscall/syscall.h"
-#include "syscall/syscall_internal.h"
+#include "../allocator.h"
+#include "../syscall.h"
+#include "../syscall_internal.h"
+#include "../../format/coff/pe.h"
+#include "../../x86/x86_i386.h"
+#include "../../x86/x86_register.inl"
+#include "../../x86/x86_instruction.inl"
 #include "syscall_windows.h"
-#include "x86/x86_i386.h"
-#include "x86/x86_register.inl"
-#include "x86/x86_instruction.inl"
 #include "msvcrt.h"
 #include "windows.h"
 

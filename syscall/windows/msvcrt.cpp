@@ -1,15 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include <math.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
 #include <utility>
-#include "syscall/allocator.h"
-#include "syscall/syscall.h"
-#include "syscall/syscall_internal.h"
-#include "x86/x86_i386.h"
-#include "x86/x86_register.inl"
-#include "x86/x86_instruction.inl"
-#include "x86/x87_register.inl"
+#include "../allocator.h"
+#include "../syscall.h"
+#include "../syscall_internal.h"
+#include "../../x86/x86_i386.h"
+#include "../../x86/x86_register.inl"
+#include "../../x86/x86_instruction.inl"
+#include "../../x86/x87_register.inl"
 #include "msvcrt.h"
 
 #if defined(_WIN32)
