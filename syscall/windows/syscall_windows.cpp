@@ -111,6 +111,12 @@ static const struct {
     { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
     { "QueryPerformanceFrequency",  INT32(1, syscall_QueryPerformanceFrequency(memory, stack))      },
 
+    // kernel32 - tls
+    { "TlsAlloc",                   INT32(0, syscall_TlsAlloc(memory))                              },
+    { "TlsFree",                    INT32(1, syscall_TlsFree(memory, stack))                        },
+    { "TlsGetValue",                INT32(1, syscall_TlsGetValue(memory, stack))                    },
+    { "TlsSetValue",                INT32(2, syscall_TlsSetValue(memory, stack))                    },
+
     // kernel32 - unimplemented
 //  { "CreateProcessA",             INT32(10, false)                                                },
 //  { "DeleteFileA",                INT32(1, true)                                                  },

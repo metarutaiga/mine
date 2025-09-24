@@ -83,6 +83,12 @@ int syscall_GetTickCount();
 int syscall_QueryPerformanceCounter(const void* memory, const void* stack);
 int syscall_QueryPerformanceFrequency(const void* memory, const void* stack);
 
+// kernel32 - tls
+uint32_t syscall_TlsAlloc(const void* memory);
+bool syscall_TlsFree(const void* memory, const void* stack);
+uint32_t syscall_TlsGetValue(const void* memory, const void* stack);
+bool syscall_TlsSetValue(const void* memory, const void* stack);
+
 // msvcprt
 size_t syscall_basic_string_char_constructor(size_t thiz, const void* memory);
 size_t syscall_basic_string_char_copy_constructor(size_t thiz, const void* memory, const void* stack, struct allocator_t* allocator);

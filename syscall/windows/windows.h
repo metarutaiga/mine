@@ -20,6 +20,8 @@ struct Windows {
     char directory[260];
     uint32_t image;
     std::vector<std::pair<std::string, void*>> modules;
+    uint32_t tls[64];
+    uint32_t tlsIndex;
     size_t(*symbol)(const char*, const char*, void*);
     void(*debugModule)(const char*, void*);
 };

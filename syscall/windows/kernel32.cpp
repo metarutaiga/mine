@@ -834,6 +834,32 @@ int syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 #endif
 }
 
+// TLS
+
+uint32_t syscall_TlsAlloc(uint8_t* memory)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    return windows->tlsIndex++;
+}
+
+bool syscall_TlsFree(uint8_t* memory, const uint32_t* stack)
+{
+    return true;
+}
+
+uint32_t syscall_TlsGetValue(uint8_t* memory, const uint32_t* stack)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    return windows->tls[stack[1]];
+}
+
+bool syscall_TlsSetValue(uint8_t* memory, const uint32_t* stack)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    windows->tls[stack[1]] = stack[2];
+    return true;
+}
+
 #ifdef __cplusplus
 }
 #endif

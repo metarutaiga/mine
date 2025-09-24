@@ -187,75 +187,18 @@ bool x86_i386::Step(int type)
         Format format;
         StepInternal(*this, format);
         Fixup(format, x86, x87, mmx, sse);
-#if 0
-        for (int i = 0; i < 3; ++i) {
-            if (strcmp(format.instruction, "CALL") == 0)
-                break;
-            if (strcmp(format.instruction, "JMP") == 0)
-                break;
-            if (strcmp(format.instruction, "LEA") == 0)
-                break;
-            if (format.operand[i].type != Format::Operand::ADR)
-                continue;
-            if (format.operand[i].memory >= memory_address && format.operand[i].memory < memory_address + memory_size)
-                continue;
-            EIP -= format.length;
-            return false;
-        }
-#endif
         if (format.operation == nullptr)
             return false;
         format.operation(x86, x87, mmx, sse, format, format.operand[0].memory, format.operand[1].memory, format.operand[2].memory);
-//      if (isnan(ST(0))) {
-//          EIP = eip;
-//          return false;
-//      }
-//      if (memcmp(memory_address + 0xFDE8, "\x20\x00\x00\x00", 4) == 0) {
-//          EIP = eip;
-//          return false;
-//      }
-//      if (EIP == 0x0001001F) {
-//          EIP = eip;
-//          return false;
-//      }
-//      if (EIP == 0x03020100) {
-//          EIP = eip;
-//          return false;
-//      }
-//      if (ESP > memory_size - 16) {
-//          return false;
-//      }
-//      for (int i = 0; i < 3; ++i) {
-//          if (format.operand[i].address == 0xFFFF3C0)
-//              return false;
-//      }
-//      for (int i = 0; i < 8; ++i) {
-//          if (x86.regs[i].d == 0x90008)
-//              return false;
-//      }
         if (EIP >= memory_size) {
-//          auto esp = ESP;
             auto count = Exception(this, EIP);
             EIP = Pop32();
             ESP += count;
-//          if (ESP != esp + count + sizeof(uint32_t))
-//              return false;
         }
         if (EIP == 0) {
             EIP = eip;
             return false;
         }
-//      if (ESP < (memory_size - stack_size + 1024)) {
-//          return false;
-//      }
-//      if (1) {
-//          auto a = Pop32();
-//          auto b = Pop32();
-//          Push32(b);
-//          Push32(a);
-//          if (b == 0x90000)
-//              return false;
-//      }
         if (BreakpointDataAddress || BreakpointProgram) {
             if (BreakpointDataAddress && BreakpointDataAddress < memory_size) {
                 if (memcmp(memory_address + BreakpointDataAddress, &BreakpointDataValue, sizeof(uint32_t)) == 0)
