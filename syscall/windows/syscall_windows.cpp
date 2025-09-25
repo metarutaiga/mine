@@ -34,6 +34,13 @@ extern "C" {
         x86.regs[0].d = uint32_t(temp); \
         return count; \
     }
+#define INT64(count, value) \
+    [](CALLBACK_ARGUMENT) -> size_t { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
+        auto temp = value; \
+        x86.regs[0].d = uint32_t(temp); \
+        x86.regs[2].d = uint32_t(temp >> 32); \
+        return count; \
+    }
 
 static const struct {
     const char* name;
@@ -95,6 +102,9 @@ static const struct {
     { "VirtualFree",                INT32(3, syscall_VirtualFree(memory, stack, allocator))         },
     { "VirtualProtect",             INT32(4, true)                                                  },
     { "WriteProcessMemory",         INT32(5, syscall_memcpy(memory, stack + 1))                     },
+
+    // kernel32 - profile
+    { "GetProfileIntA",             INT32(3, 0)                                                     },
 
     // kernel32 - system
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
@@ -162,6 +172,7 @@ static const struct {
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
     { "_fpclass",                   INT32(0, syscall__fpclass(stack))                               },
+    { "_ftol",                      INT64(0, syscall__ftol(cpu))                                    },
     { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_lock",                      INT32(0, 0)                                                     },

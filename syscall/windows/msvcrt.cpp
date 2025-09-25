@@ -299,6 +299,14 @@ int syscall__fpclass(const uint32_t* stack)
     return 0;
 }
 
+int64_t syscall__ftol(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    double x = ST(0);
+    TOP = TOP + 1;
+    return (int64_t)x;
+}
+
 int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto begin = physical(uint32_t*, stack[1]);
