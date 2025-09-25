@@ -179,7 +179,7 @@ int syscall_abort();
 int syscall_abs(const void* stack);
 int syscall_at_quick_exit(const void* memory, const void* stack);
 int syscall_atexit(const void* memory, const void* stack);
-float syscall_atof(const void* memory, const void* stack);
+double syscall_atof(const void* memory, const void* stack);
 int syscall_atoi(const void* memory, const void* stack);
 long syscall_atol(const void* memory, const void* stack);
 long long syscall_atoll(const void* memory, const void* stack);

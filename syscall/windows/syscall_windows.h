@@ -72,7 +72,7 @@ size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu);
 size_t syscall_LocalAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_LocalFree(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - system
 size_t syscall_GetCommandLineA(const void* memory);

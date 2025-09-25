@@ -689,8 +689,7 @@ size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct alloc
 //  auto flProtect = stack[4];
 
     if (lpAddress) {
-        size_t size = allocator->size(lpAddress);
-        if (size && size >= dwSize) {
+        if (allocator->size(lpAddress) >= dwSize) {
             return virtual(size_t, lpAddress);
         }
         return 0;
@@ -704,7 +703,7 @@ size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct alloc
     return virtual(size_t, lpAddress);
 }
 
-int syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto lpAddress = physical(void*, stack[1]);
 //  auto dwSize = stack[2];
