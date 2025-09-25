@@ -54,6 +54,12 @@ int syscall_FindClose(const void* memory, const void* stack, struct allocator_t*
 int syscall_FindNextFileA(const void* memory, const void* stack);
 size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 
+// kernel32 - heap
+size_t syscall_HeapCreate(const void* memory, const void* stack);
+bool syscall_HeapDestroy(const void* memory, const void* stack);
+size_t syscall_HeapAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_HeapFree(const void* memory, const void* stack, struct allocator_t* allocator);
+
 // kernel32 - library
 int syscall_FreeLibrary(const void* memory, const void* stack);
 size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);

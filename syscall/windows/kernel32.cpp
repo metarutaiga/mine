@@ -299,14 +299,14 @@ uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
     auto lpFileName = physical(char*, stack[1]);
     auto nBufferLength = stack[2];
     auto lpBuffer = physical(char*, stack[3]);
-    auto lpFilePart = physical(char**, stack[4]);
+    auto lpFilePart = physical(uint32_t*, stack[4]);
 
     if (lpBuffer == nullptr) {
         return uint32_t(strlen(lpFileName) + 1);
     }
 
     if (lpFilePart) {
-        (*lpFilePart) = virtual(char*, lpBuffer);
+        (*lpFilePart) = virtual(uint32_t, lpBuffer);
     }
 
     for (uint32_t i = 0; i < nBufferLength; ++i) {
@@ -315,7 +315,7 @@ uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
         if (c == 0)
             return i;
         if (c == '\\' && lpFilePart) {
-            (*lpFilePart) = virtual(char*, lpBuffer + i + 1);
+            (*lpFilePart) = virtual(uint32_t, lpBuffer + i + 1);
         }
     }
 
@@ -460,6 +460,33 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
     return virtual(size_t, dir);
 #endif
+}
+
+// Heap
+
+size_t syscall_HeapCreate(uint8_t* memory, const uint32_t* stack)
+{
+    return -1;
+}
+
+bool syscall_HeapDestroy(uint8_t* memory, const uint32_t* stack)
+{
+    return true;
+}
+
+size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    void* pointer = allocator->allocate(stack[3]);
+    if (pointer && (stack[2] & 0x8)) {
+        memset(pointer, 0, stack[3]);
+    }
+    return virtual(size_t, pointer);
+}
+
+bool syscall_HeapFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    allocator->deallocate(physical(void*, stack[3]));
+    return true;
 }
 
 // Library

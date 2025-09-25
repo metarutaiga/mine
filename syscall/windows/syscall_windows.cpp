@@ -73,6 +73,12 @@ static const struct {
     { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(memory, stack, allocator))      },
     { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))                  },
 
+    // kernel32 - heap
+    { "HeapCreate",                 INT32(3, syscall_HeapCreate(memory, stack))                     },
+    { "HeapDestroy",                INT32(1, syscall_HeapDestroy(memory, stack))                    },
+    { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
+    { "HeapFree",                   INT32(3, syscall_HeapFree(memory, stack, allocator))            },
+
     // kernel32 - library
     { "DisableThreadLibraryCalls",  INT32(1, true)                                                  },
     { "FreeLibrary",                INT32(1, syscall_FreeLibrary(memory, stack))                    },
@@ -148,6 +154,7 @@ static const struct {
     { "_controlfp",                 INT32(0, syscall__controlfp(stack, cpu))                        },
     { "_controlfp_s",               INT32(0, syscall__controlfp_s(memory, stack, cpu))              },
     { "_crt_debugger_hook",         INT32(0, 0)                                                     },
+    { "_clearfp",                   INT32(0, 0)                                                     },
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
     { "_decode_pointer",            INT32(0, syscall__decode_pointer(stack))                        },
     { "_encode_pointer",            INT32(0, syscall__encode_pointer(stack))                        },
