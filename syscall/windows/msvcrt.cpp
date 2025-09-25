@@ -285,6 +285,20 @@ int syscall__encode_pointer(const uint32_t* stack)
     return stack[1];
 }
 
+int syscall__fpclass(const uint32_t* stack)
+{
+    auto x = double(stack[1]);
+    int classify = fpclassify(x);
+    switch (classify) {
+    case FP_NAN:        return 0x0002;
+    case FP_INFINITE:   return signbit(x) ? 0x0004 : 0x0200;
+    case FP_NORMAL:     return signbit(x) ? 0x0008 : 0x0100;
+    case FP_SUBNORMAL:  return signbit(x) ? 0x0010 : 0x0080;
+    case FP_ZERO:       return signbit(x) ? 0x0020 : 0x0040;
+    }
+    return 0;
+}
+
 int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
     auto begin = physical(uint32_t*, stack[1]);

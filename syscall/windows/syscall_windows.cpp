@@ -161,6 +161,7 @@ static const struct {
     { "_expand",                    INT32(0, syscall_expand(stack, allocator))                      },
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
+    { "_fpclass",                   INT32(0, syscall__fpclass(stack))                               },
     { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_lock",                      INT32(0, 0)                                                     },

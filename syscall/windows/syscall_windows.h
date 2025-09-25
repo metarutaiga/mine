@@ -133,6 +133,7 @@ int syscall__controlfp(const void* stack, void* cpu);
 int syscall__controlfp_s(const void* memory, const void* stack, void* cpu);
 int syscall__decode_pointer(const void* stack);
 int syscall__encode_pointer(const void* stack);
+int syscall__fpclass(const void* stack);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);
 int syscall__setjmp3(const void* memory, const void* stack, void* cpu);
 size_t syscall___acrt_iob_func(const void* memory, const void* stack);
