@@ -52,11 +52,12 @@ static const struct {
     { "InterlockedExchange",        INT32(2, syscall_InterlockedExchange(memory, stack))            },
 
     // kernel32 - critical section
-    { "DeleteCriticalSection",      INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
-    { "EnterCriticalSection",       INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
-    { "InitializeCriticalSection",  INT32(1, syscall_InitializeCriticalSection(memory, stack, allocator))   },
-    { "LeaveCriticalSection",       INT32(1, syscall_LeaveCriticalSection(memory, stack))                   },
-    { "TryEnterCriticalSection",    INT32(1, syscall_TryEnterCriticalSection(memory, stack))                },
+    { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
+    { "EnterCriticalSection",                   INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
+    { "InitializeCriticalSection",              INT32(1, syscall_InitializeCriticalSection(memory, stack, allocator))   },
+    { "InitializeCriticalSectionAndSpinCount",  INT32(2, syscall_InitializeCriticalSection(memory, stack, allocator))   },
+    { "LeaveCriticalSection",                   INT32(1, syscall_LeaveCriticalSection(memory, stack))                   },
+    { "TryEnterCriticalSection",                INT32(1, syscall_TryEnterCriticalSection(memory, stack))                },
 
     // kernel32 - directory
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
@@ -81,6 +82,7 @@ static const struct {
     { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))                  },
 
     // kernel32 - heap
+    { "GetProcessHeap",             INT32(0, syscall_GetProcessHeap(memory, stack))                 },
     { "HeapCreate",                 INT32(3, syscall_HeapCreate(memory, stack))                     },
     { "HeapDestroy",                INT32(1, syscall_HeapDestroy(memory, stack))                    },
     { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
@@ -113,8 +115,10 @@ static const struct {
     { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
+    { "GetEnvironmentVariableA",    INT32(3, 0)                                                     },
     { "GetLastError",               INT32(0, 0)                                                     },
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
+    { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetLastError",               INT32(1, 0)                                                     },
@@ -173,6 +177,8 @@ static const struct {
     { "_flushall",                  INT32(0, 0)                                                     },
     { "_fpclass",                   INT32(0, syscall__fpclass(stack))                               },
     { "_ftol",                      INT64(0, syscall__ftol(cpu))                                    },
+    { "_ftol2",                     INT64(0, syscall__ftol(cpu))                                    },
+    { "_ftol2_sse",                 INT64(0, syscall__ftol(cpu))                                    },
     { "_initterm",                  INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_lock",                      INT32(0, 0)                                                     },

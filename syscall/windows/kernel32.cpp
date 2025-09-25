@@ -464,6 +464,11 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
 // Heap
 
+size_t syscall_GetProcessHeap(uint8_t* memory, const uint32_t* stack)
+{
+    return -1;
+}
+
 size_t syscall_HeapCreate(uint8_t* memory, const uint32_t* stack)
 {
     return -1;
@@ -755,6 +760,11 @@ int syscall_GetSystemInfo(uint8_t* memory, const uint32_t* stack)
     lpSystemInfo->wProcessorLevel = 3;
     lpSystemInfo->wProcessorRevision = 0;
     return 0;
+}
+
+int syscall_GetVersion()
+{
+    return 5;
 }
 
 int syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)

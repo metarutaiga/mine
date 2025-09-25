@@ -55,6 +55,7 @@ int syscall_FindNextFileA(const void* memory, const void* stack);
 size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap
+size_t syscall_GetProcessHeap(const void* memory, const void* stack);
 size_t syscall_HeapCreate(const void* memory, const void* stack);
 bool syscall_HeapDestroy(const void* memory, const void* stack);
 size_t syscall_HeapAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -79,6 +80,7 @@ size_t syscall_GetCommandLineA(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
 int syscall_GetSystemInfo(const void* memory, const void* stack);
+int syscall_GetVersion();
 int syscall_GetVersionExA(const void* memory, const void* stack);
 int syscall_OutputDebugStringA(const void* memory, const void* stack);
 
