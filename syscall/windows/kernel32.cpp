@@ -65,8 +65,8 @@ extern "C" {
 uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* stack)
 {
     auto Destination = physical(uint32_t*, stack[1]);
-    auto ExChange = physical(uint32_t, stack[2]);
-    auto Comperand = physical(uint32_t, stack[3]);
+    auto ExChange = stack[2];
+    auto Comperand = stack[3];
     auto result = (*Destination);
     if ((*Destination) == Comperand) {
         (*Destination) = ExChange;
@@ -77,7 +77,7 @@ uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* sta
 uint32_t syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
 {
     auto Target = physical(uint32_t*, stack[1]);
-    auto Value = physical(uint32_t, stack[2]);
+    auto Value = stack[2];
     auto result = (*Target);
     (*Target) = Value;
     return result;
@@ -875,7 +875,8 @@ int syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 uint32_t syscall_TlsAlloc(uint8_t* memory)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    return windows->tlsIndex++;
+    auto index = windows->tlsIndex++;
+    return virtual(uint32_t, &windows->tls[index]);
 }
 
 bool syscall_TlsFree(uint8_t* memory, const uint32_t* stack)
@@ -885,14 +886,14 @@ bool syscall_TlsFree(uint8_t* memory, const uint32_t* stack)
 
 uint32_t syscall_TlsGetValue(uint8_t* memory, const uint32_t* stack)
 {
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    return windows->tls[stack[1]];
+    auto& tls = *physical(uint32_t*, stack[1]);
+    return tls;
 }
 
 bool syscall_TlsSetValue(uint8_t* memory, const uint32_t* stack)
 {
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    windows->tls[stack[1]] = stack[2];
+    auto& tls = *physical(uint32_t*, stack[1]);
+    tls = stack[2];
     return true;
 }
 
