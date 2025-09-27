@@ -9,6 +9,7 @@
 void x86_instruction::_(Format& format, const uint8_t* opcode)
 {
     format.instruction = "UNKNOWN";
+    format.operand_count = 0;
 
     OPERATION() {};
 }
@@ -257,6 +258,7 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
         }
         break;
     }
+    format.operand_count = 1;
 
     switch (opcode[0]) {
     case 0x70:      OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO

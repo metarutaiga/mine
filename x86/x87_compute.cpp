@@ -15,6 +15,7 @@
 void x87_instruction::F2XM1(Format& format, const uint8_t* opcode)
 {
     format.instruction = "F2XM1";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -27,6 +28,7 @@ void x87_instruction::F2XM1(Format& format, const uint8_t* opcode)
 void x87_instruction::FABS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FABS";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -39,6 +41,7 @@ void x87_instruction::FABS(Format& format, const uint8_t* opcode)
 void x87_instruction::FCOS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCOS";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -134,6 +137,7 @@ void x87_instruction::FSCALE(Format& format, const uint8_t* opcode)
 void x87_instruction::FSIN(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FSIN";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -164,6 +168,7 @@ void x87_instruction::FSINCOS(Format& format, const uint8_t* opcode)
 void x87_instruction::FSQRT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FSQRT";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 

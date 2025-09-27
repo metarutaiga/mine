@@ -15,6 +15,7 @@
 void x87_instruction::FCLEX(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCLEX";
+    format.operand_count = 0;
 
     OPERATION() {
         FPUStatusWord = FPUStatusWord & 0b0111111100000000;
@@ -24,6 +25,7 @@ void x87_instruction::FCLEX(Format& format, const uint8_t* opcode)
 void x87_instruction::FDECSTP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FDECSTP";
+    format.operand_count = 0;
 
     OPERATION() {
         TOP = TOP - 1;
@@ -34,6 +36,7 @@ void x87_instruction::FDECSTP(Format& format, const uint8_t* opcode)
 void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FINCSTP";
+    format.operand_count = 0;
 
     OPERATION() {
         C1 = 0;
@@ -44,6 +47,7 @@ void x87_instruction::FINCSTP(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDZ";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -57,6 +61,7 @@ void x87_instruction::FLDZ(Format& format, const uint8_t* opcode)
 void x87_instruction::FLD1(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLD1";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -70,6 +75,7 @@ void x87_instruction::FLD1(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDL2E(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2E";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -83,6 +89,7 @@ void x87_instruction::FLDL2E(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDL2T(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDL2T";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -96,6 +103,7 @@ void x87_instruction::FLDL2T(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDLG2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLG2";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -109,6 +117,7 @@ void x87_instruction::FLDLG2(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDLN2(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDLN2";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -122,6 +131,7 @@ void x87_instruction::FLDLN2(Format& format, const uint8_t* opcode)
 void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FLDPI";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = -1;
 
@@ -171,6 +181,7 @@ void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
 void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FTST";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -184,6 +195,7 @@ void x87_instruction::FTST(Format& format, const uint8_t* opcode)
 void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FXAM";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 

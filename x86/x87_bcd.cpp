@@ -14,7 +14,7 @@ void x87_instruction::FBLD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FBLD", 1);
     format.width = 80;
-    format.operand_count = 1;
+    format.operand_count = 0;
 
     OPERATION() {
         TOP = TOP - 1;
@@ -26,7 +26,7 @@ void x87_instruction::FBSTP(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FBSTP", 1);
     format.width = 80;
-    format.operand_count = 1;
+    format.operand_count = 0;
 
     OPERATION() {
         C1 = 0;

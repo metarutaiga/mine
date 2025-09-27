@@ -56,6 +56,7 @@ void x87_instruction::FADDP(Format& format, const uint8_t* opcode)
 void x87_instruction::FCHS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FCHS";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
@@ -217,6 +218,7 @@ void x87_instruction::FMULP(Format& format, const uint8_t* opcode)
 void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "FRNDINT";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::X87;
     format.operand[0].base = 0;
 
