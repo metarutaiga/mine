@@ -66,6 +66,7 @@ void x86_instruction::WAIT(Format& format, const uint8_t* opcode)
 void x86_instruction::BSWAP(Format& format, const uint8_t* opcode)
 {
     format.instruction = "BSWAP";
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = opcode[1] & 0b111;
 
@@ -84,7 +85,7 @@ void x86_instruction::CALL(Format& format, const uint8_t* opcode)
 //      case 0b00011000:    Decode(format, opcode, "CALL", 2, -1, OPERAND_SIZE | INDIRECT); break;
         }
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         Push32(EIP);
@@ -101,6 +102,7 @@ void x86_instruction::CBW(Format& format, const uint8_t* opcode)
     case 64:    format.instruction = "CDQE";    break;
 #endif
     }
+    format.operand_count = 1;
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].flags = Format::Operand::HIDE;
     format.operand[0].base = IndexREG(EAX);
@@ -117,6 +119,7 @@ void x86_instruction::CBW(Format& format, const uint8_t* opcode)
 void x86_instruction::CLC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CLC";
+    format.operand_count = 0;
 
     OPERATION() {
         CF = 0;
@@ -126,6 +129,7 @@ void x86_instruction::CLC(Format& format, const uint8_t* opcode)
 void x86_instruction::CLD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CLD";
+    format.operand_count = 0;
 
     OPERATION() {
         DF = 0;
@@ -135,6 +139,7 @@ void x86_instruction::CLD(Format& format, const uint8_t* opcode)
 void x86_instruction::CMC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "CMC";
+    format.operand_count = 0;
 
     OPERATION() {
         CF = !CF;
@@ -307,7 +312,7 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 //      case 0b00101000:    Decode(format, opcode, "JMP", 2, -1, OPERAND_SIZE | INDIRECT);  break;
         }
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         EIP = (uint32_t)DEST;
@@ -317,6 +322,7 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 void x86_instruction::LAHF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "LAHF";
+    format.operand_count = 0;
 
     OPERATION() {
         AH = FLAGS;
@@ -335,6 +341,7 @@ void x86_instruction::LEA(Format& format, const uint8_t* opcode)
 void x86_instruction::LEAVE(Format& format, const uint8_t* opcode)
 {
     format.instruction = "LEAVE";
+    format.operand_count = 0;
 
     OPERATION() {
         ESP = EBP;
@@ -352,7 +359,8 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::REG;
     format.operand[1].flags = Format::Operand::HIDE;
     format.operand[1].base = IndexREG(ECX);
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::IMM;
+    format.operand[0].flags = Format::Operand::HIDE;
 
     BEGIN_OPERATION() {
         auto CountReg = SRC;
@@ -449,8 +457,7 @@ void x86_instruction::NOP(Format& format, const uint8_t* opcode)
     case 0x90:  Decode(format, opcode, "NOP");                          break;
     case 0x0F:  Decode(format, opcode, "NOP", 2, 0, opcode[1] & 0b11);  break;
     }
-    format.operand[0].type = Format::Operand::NOP;
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 0;
 
     OPERATION() {};
 }
@@ -470,7 +477,7 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
                 format.operand[0].base = opcode[0] & 0b111;         break;
     case 0x8F:  Decode(format, opcode, "POP", 1, 0, OPERAND_SIZE);  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         DEST = Pop32();
@@ -480,6 +487,7 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
 void x86_instruction::POPA(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPA";
+    format.operand_count = 0;
 
     OPERATION() {
         DI = Pop16();
@@ -496,6 +504,7 @@ void x86_instruction::POPA(Format& format, const uint8_t* opcode)
 void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPAD";
+    format.operand_count = 0;
 
     OPERATION() {
         EDI = Pop32();
@@ -512,6 +521,7 @@ void x86_instruction::POPAD(Format& format, const uint8_t* opcode)
 void x86_instruction::POPF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPF";
+    format.operand_count = 0;
 
     OPERATION() {
         FLAGS = Pop16();
@@ -521,6 +531,7 @@ void x86_instruction::POPF(Format& format, const uint8_t* opcode)
 void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "POPFD";
+    format.operand_count = 0;
 
     OPERATION() {
         EFLAGS = Pop32();
@@ -544,7 +555,7 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
     case 0x6A:  Decode(format, opcode, "PUSH", 1,  8, OPERAND_SIZE | IMMEDIATE);    break;
     case 0xFF:  Decode(format, opcode, "PUSH", 1,  0, OPERAND_SIZE);                break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         Push32(DEST);
@@ -553,7 +564,8 @@ void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::PUSHA(Format& format, const uint8_t* opcode)
 {
-     format.instruction = "PUSHA";
+    format.instruction = "PUSHA";
+    format.operand_count = 0;
 
     OPERATION() {
         auto Temp = SP;
@@ -571,6 +583,7 @@ void x86_instruction::PUSHA(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "PUSHAD";
+    format.operand_count = 0;
 
     OPERATION() {
         auto Temp = ESP;
@@ -588,6 +601,7 @@ void x86_instruction::PUSHAD(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "PUSHF";
+    format.operand_count = 0;
 
     OPERATION() {
         Push16(FLAGS);
@@ -597,6 +611,7 @@ void x86_instruction::PUSHF(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "PUSHFD";
+    format.operand_count = 0;
 
     OPERATION() {
         Push32(EFLAGS);
@@ -606,6 +621,7 @@ void x86_instruction::PUSHFD(Format& format, const uint8_t* opcode)
 void x86_instruction::RDPMC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "RDPMC";
+    format.operand_count = 0;
 
     OPERATION() {
         EDX = 0;
@@ -616,6 +632,7 @@ void x86_instruction::RDPMC(Format& format, const uint8_t* opcode)
 void x86_instruction::RDTSC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "RDTSC";
+    format.operand_count = 0;
 
     OPERATION() {
         EDX = 0;
@@ -629,10 +646,12 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
     switch (opcode[0]) {
     case 0xC2:
         format.length = 3;
+        format.operand_count = 1;
         format.operand[0].type = Format::Operand::IMM;
         format.operand[0].displacement = IMM16(opcode, 1);
         break;
     case 0xC3:
+        format.operand_count = 0;
         break;
     }
 
@@ -645,6 +664,7 @@ void x86_instruction::RET(Format& format, const uint8_t* opcode)
 void x86_instruction::SAHF(Format& format, const uint8_t* opcode)
 {
     format.instruction = "SAHF";
+    format.operand_count = 0;
 
     OPERATION() {
         FLAGS = AH;
@@ -672,7 +692,7 @@ void x86_instruction::SETcc(Format& format, const uint8_t* opcode)
     case 0x9F:  Decode(format, opcode, "SETG", 2);  break;
     }
     format.width = 8;
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     switch (opcode[1]) {
     case 0x90:  BEGIN_OPERATION() { DEST = ((OF)          ) == 1; } END_OPERATION;  break;  // SETO
@@ -697,6 +717,7 @@ void x86_instruction::SETcc(Format& format, const uint8_t* opcode)
 void x86_instruction::STC(Format& format, const uint8_t* opcode)
 {
     format.instruction = "STC";
+    format.operand_count = 0;
 
     OPERATION() {
         CF = 1;
@@ -706,6 +727,7 @@ void x86_instruction::STC(Format& format, const uint8_t* opcode)
 void x86_instruction::STD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "STD";
+    format.operand_count = 0;
 
     OPERATION() {
         DF = 1;
@@ -744,6 +766,7 @@ void x86_instruction::XCHG(Format& format, const uint8_t* opcode)
 void x86_instruction::XLAT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "XLAT";
+    format.operand_count = 0;
 
     OPERATION() {
         AL = *(x86.memory_address + EBX + AL);

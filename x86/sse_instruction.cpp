@@ -228,8 +228,8 @@ void sse_instruction::DIVPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::LDMXCSR(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "LDMXCSR";
+    format.length = 3;
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = opcode[2] & 0b111;
 
@@ -555,32 +555,32 @@ void sse_instruction::PMULHUW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH0(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "PREFETCH0";
+    format.length = 3;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH1(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "PREFETCH1";
+    format.length = 3;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH2(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "PREFETCH2";
+    format.length = 3;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCHNTA(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "PREFETCHNTA";
+    format.length = 3;
 
     OPERATION() {};
 }
@@ -652,8 +652,8 @@ void sse_instruction::RSQRTPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SFENCE(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "SFENCE";
+    format.length = 3;
 
     OPERATION() {};
 }
@@ -681,8 +681,8 @@ void sse_instruction::SQRTPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::STMXCSR(Format& format, const uint8_t* opcode)
 {
-    format.length = 3;
     format.instruction = "STMXCSR";
+    format.length = 3;
     format.operand[0].type = Format::Operand::REG;
     format.operand[0].base = opcode[2] & 0b111;
 

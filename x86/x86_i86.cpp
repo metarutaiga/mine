@@ -76,7 +76,7 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86_i86::Step(int type)
+bool x86_i86::Step(int count)
 {
     auto& x86 = *(x86_register*)this;
     auto& x87 = *(x87_register*)this;
@@ -110,7 +110,7 @@ bool x86_i86::Step(int type)
             if (BreakpointProgram == IP)
                 return false;
         }
-        switch (type) {
+        switch (count) {
         case 'INTO':
             return true;
         case 'OVER':
@@ -120,6 +120,11 @@ bool x86_i86::Step(int type)
         case 'OUT ':
             if (strcmp(format.instruction, "RET") == 0)
                 return true;
+            break;
+        default:
+            if (count == 0)
+                return true;
+            count--;
             break;
         }
         ip = IP;
@@ -278,6 +283,7 @@ void x86_i86::StepInternal(Format& format)
     format.width = 16;
     format.length = 1;
     format.address = 16;
+    format.operand_count = 2;
     format.repeatF2 = false;
     format.repeatF3 = false;
 

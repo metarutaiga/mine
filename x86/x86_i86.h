@@ -18,7 +18,7 @@ struct x86_i86 : public mine
 public:
     virtual ~x86_i86();
     bool Initialize(allocator_t* allocator, size_t stack) override;
-    bool Step(int type) override;
+    bool Step(int count) override;
     bool Jump(size_t address) override;
     void* Register(int type) const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;

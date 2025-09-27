@@ -16,7 +16,7 @@ struct x86_format
     {
         struct Operand
         {
-            enum Type : int8_t { NOP, ADR, IMM, REG, REL, X87, MMX, SSE };
+            enum Type { IMM, REL, ADR, REG, X87, MMX, SSE };
             Type type;
 
             enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2, BIT32 = 3, HIDE = 4 };
@@ -36,14 +36,15 @@ struct x86_format
             uint8_t* memory;
         };
 
+        const char* instruction = "";
+        const char* segment = "";
         char width = 0;
         char length = 0;
         char address = 0;
+        char operand_count = 0;
+        Operand operand[3] = {};
         bool repeatF2 = false;
         bool repeatF3 = false;
-        const char* instruction = "";
-        const char* segment = "";
-        Operand operand[3] = {};
 
         void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, void*, void*) = nullptr;
     };

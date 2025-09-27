@@ -7,6 +7,7 @@
 void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CMPXCHG", 2, 0, opcode[1] & 0b01);
+    format.operand_count = 3;
     format.operand[2].type = Format::Operand::REG;
     format.operand[2].flags = Format::Operand::HIDE;
     format.operand[2].base = IndexREG(EAX);
@@ -27,7 +28,7 @@ void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CMPXCHG8B", 2);
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     OPERATION() {
         auto& DEST = *(uint64_t*)format.operand[0].memory;

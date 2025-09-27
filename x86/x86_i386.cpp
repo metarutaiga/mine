@@ -160,7 +160,7 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
     return true;
 }
 //------------------------------------------------------------------------------
-bool x86_i386::Step(int type)
+bool x86_i386::Step(int count)
 {
     auto& x86 = *(x86_register*)this;
     auto& x87 = *(x87_register*)this;
@@ -207,7 +207,7 @@ bool x86_i386::Step(int type)
             if (BreakpointProgram == EIP)
                 return false;
         }
-        switch (type) {
+        switch (count) {
         case 'INTO':
             return true;
         case 'OVER':
@@ -217,6 +217,11 @@ bool x86_i386::Step(int type)
         case 'OUT ':
             if (strcmp(format.instruction, "RET") == 0)
                 return true;
+            break;
+        default:
+            if (count == 0)
+                return true;
+            count--;
             break;
         }
         eip = EIP;
@@ -383,6 +388,7 @@ void x86_i386::StepImplement(x86_i386& x86, Format& format)
     format.width = 32;
     format.length = 1;
     format.address = 32;
+    format.operand_count = 2;
     format.repeatF2 = false;
     format.repeatF3 = false;
 

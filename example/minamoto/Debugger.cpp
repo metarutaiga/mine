@@ -565,30 +565,25 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
 
         if (running) {
             if (cpu) {
-                uint32_t count = 0;
                 uint32_t begin = 0;
                 for (;;) {
-                    if (cpu->Step('INTO') == false) {
+                    if (cpu->Step(1000) == false) {
                         running = false;
                         break;
                     }
                     if (running == 1)
                         break;
-                    if (count == 0) {
-                        count = 1000;
 #if defined(_WIN32)
-                        uint32_t now = GetTickCount();
+                    uint32_t now = GetTickCount();
 #else
-                        struct timespec ts = {};
-                        clock_gettime(CLOCK_REALTIME, &ts);
-                        uint32_t now = uint32_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+                    struct timespec ts = {};
+                    clock_gettime(CLOCK_REALTIME, &ts);
+                    uint32_t now = uint32_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
 #endif
-                        if (begin == 0)
-                            begin = now;
-                        if (begin < now - 16)
-                            break;
-                    }
-                    count--;
+                    if (begin == 0)
+                        begin = now;
+                    if (begin < now - 16)
+                        break;
                 }
                 refresh = true;
             }

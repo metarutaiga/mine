@@ -80,6 +80,7 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
         case 0xA5:  Decode(format, opcode, "SHLD", 2, 0, OPERAND_SIZE); break;
         case 0xAD:  Decode(format, opcode, "SHRD", 2, 0, OPERAND_SIZE); break;
         }
+        format.operand_count = 3;
         format.operand[2].flags = Format::Operand::BIT8;
         format.operand[2].type = Format::Operand::REG;
         format.operand[2].base = IndexREG(ECX);

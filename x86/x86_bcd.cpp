@@ -7,6 +7,7 @@
 void x86_instruction::AAA(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAA";
+    format.operand_count = 0;
 
     OPERATION() {
         if ((AL & 0x0F) > 9 || AF == 1) {
@@ -26,6 +27,7 @@ void x86_instruction::AAA(Format& format, const uint8_t* opcode)
 void x86_instruction::AAD(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAD";
+    format.operand_count = 0;
 
     OPERATION() {
         AL = AH * 10 + AL;
@@ -37,6 +39,7 @@ void x86_instruction::AAD(Format& format, const uint8_t* opcode)
 void x86_instruction::AAM(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAM";
+    format.operand_count = 0;
 
     OPERATION() {
         AH = AL / 10;
@@ -48,6 +51,7 @@ void x86_instruction::AAM(Format& format, const uint8_t* opcode)
 void x86_instruction::AAS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "AAS";
+    format.operand_count = 0;
 
     OPERATION() {
         if ((AL & 0x0F) > 9 || AF == 1) {
@@ -67,6 +71,7 @@ void x86_instruction::AAS(Format& format, const uint8_t* opcode)
 void x86_instruction::DAA(Format& format, const uint8_t* opcode)
 {
     format.instruction = "DAA";
+    format.operand_count = 0;
 
     OPERATION() {
         if ((AL & 0x0F) > 9 || AF == 1) {
@@ -90,6 +95,7 @@ void x86_instruction::DAA(Format& format, const uint8_t* opcode)
 void x86_instruction::DAS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "DAS";
+    format.operand_count = 0;
 
     OPERATION() {
         if ((AL & 0x0F) > 9 || AF == 1) {

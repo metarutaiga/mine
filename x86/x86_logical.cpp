@@ -31,7 +31,7 @@ void x86_instruction::NOT(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:  Decode(format, opcode, "NOT", 1, 0, opcode[0] & 0b01);  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         DEST = ~DEST;

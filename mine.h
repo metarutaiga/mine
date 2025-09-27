@@ -13,7 +13,7 @@ struct mine
 {
     virtual ~mine() = default;
     virtual bool Initialize(allocator_t* allocator, size_t stack) = 0;
-    virtual bool Step(int type) = 0;
+    virtual bool Step(int count) = 0;
     virtual bool Jump(size_t address) = 0;
     virtual void* Register(int type) const = 0;
     virtual uint8_t* Memory(size_t base = 0, size_t size = 0) const = 0;

@@ -136,7 +136,8 @@ void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FLDCW", 1, 0, DIRECTION);
     format.width = 16;
-    format.operand[0].type = Format::Operand::NOP;
+    format.operand[0].type = Format::Operand::IMM;
+    format.operand[0].flags = Format::Operand::HIDE;
 
     BEGIN_OPERATION() {
         FPUControlWord = SRC;
@@ -147,7 +148,7 @@ void x87_instruction::FSTCW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "FSTCW", 1);
     format.width = 16;
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         DEST = FPUControlWord;
@@ -159,8 +160,8 @@ void x87_instruction::FSTSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "FSTSW", 1);
     format.width = 16;
     format.length = (opcode[0] == 0xDF) ? 2 : format.length;
+    format.operand_count = 1;
     format.operand[0].base = (opcode[0] == 0xDF) ? 0 : format.operand[0].base;
-    format.operand[1].type = Format::Operand::NOP;
 
     BEGIN_OPERATION() {
         DEST = FPUStatusWord;

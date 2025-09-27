@@ -80,6 +80,7 @@ void x86_instruction::DEC(Format& format, const uint8_t* opcode)
     case 0xFE:
     case 0xFF:  Decode(format, opcode, "DEC", 1, 0, opcode[0] & 0b01);  break;
     }
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         UpdateFlags<OSZAP_, BORROW>(x86, DEST, DEST - 1, DEST, 1);
@@ -92,6 +93,7 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "DIV", 1, 0, opcode[0] & 0b11);
+        format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].flags = Format::Operand::HIDE;
@@ -117,6 +119,7 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IDIV", 1, 0, opcode[0] & 0b11);
+        format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].flags = Format::Operand::HIDE;
@@ -142,6 +145,7 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
     switch (opcode[0]) {
     case 0x0F:
         Decode(format, opcode, "IMUL", 2,  0, OPERAND_SIZE | DIRECTION);
+        format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1] = format.operand[0];
         format.operand[1].flags = Format::Operand::HIDE;
@@ -151,6 +155,7 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IMUL", 1, 0, opcode[0] & 0b11);
+        format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].flags = Format::Operand::HIDE;
@@ -208,6 +213,7 @@ void x86_instruction::INC(Format& format, const uint8_t* opcode)
     case 0xFE:
     case 0xFF:  Decode(format, opcode, "INC", 1, 0, opcode[0] & 0b01);  break;
     }
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         UpdateFlags<OSZAP_, CARRY>(x86, DEST, DEST + 1, DEST, 1);
@@ -220,6 +226,7 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "MUL", 1, 0, opcode[0] & 0b11);
+        format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].flags = Format::Operand::HIDE;
@@ -250,7 +257,7 @@ void x86_instruction::NEG(Format& format, const uint8_t* opcode)
     case 0xF6:
     case 0xF7:  Decode(format, opcode, "NEG", 1, 0, opcode[0] & 0b01);  break;
     }
-    format.operand[1].type = Format::Operand::NOP;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
         CF = DEST ? 1 : 0;
