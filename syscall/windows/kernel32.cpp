@@ -778,6 +778,31 @@ int syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
+int syscall_MultiByteToWideChar(uint8_t* memory, const uint32_t* stack)
+{
+//  auto CodePage = stack[1];
+//  auto dwFlags = stack[2];
+    auto lpMultiByteStr = physical(char*, stack[3]);
+    auto cbMultiByte = stack[4];
+    auto lpWideCharStr = physical(char16_t*, stack[5]);
+    auto cchWideChar = stack[6];
+
+    if (cbMultiByte == -1)
+        cbMultiByte = (uint32_t)strlen(lpMultiByteStr) + 1;
+    if (cchWideChar == 0)
+        return cbMultiByte;
+
+    if (lpWideCharStr) {
+        uint32_t i = 0;
+        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
+            lpWideCharStr[i] = lpMultiByteStr[i];
+        }
+        return i;
+    }
+
+    return 0;
+}
+
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 {
     auto* printf = physical(Printf*, offset_printf);
@@ -785,6 +810,33 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
     auto lpOutputString = physical(char*, stack[1]);
     if (printf->debugPrintf)
         printf->debugPrintf("%s", lpOutputString);
+    return 0;
+}
+
+int syscall_WideCharToMultiByte(uint8_t* memory, const uint32_t* stack)
+{
+//  auto CodePage = stack[1];
+//  auto dwFlags = stack[2];
+    auto lpWideCharStr = physical(char16_t*, stack[3]);
+    auto cchWideChar = stack[4];
+    auto lpMultiByteStr = physical(char*, stack[5]);
+    auto cbMultiByte = stack[6];
+//  auto lpDefaultChar = stack[7];
+//  auto lpUsedDefaultChar = stack[8];
+
+    if (cchWideChar == -1)
+        cchWideChar = (uint32_t)std::char_traits<char16_t>::length(lpWideCharStr) + 1;
+    if (cbMultiByte == 0)
+        return cchWideChar;
+
+    if (lpMultiByteStr) {
+        uint32_t i = 0;
+        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
+            lpMultiByteStr[i] = lpWideCharStr[i];
+        }
+        return i;
+    }
+
     return 0;
 }
 

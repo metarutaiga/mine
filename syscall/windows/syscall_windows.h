@@ -82,7 +82,9 @@ int syscall_GetCurrentThreadId();
 int syscall_GetSystemInfo(const void* memory, const void* stack);
 int syscall_GetVersion();
 int syscall_GetVersionExA(const void* memory, const void* stack);
+int syscall_MultiByteToWideChar(const void* memory, const void* stack);
 int syscall_OutputDebugStringA(const void* memory, const void* stack);
+int syscall_WideCharToMultiByte(const void* memory, const void* stack);
 
 // kernel32 - time
 int syscall_GetSystemTime(const void* memory, const void* stack);

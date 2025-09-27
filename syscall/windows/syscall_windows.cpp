@@ -120,7 +120,9 @@ static const struct {
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
+    { "MultiByteToWideChar",        INT32(6, syscall_MultiByteToWideChar(memory, stack))            },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
+    { "WideCharToMultiByte",        INT32(8, syscall_WideCharToMultiByte(memory, stack))            },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
