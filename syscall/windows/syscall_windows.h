@@ -138,7 +138,6 @@ int syscall__encode_pointer(const void* stack);
 int syscall__fpclass(const void* stack);
 int64_t syscall__ftol(void* cpu);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);
-int syscall__setjmp3(const void* memory, const void* stack, void* cpu);
 size_t syscall___acrt_iob_func(const void* memory, const void* stack);
 int syscall___getmainargs(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall___iob_func(const void* memory);

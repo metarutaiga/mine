@@ -185,7 +185,7 @@ static const struct {
     { "_malloc_crt",                INT32(0, syscall_malloc(stack, allocator))                      },
     { "_msize",                     INT32(0, syscall_msize(stack, allocator))                       },
     { "_onexit",                    INT32(0, 0)                                                     },
-    { "_setjmp3",                   INT32(0, syscall__setjmp3(memory, stack, cpu))                  },
+    { "_setjmp3",                   INT32(0, syscall_setjmp(memory, stack, cpu))                    },
     { "_splitpath",                 INT32(0, syscall_splitpath(memory, stack))                      },
     { "_strdup",                    INT32(0, syscall_strdup(memory, stack, allocator))              },
     { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                        },

@@ -101,8 +101,8 @@ static const struct {
     { "trunc",          FLT64(syscall_trunc(stack))                     },
 
     // setjmp
-    { "longjmp",        INT32(syscall_longjmp(memory, stack))           },
-    { "setjmp",         INT32(syscall_setjmp(memory, stack))            },
+    { "longjmp",        INT32(syscall_longjmp(memory, stack, cpu))      },
+    { "setjmp",         INT32(syscall_setjmp(memory, stack, cpu))       },
 
     // signal
     { "raise",          INT32(syscall_raise(stack))                     },

@@ -322,24 +322,6 @@ int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
-int syscall__setjmp3(char* memory, const uint32_t* stack, x86_i386* cpu)
-{
-    auto buf = physical(JUMP_BUFFER*, stack[1]);
-
-    auto& x86 = cpu->x86;
-    buf->Ebp = EBP;
-    buf->Ebx = EBX;
-    buf->Edi = EDI;
-    buf->Esi = ESI;
-    buf->Esp = ESP;
-    buf->Eip = EIP;
-    buf->Registration = 0;
-    buf->TryLevel = 0;
-    buf->Cookie = 0x56433230;
-
-    return 0;
-}
-
 size_t syscall___acrt_iob_func(char* memory, const uint32_t* stack)
 {
     auto i = stack[1];

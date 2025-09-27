@@ -120,8 +120,8 @@ double syscall_tgamma(const void* stack);
 double syscall_trunc(const void* stack);
 
 // setjmp
-int syscall_longjmp(const void* memory, const void* stack);
-int syscall_setjmp(const void* memory, const void* stack);
+int syscall_longjmp(const void* memory, const void* stack, void* cpu);
+int syscall_setjmp(const void* memory, const void* stack, void* cpu);
 
 // signal
 int syscall_raise(const void* stack);
