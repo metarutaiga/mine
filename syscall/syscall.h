@@ -20,6 +20,7 @@ struct Syscall {
 };
 
 size_t syscall_i386_new(void* data, Syscall* syscall);
+size_t syscall_i386_delete(void* data);
 size_t syscall_i386_execute(void* data, size_t index);
 size_t syscall_i386_symbol(const char* file, const char* name);
 const char* syscall_i386_name(size_t index);

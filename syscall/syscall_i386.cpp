@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 #include "syscall.h"
 #include "syscall_internal.h"
 #include "../x86/x86_i386.h"
@@ -76,6 +77,20 @@ size_t syscall_i386_new(void* data, Syscall* syscall)
         if (i) strncat(commandLine, " ", 256);
         strncat(commandLine, syscall->argv[i], 256);
     }
+
+    return 0;
+}
+
+size_t syscall_i386_delete(void* data)
+{
+    auto* cpu = (x86_i386*)data;
+    auto* memory = cpu->Memory();
+
+    auto& record = *physical(std::vector<FILE*>*, offset_file);
+    for (FILE*& file : record) {
+        fclose(file);
+    }
+    record.clear();
 
     return 0;
 }
