@@ -196,6 +196,15 @@ int syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocator
     auto hObject = physical(FILE**, stack[1]);
     if (hObject && *hObject) {
         fclose(*hObject);
+
+        auto& record = *physical(std::vector<FILE*>*, offset_file);
+        for (FILE*& file : record) {
+            if (file == (*hObject)) {
+                file = record.back();
+                record.pop_back();
+                break;
+            }
+        }
     }
     allocator->deallocate(hObject);
     return true;
@@ -261,6 +270,9 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
         allocator->deallocate(handle);
         return SYSCALL_INVALID_HANDLE_VALUE;
     }
+
+    auto& record = *physical(std::vector<FILE*>*, offset_file);
+    record.push_back(*handle);
 
     return virtual(size_t, handle);
 }
