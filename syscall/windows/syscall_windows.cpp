@@ -74,6 +74,7 @@ static const struct {
 
     // kernel32 - exception
     { "IsDebuggerPresent",          INT32(0, false)                                                 },
+    { "RtlUnwind",                  INT32(4, 0)                                                     },
     { "SetUnhandledExceptionFilter",INT32(1, 0)                                                     },
     { "UnhandledExceptionFilter",   INT32(1, 0)                                                     },
 
