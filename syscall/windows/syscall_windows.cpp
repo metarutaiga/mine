@@ -49,7 +49,9 @@ static const struct {
 
     // kernel32 - atomic
     { "InterlockedCompareExchange", INT32(3, syscall_InterlockedCompareExchange(memory, stack))     },
+    { "InterlockedDecrement",       INT32(1, syscall_InterlockedDecrement(memory, stack))           },
     { "InterlockedExchange",        INT32(2, syscall_InterlockedExchange(memory, stack))            },
+    { "InterlockedIncrement",       INT32(1, syscall_InterlockedIncrement(memory, stack))           },
 
     // kernel32 - critical section
     { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
@@ -61,6 +63,14 @@ static const struct {
 
     // kernel32 - directory
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
+
+    // kernel32 - environment
+    { "FreeEnvironmentStringsA",    INT32(1, syscall_FreeEnvironmentStringsA(memory, stack, allocator)) },
+    { "FreeEnvironmentStringsW",    INT32(1, syscall_FreeEnvironmentStringsW(memory, stack, allocator)) },
+    { "GetEnvironmentStrings",      INT32(0, syscall_GetEnvironmentStrings(memory, allocator))          },
+    { "GetEnvironmentStringsW",     INT32(0, syscall_GetEnvironmentStringsW(memory, allocator))         },
+    { "GetEnvironmentVariableA",    INT32(3, syscall_GetEnvironmentVariableA(memory, stack, allocator)) },
+    { "GetEnvironmentVariableW",    INT32(3, syscall_GetEnvironmentVariableW(memory, stack, allocator)) },
 
     // kernel32 - exception
     { "IsDebuggerPresent",          INT32(0, false)                                                 },
@@ -111,6 +121,18 @@ static const struct {
     // kernel32 - profile
     { "GetProfileIntA",             INT32(3, 0)                                                     },
 
+    // kernel32 - string
+    { "GetACP",                     INT32(0, 437)                                                   },
+    { "GetCPInfo",                  INT32(2, true)                                                  },
+    { "GetLocaleInfoA",             INT32(4, syscall_GetLocalInfoA(memory, stack))                  },
+    { "GetLocaleInfoW",             INT32(4, syscall_GetLocalInfoW(memory, stack))                  },
+    { "GetStringTypeA",             INT32(4, syscall_GetStringTypeA(memory, stack))                 },
+    { "GetStringTypeW",             INT32(4, syscall_GetStringTypeW(memory, stack))                 },
+    { "LCMapStringA",               INT32(6, syscall_LCMapStringA(memory, stack))                   },
+    { "LCMapStringW",               INT32(6, syscall_LCMapStringW(memory, stack))                   },
+    { "MultiByteToWideChar",        INT32(6, syscall_MultiByteToWideChar(memory, stack))            },
+    { "WideCharToMultiByte",        INT32(8, syscall_WideCharToMultiByte(memory, stack))            },
+
     // kernel32 - system
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
     { "GetCommandLineA",            INT32(0, syscall_GetCommandLineA(memory))                       },
@@ -118,14 +140,15 @@ static const struct {
     { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
-    { "GetEnvironmentVariableA",    INT32(3, 0)                                                     },
     { "GetLastError",               INT32(0, 0)                                                     },
+    { "GetStartupInfoA",            INT32(1, syscall_GetStartupInfoA(memory, stack))                },
+    { "GetStartupInfoW",            INT32(1, syscall_GetStartupInfoW(memory, stack))                },
+    { "GetStdHandle",               INT32(1, 0xFFFFFFFF)                                            },
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
-    { "MultiByteToWideChar",        INT32(6, syscall_MultiByteToWideChar(memory, stack))            },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
-    { "WideCharToMultiByte",        INT32(8, syscall_WideCharToMultiByte(memory, stack))            },
+    { "SetHandleCount",             INT32(1, 0)                                                     },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
@@ -136,7 +159,11 @@ static const struct {
     { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
     { "QueryPerformanceFrequency",  INT32(1, syscall_QueryPerformanceFrequency(memory, stack))      },
 
-    // kernel32 - tls
+    // kernel32 - tls / fls
+    { "FlsAlloc",                   INT32(1, syscall_TlsAlloc(memory))                              },
+    { "FlsFree",                    INT32(1, syscall_TlsFree(memory, stack))                        },
+    { "FlsGetValue",                INT32(1, syscall_TlsGetValue(memory, stack))                    },
+    { "FlsSetValue",                INT32(2, syscall_TlsSetValue(memory, stack))                    },
     { "TlsAlloc",                   INT32(0, syscall_TlsAlloc(memory))                              },
     { "TlsFree",                    INT32(1, syscall_TlsFree(memory, stack))                        },
     { "TlsGetValue",                INT32(1, syscall_TlsGetValue(memory, stack))                    },

@@ -27,7 +27,9 @@ const char* syscall_windows_name(size_t index);
 
 // kernel32 - atomic
 uint32_t syscall_InterlockedCompareExchange(const void* memory, const void* stack);
+uint32_t syscall_InterlockedDecrement(const void* memory, const void* stack);
 uint32_t syscall_InterlockedExchange(const void* memory, const void* stack);
+uint32_t syscall_InterlockedIncrement(const void* memory, const void* stack);
 
 // kernel32 - critical section
 int syscall_DeleteCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -39,6 +41,14 @@ int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
 // kernel32 - directory
 uint32_t syscall_GetCurrentDirectoryA(const void* memory, const void* stack);
 int syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
+
+// kernel32 - environment
+bool syscall_FreeEnvironmentStringsA(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_FreeEnvironmentStringsW(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentStrings(const void* memory, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentStringsW(const void* memory, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentVariableA(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentVariableW(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - file
 int syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -73,16 +83,26 @@ size_t syscall_LocalFree(const void* memory, const void* stack, struct allocator
 size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
 
+// kernel32 - string
+int syscall_GetLocalInfoA(const void* memory, const void* stack);
+int syscall_GetLocalInfoW(const void* memory, const void* stack);
+bool syscall_GetStringTypeA(const void* memory, const void* stack);
+bool syscall_GetStringTypeW(const void* memory, const void* stack);
+int syscall_LCMapStringA(const void* memory, const void* stack);
+int syscall_LCMapStringW(const void* memory, const void* stack);
+int syscall_MultiByteToWideChar(const void* memory, const void* stack);
+int syscall_WideCharToMultiByte(const void* memory, const void* stack);
+
 // kernel32 - system
 size_t syscall_GetCommandLineA(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
 int syscall_GetSystemInfo(const void* memory, const void* stack);
+int syscall_GetStartupInfoA(const void* memory, const void* stack);
+int syscall_GetStartupInfoW(const void* memory, const void* stack);
 int syscall_GetVersion();
-int syscall_GetVersionExA(const void* memory, const void* stack);
-int syscall_MultiByteToWideChar(const void* memory, const void* stack);
+bool syscall_GetVersionExA(const void* memory, const void* stack);
 int syscall_OutputDebugStringA(const void* memory, const void* stack);
-int syscall_WideCharToMultiByte(const void* memory, const void* stack);
 
 // kernel32 - time
 int syscall_GetSystemTime(const void* memory, const void* stack);

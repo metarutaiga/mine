@@ -74,6 +74,13 @@ uint32_t syscall_InterlockedCompareExchange(uint8_t* memory, const uint32_t* sta
     return result;
 }
 
+uint32_t syscall_InterlockedDecrement(uint8_t* memory, const uint32_t* stack)
+{
+    auto Target = physical(uint32_t*, stack[1]);
+    (*Target)--;
+    return (*Target);
+}
+
 uint32_t syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
 {
     auto Target = physical(uint32_t*, stack[1]);
@@ -81,6 +88,13 @@ uint32_t syscall_InterlockedExchange(uint8_t* memory, const uint32_t* stack)
     auto result = (*Target);
     (*Target) = Value;
     return result;
+}
+
+uint32_t syscall_InterlockedIncrement(uint8_t* memory, const uint32_t* stack)
+{
+    auto Target = physical(uint32_t*, stack[1]);
+    (*Target)++;
+    return (*Target);
 }
 
 // Critical Section
@@ -187,6 +201,50 @@ int syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     }
     return true;
 #endif
+}
+
+// Environment
+
+bool syscall_FreeEnvironmentStringsA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto penv = physical(char*, stack[1]);
+    allocator->deallocate(penv);
+    return true;
+}
+
+bool syscall_FreeEnvironmentStringsW(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto penv = physical(char16_t*, stack[1]);
+    allocator->deallocate(penv);
+    return true;
+}
+
+size_t syscall_GetEnvironmentStrings(uint8_t* memory, struct allocator_t* allocator)
+{
+    char* empty = (char*)allocator->allocate(sizeof(char) * 2);
+    empty[0] = 0;
+    return virtual(size_t, empty);
+}
+
+size_t syscall_GetEnvironmentStringsW(uint8_t* memory, struct allocator_t* allocator)
+{
+    char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
+    empty[0] = 0;
+    return virtual(size_t, empty);
+}
+
+size_t syscall_GetEnvironmentVariableA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    char* empty = (char*)allocator->allocate(sizeof(char) * 2);
+    empty[0] = 0;
+    return virtual(size_t, empty);
+}
+
+size_t syscall_GetEnvironmentVariableW(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
+    empty[0] = 0;
+    return virtual(size_t, empty);
 }
 
 // File
@@ -600,8 +658,7 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
         auto* windows = physical(Windows*, TIB_WINDOWS);
         data.address = windows->symbol("", lpProcName, nullptr);
     }
-
-    if (data.address == 0) {
+    else {
         PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
             auto& data = *(Data*)sym_data;
             if (strcmp(data.name, name) == 0) {
@@ -754,6 +811,160 @@ bool syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocato
     return true;
 }
 
+// String
+
+int syscall_GetLocalInfoA(uint8_t* memory, const uint32_t* stack)
+{
+//  auto Locale = stack[1];
+//  auto LCType = stack[2];
+    auto lpLCData = physical(char*, stack[3]);
+//  auto cchData = stack[4];
+    if (lpLCData) {
+        lpLCData[0] = 0;
+    }
+    return 1;
+}
+
+int syscall_GetLocalInfoW(uint8_t* memory, const uint32_t* stack)
+{
+//  auto Locale = stack[1];
+//  auto LCType = stack[2];
+    auto lpLCData = physical(char16_t*, stack[3]);
+//  auto cchData = stack[4];
+    if (lpLCData) {
+        lpLCData[0] = 0;
+    }
+    return 1;
+}
+
+bool syscall_GetStringTypeA(uint8_t* memory, const uint32_t* stack)
+{
+//  auto dwInfoType = stack[1];
+    auto lpSrcStr = physical(char*, stack[2]);
+    auto cchSrc = stack[3];
+    auto lpCharType = physical(uint32_t*, stack[4]);
+    for (int i = 0; i < cchSrc; ++i) {
+        char c = lpSrcStr[i];
+        uint32_t type = 0;
+        if (isupper(c)) type |= 0x0001;
+        if (islower(c)) type |= 0x0002;
+        if (isdigit(c)) type |= 0x0004;
+        if (isspace(c)) type |= 0x0008;
+        if (ispunct(c)) type |= 0x0010;
+        if (iscntrl(c)) type |= 0x0020;
+        if (isblank(c)) type |= 0x0040;
+        if (isxdigit(c))type |= 0x0080;
+        if (isalpha(c)) type |= 0x0100;
+        if (type == 0)  type |= 0x0200;
+        lpCharType[i] = type;
+    }
+    return true;
+}
+
+bool syscall_GetStringTypeW(uint8_t* memory, const uint32_t* stack)
+{
+//  auto dwInfoType = stack[1];
+    auto lpSrcStr = physical(char16_t*, stack[2]);
+    auto cchSrc = stack[3];
+    auto lpCharType = physical(uint32_t*, stack[4]);
+    for (int i = 0; i < cchSrc; ++i) {
+        char16_t c = lpSrcStr[i];
+        uint32_t type = 0;
+        if (isupper(c)) type |= 0x0001;
+        if (islower(c)) type |= 0x0002;
+        if (isdigit(c)) type |= 0x0004;
+        if (isspace(c)) type |= 0x0008;
+        if (ispunct(c)) type |= 0x0010;
+        if (iscntrl(c)) type |= 0x0020;
+        if (isblank(c)) type |= 0x0040;
+        if (isxdigit(c))type |= 0x0080;
+        if (isalpha(c)) type |= 0x0100;
+        if (type == 0)  type |= 0x0200;
+        lpCharType[i] = type;
+    }
+    return true;
+}
+
+int syscall_LCMapStringA(uint8_t* memory, const uint32_t* stack)
+{
+//  auto Locale = stack[1];
+//  auto dwMapFlags = stack[2];
+//  auto lpSrcStr = physical(char*, stack[3]);
+//  auto cchSrc = stack[4];
+    auto lpDestStr = physical(char*, stack[5]);
+//  auto cchDest = stack[6];
+    if (lpDestStr) {
+        lpDestStr[0] = 0;
+    }
+    return 1;
+}
+
+int syscall_LCMapStringW(uint8_t* memory, const uint32_t* stack)
+{
+//  auto Locale = stack[1];
+//  auto dwMapFlags = stack[2];
+//  auto lpSrcStr = physical(char16_t*, stack[3]);
+//  auto cchSrc = stack[4];
+    auto lpDestStr = physical(char16_t*, stack[5]);
+//  auto cchDest = stack[6];
+    if (lpDestStr) {
+        lpDestStr[0] = 0;
+    }
+    return 1;
+}
+
+int syscall_MultiByteToWideChar(uint8_t* memory, const uint32_t* stack)
+{
+//  auto CodePage = stack[1];
+//  auto dwFlags = stack[2];
+    auto lpMultiByteStr = physical(char*, stack[3]);
+    auto cbMultiByte = stack[4];
+    auto lpWideCharStr = physical(char16_t*, stack[5]);
+    auto cchWideChar = stack[6];
+
+    if (cbMultiByte == -1)
+        cbMultiByte = (uint32_t)strlen(lpMultiByteStr) + 1;
+    if (cchWideChar == 0)
+        return cbMultiByte;
+
+    if (lpWideCharStr) {
+        uint32_t i = 0;
+        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
+            lpWideCharStr[i] = lpMultiByteStr[i];
+        }
+        return i;
+    }
+
+    return 0;
+}
+
+int syscall_WideCharToMultiByte(uint8_t* memory, const uint32_t* stack)
+{
+//  auto CodePage = stack[1];
+//  auto dwFlags = stack[2];
+    auto lpWideCharStr = physical(char16_t*, stack[3]);
+    auto cchWideChar = stack[4];
+    auto lpMultiByteStr = physical(char*, stack[5]);
+    auto cbMultiByte = stack[6];
+//  auto lpDefaultChar = stack[7];
+//  auto lpUsedDefaultChar = stack[8];
+
+    if (cchWideChar == -1)
+        cchWideChar = (uint32_t)std::char_traits<char16_t>::length(lpWideCharStr) + 1;
+    if (cbMultiByte == 0)
+        return cchWideChar;
+
+    if (lpMultiByteStr) {
+        uint32_t i = 0;
+        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
+            lpMultiByteStr[i] = lpWideCharStr[i];
+        }
+        return i;
+    }
+
+    return 0;
+}
+
 // System
 
 size_t syscall_GetCommandLineA(uint8_t* memory)
@@ -797,12 +1008,56 @@ int syscall_GetSystemInfo(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
+int syscall_GetStartupInfoA(uint8_t* memory, const uint32_t* stack)
+{
+    auto lpStartupInfo = physical(int32_t*, stack[1]);
+    lpStartupInfo[1] = 0;   // lpReserved
+    lpStartupInfo[2] = 0;   // lpDesktop
+    lpStartupInfo[3] = 0;   // lpTitle
+    lpStartupInfo[4] = 0;   // dwX
+    lpStartupInfo[5] = 0;   // dwY
+    lpStartupInfo[6] = 0;   // dwXSize
+    lpStartupInfo[7] = 0;   // dwYSize
+    lpStartupInfo[8] = 0;   // dwXCountChars
+    lpStartupInfo[9] = 0;   // dwYCountChars
+    lpStartupInfo[10] = 0;  // dwFillAttribute
+    lpStartupInfo[11] = 0;  // dwFlags
+    lpStartupInfo[12] = 0;  // wShowWindow / cbReserved2
+    lpStartupInfo[13] = 0;  // lpReserved2
+    lpStartupInfo[14] = 0;  // hStdInput
+    lpStartupInfo[15] = 0;  // hStdOutput
+    lpStartupInfo[16] = 0;  // hStdError
+    return 0;
+}
+
+int syscall_GetStartupInfoW(uint8_t* memory, const uint32_t* stack)
+{
+    auto lpStartupInfo = physical(int32_t*, stack[1]);
+    lpStartupInfo[1] = 0;   // lpReserved
+    lpStartupInfo[2] = 0;   // lpDesktop
+    lpStartupInfo[3] = 0;   // lpTitle
+    lpStartupInfo[4] = 0;   // dwX
+    lpStartupInfo[5] = 0;   // dwY
+    lpStartupInfo[6] = 0;   // dwXSize
+    lpStartupInfo[7] = 0;   // dwYSize
+    lpStartupInfo[8] = 0;   // dwXCountChars
+    lpStartupInfo[9] = 0;   // dwYCountChars
+    lpStartupInfo[10] = 0;  // dwFillAttribute
+    lpStartupInfo[11] = 0;  // dwFlags
+    lpStartupInfo[12] = 0;  // wShowWindow / cbReserved2
+    lpStartupInfo[13] = 0;  // lpReserved2
+    lpStartupInfo[14] = 0;  // hStdInput
+    lpStartupInfo[15] = 0;  // hStdOutput
+    lpStartupInfo[16] = 0;  // hStdError
+    return 0;
+}
+
 int syscall_GetVersion()
 {
     return 5;
 }
 
-int syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
+bool syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
 {
     auto lpVersionInformation = physical(OSVERSIONINFOA*, stack[1]);
     lpVersionInformation->dwMajorVersion = 5;
@@ -810,32 +1065,7 @@ int syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
     lpVersionInformation->dwBuildNumber = 0;
     lpVersionInformation->dwPlatformId = 1;
     lpVersionInformation->szCSDVersion[0] = 0;
-    return 0;
-}
-
-int syscall_MultiByteToWideChar(uint8_t* memory, const uint32_t* stack)
-{
-//  auto CodePage = stack[1];
-//  auto dwFlags = stack[2];
-    auto lpMultiByteStr = physical(char*, stack[3]);
-    auto cbMultiByte = stack[4];
-    auto lpWideCharStr = physical(char16_t*, stack[5]);
-    auto cchWideChar = stack[6];
-
-    if (cbMultiByte == -1)
-        cbMultiByte = (uint32_t)strlen(lpMultiByteStr) + 1;
-    if (cchWideChar == 0)
-        return cbMultiByte;
-
-    if (lpWideCharStr) {
-        uint32_t i = 0;
-        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
-            lpWideCharStr[i] = lpMultiByteStr[i];
-        }
-        return i;
-    }
-
-    return 0;
+    return true;
 }
 
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
@@ -845,33 +1075,6 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
     auto lpOutputString = physical(char*, stack[1]);
     if (printf->debugPrintf)
         printf->debugPrintf("%s", lpOutputString);
-    return 0;
-}
-
-int syscall_WideCharToMultiByte(uint8_t* memory, const uint32_t* stack)
-{
-//  auto CodePage = stack[1];
-//  auto dwFlags = stack[2];
-    auto lpWideCharStr = physical(char16_t*, stack[3]);
-    auto cchWideChar = stack[4];
-    auto lpMultiByteStr = physical(char*, stack[5]);
-    auto cbMultiByte = stack[6];
-//  auto lpDefaultChar = stack[7];
-//  auto lpUsedDefaultChar = stack[8];
-
-    if (cchWideChar == -1)
-        cchWideChar = (uint32_t)std::char_traits<char16_t>::length(lpWideCharStr) + 1;
-    if (cbMultiByte == 0)
-        return cchWideChar;
-
-    if (lpMultiByteStr) {
-        uint32_t i = 0;
-        for (i = 0; i < cbMultiByte && i < cchWideChar; ++i) {
-            lpMultiByteStr[i] = lpWideCharStr[i];
-        }
-        return i;
-    }
-
     return 0;
 }
 
