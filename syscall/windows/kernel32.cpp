@@ -476,21 +476,6 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
 // Heap
 
-size_t syscall_GetProcessHeap(uint8_t* memory, const uint32_t* stack)
-{
-    return -1;
-}
-
-size_t syscall_HeapCreate(uint8_t* memory, const uint32_t* stack)
-{
-    return -1;
-}
-
-bool syscall_HeapDestroy(uint8_t* memory, const uint32_t* stack)
-{
-    return true;
-}
-
 size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     void* pointer = allocator->allocate(stack[3]);
@@ -559,6 +544,37 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
             return virtual(int, image);
     }
 
+    if (strcasecmp(path.c_str(), "kernel32.dll") == 0) {
+        return 0xFFFFFFFF;
+    }
+
+    return 0;
+}
+
+size_t syscall_GetModuleHandleW(uint8_t* memory, const uint32_t* stack)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
+    auto lpModuleName = physical(char16_t*, stack[1]);
+    if (lpModuleName == nullptr)
+        return windows->image;
+
+    std::string path;
+    for (char16_t c; (c = *lpModuleName); lpModuleName++) {
+        path.push_back(c);
+    }
+    auto slash = path.find_last_of("/\\");
+
+    path = path.substr(slash + 1);
+    for (auto& [name, image] : windows->modules) {
+        if (strcasecmp(name.c_str(), path.c_str()) == 0)
+            return virtual(int, image);
+    }
+
+    if (strcasecmp(path.c_str(), "kernel32.dll") == 0) {
+        return 0xFFFFFFFF;
+    }
+
     return 0;
 }
 
@@ -580,15 +596,22 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
         .printf = printf->debugPrintf,
     };
 
-    PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
-        auto& data = *(Data*)sym_data;
-        if (strcmp(data.name, name) == 0) {
-            data.address = address;
-            if (data.printf) {
-                data.printf("%-12s : [%08zX] %s", "Symbol", address, name);
+    if (stack[1] == 0xFFFFFFFF) {
+        auto* windows = physical(Windows*, TIB_WINDOWS);
+        data.address = windows->symbol("", lpProcName, nullptr);
+    }
+
+    if (data.address == 0) {
+        PE::Exports(hModule, [](const char* name, size_t address, void* sym_data) {
+            auto& data = *(Data*)sym_data;
+            if (strcmp(data.name, name) == 0) {
+                data.address = address;
+                if (data.printf) {
+                    data.printf("%-12s : [%08zX] %s", "Symbol", address, name);
+                }
             }
-        }
-    }, &data);
+        }, &data);
+    }
 
     if (data.address == 0) {
         if (data.printf) {

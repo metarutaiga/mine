@@ -82,9 +82,9 @@ static const struct {
     { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))                  },
 
     // kernel32 - heap
-    { "GetProcessHeap",             INT32(0, syscall_GetProcessHeap(memory, stack))                 },
-    { "HeapCreate",                 INT32(3, syscall_HeapCreate(memory, stack))                     },
-    { "HeapDestroy",                INT32(1, syscall_HeapDestroy(memory, stack))                    },
+    { "GetProcessHeap",             INT32(0, 0xFFFFFFFF)                                            },
+    { "HeapCreate",                 INT32(3, 0xFFFFFFFF)                                            },
+    { "HeapDestroy",                INT32(1, true)                                                  },
     { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
     { "HeapFree",                   INT32(3, syscall_HeapFree(memory, stack, allocator))            },
 
@@ -94,10 +94,13 @@ static const struct {
     { "GetModuleBaseNameA",         INT32(4, syscall_GetModuleBaseNameA(memory, stack))             },
     { "GetModuleFileNameA",         INT32(3, syscall_GetModuleFileNameA(memory, stack))             },
     { "GetModuleHandleA",           INT32(1, syscall_GetModuleHandleA(memory, stack))               },
+    { "GetModuleHandleW",           INT32(1, syscall_GetModuleHandleW(memory, stack))               },
     { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack))                 },
     { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu))              },
 
     // kernel32 - memory
+    { "DecodePointer",              INT32(1, stack[1])                                              },
+    { "EncodePointer",              INT32(1, stack[1])                                              },
     { "LocalAlloc",                 INT32(2, syscall_LocalAlloc(memory, stack, allocator))          },
     { "LocalFree",                  INT32(1, syscall_LocalFree(memory, stack, allocator))           },
     { "VirtualAlloc",               INT32(4, syscall_VirtualAlloc(memory, stack, allocator))        },
@@ -172,8 +175,8 @@ static const struct {
     { "_crt_debugger_hook",         INT32(0, 0)                                                     },
     { "_clearfp",                   INT32(0, 0)                                                     },
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
-    { "_decode_pointer",            INT32(0, syscall__decode_pointer(stack))                        },
-    { "_encode_pointer",            INT32(0, syscall__encode_pointer(stack))                        },
+    { "_decode_pointer",            INT32(0, stack[1])                                              },
+    { "_encode_pointer",            INT32(0, stack[1])                                              },
     { "_expand",                    INT32(0, syscall_expand(stack, allocator))                      },
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
@@ -406,6 +409,13 @@ void syscall_windows_import(void* data, const char* file, void* image, bool exec
     if (entry) {
         auto& x86 = cpu->x86;
         uint32_t ret = Pop32();
+#if 1
+        Push32(0);
+        Push32(1);
+        Push32(0);
+        Push32(ret);
+        Push32(entry);
+#else
         Push32(0);
         Push32(2);
         Push32(0);
@@ -415,6 +425,7 @@ void syscall_windows_import(void* data, const char* file, void* image, bool exec
         Push32(0);
         Push32(entry);
         Push32(entry);
+#endif
     }
 }
 

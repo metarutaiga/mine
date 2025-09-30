@@ -55,9 +55,6 @@ int syscall_FindNextFileA(const void* memory, const void* stack);
 size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap
-size_t syscall_GetProcessHeap(const void* memory, const void* stack);
-size_t syscall_HeapCreate(const void* memory, const void* stack);
-bool syscall_HeapDestroy(const void* memory, const void* stack);
 size_t syscall_HeapAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_HeapFree(const void* memory, const void* stack, struct allocator_t* allocator);
 
@@ -66,6 +63,7 @@ int syscall_FreeLibrary(const void* memory, const void* stack);
 size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleFileNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleA(const void* memory, const void* stack);
+size_t syscall_GetModuleHandleW(const void* memory, const void* stack);
 size_t syscall_GetProcAddress(const void* memory, const void* stack);
 size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu);
 
@@ -135,8 +133,6 @@ int syscall__CIsin(void* cpu);
 int syscall__CIsqrt(void* cpu);
 int syscall__controlfp(const void* stack, void* cpu);
 int syscall__controlfp_s(const void* memory, const void* stack, void* cpu);
-int syscall__decode_pointer(const void* stack);
-int syscall__encode_pointer(const void* stack);
 int syscall__fpclass(const void* stack);
 int64_t syscall__ftol(void* cpu);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);

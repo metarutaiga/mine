@@ -275,16 +275,6 @@ int syscall__controlfp_s(char* memory, const uint32_t* stack, x86_i386* cpu)
     return 0;
 }
 
-int syscall__decode_pointer(const uint32_t* stack)
-{
-    return stack[1];
-}
-
-int syscall__encode_pointer(const uint32_t* stack)
-{
-    return stack[1];
-}
-
 int syscall__fpclass(const uint32_t* stack)
 {
     auto x = double(stack[1]);
