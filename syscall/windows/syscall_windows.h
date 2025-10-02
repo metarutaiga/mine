@@ -40,7 +40,7 @@ int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
 
 // kernel32 - directory
 uint32_t syscall_GetCurrentDirectoryA(const void* memory, const void* stack);
-int syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
+bool syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
 
 // kernel32 - environment
 bool syscall_FreeEnvironmentStringsA(const void* memory, const void* stack, struct allocator_t* allocator);

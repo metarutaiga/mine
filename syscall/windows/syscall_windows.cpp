@@ -437,6 +437,12 @@ void syscall_windows_import(void* data, const char* file, void* image, bool exec
 
     if (execute) {
         strncpy(windows->imageDirectory, file, sizeof(windows->imageDirectory));
+#ifndef _WIN32
+        for (char& c : windows->imageDirectory) {
+            if (c == '/')
+                c = '\\';
+        }
+#endif
         return;
     }
 

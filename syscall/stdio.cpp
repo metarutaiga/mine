@@ -96,11 +96,22 @@ size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* al
     auto filename = physical(char*, stack[1]);
     auto mode = physical(char*, stack[2]);
 
-    auto directory = physical(char*, offset_directory);
     char fullpath[260];
-    strncpy(fullpath, directory, 260);
-    strncat(fullpath, "/", 260);
+    if (filename[0] != '/' && filename[0] != '\\') {
+        auto directory = physical(char*, offset_directory);
+        strncpy(fullpath, directory, 260);
+        strncat(fullpath, "/", 260);
+    }
+    else {
+        fullpath[0] = 0;
+    }
     strncat(fullpath, filename, 260);
+#ifndef _WIN32
+    for (char& c : fullpath) {
+        if (c == '\\')
+            c = '/';
+    }
+#endif
 
     (*stream) = fopen(fullpath, mode);
     if ((*stream) == nullptr) {

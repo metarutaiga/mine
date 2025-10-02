@@ -186,21 +186,26 @@ uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     return uint32_t(strlen(lpBuffer));
 }
 
-int syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
+bool syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 {
+    auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
     char* lpPathName = physical(char*, stack[1]);
     strncpy(windows->directory, lpPathName, 260);
-#if defined(_WIN32)
-    return true;
-#else
+
+#ifndef _WIN32
     for (char& c : windows->directory) {
-        if (c == '\\')
-            c = '/';
+        if (c == '/')
+            c = '\\';
     }
-    return true;
 #endif
+
+    if (printf->debugPrintf) {
+        printf->debugPrintf("[CALL] %s -> %s", "SetCurrentDirectoryA", windows->directory);
+    }
+
+    return true;
 }
 
 // Environment
@@ -280,11 +285,13 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
 //  auto dwFlagsAndAttributes = stack[6];
 //  auto hTemplateFile = physical(FILE**, stack[7]);
 
-    std::string path = windows->directory;
-    path += '\\';
+    std::string path;
+    if (lpFileName[0] != '/' && lpFileName[0] != '\\') {
+        path = windows->directory;
+        path += '\\';
+    }
     path += lpFileName;
-#if defined(_WIN32)
-#else
+#ifndef _WIN32
     for (char& c : path) {
         if (c == '\\')
             c = '/';
@@ -384,7 +391,7 @@ uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
         lpBuffer[i] = c;
         if (c == 0)
             return i;
-        if (c == '\\' && lpFilePart) {
+        if ((c == '/' || c == '\\') && lpFilePart) {
             (*lpFilePart) = virtual(uint32_t, lpBuffer + i + 1);
         }
     }
@@ -494,6 +501,7 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
     }
     return virtual(size_t, handle);
 #else
+    auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
@@ -501,17 +509,23 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
         return SYSCALL_INVALID_HANDLE_VALUE;
     auto lpFileName = physical(char*, stack[1]);
 
-    std::string path = windows->directory;
-    path += '\\';
+    std::string path;
+    if (lpFileName[0] != '/' && lpFileName[0] != '\\') {
+        path = windows->directory;
+        path += '\\';
+    }
     path += lpFileName;
-#if defined(_WIN32)
-#else
+#ifndef _WIN32
     for (char& c : path) {
         if (c == '\\')
             c = '/';
     }
 #endif
     auto slash = path.find_last_of("/\\");
+
+    if (printf->debugPrintf) {
+        printf->debugPrintf("[CALL] %s - %s", "FindFirstFileA", path.c_str());
+    }
 
     (*dir) = opendir(path.substr(0, slash).c_str());
     if ((*dir) == nullptr) {
@@ -558,31 +572,70 @@ int syscall_FreeLibrary(uint8_t* memory, const uint32_t* stack)
 
 size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
 {
-    extern size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack);
-    return syscall_GetModuleFileNameA(memory, stack + 1);
+    auto* printf = physical(Printf*, offset_printf);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
+//  auto hProcess = stack[1];
+    auto hModule = physical(void*, stack[2]);
+    auto lpBaseName = physical(char*, stack[3]);
+    auto nSize = stack[4];
+
+    lpBaseName[0] = 0;
+
+    if (hModule == nullptr) {
+        strncpy(lpBaseName, windows->imageDirectory, nSize);
+    }
+    else {
+        for (auto& [name, image] : windows->modules) {
+            if (image == hModule) {
+                strncpy(lpBaseName, name.c_str(), nSize);
+                break;
+            }
+        }
+    }
+
+    auto* slash = strrchr(lpBaseName, '/');
+    if (slash == nullptr)
+        slash = strrchr(lpBaseName, '\\');
+    if (slash) {
+        strncpy(lpBaseName, slash + 1, nSize);
+    }
+
+    if (printf) {
+        printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleBaseNameA", stack[1], lpBaseName);
+    }
+
+    return strlen(lpBaseName);
 }
 
 size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
 {
+    auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
     auto hModule = physical(void*, stack[1]);
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
 
+    lpFilename[0] = 0;
+
     if (hModule == nullptr) {
         strncpy(lpFilename, windows->imageDirectory, nSize);
-        return strlen(lpFilename);
     }
-
-    for (auto& [name, image] : windows->modules) {
-        if (image == hModule) {
-            strncpy(lpFilename, name.c_str(), nSize);
-            return name.size();
+    else {
+        for (auto& [name, image] : windows->modules) {
+            if (image == hModule) {
+                strncpy(lpFilename, name.c_str(), nSize);
+                break;
+            }
         }
     }
 
-    return 0;
+    if (printf) {
+        printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleFileNameA", stack[1], lpFilename);
+    }
+
+    return strlen(lpFilename);
 }
 
 size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
@@ -598,11 +651,11 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
 
     path = path.substr(slash + 1);
     for (auto& [name, image] : windows->modules) {
-        if (strcasecmp(name.c_str(), path.c_str()) == 0)
+        if (strcasestr(name.c_str(), path.c_str()))
             return virtual(int, image);
     }
 
-    if (strcasecmp(path.c_str(), "kernel32.dll") == 0) {
+    if (strcasestr(path.c_str(), "kernel32.dll")) {
         return 0xFFFFFFFF;
     }
 
@@ -625,11 +678,11 @@ size_t syscall_GetModuleHandleW(uint8_t* memory, const uint32_t* stack)
 
     path = path.substr(slash + 1);
     for (auto& [name, image] : windows->modules) {
-        if (strcasecmp(name.c_str(), path.c_str()) == 0)
+        if (strcasestr(name.c_str(), path.c_str()))
             return virtual(int, image);
     }
 
-    if (strcasecmp(path.c_str(), "kernel32.dll") == 0) {
+    if (strcasestr(path.c_str(), "kernel32.dll")) {
         return 0xFFFFFFFF;
     }
 
@@ -689,11 +742,13 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
         return module;
 
     auto lpLibFileName = physical(char*, stack[1]);
-    std::string path = windows->directory;
-    path += '\\';
+    std::string path;
+    if (lpLibFileName[0] != '/' && lpLibFileName[0] != '\\') {
+        path = windows->directory;
+        path += '\\';
+    }
     path += lpLibFileName;
-#if defined(_WIN32)
-#else
+#ifndef _WIN32
     for (char& c : path) {
         if (c == '\\')
             c = '/';
@@ -742,9 +797,8 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
     Push32(eax);
 
     void syscall_windows_import(void* data, const char* file, void* image, bool execute);
-    std::string file = path.substr(slash + 1);
-    windows->modules.emplace_back(file.c_str(), image);
-    syscall_windows_import(cpu, file.c_str(), image, false);
+    windows->modules.emplace_back(path.c_str(), image);
+    syscall_windows_import(cpu, path.c_str(), image, false);
 
     // _DllMainCRTStartup - post
     ret = Pop32();

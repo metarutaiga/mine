@@ -94,6 +94,8 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
 
 int syscall_splitpath(char* memory, const uint32_t* stack)
 {
+    auto* printf = physical(Printf*, offset_printf);
+
     auto path = physical(char*, stack[1]);
     auto drive = physical(char*, stack[2]);
     auto dir = physical(char*, stack[3]);
@@ -119,7 +121,7 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
                 }
                 if (c == '/' || c == '\\') {
                     type = 0;
-                    ranges[0].second = i;
+                    ranges[0].second = i + 1;
                     ranges[1] = ranges[2];
                     ranges[2] = {};
                     break;
@@ -129,7 +131,7 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
             case 1:
                 if (c == '/' || c == '\\') {
                     type = 0;
-                    ranges[0].second = i;
+                    ranges[0].second = i + 1;
                     break;
                 }
                 ranges[1].first = i;
@@ -158,6 +160,10 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
     if (ext) {
         ext[ranges[2].second] = 0;
         strncpy(ext, path + ranges[2].first, ranges[2].second);
+    }
+
+    if (printf) {
+        printf->debugPrintf("[CALL] %s - %s %s %s %s", "splitpath", drive, dir, fname, ext);
     }
 
     return 0;
