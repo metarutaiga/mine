@@ -44,6 +44,7 @@ protected:
 
     static const instruction_pointer one[256];
     static const instruction_pointer two[256];
+    static const instruction_pointer twoF3[256];
     static const instruction_pointer group[18][8];
 
     static const instruction_pointer esc[512];

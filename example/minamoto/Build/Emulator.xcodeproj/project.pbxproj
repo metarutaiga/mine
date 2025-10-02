@@ -213,6 +213,10 @@
 		F595F0272E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
 		F595F0282E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
 		F595F0292E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
+		F5A7A0762E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
+		F5A7A0772E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
+		F5A7A0782E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
+		F5A7A0792E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -372,6 +376,9 @@
 		F595F0202E6E830F000498EB /* ucrt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ucrt.cpp; sourceTree = "<group>"; };
 		F595F0252E6FE28D000498EB /* unistd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unistd.cpp; sourceTree = "<group>"; };
 		F595F02A2E71D63F000498EB /* x87.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x87.c; sourceTree = "<group>"; };
+		F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shlwapi.cpp; sourceTree = "<group>"; };
+		F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = mmx_instruction.inl; sourceTree = "<group>"; };
+		F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = sse_instruction.inl; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -497,10 +504,12 @@
 			children = (
 				F595F0032E6A99EE000498EB /* sse_instruction.cpp */,
 				F595F0022E6A99C6000498EB /* sse_instruction.h */,
+				F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */,
 				F595F0002E6A9974000498EB /* sse_register.h */,
 				F595F0012E6A999A000498EB /* sse_register.inl */,
 				F595EFF52E69DE49000498EB /* mmx_instruction.cpp */,
 				F595EFF42E69DCB4000498EB /* mmx_instruction.h */,
+				F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */,
 				F595EFF32E69D953000498EB /* mmx_register.h */,
 				F595EFFF2E69F132000498EB /* mmx_register.inl */,
 				D6C5FE4B2E2D51DB00A8E110 /* x86_arithmetic.cpp */,
@@ -670,6 +679,7 @@
 				F595EFCB2E66C1CB000498EB /* msvcprt.cpp */,
 				F595EFCD2E66C1CB000498EB /* msvcrt.cpp */,
 				F595EFCC2E66C1CB000498EB /* msvcrt.h */,
+				F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */,
 				F595EFDC2E66CEB3000498EB /* syscall_windows.cpp */,
 				F595EFDB2E66CEB3000498EB /* syscall_windows.h */,
 				F595F0202E6E830F000498EB /* ucrt.cpp */,
@@ -834,6 +844,7 @@
 				F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD32E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD22E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F5A7A0792E8EC4C700C7E565 /* shlwapi.cpp in Sources */,
 				F595EFE02E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595F0232E6E8310000498EB /* ucrt.cpp in Sources */,
 				F595EF5D2E656970000498EB /* assert.cpp in Sources */,
@@ -891,6 +902,7 @@
 				F595EFDA2E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD92E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD82E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F5A7A0772E8EC4C700C7E565 /* shlwapi.cpp in Sources */,
 				F595EFDF2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595F0242E6E8310000498EB /* ucrt.cpp in Sources */,
 				F595EF322E6568DA000498EB /* assert.cpp in Sources */,
@@ -953,6 +965,7 @@
 				F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD62E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD52E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F5A7A0762E8EC4C700C7E565 /* shlwapi.cpp in Sources */,
 				F595EFDD2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595F0212E6E8310000498EB /* ucrt.cpp in Sources */,
 				F595EF862E6569A9000498EB /* assert.cpp in Sources */,
@@ -1010,6 +1023,7 @@
 				F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD02E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFCF2E66C1CB000498EB /* msvcrt.cpp in Sources */,
+				F5A7A0782E8EC4C700C7E565 /* shlwapi.cpp in Sources */,
 				F595EFDE2E66CEB3000498EB /* syscall_windows.cpp in Sources */,
 				F595F0222E6E8310000498EB /* ucrt.cpp in Sources */,
 				F595EEFC2E655232000498EB /* assert.cpp in Sources */,
