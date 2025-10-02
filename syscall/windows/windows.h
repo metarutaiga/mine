@@ -19,6 +19,7 @@ struct Windows {
     char commandLine[256];
     char directory[260];
     uint32_t image;
+    char imageDirectory[260];
     std::vector<std::pair<std::string, void*>> modules;
     uint32_t tls[64];
     uint32_t tlsIndex;

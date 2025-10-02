@@ -571,7 +571,7 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
     auto nSize = stack[3];
 
     if (hModule == nullptr) {
-        strncpy(lpFilename, ".", nSize);
+        strncpy(lpFilename, windows->imageDirectory, nSize);
         return strlen(lpFilename);
     }
 

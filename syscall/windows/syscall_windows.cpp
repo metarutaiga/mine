@@ -183,6 +183,11 @@ static const struct {
     { "RegOpenKeyExA",              INT32(5, 2)                                                     },
     { "RegQueryValueExA",           INT32(6, 2)                                                     },
 
+    // shlwapi
+    { "PathFindFileNameA",          INT32(1, syscall_PathFindFileNameA(memory, stack))              },
+    { "PathRemoveExtensionA",       INT32(1, syscall_PathRemoveExtensionA(memory, stack))           },
+    { "PathRemoveFileSpecA",        INT32(1, syscall_PathRemoveFileSpecA(memory, stack))            },
+
     // msvcrt
     { "fopen_s",                    INT32(0, syscall_fopen_s(memory, stack, allocator))             },
     { "memcpy_s",                   INT32(0, syscall_memcpy_s(memory, stack))                       },
@@ -430,30 +435,20 @@ void syscall_windows_import(void* data, const char* file, void* image, bool exec
         import_data.windows->debugModule(file, image);
     }
 
-    if (execute)
+    if (execute) {
+        strncpy(windows->imageDirectory, file, sizeof(windows->imageDirectory));
         return;
+    }
 
     size_t entry = PE::Entry(image);
     if (entry) {
         auto& x86 = cpu->x86;
         uint32_t ret = Pop32();
-#if 1
         Push32(0);
         Push32(1);
         Push32(0);
         Push32(ret);
         Push32(entry);
-#else
-        Push32(0);
-        Push32(2);
-        Push32(0);
-        Push32(ret);
-        Push32(0);
-        Push32(1);
-        Push32(0);
-        Push32(entry);
-        Push32(entry);
-#endif
     }
 }
 
