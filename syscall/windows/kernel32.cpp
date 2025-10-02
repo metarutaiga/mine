@@ -601,7 +601,7 @@ size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
         strncpy(lpBaseName, slash + 1, nSize);
     }
 
-    if (printf) {
+    if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleBaseNameA", stack[1], lpBaseName);
     }
 
@@ -631,7 +631,7 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
         }
     }
 
-    if (printf) {
+    if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleFileNameA", stack[1], lpFilename);
     }
 
@@ -754,7 +754,6 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
             c = '/';
     }
 #endif
-    auto slash = path.find_last_of("/\\");
 
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
@@ -967,6 +966,40 @@ int syscall_LCMapStringW(uint8_t* memory, const uint32_t* stack)
     return 1;
 }
 
+int syscall_LCMapStringEx(uint8_t* memory, const uint32_t* stack)
+{
+//  auto lpLocaleName = physical(char*, stack[1]);
+//  auto dwMapFlags = stack[2];
+//  auto lpSrcStr = physical(char*, stack[3]);
+//  auto cchSrc = stack[4];
+    auto lpDestStr = physical(char*, stack[5]);
+//  auto cchDest = stack[5];
+//  auto lpVersionInformation = physical(void*, stack[6]);
+//  auto lpReserved = physical(void*, stack[7]);
+//  auto sortHandle = physical(void*, stack[8]);
+    if (lpDestStr) {
+        lpDestStr[0] = 0;
+    }
+    return 1;
+}
+
+int syscall_LCMapStringExW(uint8_t* memory, const uint32_t* stack)
+{
+//  auto lpLocaleName = physical(char16_t*, stack[1]);
+//  auto dwMapFlags = stack[2];
+//  auto lpSrcStr = physical(char16_t*, stack[3]);
+//  auto cchSrc = stack[4];
+    auto lpDestStr = physical(char16_t*, stack[5]);
+//  auto cchDest = stack[5];
+//  auto lpVersionInformation = physical(void*, stack[6]);
+//  auto lpReserved = physical(void*, stack[7]);
+//  auto sortHandle = physical(void*, stack[8]);
+    if (lpDestStr) {
+        lpDestStr[0] = 0;
+    }
+    return 1;
+}
+
 int syscall_MultiByteToWideChar(uint8_t* memory, const uint32_t* stack)
 {
 //  auto CodePage = stack[1];
@@ -1127,8 +1160,10 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
     auto* printf = physical(Printf*, offset_printf);
 
     auto lpOutputString = physical(char*, stack[1]);
-    if (printf->debugPrintf)
+    if (printf->debugPrintf) {
         printf->debugPrintf("%s", lpOutputString);
+    }
+
     return 0;
 }
 

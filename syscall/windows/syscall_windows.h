@@ -90,6 +90,8 @@ bool syscall_GetStringTypeA(const void* memory, const void* stack);
 bool syscall_GetStringTypeW(const void* memory, const void* stack);
 int syscall_LCMapStringA(const void* memory, const void* stack);
 int syscall_LCMapStringW(const void* memory, const void* stack);
+int syscall_LCMapStringEx(const void* memory, const void* stack);
+int syscall_LCMapStringExW(const void* memory, const void* stack);
 int syscall_MultiByteToWideChar(const void* memory, const void* stack);
 int syscall_WideCharToMultiByte(const void* memory, const void* stack);
 

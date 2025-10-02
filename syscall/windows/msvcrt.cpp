@@ -162,7 +162,7 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
         strncpy(ext, path + ranges[2].first, ranges[2].second);
     }
 
-    if (printf) {
+    if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s %s %s %s", "splitpath", drive, dir, fname, ext);
     }
 

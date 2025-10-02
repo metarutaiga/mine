@@ -53,6 +53,13 @@ static const struct {
     { "InterlockedExchange",        INT32(2, syscall_InterlockedExchange(memory, stack))            },
     { "InterlockedIncrement",       INT32(1, syscall_InterlockedIncrement(memory, stack))           },
 
+    // kernel32 - condition variable
+    { "InitializeConditionVariable",    INT32(1, 0)                                                 },
+    { "SleepConditionVariableCS",       INT32(3, true)                                              },
+    { "SleepConditionVariableSRW",      INT32(4, true)                                              },
+    { "WakeAllConditionVariable",       INT32(1, 0)                                                 },
+    { "WakeConditionVariable",          INT32(1, 0)                                                 },
+
     // kernel32 - critical section
     { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
     { "EnterCriticalSection",                   INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
@@ -98,6 +105,7 @@ static const struct {
     { "HeapDestroy",                INT32(1, true)                                                  },
     { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
     { "HeapFree",                   INT32(3, syscall_HeapFree(memory, stack, allocator))            },
+    { "HeapSize",                   INT32(3, 0xFFFFFFFF)                                            },
 
     // kernel32 - library
     { "DisableThreadLibraryCalls",  INT32(1, true)                                                  },
@@ -129,8 +137,11 @@ static const struct {
     { "GetLocaleInfoW",             INT32(4, syscall_GetLocalInfoW(memory, stack))                  },
     { "GetStringTypeA",             INT32(4, syscall_GetStringTypeA(memory, stack))                 },
     { "GetStringTypeW",             INT32(4, syscall_GetStringTypeW(memory, stack))                 },
+    { "IsValidCodePage",            INT32(1, true)                                                  },
     { "LCMapStringA",               INT32(6, syscall_LCMapStringA(memory, stack))                   },
     { "LCMapStringW",               INT32(6, syscall_LCMapStringW(memory, stack))                   },
+    { "LCMapStringEx",              INT32(9, syscall_LCMapStringEx(memory, stack))                  },
+    { "LCMapStringExW",             INT32(9, syscall_LCMapStringExW(memory, stack))                 },
     { "MultiByteToWideChar",        INT32(6, syscall_MultiByteToWideChar(memory, stack))            },
     { "WideCharToMultiByte",        INT32(8, syscall_WideCharToMultiByte(memory, stack))            },
 
@@ -148,6 +159,7 @@ static const struct {
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
+    { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetHandleCount",             INT32(1, 0)                                                     },
     { "SetLastError",               INT32(1, 0)                                                     },

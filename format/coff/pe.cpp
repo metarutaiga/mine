@@ -57,10 +57,18 @@ const char* PE::GetMagic(uint16_t magic)
     return "Unknown";
 }
 
+static int dummy_log(const char*, ...)
+{
+    return 0;
+}
+
 void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data, int(*log)(const char*, ...))
 {
-    if (path == nullptr || mmap == nullptr || log == nullptr)
+    if (path == nullptr || mmap == nullptr)
         return nullptr;
+
+    if (log == nullptr)
+        log = dummy_log;
 
     FILE* file = fopen(path, "rb");
     if (file == nullptr)
@@ -236,8 +244,11 @@ bool PE::SectionCode(void* image, size_t* base, size_t* address, size_t* size)
 
 void PE::Imports(void* image, size_t(*sym)(const char*, const char*, void*), void* import_data, int(*log)(const char*, ...))
 {
-    if (image == nullptr || sym == nullptr || log == nullptr)
+    if (image == nullptr || sym == nullptr)
         return;
+
+    if (log == nullptr)
+        log = dummy_log;
 
     auto image8 = (uint8_t*)image;
     OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
@@ -284,8 +295,11 @@ void PE::Exports(void* image, void(*sym)(const char*, size_t, void*), void* sym_
 
 void PE::Relocate(void* image, void* reloc, size_t delta, int(*log)(const char*, ...))
 {
-    if (image == nullptr || reloc == nullptr || log == nullptr)
+    if (image == nullptr || reloc == nullptr)
         return;
+
+    if (log == nullptr)
+        log = dummy_log;
 
     auto image8 = (uint8_t*)image;
     auto relocation = (ImageBaseRelocation*)reloc;
