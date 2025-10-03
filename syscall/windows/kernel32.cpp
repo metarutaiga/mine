@@ -14,6 +14,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define strcasecmp _stricmp
+static char* strcasestr(char const* haystack, char const* needle)
+{
+    for (size_t length = strlen(needle); (*haystack); haystack++)
+        if (_strnicmp(haystack, needle, length) == 0)
+            return (char*)haystack;
+    return NULL;
+}
 #else
 #include <fnmatch.h>
 #include <pthread.h>
