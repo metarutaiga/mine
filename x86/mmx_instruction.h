@@ -56,4 +56,20 @@ protected:
     static instruction PUNPCKLWD;   // Unpack Low Packed Data
     static instruction PUNPCKLDQ;   // Unpack Low Packed Data
     static instruction PXOR;        // Bitwise Logical Exclusive OR
+
+protected:
+    static instruction MASKMOVQ;    // Byte Mask Write
+    static instruction MOVNTQ;      // Move 64 Bits Non Temporal
+    static instruction PAVGB;       // Packed Average
+    static instruction PAVGW;       // Packed Average
+    static instruction PEXTRW;      // Extract Word
+    static instruction PINSRW;      // Insert Word
+    static instruction PMAXSW;      // Packed Signed Integer Word Maximum
+    static instruction PMAXUB;      // Packed Unsigned Integer Byte Maximum
+    static instruction PMINSW;      // Packed Signed Integer Word Minimum
+    static instruction PMINUB;      // Packed Unsigned Integer Byte Minimum
+    static instruction PMOVMSKB;    // Move Byte Mask To Integer
+    static instruction PMULHUW;     // Packed Multiply High Unsigned
+    static instruction PSADBW;      // Packed Sum of Absolute Differences
+    static instruction PSHUFW;      // Packed Shuffle Word
 };

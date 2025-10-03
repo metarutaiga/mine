@@ -22,7 +22,7 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         for (;;) {
-            if (format.prefixF2 || format.prefixF3) {
+            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
                 if (ECX == 0)
                     break;
                 ECX--;
@@ -32,10 +32,10 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
             ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
-            if (format.prefixF2 || format.prefixF3) {
-                if (format.prefixF2 && ZF == 1)
+            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
+                if (format.prefix == 0xF2 && ZF == 1)
                     break;
-                if (format.prefixF3 && ZF == 0)
+                if (format.prefix == 0xF3 && ZF == 0)
                     break;
                 continue;
             }
@@ -62,7 +62,7 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         for (;;) {
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 if (ECX == 0)
                     break;
                 ECX--;
@@ -70,7 +70,7 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
             auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
             DEST = SRC;
             ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 continue;
             }
             break;
@@ -96,7 +96,7 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         for (;;) {
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 if (ECX == 0)
                     break;
                 ECX--;
@@ -106,7 +106,7 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
             TEMP = SRC;
             ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 continue;
             }
             break;
@@ -132,7 +132,7 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         for (;;) {
-            if (format.prefixF2 || format.prefixF3) {
+            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
                 if (ECX == 0)
                     break;
                 ECX--;
@@ -140,10 +140,10 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
             auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
-            if (format.prefixF2 || format.prefixF3) {
-                if (format.prefixF2 && ZF == 1)
+            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
+                if (format.prefix == 0xF2 && ZF == 1)
                     break;
-                if (format.prefixF3 && ZF == 0)
+                if (format.prefix == 0xF3 && ZF == 0)
                     break;
                 continue;
             }
@@ -170,7 +170,7 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         for (;;) {
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 if (ECX == 0)
                     break;
                 ECX--;
@@ -178,7 +178,7 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
             auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
             TEMP = SRC;
             EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
-            if (format.prefixF3) {
+            if (format.prefix == 0xF3) {
                 continue;
             }
             break;

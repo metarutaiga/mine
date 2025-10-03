@@ -56,6 +56,19 @@ void mmx_instruction::MOVQ(Format& format, const uint8_t* opcode)
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
+void mmx_instruction::PACKSSDW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PACKSSDW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        auto TEMP = DEST;
+        DEST.i16[0] = std::clamp<int32_t>(TEMP.i32[0], INT16_MIN, INT16_MAX);
+        DEST.i16[1] = std::clamp<int32_t>(TEMP.i32[1], INT16_MIN, INT16_MAX);
+        DEST.i16[2] = std::clamp<int32_t>(SRC.i32[0], INT16_MIN, INT16_MAX);
+        DEST.i16[3] = std::clamp<int32_t>(SRC.i32[1], INT16_MIN, INT16_MAX);
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
 void mmx_instruction::PACKSSWB(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "PACKSSWB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
@@ -70,19 +83,6 @@ void mmx_instruction::PACKSSWB(Format& format, const uint8_t* opcode)
         DEST.i8[5] = std::clamp<int16_t>(SRC.i16[1], INT8_MIN, INT8_MAX);
         DEST.i8[6] = std::clamp<int16_t>(SRC.i16[2], INT8_MIN, INT8_MAX);
         DEST.i8[7] = std::clamp<int16_t>(SRC.i16[3], INT8_MIN, INT8_MAX);
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PACKSSDW(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PACKSSDW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        DEST.i16[0] = std::clamp<int32_t>(TEMP.i32[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp<int32_t>(TEMP.i32[1], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp<int32_t>(SRC.i32[0], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp<int32_t>(SRC.i32[1], INT16_MIN, INT16_MAX);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

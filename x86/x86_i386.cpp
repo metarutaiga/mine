@@ -389,9 +389,7 @@ void x86_i386::StepImplement(x86_i386& x86, Format& format)
     format.length = 1;
     format.address = 32;
     format.operand_count = 2;
-    format.prefix66 = false;
-    format.prefixF2 = false;
-    format.prefixF3 = false;
+    format.prefix = 0;
 
     auto eip = EIP;
     for (;;) {
@@ -488,7 +486,7 @@ void x86_i386::grp8(Format& format, const uint8_t* opcode)
 void x86_i386::OSIZE(Format& format, const uint8_t* opcode)
 {
     format.width = 16;
-    format.prefix66 = true;
+    format.prefix = 0x66;
 }
 //------------------------------------------------------------------------------
 void x86_i386::ASIZE(Format& format, const uint8_t* opcode)

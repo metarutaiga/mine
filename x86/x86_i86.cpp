@@ -284,9 +284,7 @@ void x86_i86::StepInternal(Format& format)
     format.length = 1;
     format.address = 16;
     format.operand_count = 2;
-    format.prefix66 = false;
-    format.prefixF2 = false;
-    format.prefixF3 = false;
+    format.prefix = 0;
 
     auto ip = IP;
     for (;;) {
