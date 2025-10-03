@@ -43,8 +43,9 @@ struct x86_format
         char address = 0;
         char operand_count = 0;
         Operand operand[3] = {};
-        bool repeatF2 = false;
-        bool repeatF3 = false;
+        bool prefix66 = false;
+        bool prefixF2 = false;
+        bool prefixF3 = false;
 
         void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, void*, void*) = nullptr;
     };

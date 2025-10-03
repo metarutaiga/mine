@@ -232,11 +232,11 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
     };
 
     std::string disasm;
-    if (format.repeatF2) {
+    if (format.prefixF2) {
         disasm += "REPNE";
         disasm += ' ';
     }
-    if (format.repeatF3) {
+    if (format.prefixF3) {
         disasm += "REPE";
         disasm += ' ';
     }

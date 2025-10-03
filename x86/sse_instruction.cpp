@@ -384,6 +384,7 @@ void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
+    // Since Katmai B0 Stepping
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type == Format::Operand::SSE) {
         format.instruction = "MOVLHPS";
     }
@@ -406,6 +407,7 @@ void sse_instruction::MOVLPS(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
+    // Since Katmai B0 Stepping
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type == Format::Operand::SSE) {
         format.instruction = "MOVHLPS";
     }

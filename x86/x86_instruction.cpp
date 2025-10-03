@@ -48,14 +48,12 @@ void x86_instruction::GS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::REPE(Format& format, const uint8_t* opcode)
 {
-    format.repeatF2 = false;
-    format.repeatF3 = true;
+    format.prefixF3 = true;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::REPNE(Format& format, const uint8_t* opcode)
 {
-    format.repeatF2 = true;
-    format.repeatF3 = false;
+    format.prefixF2 = true;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::WAIT(Format& format, const uint8_t* opcode)

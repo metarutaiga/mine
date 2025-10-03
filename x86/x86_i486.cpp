@@ -66,8 +66,9 @@ void x86_i486::StepImplement(x86_i386& x86, Format& format)
     format.length = 1;
     format.address = 32;
     format.operand_count = 2;
-    format.repeatF2 = false;
-    format.repeatF3 = false;
+    format.prefix66 = false;
+    format.prefixF2 = false;
+    format.prefixF3 = false;
 
     auto eip = EIP;
     for (;;) {

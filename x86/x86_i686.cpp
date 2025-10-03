@@ -61,22 +61,22 @@ const x86_instruction::instruction_pointer x86_i686::two[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i686::twoF3[256] =
 {      // 0           1           2           3          4          5          6         7          8           9           A           B          C           D          E         F
-/* 0 */ o grp6      x grp7      x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
-/* 1 */ x MOVSS     x MOVSS     x MOVLPS    x MOVLPS   x UNPCKLPS x UNPCKHPS x MOVHPS  x MOVHPS   x grp17     x _         x _         x _        x _         x _        x _       x _
-/* 2 */ x _         x _         x _         x _        x _        x _        x _       x _        x MOVAPS    x MOVAPS    x CVTSI2SS  x MOVNTPS  x CVTTSS2SI x CVTSS2SI x UCOMISS x COMISS
-/* 3 */ x _         x RDTSC     x _         x RDPMC    x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
-/* 4 */ x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc   x CMOVcc   x CMOVcc  x CMOVcc   x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc   x CMOVcc  x CMOVcc
-/* 5 */ x MOVMSKPS  x SQRTSS    x RSQRTSS   x RCPSS    x ANDPS    x ANDNPS   x ORPS    x XORPS    x ADDSS     x MULSS     x _         x _        x SUBSS     x MINSS    x DIVSS   x MAXSS
-/* 6 */ x PUNPCKLBW x PUNPCKLWD x PUNPCKLDQ x PACKSSWB x PCMPGTB  x PCMPGTW  x PCMPGTD x PACKUSWB x PUNPCKHBW x PUNPCKHWD x PUNPCKHDQ x PACKSSDW x _         x _        x MOVD    x MOVQ
-/* 7 */ x PSHUFW    x grp13     x grp14     x grp15    x PCMPEQB  x PCMPEQW  x PCMPEQD x EMMS     x _         x _         x _         x _        x _         x _        x MOVD    x MOVQ
-/* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc      x Jcc      x Jcc     x Jcc      x Jcc       x Jcc       x Jcc       x Jcc      x Jcc       x Jcc      x Jcc     x Jcc
-/* 9 */ x SETcc     x SETcc     x SETcc     x SETcc    x SETcc    x SETcc    x SETcc   x SETcc    x SETcc     x SETcc     x SETcc     x SETcc    x SETcc     x SETcc    x SETcc   x SETcc
-/* A */ x _         x _         x CPUID     x BT       x SHxD     x SHxD     x _       x _        x _         x _         x _         x BTS      x SHxD      x SHxD     x grp16   x IMUL
-/* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _        x _        x MOVZX   x MOVZX    x _         x _         x grp8      x BTC      x BSF       x BSR      x MOVSX   x MOVSX
-/* C */ x XADD      x XADD      x CMPSS     x _        x PINSRW   x PEXTRW   x SHUFPS  x grp9     x BSWAP     x BSWAP     x BSWAP     x BSWAP    x BSWAP     x BSWAP    x BSWAP   x BSWAP
-/* D */ x _         x PSRLW     x PSRLD     x PSRLQ    x _        x PMULLW   x _       x PMOVMSKB x PSUBUSB   x PSUBUSW   x PMINUB    x PAND     x PADDUSB   x PADDUSW  x PMAXUB  x PANDN
-/* E */ x PAVGB     x PSRAW     x PSRAD     x PAVGW    x PMULHUW  x PMULHW   x _       x MOVNTQ   x PSUBSB    x PSUBSW    x PMINSW    x POR      x PADDSB    x PADDSW   x PMAXSW  x PXOR
-/* F */ x _         x PSLLW     x PSLLD     x PSLLQ    x _        x PMADDWD  x PSADBW  x _        x PSUBB     x PSUBW     x PSUBD     x _        x PADDB     x PADDW    x PADDD   x _
+/* 0 */ o _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 1 */ x MOVSS     x MOVSS     x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 2 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x CVTSI2SS  x _        x CVTTSS2SI x CVTSS2SI x _       x _
+/* 3 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 4 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 5 */ x _         x SQRTSS    x RSQRTSS   x RCPSS    x _        x _        x _       x _        x ADDSS     x MULSS     x _         x _        x SUBSS     x MINSS    x DIVSS   x MAXSS
+/* 6 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 7 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 8 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* 9 */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* A */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* B */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* C */ x _         x _         x CMPSS     x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* D */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* E */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
+/* F */ x _         x _         x _         x _        x _        x _        x _       x _        x _         x _         x _         x _        x _         x _        x _       x _
 };
 //------------------------------------------------------------------------------
 // Opcodes determined by bits 5,4,3 of modR/M byte
@@ -180,8 +180,9 @@ void x86_i686::StepImplement(x86_i386& x86, Format& format)
     format.length = 1;
     format.address = 32;
     format.operand_count = 2;
-    format.repeatF2 = false;
-    format.repeatF3 = false;
+    format.prefix66 = false;
+    format.prefixF2 = false;
+    format.prefixF3 = false;
 
     auto eip = EIP;
     for (;;) {
@@ -220,7 +221,7 @@ void x86_i686::ESC(Format& format, const uint8_t* opcode)
 void x86_i686::TWO(Format& format, const uint8_t* opcode)
 {
     format.length = 2;
-    if (format.repeatF3) {
+    if (format.prefixF3 && twoF3[opcode[1]] != _) {
         twoF3[opcode[1]](format, opcode);
     }
     else {
