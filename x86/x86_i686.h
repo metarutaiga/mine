@@ -5,17 +5,18 @@
 //==============================================================================
 #pragma once
 
-#include "x86_i486.h"
-#include "sse_instruction.h"
+#include "x86_i586.h"
+#include "sse_register.h"
 
-struct x86_i686 : public x86_i486
-                , public sse_instruction
+struct x86_i686 : public x86_i586
 {
+    sse_register sse;
+
 public:
-    x86_i686(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i486(step) {}
+    x86_i686(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i586(step) {}
 
 protected:
-    void* Register(int type) const override;
+    const void* Register(int type) const override;
     std::string Status() const override;
 
 protected:

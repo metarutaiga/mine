@@ -102,6 +102,7 @@ struct sse2_instruction : public sse_instruction
     static instruction PSRAD;       // Packed Shift Right Arithmetic
     static instruction PSRLW;       // Packed Shift Right Logical
     static instruction PSRLD;       // Packed Shift Right Logical
+    static instruction PSRLQ;       // Packed Shift Right Logical
     static instruction PSRLDQ;      // Shift Double Quadword Right Logical
     static instruction PSUBB;       // Subtract With Wrap-around
     static instruction PSUBW;       // Subtract With Wrap-around

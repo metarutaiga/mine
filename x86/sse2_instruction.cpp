@@ -1398,6 +1398,17 @@ void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
+void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PSRLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        auto COUNT = (SRC.u8[0] % 64);
+        DEST.u64[0] = DEST.u64[0] >> COUNT;
+        DEST.u64[1] = DEST.u64[1] >> COUNT;
+    } END_OPERATION_SSE;
+}
+//------------------------------------------------------------------------------
 void sse2_instruction::PSRLDQ(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "PSRLDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);

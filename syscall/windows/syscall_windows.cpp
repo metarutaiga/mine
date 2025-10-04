@@ -29,13 +29,13 @@ extern "C" {
     uint32_t* stack
 
 #define INT32(count, value) \
-    [](CALLBACK_ARGUMENT) -> size_t { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
+    [](CALLBACK_ARGUMENT) -> size_t { x86_register& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         return count; \
     }
 #define INT64(count, value) \
-    [](CALLBACK_ARGUMENT) -> size_t { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
+    [](CALLBACK_ARGUMENT) -> size_t { x86_register& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         x86.regs[2].d = uint32_t(temp >> 32); \

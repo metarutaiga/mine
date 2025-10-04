@@ -1,14 +1,9 @@
 #pragma once
 
-#include "mmx_instruction.h"
-#include "sse_register.h"
+#include "x86_format.h"
 
-struct sse_instruction : public mmx_instruction
-                       , public sse_register
+struct sse_instruction : public x86_format
 {
-    sse_instruction& sse = (*this);
-
-protected:
     static instruction ADDPS;       // Packed Single-FP Add
     static instruction ADDSS;       // Scalar Single-FP Add
     static instruction ANDNPS;      // Bit-wise Logical And Not For Single-FP

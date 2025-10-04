@@ -18,13 +18,13 @@ extern "C" {
     void* stack
 
 #define DIV32(value) \
-    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
+    [](CALLBACK_ARGUMENT) { x86_register& x86 = cpu->x86; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp.quot); \
         x86.regs[2].d = uint32_t(temp.rem); \
     }
 #define DIV64(value) \
-    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
+    [](CALLBACK_ARGUMENT) { x86_register& x86 = cpu->x86; \
         auto stack32 = (uint32_t*)stack; \
         { \
             auto stack = stack32 + 1; \
@@ -34,18 +34,18 @@ extern "C" {
         } \
     }
 #define INT32(value) \
-    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
+    [](CALLBACK_ARGUMENT) { x86_register& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
     }
 #define INT64(value) \
-    [](CALLBACK_ARGUMENT) { x86_instruction& x86 = cpu->x86; \
+    [](CALLBACK_ARGUMENT) { x86_register& x86 = cpu->x86; \
         auto temp = value; \
         x86.regs[0].d = uint32_t(temp); \
         x86.regs[2].d = uint32_t(temp >> 32); \
     }
 #define FLT64(value) \
-    [](CALLBACK_ARGUMENT) { x87_instruction& x87 = cpu->x87; \
+    [](CALLBACK_ARGUMENT) { x87_register& x87 = cpu->x87; \
         auto temp = value; \
         x87.sts[x87.status._TOP -= 1].d = temp; \
     }

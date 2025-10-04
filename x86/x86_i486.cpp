@@ -10,14 +10,14 @@
 #include "x86_instruction.inl"
 
 //------------------------------------------------------------------------------
-#define o x86_i486::
-#define x , o
+#define X x86_i486::
+#define x , X
 //------------------------------------------------------------------------------
 // One-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i486::one[256] =
 {      // 0        1       2       3      4       5       6       7       8       9       A       B       C        D       E       F
-/* 0 */ o ADD    x ADD   x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
+/* 0 */ X ADD    x ADD   x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
 /* 1 */ x ADC    x ADC   x ADC   x ADC  x ADC   x ADC   x _     x _     x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x _     x _
 /* 2 */ x AND    x AND   x AND   x AND  x AND   x AND   x ES    x _     x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x CS    x _
 /* 3 */ x XOR    x XOR   x XOR   x XOR  x XOR   x XOR   x SS    x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x DS    x _
@@ -39,7 +39,7 @@ const x86_instruction::instruction_pointer x86_i486::one[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i486::two[256] =
 {      // 0         1         2       3       4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ o grp6    x grp7    x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
+/* 0 */ X grp6    x grp7    x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 1 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 2 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 3 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
@@ -57,7 +57,7 @@ const x86_instruction::instruction_pointer x86_i486::two[256] =
 /* F */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 };
 //------------------------------------------------------------------------------
-#undef o
+#undef X
 #undef x
 //------------------------------------------------------------------------------
 void x86_i486::StepImplement(x86_i386& x86, Format& format)

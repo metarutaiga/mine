@@ -18,14 +18,14 @@
 #include "../syscall/allocator.h"
 
 //------------------------------------------------------------------------------
-#define o x86_i386::
-#define x , o
+#define X x86_i386::
+#define x , X
 //------------------------------------------------------------------------------
 // One-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::one[256] =
 {      // 0        1       2       3      4       5       6       7       8       9       A       B       C        D       E       F
-/* 0 */ o ADD    x ADD   x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
+/* 0 */ X ADD    x ADD   x ADD   x ADD  x ADD   x ADD   x _     x _     x OR    x OR    x OR    x OR    x OR     x OR    x _     x TWO
 /* 1 */ x ADC    x ADC   x ADC   x ADC  x ADC   x ADC   x _     x _     x SBB   x SBB   x SBB   x SBB   x SBB    x SBB   x _     x _
 /* 2 */ x AND    x AND   x AND   x AND  x AND   x AND   x ES    x _     x SUB   x SUB   x SUB   x SUB   x SUB    x SUB   x CS    x _
 /* 3 */ x XOR    x XOR   x XOR   x XOR  x XOR   x XOR   x SS    x _     x CMP   x CMP   x CMP   x CMP   x CMP    x CMP   x DS    x _
@@ -47,7 +47,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::two[256] =
 {      // 0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ o grp6  x grp7  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
+/* 0 */ X grp6  x grp7  x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 1 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 2 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 3 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
@@ -69,22 +69,22 @@ const x86_instruction::instruction_pointer x86_i386::two[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::group[9][8] =
 {        // 0      1     2      3     4     5      6      7
-/* 0 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
-/* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
-/* 2 */ { o Rxx  x Rxx x Rxx  x Rxx x Sxx x Sxx  x _    x Sxx  },
-/* 3 */ { o TEST x _   x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
-/* 4 */ { o INC  x DEC x _    x _   x _   x _    x _    x _    },
-/* 5 */ { o INC  x DEC x CALL x _   x JMP x _    x PUSH x _    },
-/* 6 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
-/* 7 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
-/* 8 */ { o _    x _   x _    x _   x BT  x BTS  x BTR  x BTC  },
+/* 0 */ { X _    x _   x _    x _   x _   x _    x _    x _    },
+/* 1 */ { X ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
+/* 2 */ { X Rxx  x Rxx x Rxx  x Rxx x Sxx x Sxx  x _    x Sxx  },
+/* 3 */ { X TEST x _   x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
+/* 4 */ { X INC  x DEC x _    x _   x _   x _    x _    x _    },
+/* 5 */ { X INC  x DEC x CALL x _   x JMP x _    x PUSH x _    },
+/* 6 */ { X _    x _   x _    x _   x _   x _    x _    x _    },
+/* 7 */ { X _    x _   x _    x _   x _   x _    x _    x _    },
+/* 8 */ { X _    x _   x _    x _   x BT  x BTS  x BTR  x BTC  },
 };
 //------------------------------------------------------------------------------
 // Escape Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::esc[512] =
 {            // 0        1        2        3        4         5        6         7         8        9         A        B         C         D        E        F
-/* D8 048C */ o FADD   x FADD   x FADD   x FADD   x FADD    x FADD   x FADD    x FADD    x FMUL   x FMUL    x FMUL   x FMUL    x FMUL    x FMUL   x FMUL   x FMUL
+/* D8 048C */ X FADD   x FADD   x FADD   x FADD   x FADD    x FADD   x FADD    x FADD    x FMUL   x FMUL    x FMUL   x FMUL    x FMUL    x FMUL   x FMUL   x FMUL
 /* D8 159D */ x FCOM   x FCOM   x FCOM   x FCOM   x FCOM    x FCOM   x FCOM    x FCOM    x FCOMP  x FCOMP   x FCOMP  x FCOMP   x FCOMP   x FCOMP  x FCOMP  x FCOMP
 /* D8 26AE */ x FSUB   x FSUB   x FSUB   x FSUB   x FSUB    x FSUB   x FSUB    x FSUB    x FSUBR  x FSUBR   x FSUBR  x FSUBR   x FSUBR   x FSUBR  x FSUBR  x FSUBR
 /* D8 37BF */ x FDIV   x FDIV   x FDIV   x FDIV   x FDIV    x FDIV   x FDIV    x FDIV    x FDIVR  x FDIVR   x FDIVR  x FDIVR   x FDIVR   x FDIVR  x FDIVR  x FDIVR
@@ -120,17 +120,17 @@ const x86_instruction::instruction_pointer x86_i386::esc[512] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i386::escMOD[8][8] =
 {         // 0       1       2       3        4        5        6        7
-/* D8 */ { o FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
-/* D9 */ { o FLD   x _     x FST   x FSTP   x _      x FLDCW  x _      x FSTCW  },
-/* DA */ { o FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
-/* DB */ { o FILD  x _     x FIST  x FISTP  x _      x FLD    x _      x FSTP   },
-/* DC */ { o FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
-/* DD */ { o FLD   x _     x FST   x FSTP   x _      x _      x _      x FSTSW  },
-/* DE */ { o FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
-/* DF */ { o FILD  x _     x FIST  x FISTP  x _      x FILD   x _      x FISTP  },
+/* D8 */ { X FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
+/* D9 */ { X FLD   x _     x FST   x FSTP   x _      x FLDCW  x _      x FSTCW  },
+/* DA */ { X FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
+/* DB */ { X FILD  x _     x FIST  x FISTP  x _      x FLD    x _      x FSTP   },
+/* DC */ { X FADD  x FMUL  x FCOM  x FCOMP  x FSUB   x FSUBR  x FDIV   x FDIVR  },
+/* DD */ { X FLD   x _     x FST   x FSTP   x _      x _      x _      x FSTSW  },
+/* DE */ { X FIADD x FIMUL x FICOM x FICOMP x FISUB  x FISUBR x FIDIV  x FIDIVR },
+/* DF */ { X FILD  x _     x FIST  x FISTP  x _      x FILD   x _      x FISTP  },
 };
 //------------------------------------------------------------------------------
-#undef o
+#undef X
 #undef x
 //------------------------------------------------------------------------------
 x86_i386::~x86_i386()
@@ -162,8 +162,6 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i386::Step(int count)
 {
-    auto& x86 = *(x86_register*)this;
-    auto& x87 = *(x87_register*)this;
     auto& mmx = *(mmx_register*)Register('mmx ');
     auto& sse = *(sse_register*)Register('sse ');
 
@@ -237,13 +235,13 @@ bool x86_i386::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void* x86_i386::Register(int type) const
+const void* x86_i386::Register(int type) const
 {
     switch (type) {
     case 'x86 ':
-        return (x86_register*)this;
+        return &x86;
     case 'x87 ':
-        return (x87_register*)this;
+        return &x87;
     }
     return nullptr;
 }
@@ -319,18 +317,18 @@ std::string x86_i386::Status() const
 
     // FPU
     for (int i = 0; i < 8; ++i) {
-        push_second_line("ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
+        push_second_line("ST(%d)   %016llX", i, (uint64_t&)x87.sts[(x87.status._TOP + i) % 8].d);
     }
     push_second_line("");
-    push_second_line("%-8s%04X", "CONTROL", control.w);
-    push_second_line("%-8s%04X", "STATUS", status.w);
+    push_second_line("%-8s%04X", "CONTROL", x87.control.w);
+    push_second_line("%-8s%04X", "STATUS", x87.status.w);
 
     for (int i = 0; i < 16; ++i) {
         static const char* name = "B3TTT210ESPUOZDI";
-        temp[i] = (status.w & (1 << (15 - i))) ? name[i] : '.';
+        temp[i] = (x87.status.w & (1 << (15 - i))) ? name[i] : '.';
     }
     temp[2] = ' ';
-    temp[3] = '0' + status._TOP;
+    temp[3] = '0' + x87.status._TOP;
     temp[4] = ' ';
     push_second_line("%.16s", temp);
 

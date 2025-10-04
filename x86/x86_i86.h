@@ -10,17 +10,22 @@
 
 #include "x86_instruction.h"
 #include "x87_instruction.h"
+#include "x86_register.h"
+#include "x87_register.h"
 
 struct x86_i86 : public mine
                , public x86_instruction
                , public x87_instruction
 {
+    x86_register& x86 = (*this);
+    x87_register x87;
+
 public:
     virtual ~x86_i86();
     bool Initialize(allocator_t* allocator, size_t stack) override;
     bool Step(int count) override;
     bool Jump(size_t address) override;
-    void* Register(int type) const override;
+    const void* Register(int type) const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;
     size_t Stack() const override;
     size_t Program() const override;

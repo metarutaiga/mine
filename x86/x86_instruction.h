@@ -6,9 +6,6 @@
 struct x86_instruction : public x86_format
                        , public x86_register
 {
-    x86_instruction& x86 = (*this);
-
-protected:
     static instruction _;
 
     static instruction CS;          // CS segment override prefix

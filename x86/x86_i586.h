@@ -6,16 +6,17 @@
 #pragma once
 
 #include "x86_i486.h"
-#include "mmx_instruction.h"
+#include "mmx_register.h"
 
 struct x86_i586 : public x86_i486
-                , public mmx_instruction
 {
+    mmx_register mmx;
+
 public:
     x86_i586(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i486(step) {}
 
 protected:
-    void* Register(int type) const override;
+    const void* Register(int type) const override;
 
 protected:
     static void StepImplement(x86_i386& x86, Format& format);

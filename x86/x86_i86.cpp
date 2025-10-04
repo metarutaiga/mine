@@ -78,8 +78,6 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i86::Step(int count)
 {
-    auto& x86 = *(x86_register*)this;
-    auto& x87 = *(x87_register*)this;
     auto& mmx = *(mmx_register*)Register('mmx ');
     auto& sse = *(sse_register*)Register('sse ');
 
@@ -140,13 +138,13 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
-void* x86_i86::Register(int type) const
+const void* x86_i86::Register(int type) const
 {
     switch (type) {
     case 'x86 ':
-        return (x86_register*)this;
+        return &x86;
     case 'x87 ':
-        return (x87_register*)this;
+        return &x87;
     }
     return nullptr;
 }
@@ -223,11 +221,11 @@ std::string x86_i86::Status() const
 
     // FPU
     for (int i = 0; i < 8; ++i) {
-        push_second_line("ST(%d)   %016llX", i, (uint64_t&)sts[(status._TOP + i) % 8].d);
+        push_second_line("ST(%d)   %016llX", i, (uint64_t&)x87.sts[(x87.status._TOP + i) % 8].d);
     }
     push_second_line("");
-    push_second_line("%-8s%04X", "CONTROL", control.w);
-    push_second_line("%-8s%04X", "STATUS", status.w);
+    push_second_line("%-8s%04X", "CONTROL", x87.control.w);
+    push_second_line("%-8s%04X", "STATUS", x87.status.w);
 
     return output;
 }

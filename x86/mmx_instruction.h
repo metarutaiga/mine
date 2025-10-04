@@ -1,14 +1,9 @@
 #pragma once
 
 #include "x86_format.h"
-#include "mmx_register.h"
 
 struct mmx_instruction : public x86_format
-                       , public mmx_register
 {
-    mmx_instruction& mmx = (*this);
-
-protected:
     static instruction EMMS;        // Empty MMX State
     static instruction MOVD;        // Move 32 Bits
     static instruction MOVQ;        // Move 64 Bits
@@ -57,7 +52,7 @@ protected:
     static instruction PUNPCKLDQ;   // Unpack Low Packed Data
     static instruction PXOR;        // Bitwise Logical Exclusive OR
 
-protected:
+    // SSE instruction set
     static instruction MASKMOVQ;    // Byte Mask Write
     static instruction MOVNTQ;      // Move 64 Bits Non Temporal
     static instruction PAVGB;       // Packed Average

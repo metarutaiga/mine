@@ -1,14 +1,9 @@
 #pragma once
 
 #include "x86_format.h"
-#include "x87_register.h"
 
 struct x87_instruction : public x86_format
-                       , public x87_register
 {
-    x87_instruction& x87 = (*this);
-
-protected:
     static instruction F2XM1;       // Compute 2x-1
     static instruction FABS;        // Absolute value
     static instruction FADD;        // Floating point add
