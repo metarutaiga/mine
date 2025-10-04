@@ -6,7 +6,6 @@
 #pragma once
 
 #include "x86_i686.h"
-#include "sse_instruction.h"
 
 struct x86_ia32 : public x86_i686
 {
@@ -42,8 +41,8 @@ protected:
     static const instruction_pointer two66[256];
     static const instruction_pointer twoF2[256];
     static const instruction_pointer twoF3[256];
-    static const instruction_pointer group[18][8];
-    static const instruction_pointer group66[18][8];
+    static const instruction_pointer group[17][2][8];
+    static const instruction_pointer group66[17][2][8];
 
     static const instruction_pointer escMOD[8][8];
 };

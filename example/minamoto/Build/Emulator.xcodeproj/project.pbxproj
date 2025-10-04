@@ -221,18 +221,18 @@
 		F5A7A07F2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */; };
 		F5A7A0802E8F8C5400C7E565 /* mmx_sse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */; };
 		F5A7A0812E8F8C5400C7E565 /* mmx_sse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */; };
-		F5A7A0832E8FBCC500C7E565 /* sse_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */; };
-		F5A7A0842E8FBCC500C7E565 /* sse_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */; };
-		F5A7A0852E8FBCC500C7E565 /* sse_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */; };
-		F5A7A0862E8FBCC500C7E565 /* sse_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */; };
+		F5A7A0832E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */; };
+		F5A7A0842E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */; };
+		F5A7A0852E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */; };
+		F5A7A0862E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */; };
 		F5A7A0892E8FD9C200C7E565 /* x86_ia32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */; };
 		F5A7A08A2E8FD9C200C7E565 /* x86_ia32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */; };
 		F5A7A08B2E8FD9C200C7E565 /* x86_ia32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */; };
 		F5A7A08C2E8FD9C200C7E565 /* x86_ia32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */; };
-		F5A7A08E2E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */; };
-		F5A7A08F2E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */; };
-		F5A7A0902E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */; };
-		F5A7A0912E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */; };
+		F5A7A08E2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */; };
+		F5A7A08F2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */; };
+		F5A7A0902E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */; };
+		F5A7A0912E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */; };
 		F5E5B1912D6C5FF7008E0D21 /* imgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */; };
 		F5E5B19D2D6C65A0008E0D21 /* imgui.dll in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B19C2D6C65A0008E0D21 /* imgui.dll */; };
 		F5E5B1A12D6C65C7008E0D21 /* libcxx.Windows.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E5B1A02D6C65C7008E0D21 /* libcxx.Windows.lib */; };
@@ -272,6 +272,8 @@
 		D60EC62926A85B120051A948 /* ClangPlatform.Android.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = ClangPlatform.Android.xcconfig; path = ../../../../ClangPlatform/ClangPlatform.Android.xcconfig; sourceTree = "<group>"; };
 		D6169D092BB17E3100E5490C /* new.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = new.cpp; path = "../../../../ClangPlatform/windows-msvc/new.cpp"; sourceTree = "<group>"; };
 		D6169D0B2BB17E4900E5490C /* ucrt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ucrt.cpp; path = "../../../../ClangPlatform/windows-msvc/ucrt.cpp"; sourceTree = "<group>"; };
+		D61CAA8E2E90CDB30031B205 /* sse2_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sse2_instruction.h; sourceTree = "<group>"; };
+		D61CAA8F2E90CDC60031B205 /* sse3_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sse3_instruction.h; sourceTree = "<group>"; };
 		D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dllmain.cpp; path = "../../../../ClangPlatform/windows-msvc/dllmain.cpp"; sourceTree = "<group>"; };
 		D644A041231ED82900B75B77 /* Emulator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Emulator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6909FAC2E1A7FFD0023F7B5 /* EmulatorEntry.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EmulatorEntry.cpp; sourceTree = "<group>"; };
@@ -396,10 +398,10 @@
 		F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = mmx_instruction.inl; sourceTree = "<group>"; };
 		F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = sse_instruction.inl; sourceTree = "<group>"; };
 		F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mmx_sse.cpp; sourceTree = "<group>"; };
-		F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse_sse2.cpp; sourceTree = "<group>"; };
+		F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse2_instruction.cpp; sourceTree = "<group>"; };
 		F5A7A0872E8FD9C200C7E565 /* x86_ia32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x86_ia32.h; sourceTree = "<group>"; };
 		F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_ia32.cpp; sourceTree = "<group>"; };
-		F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse_sse3.cpp; sourceTree = "<group>"; };
+		F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse3_instruction.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -528,8 +530,10 @@
 				F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */,
 				F595F0002E6A9974000498EB /* sse_register.h */,
 				F595F0012E6A999A000498EB /* sse_register.inl */,
-				F5A7A0822E8FBCC100C7E565 /* sse_sse2.cpp */,
-				F5A7A08D2E8FDFF600C7E565 /* sse_sse3.cpp */,
+				F5A7A0822E8FBCC100C7E565 /* sse2_instruction.cpp */,
+				D61CAA8E2E90CDB30031B205 /* sse2_instruction.h */,
+				F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */,
+				D61CAA8F2E90CDC60031B205 /* sse3_instruction.h */,
 				F595EFF52E69DE49000498EB /* mmx_instruction.cpp */,
 				F595EFF42E69DCB4000498EB /* mmx_instruction.h */,
 				F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */,
@@ -845,8 +849,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F595F0052E6A99EF000498EB /* sse_instruction.cpp in Sources */,
-				F5A7A0842E8FBCC500C7E565 /* sse_sse2.cpp in Sources */,
-				F5A7A08E2E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */,
+				F5A7A0842E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
+				F5A7A08E2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
 				F595EFF72E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F5A7A07E2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
 				F595EF6E2E656989000498EB /* x86_arithmetic.cpp in Sources */,
@@ -907,8 +911,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F595F0042E6A99EF000498EB /* sse_instruction.cpp in Sources */,
-				F5A7A0862E8FBCC500C7E565 /* sse_sse2.cpp in Sources */,
-				F5A7A08F2E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */,
+				F5A7A0862E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
+				F5A7A08F2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
 				F595EFF82E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F5A7A0812E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
 				F595EF482E656900000498EB /* x86_arithmetic.cpp in Sources */,
@@ -974,8 +978,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F595F0072E6A99EF000498EB /* sse_instruction.cpp in Sources */,
-				F5A7A0832E8FBCC500C7E565 /* sse_sse2.cpp in Sources */,
-				F5A7A0902E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */,
+				F5A7A0832E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
+				F5A7A0902E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
 				F595EFF62E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F5A7A07F2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
 				F595EF972E6569C3000498EB /* x86_arithmetic.cpp in Sources */,
@@ -1036,8 +1040,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F595F0062E6A99EF000498EB /* sse_instruction.cpp in Sources */,
-				F5A7A0852E8FBCC500C7E565 /* sse_sse2.cpp in Sources */,
-				F5A7A0912E8FDFFB00C7E565 /* sse_sse3.cpp in Sources */,
+				F5A7A0852E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
+				F5A7A0912E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
 				F595EFF92E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
 				F5A7A0802E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
 				F595EF102E65525E000498EB /* x86_arithmetic.cpp in Sources */,
