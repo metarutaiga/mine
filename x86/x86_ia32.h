@@ -18,6 +18,8 @@ protected:
 protected:
     static instruction ESC;
     static instruction TWO;
+    static instruction THREE38;
+    static instruction THREE3A;
 
     static instruction grp1;
     static instruction grp2;
@@ -41,6 +43,10 @@ protected:
     static const instruction_pointer two66[256];
     static const instruction_pointer twoF2[256];
     static const instruction_pointer twoF3[256];
+    static const instruction_pointer three38[256];
+    static const instruction_pointer three3A[256];
+    static const instruction_pointer three6638[256];
+    static const instruction_pointer three663A[256];
     static const instruction_pointer group[17][2][8];
     static const instruction_pointer group66[17][2][8];
 

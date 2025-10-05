@@ -190,6 +190,8 @@ static const struct {
 //  { "WaitForSingleObject",        INT32(2, 0xFFFFFFFF)                                            },
 
     // advapi32
+    { "EventRegister",              INT32(4, 0)                                                     },
+    { "EventUnregister",            INT32(1, 0)                                                     },
     { "RegCloseKey",                INT32(1, 0)                                                     },
     { "RegOpenKeyA",                INT32(3, 2)                                                     },
     { "RegOpenKeyExA",              INT32(5, 2)                                                     },

@@ -3,6 +3,8 @@
 #include "x86_register.inl"
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
+#include "x87_register.h"
+#include "x87_register.inl"
 #include "mmx_register.h"
 #include "mmx_register.inl"
 #include "mmx_instruction.h"
@@ -15,7 +17,9 @@ void mmx_instruction::EMMS(Format& format, const uint8_t* opcode)
 {
     format.instruction = "EMMS";
 
-    OPERATION() {};
+    OPERATION() {
+        TOP = 0;
+    };
 }
 //------------------------------------------------------------------------------
 void mmx_instruction::MOVD(Format& format, const uint8_t* opcode)
@@ -220,14 +224,14 @@ void mmx_instruction::PCMPEQB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (DEST.i8[0] == SRC.i8[0]) ? 0xFF : 0;
-        DEST.i8[1] = (DEST.i8[1] == SRC.i8[1]) ? 0xFF : 0;
-        DEST.i8[2] = (DEST.i8[2] == SRC.i8[2]) ? 0xFF : 0;
-        DEST.i8[3] = (DEST.i8[3] == SRC.i8[3]) ? 0xFF : 0;
-        DEST.i8[4] = (DEST.i8[4] == SRC.i8[4]) ? 0xFF : 0;
-        DEST.i8[5] = (DEST.i8[5] == SRC.i8[5]) ? 0xFF : 0;
-        DEST.i8[6] = (DEST.i8[6] == SRC.i8[6]) ? 0xFF : 0;
-        DEST.i8[7] = (DEST.i8[7] == SRC.i8[7]) ? 0xFF : 0;
+        DEST.i8[0] = (DEST.i8[0] == SRC.i8[0]) ? -1 : 0;
+        DEST.i8[1] = (DEST.i8[1] == SRC.i8[1]) ? -1 : 0;
+        DEST.i8[2] = (DEST.i8[2] == SRC.i8[2]) ? -1 : 0;
+        DEST.i8[3] = (DEST.i8[3] == SRC.i8[3]) ? -1 : 0;
+        DEST.i8[4] = (DEST.i8[4] == SRC.i8[4]) ? -1 : 0;
+        DEST.i8[5] = (DEST.i8[5] == SRC.i8[5]) ? -1 : 0;
+        DEST.i8[6] = (DEST.i8[6] == SRC.i8[6]) ? -1 : 0;
+        DEST.i8[7] = (DEST.i8[7] == SRC.i8[7]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -236,10 +240,10 @@ void mmx_instruction::PCMPEQW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = (DEST.i16[0] == SRC.i16[0]) ? 0xFFFF : 0;
-        DEST.i16[1] = (DEST.i16[1] == SRC.i16[1]) ? 0xFFFF : 0;
-        DEST.i16[2] = (DEST.i16[2] == SRC.i16[2]) ? 0xFFFF : 0;
-        DEST.i16[3] = (DEST.i16[3] == SRC.i16[3]) ? 0xFFFF : 0;
+        DEST.i16[0] = (DEST.i16[0] == SRC.i16[0]) ? -1 : 0;
+        DEST.i16[1] = (DEST.i16[1] == SRC.i16[1]) ? -1 : 0;
+        DEST.i16[2] = (DEST.i16[2] == SRC.i16[2]) ? -1 : 0;
+        DEST.i16[3] = (DEST.i16[3] == SRC.i16[3]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -248,8 +252,8 @@ void mmx_instruction::PCMPEQD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQD", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = (DEST.i32[0] == SRC.i32[0]) ? 0xFFFFFFFF : 0;
-        DEST.i32[1] = (DEST.i32[1] == SRC.i32[1]) ? 0xFFFFFFFF : 0;
+        DEST.i32[0] = (DEST.i32[0] == SRC.i32[0]) ? -1 : 0;
+        DEST.i32[1] = (DEST.i32[1] == SRC.i32[1]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -258,14 +262,14 @@ void mmx_instruction::PCMPGTB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (DEST.i8[0] > SRC.i8[0]) ? 0xFF : 0;
-        DEST.i8[1] = (DEST.i8[1] > SRC.i8[1]) ? 0xFF : 0;
-        DEST.i8[2] = (DEST.i8[2] > SRC.i8[2]) ? 0xFF : 0;
-        DEST.i8[3] = (DEST.i8[3] > SRC.i8[3]) ? 0xFF : 0;
-        DEST.i8[4] = (DEST.i8[4] > SRC.i8[4]) ? 0xFF : 0;
-        DEST.i8[5] = (DEST.i8[5] > SRC.i8[5]) ? 0xFF : 0;
-        DEST.i8[6] = (DEST.i8[6] > SRC.i8[6]) ? 0xFF : 0;
-        DEST.i8[7] = (DEST.i8[7] > SRC.i8[7]) ? 0xFF : 0;
+        DEST.i8[0] = (DEST.i8[0] > SRC.i8[0]) ? -1 : 0;
+        DEST.i8[1] = (DEST.i8[1] > SRC.i8[1]) ? -1 : 0;
+        DEST.i8[2] = (DEST.i8[2] > SRC.i8[2]) ? -1 : 0;
+        DEST.i8[3] = (DEST.i8[3] > SRC.i8[3]) ? -1 : 0;
+        DEST.i8[4] = (DEST.i8[4] > SRC.i8[4]) ? -1 : 0;
+        DEST.i8[5] = (DEST.i8[5] > SRC.i8[5]) ? -1 : 0;
+        DEST.i8[6] = (DEST.i8[6] > SRC.i8[6]) ? -1 : 0;
+        DEST.i8[7] = (DEST.i8[7] > SRC.i8[7]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -274,10 +278,10 @@ void mmx_instruction::PCMPGTW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = (DEST.i16[0] > SRC.i16[0]) ? 0xFFFF : 0;
-        DEST.i16[1] = (DEST.i16[1] > SRC.i16[1]) ? 0xFFFF : 0;
-        DEST.i16[2] = (DEST.i16[2] > SRC.i16[2]) ? 0xFFFF : 0;
-        DEST.i16[3] = (DEST.i16[3] > SRC.i16[3]) ? 0xFFFF : 0;
+        DEST.i16[0] = (DEST.i16[0] > SRC.i16[0]) ? -1 : 0;
+        DEST.i16[1] = (DEST.i16[1] > SRC.i16[1]) ? -1 : 0;
+        DEST.i16[2] = (DEST.i16[2] > SRC.i16[2]) ? -1 : 0;
+        DEST.i16[3] = (DEST.i16[3] > SRC.i16[3]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -286,8 +290,8 @@ void mmx_instruction::PCMPGTD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTD", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = (DEST.i32[0] > SRC.i32[0]) ? 0xFFFFFFFF : 0;
-        DEST.i32[1] = (DEST.i32[1] > SRC.i32[1]) ? 0xFFFFFFFF : 0;
+        DEST.i32[0] = (DEST.i32[0] > SRC.i32[0]) ? -1 : 0;
+        DEST.i32[1] = (DEST.i32[1] > SRC.i32[1]) ? -1 : 0;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

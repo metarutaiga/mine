@@ -96,10 +96,10 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
         format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
-        format.operand[1].flags = Format::Operand::HIDE;
-        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
         format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].base = IndexREG(EAX);
         break;
     }
@@ -122,10 +122,10 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
         format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
-        format.operand[1].flags = Format::Operand::HIDE;
-        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
         format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].base = IndexREG(EAX);
         break;
     }
@@ -158,10 +158,10 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
         format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
-        format.operand[1].flags = Format::Operand::HIDE;
-        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
         format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].base = IndexREG(EAX);
         break;
     }
@@ -229,10 +229,10 @@ void x86_instruction::MUL(Format& format, const uint8_t* opcode)
         format.operand_count = 3;
         format.operand[2] = format.operand[1];
         format.operand[1].type = Format::Operand::REG;
-        format.operand[1].flags = Format::Operand::HIDE;
-        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].type = Format::Operand::REG;
+        format.operand[1].flags = Format::Operand::HIDE;
         format.operand[0].flags = Format::Operand::HIDE;
+        format.operand[1].base = (format.width == 8) ? IndexREG(ESP) : IndexREG(EDX);
         format.operand[0].base = IndexREG(EAX);
         break;
     }

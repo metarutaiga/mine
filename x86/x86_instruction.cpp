@@ -178,12 +178,12 @@ void x86_instruction::CWD(Format& format, const uint8_t* opcode)
     case 64:    format.instruction = "CQO"; break;
 #endif
     }
-    format.operand[1].type = Format::Operand::REG;
-    format.operand[1].flags = Format::Operand::HIDE;
-    format.operand[1].base = IndexREG(EAX);
     format.operand[0].type = Format::Operand::REG;
+    format.operand[1].type = Format::Operand::REG;
     format.operand[0].flags = Format::Operand::HIDE;
+    format.operand[1].flags = Format::Operand::HIDE;
     format.operand[0].base = IndexREG(EDX);
+    format.operand[1].base = IndexREG(EAX);
 
     BEGIN_OPERATION() {
         const auto& SRC = (std::make_signed_t<std::remove_reference_t<decltype(SRC1)>>&)SRC1;
@@ -193,8 +193,8 @@ void x86_instruction::CWD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
 {
-    format.length = 4;
     format.instruction = "ENTER";
+    format.length = 4;
     format.operand[0].type = Format::Operand::IMM;
     format.operand[1].type = Format::Operand::IMM;
     format.operand[0].displacement = IMM16(opcode, 1);
@@ -356,11 +356,11 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
     case 0xE1:  Decode(format, opcode, "LOOPZ", 1, 8, OPERAND_SIZE | RELATIVE);     break;
     case 0xE2:  Decode(format, opcode, "LOOP", 1, 8, OPERAND_SIZE | RELATIVE);      break;
     }
+    format.operand[0].type = Format::Operand::IMM;
     format.operand[1].type = Format::Operand::REG;
+    format.operand[0].flags = Format::Operand::HIDE;
     format.operand[1].flags = Format::Operand::HIDE;
     format.operand[1].base = IndexREG(ECX);
-    format.operand[0].type = Format::Operand::IMM;
-    format.operand[0].flags = Format::Operand::HIDE;
 
     BEGIN_OPERATION() {
         auto CountReg = SRC;

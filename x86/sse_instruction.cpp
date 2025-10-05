@@ -67,66 +67,66 @@ void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
     switch (format.operand[2].displacement) {
     case 0:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] == SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] == SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] == SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] == SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] == SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] == SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] == SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 1:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] < SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] < SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] < SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] < SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] < SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] < SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] < SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] < SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 2:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] <= SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] <= SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] <= SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] <= SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] <= SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] <= SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] <= SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] <= SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] == SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] == SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] == SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] == SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] == SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] == SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] == SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] != SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] != SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] != SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] != SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] != SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] != SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] != SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 5:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] >= SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] >= SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] >= SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] >= SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] >= SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] >= SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] >= SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] >= SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 6:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] > SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] > SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] > SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] > SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] > SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] > SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] > SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] > SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] != SRC.f32[0]) ? 0xFFFFFFFF : 0;
-            DEST.f32[1] = (DEST.f32[1] != SRC.f32[1]) ? 0xFFFFFFFF : 0;
-            DEST.f32[2] = (DEST.f32[2] != SRC.f32[2]) ? 0xFFFFFFFF : 0;
-            DEST.f32[3] = (DEST.f32[3] != SRC.f32[3]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = (DEST.f32[1] != SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = (DEST.f32[2] != SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = (DEST.f32[3] != SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
@@ -139,42 +139,42 @@ void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
     switch (format.operand[2].displacement) {
     case 0:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] == SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 1:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] < SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] < SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 2:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] <= SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] <= SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] == SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] != SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 5:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] >= SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] >= SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 6:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] > SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] > SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.f32[0] = (DEST.f32[0] != SRC.f32[0]) ? 0xFFFFFFFF : 0;
+            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
