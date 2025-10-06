@@ -11,44 +11,6 @@
 //------------------------------------------------------------------------------
 //
 //------------------------------------------------------------------------------
-void mmx_instruction::PSIGNB(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PSIGNB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
-        DEST.i8[1] = SRC.i8[1] <= 0 ? SRC.i8[1] < 0 ? -DEST.i8[1] : 0 : DEST.i8[1];
-        DEST.i8[2] = SRC.i8[2] <= 0 ? SRC.i8[2] < 0 ? -DEST.i8[2] : 0 : DEST.i8[2];
-        DEST.i8[3] = SRC.i8[3] <= 0 ? SRC.i8[3] < 0 ? -DEST.i8[3] : 0 : DEST.i8[3];
-        DEST.i8[4] = SRC.i8[4] <= 0 ? SRC.i8[4] < 0 ? -DEST.i8[4] : 0 : DEST.i8[4];
-        DEST.i8[5] = SRC.i8[5] <= 0 ? SRC.i8[5] < 0 ? -DEST.i8[5] : 0 : DEST.i8[5];
-        DEST.i8[6] = SRC.i8[6] <= 0 ? SRC.i8[6] < 0 ? -DEST.i8[6] : 0 : DEST.i8[6];
-        DEST.i8[7] = SRC.i8[7] <= 0 ? SRC.i8[7] < 0 ? -DEST.i8[7] : 0 : DEST.i8[7];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PSIGNW(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PSIGNW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
-        DEST.i16[1] = SRC.i16[1] <= 0 ? SRC.i16[1] < 0 ? -DEST.i16[1] : 0 : DEST.i16[1];
-        DEST.i16[2] = SRC.i16[2] <= 0 ? SRC.i16[2] < 0 ? -DEST.i16[2] : 0 : DEST.i16[2];
-        DEST.i16[3] = SRC.i16[3] <= 0 ? SRC.i16[3] < 0 ? -DEST.i16[3] : 0 : DEST.i16[3];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PSIGND(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PSIGND", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];
-        DEST.i32[1] = SRC.i32[1] <= 0 ? SRC.i32[1] < 0 ? -DEST.i32[1] : 0 : DEST.i32[1];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
 void mmx_instruction::PABSB(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "PABSB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
@@ -94,19 +56,128 @@ void mmx_instruction::PALIGNR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint8_t COUNT = SRC2.u8[0];
         if (COUNT > 15) {
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < 8; ++i) {
                 DEST.u8[i] = 0;
+            }
         }
         else {
-            uint8_t TMP[16];
-            for (int i = 0; i < 8; ++i)
-                TMP[i] = DEST.u8[i];
-            for (int i = 0; i < 8; ++i)
-                TMP[16 + i] = SRC.u8[i];
-
-            for (int i = 0; i < 8; ++i)
-                DEST.u8[i] = TMP[COUNT + i];
+            uint8_t TEMP[16];
+            for (int i = 0; i < 8; ++i) {
+                TEMP[i] = DEST.u8[i];
+            }
+            for (int i = 0; i < 8; ++i) {
+                TEMP[16 + i] = SRC.u8[i];
+            }
+            for (int i = 0; i < 8; ++i) {
+                DEST.u8[i] = TEMP[COUNT + i];
+            }
         }
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHADDW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHADDW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16 = {
+            int16_t(DEST.i16[1] + DEST.i16[0]),
+            int16_t(DEST.i16[3] + DEST.i16[2]),
+            int16_t(SRC.i16[1] + SRC.i16[0]),
+            int16_t(SRC.i16[3] + SRC.i16[2]),
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHADDD(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHADDD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i32 = {
+            DEST.i32[1] + DEST.i32[0],
+            SRC.i32[1] + SRC.i32[0],
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHADDSW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHADDSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16 = {
+            int16_t(std::clamp<int32_t>(DEST.i16[1] + DEST.i16[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i16[3] + DEST.i16[2], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i16[1] + SRC.i16[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i16[3] + SRC.i16[2], INT16_MIN, INT16_MAX)),
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHSUBW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHSUBW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16 = {
+            int16_t(DEST.i16[1] - DEST.i16[0]),
+            int16_t(DEST.i16[3] - DEST.i16[2]),
+            int16_t(SRC.i16[1] - SRC.i16[0]),
+            int16_t(SRC.i16[3] - SRC.i16[2]),
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHSUBD(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHSUBD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i32 = {
+            DEST.i32[1] - DEST.i32[0],
+            SRC.i32[1] - SRC.i32[0],
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PHSUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16 = {
+            int16_t(std::clamp<int32_t>(DEST.i16[1] - DEST.i16[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i16[3] - DEST.i16[2], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i16[1] - SRC.i16[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i16[3] - SRC.i16[2], INT16_MIN, INT16_MAX)),
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PMADDUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16 = {
+            int16_t(std::clamp<int32_t>(DEST.i8[1] * SRC.i8[1] + DEST.i8[0] * SRC.i8[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i8[3] * SRC.i8[3] + DEST.i8[2] * SRC.i8[2], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i8[5] * SRC.i8[5] + DEST.i8[4] * SRC.i8[4], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i8[7] * SRC.i8[7] + DEST.i8[6] * SRC.i8[6], INT16_MIN, INT16_MAX)),
+        };
+    } END_OPERATION_MMX;
+}
+//------------------------------------------------------------------------------
+void mmx_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "PMULHRSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+
+    BEGIN_OPERATION() {
+        DEST.i16[0] = (DEST.i16[0] * SRC.i16[0]) >> 15;
+        DEST.i16[1] = (DEST.i16[1] * SRC.i16[1]) >> 15;
+        DEST.i16[2] = (DEST.i16[2] * SRC.i16[2]) >> 15;
+        DEST.i16[3] = (DEST.i16[3] * SRC.i16[3]) >> 15;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -126,95 +197,41 @@ void mmx_instruction::PSHUFB(Format& format, const uint8_t* opcode)
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
-void mmx_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
+void mmx_instruction::PSIGNB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMULHRSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = (DEST.i16[0] * SRC.i16[0]) >> 15;
-        DEST.i16[1] = (DEST.i16[1] * SRC.i16[1]) >> 15;
-        DEST.i16[2] = (DEST.i16[2] * SRC.i16[2]) >> 15;
-        DEST.i16[3] = (DEST.i16[3] * SRC.i16[3]) >> 15;
+        DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
+        DEST.i8[1] = SRC.i8[1] <= 0 ? SRC.i8[1] < 0 ? -DEST.i8[1] : 0 : DEST.i8[1];
+        DEST.i8[2] = SRC.i8[2] <= 0 ? SRC.i8[2] < 0 ? -DEST.i8[2] : 0 : DEST.i8[2];
+        DEST.i8[3] = SRC.i8[3] <= 0 ? SRC.i8[3] < 0 ? -DEST.i8[3] : 0 : DEST.i8[3];
+        DEST.i8[4] = SRC.i8[4] <= 0 ? SRC.i8[4] < 0 ? -DEST.i8[4] : 0 : DEST.i8[4];
+        DEST.i8[5] = SRC.i8[5] <= 0 ? SRC.i8[5] < 0 ? -DEST.i8[5] : 0 : DEST.i8[5];
+        DEST.i8[6] = SRC.i8[6] <= 0 ? SRC.i8[6] < 0 ? -DEST.i8[6] : 0 : DEST.i8[6];
+        DEST.i8[7] = SRC.i8[7] <= 0 ? SRC.i8[7] < 0 ? -DEST.i8[7] : 0 : DEST.i8[7];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
-void mmx_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
+void mmx_instruction::PSIGNW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMADDUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp(DEST.i8[1] * SRC.i8[1] + DEST.i8[0] * SRC.i8[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp(DEST.i8[3] * SRC.i8[3] + DEST.i8[2] * SRC.i8[2], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp(DEST.i8[5] * SRC.i8[5] + DEST.i8[4] * SRC.i8[4], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp(DEST.i8[7] * SRC.i8[7] + DEST.i8[6] * SRC.i8[6], INT16_MIN, INT16_MAX);
+        DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
+        DEST.i16[1] = SRC.i16[1] <= 0 ? SRC.i16[1] < 0 ? -DEST.i16[1] : 0 : DEST.i16[1];
+        DEST.i16[2] = SRC.i16[2] <= 0 ? SRC.i16[2] < 0 ? -DEST.i16[2] : 0 : DEST.i16[2];
+        DEST.i16[3] = SRC.i16[3] <= 0 ? SRC.i16[3] < 0 ? -DEST.i16[3] : 0 : DEST.i16[3];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
-void mmx_instruction::PHSUBW(Format& format, const uint8_t* opcode)
+void mmx_instruction::PSIGND(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGND", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[1] - DEST.i16[0];
-        DEST.i16[1] = DEST.i16[3] - DEST.i16[2];
-        DEST.i16[2] = SRC.i16[1] - SRC.i16[0];
-        DEST.i16[3] = SRC.i16[3] - SRC.i16[2];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PHSUBD(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PHSUBD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[1] - DEST.i32[0];
-        DEST.i32[1] = SRC.i32[1] - SRC.i32[0];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PHSUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp(DEST.i16[1] - DEST.i16[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp(DEST.i16[3] - DEST.i16[2], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp(SRC.i16[1] - SRC.i16[0], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp(SRC.i16[3] - SRC.i16[2], INT16_MIN, INT16_MAX);
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PHADDW(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PHADDW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[1] + DEST.i16[0];
-        DEST.i16[1] = DEST.i16[3] + DEST.i16[2];
-        DEST.i16[2] = SRC.i16[1] + SRC.i16[0];
-        DEST.i16[3] = SRC.i16[3] + SRC.i16[2];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PHADDD(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PHADDD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[1] + DEST.i32[0];
-        DEST.i32[1] = SRC.i32[1] + SRC.i32[0];
-    } END_OPERATION_MMX;
-}
-//------------------------------------------------------------------------------
-void mmx_instruction::PHADDSW(Format& format, const uint8_t* opcode)
-{
-    Decode(format, opcode, "PHADDSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
-
-    BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp(DEST.i16[1] + DEST.i16[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp(DEST.i16[3] + DEST.i16[2], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp(SRC.i16[1] + SRC.i16[0], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp(SRC.i16[3] + SRC.i16[2], INT16_MIN, INT16_MAX);
+        DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];
+        DEST.i32[1] = SRC.i32[1] <= 0 ? SRC.i32[1] < 0 ? -DEST.i32[1] : 0 : DEST.i32[1];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

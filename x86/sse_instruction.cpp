@@ -91,10 +91,10 @@ void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
-            DEST.i32[1] = (DEST.f32[1] == SRC.f32[1]) ? -1 : 0;
-            DEST.i32[2] = (DEST.f32[2] == SRC.f32[2]) ? -1 : 0;
-            DEST.i32[3] = (DEST.f32[3] == SRC.f32[3]) ? -1 : 0;
+            DEST.i32[0] = isunordered(DEST.f32[0], SRC.f32[0]) ? -1 : 0;
+            DEST.i32[1] = isunordered(DEST.f32[1], SRC.f32[1]) ? -1 : 0;
+            DEST.i32[2] = isunordered(DEST.f32[2], SRC.f32[2]) ? -1 : 0;
+            DEST.i32[3] = isunordered(DEST.f32[3], SRC.f32[3]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
@@ -123,10 +123,10 @@ void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
-            DEST.i32[1] = (DEST.f32[1] != SRC.f32[1]) ? -1 : 0;
-            DEST.i32[2] = (DEST.f32[2] != SRC.f32[2]) ? -1 : 0;
-            DEST.i32[3] = (DEST.f32[3] != SRC.f32[3]) ? -1 : 0;
+            DEST.i32[0] = isunordered(DEST.f32[0], SRC.f32[0]) == false ? -1 : 0;
+            DEST.i32[1] = isunordered(DEST.f32[1], SRC.f32[1]) == false ? -1 : 0;
+            DEST.i32[2] = isunordered(DEST.f32[2], SRC.f32[2]) == false ? -1 : 0;
+            DEST.i32[3] = isunordered(DEST.f32[3], SRC.f32[3]) == false ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
@@ -154,7 +154,7 @@ void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.i32[0] = (DEST.f32[0] == SRC.f32[0]) ? -1 : 0;
+            DEST.i32[0] = isunordered(DEST.f32[0], SRC.f32[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
@@ -174,7 +174,7 @@ void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.i32[0] = (DEST.f32[0] != SRC.f32[0]) ? -1 : 0;
+            DEST.i32[0] = isunordered(DEST.f32[0], SRC.f32[0]) == false ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
@@ -188,7 +188,7 @@ void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
         OF = 0;
         SF = 0;
         AF = 0;
-        if (DEST.f32[0] == SRC.f32[0]) {
+        if (isunordered(DEST.f32[0], SRC.f32[0])) {
             ZF = 1;
             PF = 1;
             CF = 1;
@@ -653,7 +653,7 @@ void sse_instruction::UCOMISS(Format& format, const uint8_t* opcode)
         OF = 0;
         SF = 0;
         AF = 0;
-        if (DEST.f32[0] == SRC.f32[0]) {
+        if (isunordered(DEST.f32[0], SRC.f32[0])) {
             ZF = 1;
             PF = 1;
             CF = 1;
@@ -681,10 +681,12 @@ void sse_instruction::UNPCKHPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UNPCKHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = DEST.f32[2];
-        DEST.f32[2] = DEST.f32[3];
-        DEST.f32[1] = SRC.f32[2];
-        DEST.f32[3] = SRC.f32[3];
+        DEST.f32 = {
+            DEST.f32[2],
+            SRC.f32[2],
+            DEST.f32[3],
+            SRC.f32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -693,10 +695,12 @@ void sse_instruction::UNPCKLPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UNPCKLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = DEST.f32[0];
-        DEST.f32[2] = DEST.f32[1];
-        DEST.f32[1] = SRC.f32[0];
-        DEST.f32[3] = SRC.f32[1];
+        DEST.f32 = {
+            DEST.f32[0],
+            SRC.f32[0],
+            DEST.f32[1],
+            SRC.f32[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------

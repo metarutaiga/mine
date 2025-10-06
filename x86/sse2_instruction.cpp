@@ -89,8 +89,8 @@ void sse2_instruction::CMPPD(Format& format, const uint8_t* opcode)
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.i64[0] = (DEST.f64[0] == SRC.f64[0]) ? -1 : 0;
-            DEST.i64[1] = (DEST.f64[1] == SRC.f64[1]) ? -1 : 0;
+            DEST.i64[0] = isunordered(DEST.f64[0], SRC.f64[0]) ? -1 : 0;
+            DEST.i64[1] = isunordered(DEST.f64[1], SRC.f64[1]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
@@ -113,8 +113,8 @@ void sse2_instruction::CMPPD(Format& format, const uint8_t* opcode)
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.i64[0] = (DEST.f64[0] != SRC.f64[0]) ? -1 : 0;
-            DEST.i64[1] = (DEST.f64[1] != SRC.f64[1]) ? -1 : 0;
+            DEST.i64[0] = isunordered(DEST.f64[0], SRC.f64[0]) == false ? -1 : 0;
+            DEST.i64[1] = isunordered(DEST.f64[1], SRC.f64[1]) == false ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
@@ -142,7 +142,7 @@ void sse2_instruction::CMPSD(Format& format, const uint8_t* opcode)
         break;
     case 3:
         BEGIN_OPERATION() {
-            DEST.i64[0] = (DEST.f64[0] == SRC.f64[0]) ? -1 : 0;
+            DEST.i64[0] = isunordered(DEST.f64[0], SRC.f64[0]) ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     case 4:
@@ -162,7 +162,7 @@ void sse2_instruction::CMPSD(Format& format, const uint8_t* opcode)
         break;
     case 7:
         BEGIN_OPERATION() {
-            DEST.i64[0] = (DEST.f64[0] != SRC.f64[0]) ? -1 : 0;
+            DEST.i64[0] = isunordered(DEST.f64[0], SRC.f64[0]) == false ? -1 : 0;
         } END_OPERATION_SSE;
         break;
     }
@@ -176,7 +176,7 @@ void sse2_instruction::COMISD(Format& format, const uint8_t* opcode)
         OF = 0;
         SF = 0;
         AF = 0;
-        if (DEST.f64[0] == SRC.f64[0]) {
+        if (isunordered(DEST.f64[0], SRC.f64[0])) {
             ZF = 1;
             PF = 1;
             CF = 1;
@@ -214,8 +214,10 @@ void sse2_instruction::CVTDQ2PS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTDQ2PS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = SRC.i64[0];
-        DEST.f32[1] = SRC.i64[1];
+        DEST.f32[0] = SRC.i32[0];
+        DEST.f32[1] = SRC.i32[1];
+        DEST.f32[2] = SRC.i32[2];
+        DEST.f32[3] = SRC.i32[3];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -224,14 +226,17 @@ void sse2_instruction::CVTPD2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTPD2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = SRC.f64[0];
-        DEST.i64[1] = SRC.f64[1];
+        DEST.i32[0] = SRC.f64[0];
+        DEST.i32[1] = SRC.f64[1];
+        DEST.i32[2] = 0;
+        DEST.i32[3] = 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTPD2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPD2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f64[0];
@@ -246,12 +251,16 @@ void sse2_instruction::CVTPD2PS(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         DEST.f32[0] = SRC.f64[0];
         DEST.f32[1] = SRC.f64[1];
+        DEST.f32[2] = 0;
+        DEST.f32[3] = 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTPI2PD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPI2PD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    if (format.operand[1].type == Format::Operand::SSE)
+        format.operand[1].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.f64[0] = SRC.i32[0];
@@ -264,8 +273,10 @@ void sse2_instruction::CVTPS2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTPS2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = SRC.f32[0];
-        DEST.i64[1] = SRC.f32[1];
+        DEST.i32[0] = SRC.f32[0];
+        DEST.i32[1] = SRC.f32[1];
+        DEST.i32[2] = SRC.f32[2];
+        DEST.i32[3] = SRC.f32[3];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -282,6 +293,7 @@ void sse2_instruction::CVTPS2PD(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSD2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSD2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f64[0];
@@ -300,6 +312,8 @@ void sse2_instruction::CVTSD2SS(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSI2SD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSI2SD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    if (format.operand[1].type == Format::Operand::SSE)
+        format.operand[1].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         DEST.f64[0] = SRC.i32[0];
@@ -320,18 +334,21 @@ void sse2_instruction::CVTTPD2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTTPD2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = SRC.f64[0];
-        DEST.i64[1] = SRC.f64[1];
+        DEST.i32[0] = SRC.f64[0];
+        DEST.i32[1] = SRC.f64[1];
+        DEST.i32[2] = 0;
+        DEST.i32[3] = 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTTPD2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTPD2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = SRC.f64[0];
-        DEST.i64[1] = SRC.f64[1];
+        DEST.i32[0] = SRC.f64[0];
+        DEST.i32[1] = SRC.f64[1];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -340,14 +357,17 @@ void sse2_instruction::CVTTPS2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTTPS2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = SRC.f32[0];
-        DEST.i64[1] = SRC.f32[1];
+        DEST.i32[0] = SRC.f32[0];
+        DEST.i32[1] = SRC.f32[1];
+        DEST.i32[2] = SRC.f32[2];
+        DEST.i32[3] = SRC.f32[3];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTTSD2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTSD2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f64[0];
@@ -390,22 +410,11 @@ void sse2_instruction::MASKMOVDQU(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (SRC2.i8[0] == 1) ? SRC1.i8[0] : 0;
-        DEST.i8[1] = (SRC2.i8[1] == 1) ? SRC1.i8[1] : 0;
-        DEST.i8[2] = (SRC2.i8[2] == 1) ? SRC1.i8[2] : 0;
-        DEST.i8[3] = (SRC2.i8[3] == 1) ? SRC1.i8[3] : 0;
-        DEST.i8[4] = (SRC2.i8[4] == 1) ? SRC1.i8[4] : 0;
-        DEST.i8[5] = (SRC2.i8[5] == 1) ? SRC1.i8[5] : 0;
-        DEST.i8[6] = (SRC2.i8[6] == 1) ? SRC1.i8[6] : 0;
-        DEST.i8[7] = (SRC2.i8[7] == 1) ? SRC1.i8[7] : 0;
-        DEST.i8[8] = (SRC2.i8[8] == 1) ? SRC1.i8[8] : 0;
-        DEST.i8[9] = (SRC2.i8[9] == 1) ? SRC1.i8[9] : 0;
-        DEST.i8[10] = (SRC2.i8[10] == 1) ? SRC1.i8[10] : 0;
-        DEST.i8[11] = (SRC2.i8[11] == 1) ? SRC1.i8[11] : 0;
-        DEST.i8[12] = (SRC2.i8[12] == 1) ? SRC1.i8[12] : 0;
-        DEST.i8[13] = (SRC2.i8[13] == 1) ? SRC1.i8[13] : 0;
-        DEST.i8[14] = (SRC2.i8[14] == 1) ? SRC1.i8[14] : 0;
-        DEST.i8[15] = (SRC2.i8[15] == 1) ? SRC1.i8[15] : 0;
+        for (int i = 0; i < 16; ++i) {
+            if (SRC2.i8[i] == 1) {
+                DEST.i8[i] = SRC1.i8[i];
+            }
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -572,8 +581,8 @@ void sse2_instruction::MOVQ2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVQ2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[0];
-        DEST.f64[1] = 0;
+        DEST.i64[0] = DEST.i64[0];
+        DEST.i64[1] = 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -629,15 +638,16 @@ void sse2_instruction::PACKSSDW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PACKSSDW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        DEST.i16[0] = std::clamp<int32_t>(TEMP.i32[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp<int32_t>(TEMP.i32[1], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp<int32_t>(SRC.i32[0], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp<int32_t>(SRC.i32[1], INT16_MIN, INT16_MAX);
-        DEST.i16[4] = std::clamp<int32_t>(TEMP.i32[2], INT16_MIN, INT16_MAX);
-        DEST.i16[5] = std::clamp<int32_t>(TEMP.i32[3], INT16_MIN, INT16_MAX);
-        DEST.i16[6] = std::clamp<int32_t>(SRC.i32[2], INT16_MIN, INT16_MAX);
-        DEST.i16[7] = std::clamp<int32_t>(SRC.i32[3], INT16_MIN, INT16_MAX);
+        DEST.i16 = {
+            int16_t(std::clamp<int32_t>(DEST.i32[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i32[1], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i32[0], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i32[1], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i32[2], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(DEST.i32[3], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i32[2], INT16_MIN, INT16_MAX)),
+            int16_t(std::clamp<int32_t>(SRC.i32[3], INT16_MIN, INT16_MAX)),
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -646,23 +656,24 @@ void sse2_instruction::PACKSSWB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PACKSSWB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        DEST.i8[0] = std::clamp<int16_t>(TEMP.i16[0], INT8_MIN, INT8_MAX);
-        DEST.i8[1] = std::clamp<int16_t>(TEMP.i16[1], INT8_MIN, INT8_MAX);
-        DEST.i8[2] = std::clamp<int16_t>(TEMP.i16[2], INT8_MIN, INT8_MAX);
-        DEST.i8[3] = std::clamp<int16_t>(TEMP.i16[3], INT8_MIN, INT8_MAX);
-        DEST.i8[4] = std::clamp<int16_t>(SRC.i16[0], INT8_MIN, INT8_MAX);
-        DEST.i8[5] = std::clamp<int16_t>(SRC.i16[1], INT8_MIN, INT8_MAX);
-        DEST.i8[6] = std::clamp<int16_t>(SRC.i16[2], INT8_MIN, INT8_MAX);
-        DEST.i8[7] = std::clamp<int16_t>(SRC.i16[3], INT8_MIN, INT8_MAX);
-        DEST.i8[8] = std::clamp<int16_t>(TEMP.i16[4], INT8_MIN, INT8_MAX);
-        DEST.i8[9] = std::clamp<int16_t>(TEMP.i16[5], INT8_MIN, INT8_MAX);
-        DEST.i8[10] = std::clamp<int16_t>(TEMP.i16[6], INT8_MIN, INT8_MAX);
-        DEST.i8[11] = std::clamp<int16_t>(TEMP.i16[7], INT8_MIN, INT8_MAX);
-        DEST.i8[12] = std::clamp<int16_t>(SRC.i16[4], INT8_MIN, INT8_MAX);
-        DEST.i8[13] = std::clamp<int16_t>(SRC.i16[5], INT8_MIN, INT8_MAX);
-        DEST.i8[14] = std::clamp<int16_t>(SRC.i16[6], INT8_MIN, INT8_MAX);
-        DEST.i8[15] = std::clamp<int16_t>(SRC.i16[7], INT8_MIN, INT8_MAX);
+        DEST.i8 = {
+            int8_t(std::clamp<int16_t>(DEST.i16[0], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[1], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[2], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[3], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[0], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[1], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[2], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[3], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[4], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[5], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[6], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(DEST.i16[7], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[4], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[5], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[6], INT8_MIN, INT8_MAX)),
+            int8_t(std::clamp<int16_t>(SRC.i16[7], INT8_MIN, INT8_MAX)),
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -671,23 +682,24 @@ void sse2_instruction::PACKUSWB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PACKUSWB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto TEMP = DEST;
-        DEST.i8[0] = std::clamp<int16_t>(TEMP.i16[0], 0, UINT8_MAX);
-        DEST.i8[1] = std::clamp<int16_t>(TEMP.i16[1], 0, UINT8_MAX);
-        DEST.i8[2] = std::clamp<int16_t>(TEMP.i16[2], 0, UINT8_MAX);
-        DEST.i8[3] = std::clamp<int16_t>(TEMP.i16[3], 0, UINT8_MAX);
-        DEST.i8[4] = std::clamp<int16_t>(SRC.i16[0], 0, UINT8_MAX);
-        DEST.i8[5] = std::clamp<int16_t>(SRC.i16[1], 0, UINT8_MAX);
-        DEST.i8[6] = std::clamp<int16_t>(SRC.i16[2], 0, UINT8_MAX);
-        DEST.i8[7] = std::clamp<int16_t>(SRC.i16[3], 0, UINT8_MAX);
-        DEST.i8[8] = std::clamp<int16_t>(TEMP.i16[4], 0, UINT8_MAX);
-        DEST.i8[9] = std::clamp<int16_t>(TEMP.i16[5], 0, UINT8_MAX);
-        DEST.i8[10] = std::clamp<int16_t>(TEMP.i16[6], 0, UINT8_MAX);
-        DEST.i8[11] = std::clamp<int16_t>(TEMP.i16[7], 0, UINT8_MAX);
-        DEST.i8[12] = std::clamp<int16_t>(SRC.i16[4], 0, UINT8_MAX);
-        DEST.i8[13] = std::clamp<int16_t>(SRC.i16[5], 0, UINT8_MAX);
-        DEST.i8[14] = std::clamp<int16_t>(SRC.i16[6], 0, UINT8_MAX);
-        DEST.i8[15] = std::clamp<int16_t>(SRC.i16[7], 0, UINT8_MAX);
+        DEST.u8 = {
+            uint8_t(std::clamp<int16_t>(DEST.i16[0], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[1], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[2], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[3], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[0], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[1], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[2], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[3], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[4], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[5], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[6], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(DEST.i16[7], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[4], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[5], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[6], 0, UINT8_MAX)),
+            uint8_t(std::clamp<int16_t>(SRC.i16[7], 0, UINT8_MAX)),
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -798,22 +810,22 @@ void sse2_instruction::PADDUSB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDUSB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = std::clamp<uint8_t>(DEST.i8[0] + SRC.i8[0], 0, UINT8_MAX);
-        DEST.i8[1] = std::clamp<uint8_t>(DEST.i8[1] + SRC.i8[1], 0, UINT8_MAX);
-        DEST.i8[2] = std::clamp<uint8_t>(DEST.i8[2] + SRC.i8[2], 0, UINT8_MAX);
-        DEST.i8[3] = std::clamp<uint8_t>(DEST.i8[3] + SRC.i8[3], 0, UINT8_MAX);
-        DEST.i8[4] = std::clamp<uint8_t>(DEST.i8[4] + SRC.i8[4], 0, UINT8_MAX);
-        DEST.i8[5] = std::clamp<uint8_t>(DEST.i8[5] + SRC.i8[5], 0, UINT8_MAX);
-        DEST.i8[6] = std::clamp<uint8_t>(DEST.i8[6] + SRC.i8[6], 0, UINT8_MAX);
-        DEST.i8[7] = std::clamp<uint8_t>(DEST.i8[7] + SRC.i8[7], 0, UINT8_MAX);
-        DEST.i8[8] = std::clamp<uint8_t>(DEST.i8[8] + SRC.i8[8], 0, UINT8_MAX);
-        DEST.i8[9] = std::clamp<uint8_t>(DEST.i8[9] + SRC.i8[9], 0, UINT8_MAX);
-        DEST.i8[10] = std::clamp<uint8_t>(DEST.i8[10] + SRC.i8[10], 0, UINT8_MAX);
-        DEST.i8[11] = std::clamp<uint8_t>(DEST.i8[11] + SRC.i8[11], 0, UINT8_MAX);
-        DEST.i8[12] = std::clamp<uint8_t>(DEST.i8[12] + SRC.i8[12], 0, UINT8_MAX);
-        DEST.i8[13] = std::clamp<uint8_t>(DEST.i8[13] + SRC.i8[13], 0, UINT8_MAX);
-        DEST.i8[14] = std::clamp<uint8_t>(DEST.i8[14] + SRC.i8[14], 0, UINT8_MAX);
-        DEST.i8[15] = std::clamp<uint8_t>(DEST.i8[15] + SRC.i8[15], 0, UINT8_MAX);
+        DEST.u8[0] = std::clamp<int16_t>(DEST.u8[0] + SRC.u8[0], 0, UINT8_MAX);
+        DEST.u8[1] = std::clamp<int16_t>(DEST.u8[1] + SRC.u8[1], 0, UINT8_MAX);
+        DEST.u8[2] = std::clamp<int16_t>(DEST.u8[2] + SRC.u8[2], 0, UINT8_MAX);
+        DEST.u8[3] = std::clamp<int16_t>(DEST.u8[3] + SRC.u8[3], 0, UINT8_MAX);
+        DEST.u8[4] = std::clamp<int16_t>(DEST.u8[4] + SRC.u8[4], 0, UINT8_MAX);
+        DEST.u8[5] = std::clamp<int16_t>(DEST.u8[5] + SRC.u8[5], 0, UINT8_MAX);
+        DEST.u8[6] = std::clamp<int16_t>(DEST.u8[6] + SRC.u8[6], 0, UINT8_MAX);
+        DEST.u8[7] = std::clamp<int16_t>(DEST.u8[7] + SRC.u8[7], 0, UINT8_MAX);
+        DEST.u8[8] = std::clamp<int16_t>(DEST.u8[8] + SRC.u8[8], 0, UINT8_MAX);
+        DEST.u8[9] = std::clamp<int16_t>(DEST.u8[9] + SRC.u8[9], 0, UINT8_MAX);
+        DEST.u8[10] = std::clamp<int16_t>(DEST.u8[10] + SRC.u8[10], 0, UINT8_MAX);
+        DEST.u8[11] = std::clamp<int16_t>(DEST.u8[11] + SRC.u8[11], 0, UINT8_MAX);
+        DEST.u8[12] = std::clamp<int16_t>(DEST.u8[12] + SRC.u8[12], 0, UINT8_MAX);
+        DEST.u8[13] = std::clamp<int16_t>(DEST.u8[13] + SRC.u8[13], 0, UINT8_MAX);
+        DEST.u8[14] = std::clamp<int16_t>(DEST.u8[14] + SRC.u8[14], 0, UINT8_MAX);
+        DEST.u8[15] = std::clamp<int16_t>(DEST.u8[15] + SRC.u8[15], 0, UINT8_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -822,14 +834,14 @@ void sse2_instruction::PADDUSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDUSW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp<uint16_t>(DEST.i16[0] + SRC.i16[0], 0, UINT16_MAX);
-        DEST.i16[1] = std::clamp<uint16_t>(DEST.i16[1] + SRC.i16[1], 0, UINT16_MAX);
-        DEST.i16[2] = std::clamp<uint16_t>(DEST.i16[2] + SRC.i16[2], 0, UINT16_MAX);
-        DEST.i16[3] = std::clamp<uint16_t>(DEST.i16[3] + SRC.i16[3], 0, UINT16_MAX);
-        DEST.i16[4] = std::clamp<uint16_t>(DEST.i16[4] + SRC.i16[4], 0, UINT16_MAX);
-        DEST.i16[5] = std::clamp<uint16_t>(DEST.i16[5] + SRC.i16[5], 0, UINT16_MAX);
-        DEST.i16[6] = std::clamp<uint16_t>(DEST.i16[6] + SRC.i16[6], 0, UINT16_MAX);
-        DEST.i16[7] = std::clamp<uint16_t>(DEST.i16[7] + SRC.i16[7], 0, UINT16_MAX);
+        DEST.u16[0] = std::clamp<int32_t>(DEST.u16[0] + SRC.u16[0], 0, UINT16_MAX);
+        DEST.u16[1] = std::clamp<int32_t>(DEST.u16[1] + SRC.u16[1], 0, UINT16_MAX);
+        DEST.u16[2] = std::clamp<int32_t>(DEST.u16[2] + SRC.u16[2], 0, UINT16_MAX);
+        DEST.u16[3] = std::clamp<int32_t>(DEST.u16[3] + SRC.u16[3], 0, UINT16_MAX);
+        DEST.u16[4] = std::clamp<int32_t>(DEST.u16[4] + SRC.u16[4], 0, UINT16_MAX);
+        DEST.u16[5] = std::clamp<int32_t>(DEST.u16[5] + SRC.u16[5], 0, UINT16_MAX);
+        DEST.u16[6] = std::clamp<int32_t>(DEST.u16[6] + SRC.u16[6], 0, UINT16_MAX);
+        DEST.u16[7] = std::clamp<int32_t>(DEST.u16[7] + SRC.u16[7], 0, UINT16_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -903,7 +915,7 @@ void sse2_instruction::PAVGW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PCMPEQB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ADDPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PCMPEQB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i8[0] = (DEST.i8[0] == SRC.i8[0]) ? -1 : 0;
@@ -1012,14 +1024,15 @@ void sse2_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0] % 8;
-        DEST.u16[0] = SRC.u16[SEL];
+        DEST.u32[0] = SRC.u16[SEL];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "PINSRW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
-    format.operand[0].type = Format::Operand::REG;
+    if (format.operand[1].type == Format::Operand::SSE)
+        format.operand[1].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0] % 8;
@@ -1197,8 +1210,8 @@ void sse2_instruction::PMULUDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMULUDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i32[0] * SRC.f32[0];
-        DEST.i64[1] = DEST.i32[2] * SRC.f32[2];
+        DEST.u64[0] = DEST.u32[0] * SRC.u32[0];
+        DEST.u64[1] = DEST.u32[2] * SRC.u32[2];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1290,15 +1303,15 @@ void sse2_instruction::PSLLW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSLLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 16);
-        DEST.i16[0] = DEST.i16[0] << COUNT;
-        DEST.i16[1] = DEST.i16[1] << COUNT;
-        DEST.i16[2] = DEST.i16[2] << COUNT;
-        DEST.i16[3] = DEST.i16[3] << COUNT;
-        DEST.i16[4] = DEST.i16[4] << COUNT;
-        DEST.i16[5] = DEST.i16[5] << COUNT;
-        DEST.i16[6] = DEST.i16[6] << COUNT;
-        DEST.i16[7] = DEST.i16[7] << COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.i16[0] = COUNT < 16 ? DEST.i16[0] << COUNT : 0;
+        DEST.i16[1] = COUNT < 16 ? DEST.i16[1] << COUNT : 0;
+        DEST.i16[2] = COUNT < 16 ? DEST.i16[2] << COUNT : 0;
+        DEST.i16[3] = COUNT < 16 ? DEST.i16[3] << COUNT : 0;
+        DEST.i16[4] = COUNT < 16 ? DEST.i16[4] << COUNT : 0;
+        DEST.i16[5] = COUNT < 16 ? DEST.i16[5] << COUNT : 0;
+        DEST.i16[6] = COUNT < 16 ? DEST.i16[6] << COUNT : 0;
+        DEST.i16[7] = COUNT < 16 ? DEST.i16[7] << COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1307,11 +1320,11 @@ void sse2_instruction::PSLLD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSLLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 32);
-        DEST.i32[0] = DEST.i32[0] << COUNT;
-        DEST.i32[1] = DEST.i32[1] << COUNT;
-        DEST.i32[2] = DEST.i32[2] << COUNT;
-        DEST.i32[3] = DEST.i32[3] << COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.i32[0] = COUNT < 32 ? DEST.i32[0] << COUNT : 0;
+        DEST.i32[1] = COUNT < 32 ? DEST.i32[1] << COUNT : 0;
+        DEST.i32[2] = COUNT < 32 ? DEST.i32[2] << COUNT : 0;
+        DEST.i32[3] = COUNT < 32 ? DEST.i32[3] << COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1320,9 +1333,9 @@ void sse2_instruction::PSLLQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSLLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 64);
-        DEST.i64[0] = DEST.i64[0] << COUNT;
-        DEST.i64[1] = DEST.i64[1] << COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.i64[0] = COUNT < 64 ? DEST.i64[0] << COUNT : 0;
+        DEST.i64[1] = COUNT < 64 ? DEST.i64[1] << COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1331,10 +1344,17 @@ void sse2_instruction::PSLLDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSLLDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        int COUNT = (SRC.u8[0] % 16);
-        for (int i = 15; i > 0; --i) {
-            int offset = i - COUNT;
-            DEST.i8[i] = offset >= 0 ? DEST.i8[offset] : 0;
+        auto COUNT = SRC.u8[0];
+        if (COUNT >= 16) {
+            for (int i = 0; i < 16; ++i) {
+                DEST.i8[i] = 0;
+            }
+        }
+        else {
+            for (int i = 15; i >= 0; --i) {
+                int offset = i - COUNT;
+                DEST.i8[i] = (offset >= 0) ? DEST.i8[offset] : 0;
+            }
         }
     } END_OPERATION_SSE;
 }
@@ -1344,15 +1364,15 @@ void sse2_instruction::PSRAW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRAW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 16);
-        DEST.i16[0] = DEST.i16[0] >> COUNT;
-        DEST.i16[1] = DEST.i16[1] >> COUNT;
-        DEST.i16[2] = DEST.i16[2] >> COUNT;
-        DEST.i16[3] = DEST.i16[3] >> COUNT;
-        DEST.i16[4] = DEST.i16[4] >> COUNT;
-        DEST.i16[5] = DEST.i16[5] >> COUNT;
-        DEST.i16[6] = DEST.i16[6] >> COUNT;
-        DEST.i16[7] = DEST.i16[7] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.i16[0] = COUNT < 16 ? DEST.i16[0] >> COUNT : 0;
+        DEST.i16[1] = COUNT < 16 ? DEST.i16[1] >> COUNT : 0;
+        DEST.i16[2] = COUNT < 16 ? DEST.i16[2] >> COUNT : 0;
+        DEST.i16[3] = COUNT < 16 ? DEST.i16[3] >> COUNT : 0;
+        DEST.i16[4] = COUNT < 16 ? DEST.i16[4] >> COUNT : 0;
+        DEST.i16[5] = COUNT < 16 ? DEST.i16[5] >> COUNT : 0;
+        DEST.i16[6] = COUNT < 16 ? DEST.i16[6] >> COUNT : 0;
+        DEST.i16[7] = COUNT < 16 ? DEST.i16[7] >> COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1361,11 +1381,11 @@ void sse2_instruction::PSRAD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRAD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 32);
-        DEST.i32[0] = DEST.i32[0] >> COUNT;
-        DEST.i32[1] = DEST.i32[1] >> COUNT;
-        DEST.i32[2] = DEST.i32[2] >> COUNT;
-        DEST.i32[3] = DEST.i32[3] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.i32[0] = COUNT < 32 ? DEST.i32[0] >> COUNT : 0;
+        DEST.i32[1] = COUNT < 32 ? DEST.i32[1] >> COUNT : 0;
+        DEST.i32[2] = COUNT < 32 ? DEST.i32[2] >> COUNT : 0;
+        DEST.i32[3] = COUNT < 32 ? DEST.i32[3] >> COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1374,15 +1394,15 @@ void sse2_instruction::PSRLW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 16);
-        DEST.u16[0] = DEST.u16[0] >> COUNT;
-        DEST.u16[1] = DEST.u16[1] >> COUNT;
-        DEST.u16[2] = DEST.u16[2] >> COUNT;
-        DEST.u16[3] = DEST.u16[3] >> COUNT;
-        DEST.u16[4] = DEST.u16[4] >> COUNT;
-        DEST.u16[5] = DEST.u16[5] >> COUNT;
-        DEST.u16[6] = DEST.u16[6] >> COUNT;
-        DEST.u16[7] = DEST.u16[7] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.u16[0] = COUNT < 16 ? DEST.u16[0] >> COUNT : 0;
+        DEST.u16[1] = COUNT < 16 ? DEST.u16[1] >> COUNT : 0;
+        DEST.u16[2] = COUNT < 16 ? DEST.u16[2] >> COUNT : 0;
+        DEST.u16[3] = COUNT < 16 ? DEST.u16[3] >> COUNT : 0;
+        DEST.u16[4] = COUNT < 16 ? DEST.u16[4] >> COUNT : 0;
+        DEST.u16[5] = COUNT < 16 ? DEST.u16[5] >> COUNT : 0;
+        DEST.u16[6] = COUNT < 16 ? DEST.u16[6] >> COUNT : 0;
+        DEST.u16[7] = COUNT < 16 ? DEST.u16[7] >> COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1391,11 +1411,11 @@ void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 32);
-        DEST.u32[0] = DEST.u32[0] >> COUNT;
-        DEST.u32[1] = DEST.u32[1] >> COUNT;
-        DEST.u32[2] = DEST.u32[2] >> COUNT;
-        DEST.u32[3] = DEST.u32[3] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.u32[0] = COUNT < 32 ? DEST.u32[0] >> COUNT : 0;
+        DEST.u32[1] = COUNT < 32 ? DEST.u32[1] >> COUNT : 0;
+        DEST.u32[2] = COUNT < 32 ? DEST.u32[2] >> COUNT : 0;
+        DEST.u32[3] = COUNT < 32 ? DEST.u32[3] >> COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1404,9 +1424,9 @@ void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 64);
-        DEST.u64[0] = DEST.u64[0] >> COUNT;
-        DEST.u64[1] = DEST.u64[1] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        DEST.u64[0] = COUNT < 64 ? DEST.u64[0] >> COUNT : 0;
+        DEST.u64[1] = COUNT < 64 ? DEST.u64[1] >> COUNT : 0;
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1415,9 +1435,18 @@ void sse2_instruction::PSRLDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSRLDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        auto COUNT = (SRC.u8[0] % 64);
-        DEST.u64[0] = DEST.u64[0] >> COUNT;
-        DEST.u64[1] = DEST.u64[1] >> COUNT;
+        auto COUNT = SRC.u8[0];
+        if (COUNT >= 16) {
+            for (int i = 0; i < 16; ++i) {
+                DEST.i8[i] = 0;
+            }
+        }
+        else {
+            for (int i = 0; i < 16; ++i) {
+                int src_index = i + COUNT;
+                DEST.i8[i] = (src_index < 16) ? DEST.i8[src_index] : 0;
+            }
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1488,22 +1517,22 @@ void sse2_instruction::PSUBSB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBSB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = std::clamp<int8_t>(DEST.i8[0] - SRC.i8[0], INT8_MIN, INT8_MAX);
-        DEST.i8[1] = std::clamp<int8_t>(DEST.i8[1] - SRC.i8[1], INT8_MIN, INT8_MAX);
-        DEST.i8[2] = std::clamp<int8_t>(DEST.i8[2] - SRC.i8[2], INT8_MIN, INT8_MAX);
-        DEST.i8[3] = std::clamp<int8_t>(DEST.i8[3] - SRC.i8[3], INT8_MIN, INT8_MAX);
-        DEST.i8[4] = std::clamp<int8_t>(DEST.i8[4] - SRC.i8[4], INT8_MIN, INT8_MAX);
-        DEST.i8[5] = std::clamp<int8_t>(DEST.i8[5] - SRC.i8[5], INT8_MIN, INT8_MAX);
-        DEST.i8[6] = std::clamp<int8_t>(DEST.i8[6] - SRC.i8[6], INT8_MIN, INT8_MAX);
-        DEST.i8[7] = std::clamp<int8_t>(DEST.i8[7] - SRC.i8[7], INT8_MIN, INT8_MAX);
-        DEST.i8[8] = std::clamp<int8_t>(DEST.i8[8] - SRC.i8[8], INT8_MIN, INT8_MAX);
-        DEST.i8[9] = std::clamp<int8_t>(DEST.i8[9] - SRC.i8[9], INT8_MIN, INT8_MAX);
-        DEST.i8[10] = std::clamp<int8_t>(DEST.i8[10] - SRC.i8[10], INT8_MIN, INT8_MAX);
-        DEST.i8[11] = std::clamp<int8_t>(DEST.i8[11] - SRC.i8[11], INT8_MIN, INT8_MAX);
-        DEST.i8[12] = std::clamp<int8_t>(DEST.i8[12] - SRC.i8[12], INT8_MIN, INT8_MAX);
-        DEST.i8[13] = std::clamp<int8_t>(DEST.i8[13] - SRC.i8[13], INT8_MIN, INT8_MAX);
-        DEST.i8[14] = std::clamp<int8_t>(DEST.i8[14] - SRC.i8[14], INT8_MIN, INT8_MAX);
-        DEST.i8[15] = std::clamp<int8_t>(DEST.i8[15] - SRC.i8[15], INT8_MIN, INT8_MAX);
+        DEST.i8[0] = std::clamp<int16_t>(DEST.i8[0] - SRC.i8[0], INT8_MIN, INT8_MAX);
+        DEST.i8[1] = std::clamp<int16_t>(DEST.i8[1] - SRC.i8[1], INT8_MIN, INT8_MAX);
+        DEST.i8[2] = std::clamp<int16_t>(DEST.i8[2] - SRC.i8[2], INT8_MIN, INT8_MAX);
+        DEST.i8[3] = std::clamp<int16_t>(DEST.i8[3] - SRC.i8[3], INT8_MIN, INT8_MAX);
+        DEST.i8[4] = std::clamp<int16_t>(DEST.i8[4] - SRC.i8[4], INT8_MIN, INT8_MAX);
+        DEST.i8[5] = std::clamp<int16_t>(DEST.i8[5] - SRC.i8[5], INT8_MIN, INT8_MAX);
+        DEST.i8[6] = std::clamp<int16_t>(DEST.i8[6] - SRC.i8[6], INT8_MIN, INT8_MAX);
+        DEST.i8[7] = std::clamp<int16_t>(DEST.i8[7] - SRC.i8[7], INT8_MIN, INT8_MAX);
+        DEST.i8[8] = std::clamp<int16_t>(DEST.i8[8] - SRC.i8[8], INT8_MIN, INT8_MAX);
+        DEST.i8[9] = std::clamp<int16_t>(DEST.i8[9] - SRC.i8[9], INT8_MIN, INT8_MAX);
+        DEST.i8[10] = std::clamp<int16_t>(DEST.i8[10] - SRC.i8[10], INT8_MIN, INT8_MAX);
+        DEST.i8[11] = std::clamp<int16_t>(DEST.i8[11] - SRC.i8[11], INT8_MIN, INT8_MAX);
+        DEST.i8[12] = std::clamp<int16_t>(DEST.i8[12] - SRC.i8[12], INT8_MIN, INT8_MAX);
+        DEST.i8[13] = std::clamp<int16_t>(DEST.i8[13] - SRC.i8[13], INT8_MIN, INT8_MAX);
+        DEST.i8[14] = std::clamp<int16_t>(DEST.i8[14] - SRC.i8[14], INT8_MIN, INT8_MAX);
+        DEST.i8[15] = std::clamp<int16_t>(DEST.i8[15] - SRC.i8[15], INT8_MIN, INT8_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1512,14 +1541,14 @@ void sse2_instruction::PSUBSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBSW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp<int16_t>(DEST.i16[0] - SRC.i16[0], INT16_MIN, INT16_MAX);
-        DEST.i16[1] = std::clamp<int16_t>(DEST.i16[1] - SRC.i16[1], INT16_MIN, INT16_MAX);
-        DEST.i16[2] = std::clamp<int16_t>(DEST.i16[2] - SRC.i16[2], INT16_MIN, INT16_MAX);
-        DEST.i16[3] = std::clamp<int16_t>(DEST.i16[3] - SRC.i16[3], INT16_MIN, INT16_MAX);
-        DEST.i16[4] = std::clamp<int16_t>(DEST.i16[4] - SRC.i16[4], INT16_MIN, INT16_MAX);
-        DEST.i16[5] = std::clamp<int16_t>(DEST.i16[5] - SRC.i16[5], INT16_MIN, INT16_MAX);
-        DEST.i16[6] = std::clamp<int16_t>(DEST.i16[6] - SRC.i16[6], INT16_MIN, INT16_MAX);
-        DEST.i16[7] = std::clamp<int16_t>(DEST.i16[7] - SRC.i16[7], INT16_MIN, INT16_MAX);
+        DEST.i16[0] = std::clamp<int32_t>(DEST.i16[0] - SRC.i16[0], INT16_MIN, INT16_MAX);
+        DEST.i16[1] = std::clamp<int32_t>(DEST.i16[1] - SRC.i16[1], INT16_MIN, INT16_MAX);
+        DEST.i16[2] = std::clamp<int32_t>(DEST.i16[2] - SRC.i16[2], INT16_MIN, INT16_MAX);
+        DEST.i16[3] = std::clamp<int32_t>(DEST.i16[3] - SRC.i16[3], INT16_MIN, INT16_MAX);
+        DEST.i16[4] = std::clamp<int32_t>(DEST.i16[4] - SRC.i16[4], INT16_MIN, INT16_MAX);
+        DEST.i16[5] = std::clamp<int32_t>(DEST.i16[5] - SRC.i16[5], INT16_MIN, INT16_MAX);
+        DEST.i16[6] = std::clamp<int32_t>(DEST.i16[6] - SRC.i16[6], INT16_MIN, INT16_MAX);
+        DEST.i16[7] = std::clamp<int32_t>(DEST.i16[7] - SRC.i16[7], INT16_MIN, INT16_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1528,22 +1557,22 @@ void sse2_instruction::PSUBUSB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBUSB", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = std::clamp<int16_t>(DEST.i8[0] - SRC.i8[0], 0, UINT8_MAX);
-        DEST.i8[1] = std::clamp<int16_t>(DEST.i8[1] - SRC.i8[1], 0, UINT8_MAX);
-        DEST.i8[2] = std::clamp<int16_t>(DEST.i8[2] - SRC.i8[2], 0, UINT8_MAX);
-        DEST.i8[3] = std::clamp<int16_t>(DEST.i8[3] - SRC.i8[3], 0, UINT8_MAX);
-        DEST.i8[4] = std::clamp<int16_t>(DEST.i8[4] - SRC.i8[4], 0, UINT8_MAX);
-        DEST.i8[5] = std::clamp<int16_t>(DEST.i8[5] - SRC.i8[5], 0, UINT8_MAX);
-        DEST.i8[6] = std::clamp<int16_t>(DEST.i8[6] - SRC.i8[6], 0, UINT8_MAX);
-        DEST.i8[7] = std::clamp<int16_t>(DEST.i8[7] - SRC.i8[7], 0, UINT8_MAX);
-        DEST.i8[8] = std::clamp<int16_t>(DEST.i8[8] - SRC.i8[8], 0, UINT8_MAX);
-        DEST.i8[9] = std::clamp<int16_t>(DEST.i8[9] - SRC.i8[9], 0, UINT8_MAX);
-        DEST.i8[10] = std::clamp<int16_t>(DEST.i8[10] - SRC.i8[10], 0, UINT8_MAX);
-        DEST.i8[11] = std::clamp<int16_t>(DEST.i8[11] - SRC.i8[11], 0, UINT8_MAX);
-        DEST.i8[12] = std::clamp<int16_t>(DEST.i8[12] - SRC.i8[12], 0, UINT8_MAX);
-        DEST.i8[13] = std::clamp<int16_t>(DEST.i8[13] - SRC.i8[13], 0, UINT8_MAX);
-        DEST.i8[14] = std::clamp<int16_t>(DEST.i8[14] - SRC.i8[14], 0, UINT8_MAX);
-        DEST.i8[15] = std::clamp<int16_t>(DEST.i8[15] - SRC.i8[15], 0, UINT8_MAX);
+        DEST.u8[0] = std::clamp<int16_t>(DEST.u8[0] - SRC.u8[0], 0, UINT8_MAX);
+        DEST.u8[1] = std::clamp<int16_t>(DEST.u8[1] - SRC.u8[1], 0, UINT8_MAX);
+        DEST.u8[2] = std::clamp<int16_t>(DEST.u8[2] - SRC.u8[2], 0, UINT8_MAX);
+        DEST.u8[3] = std::clamp<int16_t>(DEST.u8[3] - SRC.u8[3], 0, UINT8_MAX);
+        DEST.u8[4] = std::clamp<int16_t>(DEST.u8[4] - SRC.u8[4], 0, UINT8_MAX);
+        DEST.u8[5] = std::clamp<int16_t>(DEST.u8[5] - SRC.u8[5], 0, UINT8_MAX);
+        DEST.u8[6] = std::clamp<int16_t>(DEST.u8[6] - SRC.u8[6], 0, UINT8_MAX);
+        DEST.u8[7] = std::clamp<int16_t>(DEST.u8[7] - SRC.u8[7], 0, UINT8_MAX);
+        DEST.u8[8] = std::clamp<int16_t>(DEST.u8[8] - SRC.u8[8], 0, UINT8_MAX);
+        DEST.u8[9] = std::clamp<int16_t>(DEST.u8[9] - SRC.u8[9], 0, UINT8_MAX);
+        DEST.u8[10] = std::clamp<int16_t>(DEST.u8[10] - SRC.u8[10], 0, UINT8_MAX);
+        DEST.u8[11] = std::clamp<int16_t>(DEST.u8[11] - SRC.u8[11], 0, UINT8_MAX);
+        DEST.u8[12] = std::clamp<int16_t>(DEST.u8[12] - SRC.u8[12], 0, UINT8_MAX);
+        DEST.u8[13] = std::clamp<int16_t>(DEST.u8[13] - SRC.u8[13], 0, UINT8_MAX);
+        DEST.u8[14] = std::clamp<int16_t>(DEST.u8[14] - SRC.u8[14], 0, UINT8_MAX);
+        DEST.u8[15] = std::clamp<int16_t>(DEST.u8[15] - SRC.u8[15], 0, UINT8_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1552,14 +1581,14 @@ void sse2_instruction::PSUBUSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBUSW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::clamp<int32_t>(DEST.i16[0] - SRC.i16[0], 0, UINT16_MAX);
-        DEST.i16[1] = std::clamp<int32_t>(DEST.i16[1] - SRC.i16[1], 0, UINT16_MAX);
-        DEST.i16[2] = std::clamp<int32_t>(DEST.i16[2] - SRC.i16[2], 0, UINT16_MAX);
-        DEST.i16[3] = std::clamp<int32_t>(DEST.i16[3] - SRC.i16[3], 0, UINT16_MAX);
-        DEST.i16[4] = std::clamp<int32_t>(DEST.i16[4] - SRC.i16[4], 0, UINT16_MAX);
-        DEST.i16[5] = std::clamp<int32_t>(DEST.i16[5] - SRC.i16[5], 0, UINT16_MAX);
-        DEST.i16[6] = std::clamp<int32_t>(DEST.i16[6] - SRC.i16[6], 0, UINT16_MAX);
-        DEST.i16[7] = std::clamp<int32_t>(DEST.i16[7] - SRC.i16[7], 0, UINT16_MAX);
+        DEST.u16[0] = std::clamp<int32_t>(DEST.u16[0] - SRC.u16[0], 0, UINT16_MAX);
+        DEST.u16[1] = std::clamp<int32_t>(DEST.u16[1] - SRC.u16[1], 0, UINT16_MAX);
+        DEST.u16[2] = std::clamp<int32_t>(DEST.u16[2] - SRC.u16[2], 0, UINT16_MAX);
+        DEST.u16[3] = std::clamp<int32_t>(DEST.u16[3] - SRC.u16[3], 0, UINT16_MAX);
+        DEST.u16[4] = std::clamp<int32_t>(DEST.u16[4] - SRC.u16[4], 0, UINT16_MAX);
+        DEST.u16[5] = std::clamp<int32_t>(DEST.u16[5] - SRC.u16[5], 0, UINT16_MAX);
+        DEST.u16[6] = std::clamp<int32_t>(DEST.u16[6] - SRC.u16[6], 0, UINT16_MAX);
+        DEST.u16[7] = std::clamp<int32_t>(DEST.u16[7] - SRC.u16[7], 0, UINT16_MAX);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1568,22 +1597,24 @@ void sse2_instruction::PUNPCKHBW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKHBW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = DEST.i8[8];
-        DEST.i8[1] = SRC.i8[8];
-        DEST.i8[2] = DEST.i8[9];
-        DEST.i8[3] = SRC.i8[9];
-        DEST.i8[4] = DEST.i8[10];
-        DEST.i8[5] = SRC.i8[10];
-        DEST.i8[6] = DEST.i8[11];
-        DEST.i8[7] = SRC.i8[11];
-        DEST.i8[8] = DEST.i8[12];
-        DEST.i8[9] = SRC.i8[12];
-        DEST.i8[10] = DEST.i8[13];
-        DEST.i8[11] = SRC.i8[13];
-        DEST.i8[12] = DEST.i8[14];
-        DEST.i8[13] = SRC.i8[14];
-        DEST.i8[14] = DEST.i8[15];
-        DEST.i8[15] = SRC.i8[15];
+        DEST.i8 = {
+            DEST.i8[8],
+            SRC.i8[8],
+            DEST.i8[9],
+            SRC.i8[9],
+            DEST.i8[10],
+            SRC.i8[10],
+            DEST.i8[11],
+            SRC.i8[11],
+            DEST.i8[12],
+            SRC.i8[12],
+            DEST.i8[13],
+            SRC.i8[13],
+            DEST.i8[14],
+            SRC.i8[14],
+            DEST.i8[15],
+            SRC.i8[15],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1592,14 +1623,16 @@ void sse2_instruction::PUNPCKHWD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKHWD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[4];
-        DEST.i16[1] = SRC.i16[4];
-        DEST.i16[2] = DEST.i16[5];
-        DEST.i16[3] = SRC.i16[5];
-        DEST.i16[4] = DEST.i16[6];
-        DEST.i16[5] = SRC.i16[6];
-        DEST.i16[6] = DEST.i16[7];
-        DEST.i16[7] = SRC.i16[7];
+        DEST.i16 = {
+            DEST.i16[4],
+            SRC.i16[4],
+            DEST.i16[5],
+            SRC.i16[5],
+            DEST.i16[6],
+            SRC.i16[6],
+            DEST.i16[7],
+            SRC.i16[7],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1608,10 +1641,12 @@ void sse2_instruction::PUNPCKHDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKHDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[2];
-        DEST.i32[1] = SRC.i32[2];
-        DEST.i32[2] = DEST.i32[3];
-        DEST.i32[3] = SRC.i32[3];
+        DEST.i32 = {
+            DEST.i32[2],
+            SRC.i32[2],
+            DEST.i32[3],
+            SRC.i32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1620,8 +1655,10 @@ void sse2_instruction::PUNPCKHQDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKHQDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[1];
-        DEST.i64[1] = SRC.i64[1];
+        DEST.i64 = {
+            DEST.i64[1],
+            SRC.i64[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1630,22 +1667,24 @@ void sse2_instruction::PUNPCKLBW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKLBW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = DEST.i8[0];
-        DEST.i8[2] = DEST.i8[1];
-        DEST.i8[4] = DEST.i8[2];
-        DEST.i8[6] = DEST.i8[3];
-        DEST.i8[8] = DEST.i8[4];
-        DEST.i8[10] = DEST.i8[5];
-        DEST.i8[12] = DEST.i8[6];
-        DEST.i8[14] = DEST.i8[7];
-        DEST.i8[1] = SRC.i8[0];
-        DEST.i8[3] = SRC.i8[1];
-        DEST.i8[5] = SRC.i8[2];
-        DEST.i8[7] = SRC.i8[3];
-        DEST.i8[9] = SRC.i8[4];
-        DEST.i8[11] = SRC.i8[5];
-        DEST.i8[13] = SRC.i8[6];
-        DEST.i8[15] = SRC.i8[7];
+        DEST.i8 = {
+            DEST.i8[0],
+            SRC.i8[0],
+            DEST.i8[1],
+            SRC.i8[1],
+            DEST.i8[2],
+            SRC.i8[2],
+            DEST.i8[3],
+            SRC.i8[3],
+            DEST.i8[4],
+            SRC.i8[4],
+            DEST.i8[5],
+            SRC.i8[5],
+            DEST.i8[6],
+            SRC.i8[6],
+            DEST.i8[7],
+            SRC.i8[7],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1654,14 +1693,16 @@ void sse2_instruction::PUNPCKLWD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKLWD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[0];
-        DEST.i16[2] = DEST.i16[1];
-        DEST.i16[4] = DEST.i16[2];
-        DEST.i16[6] = DEST.i16[3];
-        DEST.i16[1] = SRC.i16[0];
-        DEST.i16[3] = SRC.i16[1];
-        DEST.i16[5] = SRC.i16[2];
-        DEST.i16[7] = SRC.i16[3];
+        DEST.i16 = {
+            DEST.i16[0],
+            SRC.i16[0],
+            DEST.i16[1],
+            SRC.i16[1],
+            DEST.i16[2],
+            SRC.i16[2],
+            DEST.i16[3],
+            SRC.i16[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1670,10 +1711,12 @@ void sse2_instruction::PUNPCKLDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKLDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[0];
-        DEST.i32[2] = DEST.i32[1];
-        DEST.i32[1] = SRC.i32[0];
-        DEST.i32[3] = SRC.i32[1];
+        DEST.i32 = {
+            DEST.i32[0],
+            SRC.i32[0],
+            DEST.i32[1],
+            SRC.i32[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1682,8 +1725,10 @@ void sse2_instruction::PUNPCKLQDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PUNPCKLQDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0];
-        DEST.i64[1] = SRC.i64[0];
+        DEST.i64 = {
+            DEST.i64[0],
+            SRC.i64[0],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1756,7 +1801,7 @@ void sse2_instruction::UCOMISD(Format& format, const uint8_t* opcode)
         OF = 0;
         SF = 0;
         AF = 0;
-        if (DEST.f64[0] == SRC.f64[0]) {
+        if (isunordered(DEST.f64[0], SRC.f64[0])) {
             ZF = 1;
             PF = 1;
             CF = 1;
@@ -1784,8 +1829,10 @@ void sse2_instruction::UNPCKHPD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UNPCKHPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[1];
-        DEST.f64[1] = SRC.f64[1];
+        DEST.f64 = {
+            DEST.f64[1],
+            SRC.f64[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1794,8 +1841,10 @@ void sse2_instruction::UNPCKLPD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UNPCKLPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[0];
-        DEST.f64[1] = SRC.f64[0];
+        DEST.f64 = {
+            DEST.f64[0],
+            SRC.f64[0],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------

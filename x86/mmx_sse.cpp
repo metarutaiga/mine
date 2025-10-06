@@ -20,14 +20,11 @@ void mmx_instruction::MASKMOVQ(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (SRC2.i8[0] == 1) ? SRC1.i8[0] : 0;
-        DEST.i8[1] = (SRC2.i8[1] == 1) ? SRC1.i8[1] : 0;
-        DEST.i8[2] = (SRC2.i8[2] == 1) ? SRC1.i8[2] : 0;
-        DEST.i8[3] = (SRC2.i8[3] == 1) ? SRC1.i8[3] : 0;
-        DEST.i8[4] = (SRC2.i8[4] == 1) ? SRC1.i8[4] : 0;
-        DEST.i8[5] = (SRC2.i8[5] == 1) ? SRC1.i8[5] : 0;
-        DEST.i8[6] = (SRC2.i8[6] == 1) ? SRC1.i8[6] : 0;
-        DEST.i8[7] = (SRC2.i8[7] == 1) ? SRC1.i8[7] : 0;
+        for (int i = 0; i < 8; ++i) {
+            if (SRC2.i8[i] == 1) {
+                DEST.i8[i] = SRC1.i8[i];
+            }
+        }
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -75,14 +72,15 @@ void mmx_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0] % 4;
-        DEST.u16[0] = SRC.u16[SEL];
+        DEST.u32[0] = SRC.u16[SEL];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
 void mmx_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "PINSRW", 2, 8, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
-    format.operand[0].type = Format::Operand::REG;
+    if (format.operand[1].type == Format::Operand::MMX)
+        format.operand[1].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0] % 4;

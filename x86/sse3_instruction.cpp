@@ -52,8 +52,10 @@ void sse3_instruction::HADDPD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "HADDPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[0] + DEST.f64[1];
-        DEST.f64[2] = SRC.f64[0] + SRC.f64[1];
+        DEST.f64 = {
+            DEST.f64[0] + DEST.f64[1],
+            SRC.f64[0] + SRC.f64[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -62,10 +64,12 @@ void sse3_instruction::HADDPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "HADDPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = DEST.f32[0] + DEST.f32[1];
-        DEST.f32[1] = DEST.f32[2] + DEST.f32[3];
-        DEST.f32[2] = SRC.f32[0] + SRC.f32[0];
-        DEST.f32[3] = SRC.f32[2] + SRC.f32[3];
+        DEST.f32 = {
+            DEST.f32[0] + DEST.f32[1],
+            DEST.f32[2] + DEST.f32[3],
+            SRC.f32[0] + SRC.f32[1],
+            SRC.f32[2] + SRC.f32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -74,8 +78,10 @@ void sse3_instruction::HSUBPD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "HSUBPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[0] - DEST.f64[1];
-        DEST.f64[2] = SRC.f64[0] - SRC.f64[1];
+        DEST.f64 = {
+            DEST.f64[0] - DEST.f64[1],
+            SRC.f64[0] - SRC.f64[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -84,10 +90,12 @@ void sse3_instruction::HSUBPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "HSUBPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = DEST.f32[0] - DEST.f32[1];
-        DEST.f32[1] = DEST.f32[2] - DEST.f32[3];
-        DEST.f32[2] = SRC.f32[0] - SRC.f32[0];
-        DEST.f32[3] = SRC.f32[2] - SRC.f32[3];
+        DEST.f32 = {
+            DEST.f32[0] - DEST.f32[1],
+            DEST.f32[2] - DEST.f32[3],
+            SRC.f32[0] - SRC.f32[1],
+            SRC.f32[2] - SRC.f32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -114,8 +122,10 @@ void sse3_instruction::MOVDDUP(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVDDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = SRC.f64[0];
-        DEST.f64[1] = SRC.f64[0];
+        DEST.f64 = {
+            SRC.f64[0],
+            SRC.f64[0],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -124,10 +134,12 @@ void sse3_instruction::MOVSHDUP(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVSHDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = SRC.f32[1];
-        DEST.f32[1] = SRC.f32[1];
-        DEST.f32[2] = SRC.f32[3];
-        DEST.f32[3] = SRC.f32[3];
+        DEST.f32 = {
+            SRC.f32[1],
+            SRC.f32[1],
+            SRC.f32[3],
+            SRC.f32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -136,10 +148,12 @@ void sse3_instruction::MOVSLDUP(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "MOVSLDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = SRC.f32[0];
-        DEST.f32[1] = SRC.f32[0];
-        DEST.f32[2] = SRC.f32[2];
-        DEST.f32[3] = SRC.f32[2];
+        DEST.f32 = {
+            SRC.f32[0],
+            SRC.f32[0],
+            SRC.f32[2],
+            SRC.f32[2],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
