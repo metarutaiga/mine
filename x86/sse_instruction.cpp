@@ -214,6 +214,8 @@ void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPI2PS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    if (format.operand[1].type == Format::Operand::SSE)
+        format.operand[1].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.f32[0] = SRC.i32[0];
@@ -235,6 +237,8 @@ void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    if (format.operand[0].type == Format::Operand::SSE)
+        format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f32[0];
@@ -256,6 +260,8 @@ void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    if (format.operand[0].type == Format::Operand::SSE)
+        format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f32[0];
@@ -353,7 +359,10 @@ void sse_instruction::MINSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVAPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVAPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x28:  Decode(format, opcode, "MOVAPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x29:  Decode(format, opcode, "MOVAPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    }
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -362,7 +371,10 @@ void sse_instruction::MOVAPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x16:  Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x17:  Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    }
 
     // Since Katmai B0 Stepping
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type == Format::Operand::SSE) {
@@ -385,7 +397,10 @@ void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVLPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x12:  Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x13:  Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    }
 
     // Since Katmai B0 Stepping
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type == Format::Operand::SSE) {
@@ -422,7 +437,7 @@ void sse_instruction::MOVMSKPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVNTPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVNTPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVNTPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -431,7 +446,10 @@ void sse_instruction::MOVNTPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x10:  Decode(format, opcode, "MOVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
+    case 0x11:  Decode(format, opcode, "MOVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE);             break;
+    }
 
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type != Format::Operand::SSE) {
         BEGIN_OPERATION() {
@@ -450,7 +468,10 @@ void sse_instruction::MOVSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVUPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVUPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x10:  Decode(format, opcode, "MOVUPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x11:  Decode(format, opcode, "MOVUPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    }
 
     BEGIN_OPERATION() {
         DEST = SRC;

@@ -30,7 +30,7 @@ void mmx_instruction::MASKMOVQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::MOVNTQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVNTQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVNTQ", 2, 0, MMX_REGISTER | OPERAND_SIZE);
 
     BEGIN_OPERATION() {
         DEST = SRC;

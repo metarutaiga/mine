@@ -255,8 +255,8 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
         switch (operand.type) {
         case Format::Operand::ADR:
             width = format.width;
-            if (operand.flags & Format::Operand::BIT8)    width = 8;
-            if (operand.flags & Format::Operand::BIT16)   width = 16;
+            if (operand.flags & Format::Operand::BIT8)  width = 8;
+            if (operand.flags & Format::Operand::BIT16) width = 16;
             switch (width) {
             case 8:   disasm += "BYTE PTR";    break;
             case 16:  disasm += "WORD PTR";    break;
@@ -309,10 +309,10 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             continue;
         case Format::Operand::REG:
             width = format.width;
-            if (operand.flags & Format::Operand::BIT8)    width = 8;
-            if (operand.flags & Format::Operand::BIT16)   width = 16;
+            if (operand.flags & Format::Operand::BIT8)  width = 8;
+            if (operand.flags & Format::Operand::BIT16) width = 16;
 #if HAVE_X64
-            if (width == 8 && format.address > 32)                  width = -8;
+            if (width == 8 && format.address > 32)      width = -8;
 #endif
             switch (width) {
             case 8:  disasm += REG8HL[operand.base]; break;
@@ -322,7 +322,7 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             case 16: disasm += REG16[operand.base];  break;
             case 32: disasm += REG32[operand.base];  break;
 #if HAVE_X64
-            case 64: disasm += REG64[operand.base]; break;
+            case 64: disasm += REG64[operand.base];  break;
 #endif
             }
             continue;
@@ -403,10 +403,10 @@ void x86_format::Fixup(Format& format, x86_register& x86, x87_register& x87, mmx
             break;
         case Format::Operand::REG:
             width = format.width;
-            if (operand.flags & Format::Operand::BIT8)    width = 8;
-            if (operand.flags & Format::Operand::BIT16)   width = 16;
+            if (operand.flags & Format::Operand::BIT8)  width = 8;
+            if (operand.flags & Format::Operand::BIT16) width = 16;
 #if HAVE_X64
-            if (width == 8 && format.address > 32)                  width = -8;
+            if (width == 8 && format.address > 32)      width = -8;
 #endif
             if (width == 8 && operand.base >= 4) {
                 operand.memory = &x86.regs[operand.base - 4].h;

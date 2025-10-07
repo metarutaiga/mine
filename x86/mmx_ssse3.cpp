@@ -235,4 +235,3 @@ void mmx_instruction::PSIGND(Format& format, const uint8_t* opcode)
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
-

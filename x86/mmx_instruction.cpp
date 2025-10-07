@@ -26,16 +26,18 @@ void mmx_instruction::MOVD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
     case 0x6E:
-        Decode(format, opcode, "MOVD", 2, 0, OPERAND_SIZE | DIRECTION);
-        format.operand[0].type = Format::Operand::MMX;
+        Decode(format, opcode, "MOVD", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+        if (format.operand[1].type == Format::Operand::MMX)
+            format.operand[1].type = Format::Operand::REG;
         break;
     case 0x7E:
-        Decode(format, opcode, "MOVD", 2, 0, OPERAND_SIZE);
-        format.operand[1].type = Format::Operand::MMX;
+        Decode(format, opcode, "MOVD", 2, 0, MMX_REGISTER | OPERAND_SIZE);
+        if (format.operand[0].type == Format::Operand::MMX)
+            format.operand[0].type = Format::Operand::REG;
         break;
     }
 
-    if (format.operand[0].type == Format::Operand::MMX && format.operand[1].type != Format::Operand::MMX) {
+    if (format.operand[0].type == Format::Operand::MMX) {
         BEGIN_OPERATION() {
             DEST.u32[0] = SRC.u32[0];
             DEST.u32[1] = 0;
@@ -379,7 +381,12 @@ void mmx_instruction::PSLLD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSLLQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSLLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x73:  Decode(format, opcode, "PSLLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+                format.operand[1].type = Format::Operand::IMM;
+                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0xF3:  Decode(format, opcode, "PSLLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
+    }
 
     BEGIN_OPERATION() {
         auto COUNT = SRC.u8[0];
@@ -457,7 +464,12 @@ void mmx_instruction::PSRLD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSRLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    switch (opcode[1]) {
+    case 0x73:  Decode(format, opcode, "PSRLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+                format.operand[1].type = Format::Operand::IMM;
+                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0xD3:  Decode(format, opcode, "PSRLQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
+    }
 
     BEGIN_OPERATION() {
         auto COUNT = SRC.u8[0];

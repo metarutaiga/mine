@@ -40,11 +40,22 @@ void sse3_instruction::ADDSUBPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::FISTTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FISTTP", 2, 0, X87_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "FISTTP", 1, 0, X87_REGISTER);
+    switch (opcode[0]) {
+    case 0xDB:  format.width = 32;  break;
+    case 0xDF:
+        switch (opcode[1] & 0b00111000) {
+        case 0b00011000:    format.width = 16;  break;
+        case 0b00111000:    format.width = 64;  break;
+        }
+        break;
+    }
+    format.operand[1].type = Format::Operand::X87;
+    format.operand[1].base = 0;
 
     BEGIN_OPERATION() {
         DEST = SRC;
-    } END_OPERATION_RANGE_FLOAT(16, 64);
+    } END_OPERATION_RANGE_SIGNED_FLOAT(16, 64);
 }
 //------------------------------------------------------------------------------
 void sse3_instruction::HADDPD(Format& format, const uint8_t* opcode)
@@ -160,6 +171,7 @@ void sse3_instruction::MOVSLDUP(Format& format, const uint8_t* opcode)
 void sse3_instruction::MWAIT(Format& format, const uint8_t* opcode)
 {
     format.instruction = "MWAIT";
+    format.length = 3;
     format.operand_count = 0;
 
     OPERATION() {};
