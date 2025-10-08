@@ -21,17 +21,22 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
     format.operand[1].base = IndexREG(ESI);
 
     BEGIN_OPERATION() {
+        auto ecx = ECX;
+        auto esi = ESI;
+        auto edi = EDI;
+        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
+        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
         for (;;) {
             if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (ECX == 0)
+                if (ecx == 0)
                     break;
-                ECX--;
+                ecx--;
             }
-            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
-            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            esi += esi_move;
+            edi += edi_move;
             if (format.prefix == 0xF2 || format.prefix == 0xF3) {
                 if (format.prefix == 0xF2 && ZF == 1)
                     break;
@@ -41,6 +46,9 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
             }
             break;
         }
+        ECX = ecx;
+        ESI = esi;
+        EDI = edi;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -61,20 +69,25 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
     format.operand[1].base = IndexREG(ESI);
 
     BEGIN_OPERATION() {
+        auto ecx = ECX;
+        auto esi = ESI;
+        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
         for (;;) {
             if (format.prefix == 0xF3) {
-                if (ECX == 0)
+                if (ecx == 0)
                     break;
-                ECX--;
+                ecx--;
             }
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
             DEST = SRC;
-            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
+            esi += esi_move;
             if (format.prefix == 0xF3) {
                 continue;
             }
             break;
         }
+        ECX = ecx;
+        ESI = esi;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -95,22 +108,30 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
     format.operand[1].base = IndexREG(ESI);
 
     BEGIN_OPERATION() {
+        auto ecx = ECX;
+        auto esi = ESI;
+        auto edi = EDI;
+        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
+        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
         for (;;) {
             if (format.prefix == 0xF3) {
-                if (ECX == 0)
+                if (ecx == 0)
                     break;
-                ECX--;
+                ecx--;
             }
-            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + ESI);
+            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
+            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
             TEMP = SRC;
-            ESI = DF == 0 ? ESI + sizeof(SRC) : ESI - sizeof(SRC);
-            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            esi += esi_move;
+            edi += edi_move;
             if (format.prefix == 0xF3) {
                 continue;
             }
             break;
         }
+        ECX = ecx;
+        ESI = esi;
+        EDI = edi;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -131,15 +152,18 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     format.operand[1].base = IndexREG(EAX);
 
     BEGIN_OPERATION() {
+        auto ecx = ECX;
+        auto edi = EDI;
+        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
         for (;;) {
             if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (ECX == 0)
+                if (ecx == 0)
                     break;
-                ECX--;
+                ecx--;
             }
-            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            edi += edi_move;
             if (format.prefix == 0xF2 || format.prefix == 0xF3) {
                 if (format.prefix == 0xF2 && ZF == 1)
                     break;
@@ -149,6 +173,8 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
             }
             break;
         }
+        ECX = ecx;
+        EDI = edi;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -169,20 +195,25 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
     format.operand[1].base = IndexREG(EAX);
 
     BEGIN_OPERATION() {
+        auto ecx = ECX;
+        auto edi = EDI;
+        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
         for (;;) {
             if (format.prefix == 0xF3) {
-                if (ECX == 0)
+                if (ecx == 0)
                     break;
-                ECX--;
+                ecx--;
             }
-            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + EDI);
+            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
             TEMP = SRC;
-            EDI = DF == 0 ? EDI + sizeof(DEST) : EDI - sizeof(DEST);
+            edi += edi_move;
             if (format.prefix == 0xF3) {
                 continue;
             }
             break;
         }
+        ECX = ecx;
+        EDI = edi;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

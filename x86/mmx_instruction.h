@@ -9,7 +9,7 @@ struct mmx_instruction : public x86_format
     static instruction MOVQ;        // Move 64 Bits
     static instruction PACKSSWB;    // Pack with Signed Saturation
     static instruction PACKSSDW;    // Pack with Signed Saturation
-    static instruction PACKUSWB;    // Pack with UnSigned Saturation
+    static instruction PACKUSWB;    // Pack with Unsigned Saturation
     static instruction PADDB;       // Packed Add
     static instruction PADDW;       // Packed Add
     static instruction PADDD;       // Packed Add
@@ -67,6 +67,11 @@ struct mmx_instruction : public x86_format
     static instruction PMULHUW;     // Packed Multiply High Unsigned
     static instruction PSADBW;      // Packed Sum of Absolute Differences
     static instruction PSHUFW;      // Packed Shuffle Word
+
+    // SSE2 instruction set
+    static instruction PADDQ;       // Packed Add
+    static instruction PMULUDQ;     // Multiply Packed Unsigned Doubleword Integers
+    static instruction PSUBQ;       // Packed Subtract
 
     // SSSE3 instruction set
     static instruction PABSB;       // Packed Absolute Value Bytes

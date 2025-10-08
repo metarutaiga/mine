@@ -39,9 +39,8 @@ void x86_instruction::BT(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        int COUNT = (SRC % (sizeof(DEST) * 8));
         auto ONE = (DEST & 0) | 1;
-        CF = (DEST & (ONE << COUNT)) ? 1 : 0;
+        CF = (DEST & (ONE << SRC)) ? 1 : 0;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -53,10 +52,9 @@ void x86_instruction::BTC(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        int COUNT = (SRC % (sizeof(DEST) * 8));
         auto ONE = (DEST & 0) | 1;
-        CF = (DEST & (ONE << COUNT)) ? 1 : 0;
-        DEST = (DEST ^ (ONE << COUNT));
+        CF = (DEST & (ONE << SRC)) ? 1 : 0;
+        DEST = (DEST ^ (ONE << SRC));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -68,10 +66,9 @@ void x86_instruction::BTR(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        int COUNT = (SRC % (sizeof(DEST) * 8));
         auto ONE = (DEST & 0) | 1;
-        CF = (DEST & (ONE << COUNT)) ? 1 : 0;
-        DEST = (DEST & ~(ONE << COUNT));
+        CF = (DEST & (ONE << SRC)) ? 1 : 0;
+        DEST = (DEST & ~(ONE << SRC));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -83,10 +80,9 @@ void x86_instruction::BTS(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        int COUNT = (SRC % (sizeof(DEST) * 8));
         auto ONE = (DEST & 0) | 1;
-        CF = (DEST & (ONE << COUNT)) ? 1 : 0;
-        DEST = (DEST | (ONE << COUNT));
+        CF = (DEST & (ONE << SRC)) ? 1 : 0;
+        DEST = (DEST | (ONE << SRC));
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------

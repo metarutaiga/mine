@@ -213,6 +213,18 @@
 		F595F0272E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
 		F595F0282E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
 		F595F0292E6FE292000498EB /* unistd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595F0252E6FE28D000498EB /* unistd.cpp */; };
+		F595FFD92E9501F30096661A /* mmx_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD62E9501F30096661A /* mmx_ssse3.cpp */; };
+		F595FFDA2E9501F30096661A /* ssse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD82E9501F30096661A /* ssse3_instruction.cpp */; };
+		F595FFDB2E9501F30096661A /* mmx_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD62E9501F30096661A /* mmx_ssse3.cpp */; };
+		F595FFDC2E9501F30096661A /* ssse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD82E9501F30096661A /* ssse3_instruction.cpp */; };
+		F595FFDD2E9501F30096661A /* mmx_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD62E9501F30096661A /* mmx_ssse3.cpp */; };
+		F595FFDE2E9501F30096661A /* ssse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD82E9501F30096661A /* ssse3_instruction.cpp */; };
+		F595FFDF2E9501F30096661A /* mmx_ssse3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD62E9501F30096661A /* mmx_ssse3.cpp */; };
+		F595FFE02E9501F30096661A /* ssse3_instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFD82E9501F30096661A /* ssse3_instruction.cpp */; };
+		F595FFE22E95349E0096661A /* mmx_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFE12E9534990096661A /* mmx_sse2.cpp */; };
+		F595FFE32E95349E0096661A /* mmx_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFE12E9534990096661A /* mmx_sse2.cpp */; };
+		F595FFE42E95349E0096661A /* mmx_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFE12E9534990096661A /* mmx_sse2.cpp */; };
+		F595FFE52E95349E0096661A /* mmx_sse2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F595FFE12E9534990096661A /* mmx_sse2.cpp */; };
 		F5A7A0762E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
 		F5A7A0772E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
 		F5A7A0782E8EC4C700C7E565 /* shlwapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */; };
@@ -394,6 +406,10 @@
 		F595F0202E6E830F000498EB /* ucrt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ucrt.cpp; sourceTree = "<group>"; };
 		F595F0252E6FE28D000498EB /* unistd.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unistd.cpp; sourceTree = "<group>"; };
 		F595F02A2E71D63F000498EB /* x87.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = x87.c; sourceTree = "<group>"; };
+		F595FFD62E9501F30096661A /* mmx_ssse3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mmx_ssse3.cpp; sourceTree = "<group>"; };
+		F595FFD72E9501F30096661A /* ssse3_instruction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ssse3_instruction.h; sourceTree = "<group>"; };
+		F595FFD82E9501F30096661A /* ssse3_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ssse3_instruction.cpp; sourceTree = "<group>"; };
+		F595FFE12E9534990096661A /* mmx_sse2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mmx_sse2.cpp; sourceTree = "<group>"; };
 		F5A7A0752E8EC4C700C7E565 /* shlwapi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = shlwapi.cpp; sourceTree = "<group>"; };
 		F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = mmx_instruction.inl; sourceTree = "<group>"; };
 		F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = sse_instruction.inl; sourceTree = "<group>"; };
@@ -525,6 +541,14 @@
 		D6909FB92E1AC6650023F7B5 /* x86 */ = {
 			isa = PBXGroup;
 			children = (
+				F595EFF52E69DE49000498EB /* mmx_instruction.cpp */,
+				F595EFF42E69DCB4000498EB /* mmx_instruction.h */,
+				F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */,
+				F595EFF32E69D953000498EB /* mmx_register.h */,
+				F595EFFF2E69F132000498EB /* mmx_register.inl */,
+				F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */,
+				F595FFE12E9534990096661A /* mmx_sse2.cpp */,
+				F595FFD62E9501F30096661A /* mmx_ssse3.cpp */,
 				F595F0032E6A99EE000498EB /* sse_instruction.cpp */,
 				F595F0022E6A99C6000498EB /* sse_instruction.h */,
 				F5A7A07C2E8EDC4900C7E565 /* sse_instruction.inl */,
@@ -534,12 +558,8 @@
 				D61CAA8E2E90CDB30031B205 /* sse2_instruction.h */,
 				F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */,
 				D61CAA8F2E90CDC60031B205 /* sse3_instruction.h */,
-				F595EFF52E69DE49000498EB /* mmx_instruction.cpp */,
-				F595EFF42E69DCB4000498EB /* mmx_instruction.h */,
-				F5A7A07B2E8ED4CA00C7E565 /* mmx_instruction.inl */,
-				F595EFF32E69D953000498EB /* mmx_register.h */,
-				F595EFFF2E69F132000498EB /* mmx_register.inl */,
-				F5A7A07D2E8F8BC100C7E565 /* mmx_sse.cpp */,
+				F595FFD82E9501F30096661A /* ssse3_instruction.cpp */,
+				F595FFD72E9501F30096661A /* ssse3_instruction.h */,
 				D6C5FE4B2E2D51DB00A8E110 /* x86_arithmetic.cpp */,
 				F582D68D2E8052B200D70BDC /* x86_atomic.cpp */,
 				D6C5FE362E2A139B00A8E110 /* x86_bcd.cpp */,
@@ -848,11 +868,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F595EFF72E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
+				F5A7A07E2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFE52E95349E0096661A /* mmx_sse2.cpp in Sources */,
+				F595FFDB2E9501F30096661A /* mmx_ssse3.cpp in Sources */,
 				F595F0052E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F5A7A0842E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
 				F5A7A08E2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
-				F595EFF72E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
-				F5A7A07E2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFDC2E9501F30096661A /* ssse3_instruction.cpp in Sources */,
 				F595EF6E2E656989000498EB /* x86_arithmetic.cpp in Sources */,
 				F582D6902E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF6F2E656989000498EB /* x86_bcd.cpp in Sources */,
@@ -910,11 +933,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F595EFF82E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
+				F5A7A0812E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFE22E95349E0096661A /* mmx_sse2.cpp in Sources */,
+				F595FFDD2E9501F30096661A /* mmx_ssse3.cpp in Sources */,
 				F595F0042E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F5A7A0862E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
 				F5A7A08F2E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
-				F595EFF82E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
-				F5A7A0812E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFDE2E9501F30096661A /* ssse3_instruction.cpp in Sources */,
 				F595EF482E656900000498EB /* x86_arithmetic.cpp in Sources */,
 				F582D68F2E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF492E656900000498EB /* x86_bcd.cpp in Sources */,
@@ -977,11 +1003,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F595EFF62E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
+				F5A7A07F2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFE42E95349E0096661A /* mmx_sse2.cpp in Sources */,
+				F595FFDF2E9501F30096661A /* mmx_ssse3.cpp in Sources */,
 				F595F0072E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F5A7A0832E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
 				F5A7A0902E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
-				F595EFF62E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
-				F5A7A07F2E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFE02E9501F30096661A /* ssse3_instruction.cpp in Sources */,
 				F595EF972E6569C3000498EB /* x86_arithmetic.cpp in Sources */,
 				F582D68E2E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF982E6569C3000498EB /* x86_bcd.cpp in Sources */,
@@ -1039,11 +1068,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F595EFF92E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
+				F5A7A0802E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFE32E95349E0096661A /* mmx_sse2.cpp in Sources */,
+				F595FFD92E9501F30096661A /* mmx_ssse3.cpp in Sources */,
 				F595F0062E6A99EF000498EB /* sse_instruction.cpp in Sources */,
 				F5A7A0852E8FBCC500C7E565 /* sse2_instruction.cpp in Sources */,
 				F5A7A0912E8FDFFB00C7E565 /* sse3_instruction.cpp in Sources */,
-				F595EFF92E69DE4A000498EB /* mmx_instruction.cpp in Sources */,
-				F5A7A0802E8F8C5400C7E565 /* mmx_sse.cpp in Sources */,
+				F595FFDA2E9501F30096661A /* ssse3_instruction.cpp in Sources */,
 				F595EF102E65525E000498EB /* x86_arithmetic.cpp in Sources */,
 				F582D6912E8052B900D70BDC /* x86_atomic.cpp in Sources */,
 				F595EF112E65525E000498EB /* x86_bcd.cpp in Sources */,

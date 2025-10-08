@@ -9,7 +9,10 @@
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
 #include "mmx_instruction.h"
+#include "sse_register.h"
+#include "sse_register.inl"
 #include "sse_instruction.h"
+#include "sse_instruction.inl"
 
 //------------------------------------------------------------------------------
 #define X x86_i686::
@@ -153,6 +156,16 @@ const x86_instruction::instruction_pointer x86_i686::esc[512] =
 #undef m
 #undef S
 #undef s
+//------------------------------------------------------------------------------
+bool x86_i686::Initialize(allocator_t* allocator, size_t stack)
+{
+    if (x86_i586::Initialize(allocator, stack) == false)
+        return false;
+
+    MXCSR = 0x1F80;
+
+    return true;
+}
 //------------------------------------------------------------------------------
 const void* x86_i686::Register(int type) const
 {

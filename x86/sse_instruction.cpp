@@ -185,11 +185,8 @@ void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "COMISS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        OF = 0;
-        SF = 0;
-        AF = 0;
         if (isunordered(DEST.f32[0], SRC.f32[0])) {
-            ZF = 1;
+            ZF = 0;
             PF = 1;
             CF = 1;
         }
@@ -241,8 +238,24 @@ void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
         format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f32[0];
-        DEST.i32[1] = SRC.f32[1];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = roundf(SRC.f32[0]);
+            DEST.i32[1] = roundf(SRC.f32[1]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floorf(SRC.f32[0]);
+            DEST.i32[1] = floorf(SRC.f32[1]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceilf(SRC.f32[0]);
+            DEST.i32[1] = ceilf(SRC.f32[1]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = truncf(SRC.f32[0]);
+            DEST.i32[1] = truncf(SRC.f32[1]);
+            break;
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -253,7 +266,20 @@ void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
         format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f32[0];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = roundf(SRC.f32[0]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floorf(SRC.f32[0]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceilf(SRC.f32[0]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = truncf(SRC.f32[0]);
+            break;
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -303,15 +329,11 @@ void sse_instruction::DIVSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::LDMXCSR(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "LDMXCSR";
-    format.length = 3;
-    format.operand_count = 2;
+    Decode(format, opcode, "LDMXCSR", 2, 0, OPERAND_SIZE | DIRECTION);
     format.operand[0].flags = Format::Operand::HIDE;
-    format.operand[1].type = Format::Operand::REG;
-    format.operand[1].base = opcode[2] & 0b111;
 
     BEGIN_OPERATION() {
-        MXCSR.d = uint32_t(SRC);
+        MXCSR = uint32_t(SRC);
     } END_OPERATION_RANGE(32, 32);
 }
 //------------------------------------------------------------------------------
@@ -513,36 +535,32 @@ void sse_instruction::ORPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH0(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PREFETCH0";
-    format.length = 3;
-    format.operand_count = 0;
+    Decode(format, opcode, "PREFETCH0", 2);
+    format.operand_count = 1;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH1(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PREFETCH1";
-    format.length = 3;
-    format.operand_count = 0;
+    Decode(format, opcode, "PREFETCH1", 2);
+    format.operand_count = 1;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCH2(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PREFETCH2";
-    format.length = 3;
-    format.operand_count = 0;
+    Decode(format, opcode, "PREFETCH2", 2);
+    format.operand_count = 1;
 
     OPERATION() {};
 }
 //------------------------------------------------------------------------------
 void sse_instruction::PREFETCHNTA(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "PREFETCHNTA";
-    format.length = 3;
-    format.operand_count = 0;
+    Decode(format, opcode, "PREFETCHNTA", 2);
+    format.operand_count = 1;
 
     OPERATION() {};
 }
@@ -634,14 +652,11 @@ void sse_instruction::SQRTSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::STMXCSR(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "STMXCSR";
-    format.length = 3;
+    Decode(format, opcode, "STMXCSR", 2, 0, OPERAND_SIZE);
     format.operand_count = 1;
-    format.operand[0].type = Format::Operand::REG;
-    format.operand[0].base = opcode[2] & 0b111;
 
     BEGIN_OPERATION() {
-        DEST = MXCSR.d;
+        DEST = MXCSR;
     } END_OPERATION_RANGE(32, 32);
 }
 //------------------------------------------------------------------------------
@@ -671,9 +686,6 @@ void sse_instruction::UCOMISS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UCOMISS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        OF = 0;
-        SF = 0;
-        AF = 0;
         if (isunordered(DEST.f32[0], SRC.f32[0])) {
             ZF = 1;
             PF = 1;

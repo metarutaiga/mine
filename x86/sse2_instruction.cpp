@@ -58,8 +58,8 @@ void sse2_instruction::ANDPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::CLFLUSH(Format& format, const uint8_t* opcode)
 {
-    format.instruction = "CLFLUSH";
-    format.operand_count = 0;
+    Decode(format, opcode, "CLFLUSH", 2);
+    format.operand_count = 1;
 
     OPERATION() {};
 }
@@ -173,11 +173,8 @@ void sse2_instruction::COMISD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "COMISD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        OF = 0;
-        SF = 0;
-        AF = 0;
         if (isunordered(DEST.f64[0], SRC.f64[0])) {
-            ZF = 1;
+            ZF = 0;
             PF = 1;
             CF = 1;
         }
@@ -226,8 +223,24 @@ void sse2_instruction::CVTPD2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTPD2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f64[0];
-        DEST.i32[1] = SRC.f64[1];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = round(SRC.f64[0]);
+            DEST.i32[1] = round(SRC.f64[1]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floor(SRC.f64[0]);
+            DEST.i32[1] = floor(SRC.f64[1]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceil(SRC.f64[0]);
+            DEST.i32[1] = ceil(SRC.f64[1]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = trunc(SRC.f64[0]);
+            DEST.i32[1] = trunc(SRC.f64[1]);
+            break;
+        }
         DEST.i32[2] = 0;
         DEST.i32[3] = 0;
     } END_OPERATION_SSE;
@@ -239,8 +252,24 @@ void sse2_instruction::CVTPD2PI(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f64[0];
-        DEST.i32[1] = SRC.f64[1];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = round(SRC.f64[0]);
+            DEST.i32[1] = round(SRC.f64[1]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floor(SRC.f64[0]);
+            DEST.i32[1] = floor(SRC.f64[1]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceil(SRC.f64[0]);
+            DEST.i32[1] = ceil(SRC.f64[1]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = trunc(SRC.f64[0]);
+            DEST.i32[1] = trunc(SRC.f64[1]);
+            break;
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -273,10 +302,32 @@ void sse2_instruction::CVTPS2DQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTPS2DQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f32[0];
-        DEST.i32[1] = SRC.f32[1];
-        DEST.i32[2] = SRC.f32[2];
-        DEST.i32[3] = SRC.f32[3];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = roundf(SRC.f32[0]);
+            DEST.i32[1] = roundf(SRC.f32[1]);
+            DEST.i32[2] = roundf(SRC.f32[2]);
+            DEST.i32[3] = roundf(SRC.f32[3]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floorf(SRC.f32[0]);
+            DEST.i32[1] = floorf(SRC.f32[1]);
+            DEST.i32[2] = floorf(SRC.f32[2]);
+            DEST.i32[3] = floorf(SRC.f32[3]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceilf(SRC.f32[0]);
+            DEST.i32[1] = ceilf(SRC.f32[1]);
+            DEST.i32[2] = ceilf(SRC.f32[2]);
+            DEST.i32[3] = ceilf(SRC.f32[3]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = truncf(SRC.f32[0]);
+            DEST.i32[1] = truncf(SRC.f32[1]);
+            DEST.i32[2] = truncf(SRC.f32[2]);
+            DEST.i32[3] = truncf(SRC.f32[3]);
+            break;
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -285,8 +336,9 @@ void sse2_instruction::CVTPS2PD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "CVTPS2PD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = SRC.f32[0];
-        DEST.f64[1] = SRC.f32[1];
+        auto TEMP = SRC;
+        DEST.f64[0] = TEMP.f32[0];
+        DEST.f64[1] = TEMP.f32[1];
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -296,7 +348,20 @@ void sse2_instruction::CVTSD2SI(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f64[0];
+        switch (MXCSR_RC) {
+        case RoundNearest:
+            DEST.i32[0] = round(SRC.f64[0]);
+            break;
+        case RoundDown:
+            DEST.i32[0] = floor(SRC.f64[0]);
+            break;
+        case RoundUp:
+            DEST.i32[0] = ceil(SRC.f64[0]);
+            break;
+        case RoundChop:
+            DEST.i32[0] = trunc(SRC.f64[0]);
+            break;
+        }
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -1916,9 +1981,6 @@ void sse2_instruction::UCOMISD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "UCOMISD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        OF = 0;
-        SF = 0;
-        AF = 0;
         if (isunordered(DEST.f64[0], SRC.f64[0])) {
             ZF = 1;
             PF = 1;

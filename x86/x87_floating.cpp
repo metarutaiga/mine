@@ -224,10 +224,10 @@ void x87_instruction::FRNDINT(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         switch (RC) {
-        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(DEST));    break;
-        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(DEST));    break;
-        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(DEST));     break;
-        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(DEST));    break;
+        case RoundNearest:  DEST = round(DEST); break;
+        case RoundDown:     DEST = floor(DEST); break;
+        case RoundUp:       DEST = ceil(DEST);  break;
+        case RoundChop:     DEST = trunc(DEST); break;
         }
         C1 = 0;
     } END_OPERATION_RANGE_FLOAT(64, 64);

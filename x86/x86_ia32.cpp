@@ -45,12 +45,12 @@ const x86_instruction::instruction_pointer x86_ia32::one[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_ia32::two[256] =
 {      // 0           1           2           3          4           5          6           7            8           9           A           B           C            D            E         F
-/* 0 */ X grp6      x grp7      x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x _          x _       x _
+/* 0 */ X grp6      x grp7      x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x NOP        x _       x _
 /* 1 */ s MOVUPS    s MOVUPS    s MOVLPS    s MOVLPS   s UNPCKLPS  s UNPCKHPS s MOVHPS    s MOVHPS     x grp16     x _         x _         x _         x _          x _          x _       x NOP
 /* 2 */ x _         x _         x _         x _        x _         x _        x _         x _          s MOVAPS    s MOVAPS    s CVTPI2PS  s MOVNTPS   s CVTTPS2PI  s CVTPS2PI   s UCOMISS s COMISS
 /* 3 */ x _         x RDTSC     x _         x RDPMC    x _         x _        x _         x _          x THREE38   x _         x THREE3A   x _         x _          x _          x _       x _
 /* 4 */ x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc     x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc     x CMOVcc     x CMOVcc  x CMOVcc
-/* 5 */ s MOVMSKPS  s SQRTPS    s RSQRTPS   s RCPPS    s ANDPS     s ANDNPS   s ORPS      s XORPS      s ADDPS     s MULPS     x _         x _         s SUBPS      s MINPS      s DIVPS   s MAXPS
+/* 5 */ s MOVMSKPS  s SQRTPS    s RSQRTPS   s RCPPS    s ANDPS     s ANDNPS   s ORPS      s XORPS      s ADDPS     s MULPS     s CVTPS2PD  s CVTDQ2PS  s SUBPS      s MINPS      s DIVPS   s MAXPS
 /* 6 */ m PUNPCKLBW m PUNPCKLWD m PUNPCKLDQ m PACKSSWB m PCMPGTB   m PCMPGTW  m PCMPGTD   m PACKUSWB   m PUNPCKHBW m PUNPCKHWD m PUNPCKHDQ m PACKSSDW  x _          x _          m MOVD    m MOVQ
 /* 7 */ m PSHUFW    x grp12     x grp13     x grp14    m PCMPEQB   m PCMPEQW  m PCMPEQD   m EMMS       x _         x _         x _         x _         x _          x _          m MOVD    m MOVQ
 /* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc       x Jcc      x Jcc       x Jcc        x Jcc       x Jcc       x Jcc       x Jcc       x Jcc        x Jcc        x Jcc     x Jcc
@@ -58,9 +58,9 @@ const x86_instruction::instruction_pointer x86_ia32::two[256] =
 /* A */ x _         x _         x CPUID     x BT       x SHxD      x SHxD     x _         x _          x _         x _         x _         x BTS       x SHxD       x SHxD       x grp15   x IMUL
 /* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _         x _        x MOVZX     x MOVZX      x _         x _         x grp8      x BTC       x BSF        x BSR        x MOVSX   x MOVSX
 /* C */ x XADD      x XADD      s CMPPS     x _        m PINSRW    m PEXTRW   s SHUFPS    x grp9       x BSWAP     x BSWAP     x BSWAP     x BSWAP     x BSWAP      x BSWAP      x BSWAP   x BSWAP
-/* D */ x _         m PSRLW     m PSRLD     m PSRLQ    x _         m PMULLW   x _         m PMOVMSKB   m PSUBUSB   m PSUBUSW   m PMINUB    m PAND      m PADDUSB    m PADDUSW    m PMAXUB  m PANDN
+/* D */ x _         m PSRLW     m PSRLD     m PSRLQ    m PADDQ     m PMULLW   x _         m PMOVMSKB   m PSUBUSB   m PSUBUSW   m PMINUB    m PAND      m PADDUSB    m PADDUSW    m PMAXUB  m PANDN
 /* E */ m PAVGB     m PSRAW     m PSRAD     m PAVGW    m PMULHUW   m PMULHW   x _         m MOVNTQ     m PSUBSB    m PSUBSW    m PMINSW    m POR       m PADDSB     m PADDSW     m PMAXSW  m PXOR
-/* F */ x _         m PSLLW     m PSLLD     m PSLLQ    x _         m PMADDWD  m PSADBW    x _          m PSUBB     m PSUBW     m PSUBD     x _         m PADDB      m PADDW      m PADDD   x _
+/* F */ x _         m PSLLW     m PSLLD     m PSLLQ    m PMULUDQ   m PMADDWD  m PSADBW    m MASKMOVQ   m PSUBB     m PSUBW     m PSUBD     m PSUBQ     m PADDB      m PADDW      m PADDD   x _
 };
 //------------------------------------------------------------------------------
 // Two-Byte Opcode Map - 66
@@ -415,7 +415,7 @@ void x86_ia32::grp2(Format& format, const uint8_t* opcode)
 {
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    if (format.prefix == 0x66 && group66[2][mod][nnn] != _) {
         group66[2][mod][nnn](format, opcode);
     }
     else {
@@ -427,7 +427,7 @@ void x86_ia32::grp3(Format& format, const uint8_t* opcode)
 {
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    if (format.prefix == 0x66 && group66[3][mod][nnn] != _) {
         group66[3][mod][nnn](format, opcode);
     }
     else {
@@ -439,7 +439,7 @@ void x86_ia32::grp4(Format& format, const uint8_t* opcode)
 {
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    if (format.prefix == 0x66 && group66[4][mod][nnn] != _) {
         group66[4][mod][nnn](format, opcode);
     }
     else {
@@ -451,7 +451,7 @@ void x86_ia32::grp5(Format& format, const uint8_t* opcode)
 {
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    if (format.prefix == 0x66 && group66[5][mod][nnn] != _) {
         group66[5][mod][nnn](format, opcode);
     }
     else {
@@ -461,9 +461,9 @@ void x86_ia32::grp5(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp6(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[6][mod][nnn] != _) {
         group66[6][mod][nnn](format, opcode);
     }
     else {
@@ -473,9 +473,9 @@ void x86_ia32::grp6(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp7(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[7][mod][nnn] != _) {
         group66[7][mod][nnn](format, opcode);
     }
     else {
@@ -485,9 +485,9 @@ void x86_ia32::grp7(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp8(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[8][mod][nnn] != _) {
         group66[8][mod][nnn](format, opcode);
     }
     else {
@@ -497,9 +497,9 @@ void x86_ia32::grp8(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp9(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[9][mod][nnn] != _) {
         group66[9][mod][nnn](format, opcode);
     }
     else {
@@ -509,9 +509,9 @@ void x86_ia32::grp9(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp12(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[12][mod][nnn] != _) {
         group66[12][mod][nnn](format, opcode);
     }
     else {
@@ -521,9 +521,9 @@ void x86_ia32::grp12(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp13(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[13][mod][nnn] != _) {
         group66[13][mod][nnn](format, opcode);
     }
     else {
@@ -533,9 +533,9 @@ void x86_ia32::grp13(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp14(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[14][mod][nnn] != _) {
         group66[14][mod][nnn](format, opcode);
     }
     else {
@@ -545,9 +545,9 @@ void x86_ia32::grp14(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp15(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[15][mod][nnn] != _) {
         group66[15][mod][nnn](format, opcode);
     }
     else {
@@ -557,9 +557,9 @@ void x86_ia32::grp15(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp16(Format& format, const uint8_t* opcode)
 {
-    int nnn = ((opcode[1] >> 3) & 0b111);
-    int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
-    if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
+    int nnn = ((opcode[2] >> 3) & 0b111);
+    int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
+    if (format.prefix == 0x66 && group66[16][mod][nnn] != _) {
         group66[16][mod][nnn](format, opcode);
     }
     else {
@@ -595,6 +595,9 @@ void x86_ia32::CPUID(Format& format, const uint8_t* opcode)
             EDX |= (1 << 15);   // CMOV
             EDX |= (1 << 23);   // MMX
             EDX |= (1 << 25);   // SSE
+            EDX |= (1 << 26);   // SSE2
+            ECX |= (1 <<  0);   // SSE3
+            ECX |= (1 <<  9);   // SSSE3
             break;
         }
     };

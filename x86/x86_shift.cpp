@@ -12,7 +12,7 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         switch (opcode[1] >> 3 & 7) {
         case 4: Decode(format, opcode, "SHL", 1, 8, opcode[0] & 0b01);  break;
         case 5: Decode(format, opcode, "SHR", 1, 8, opcode[0] & 0b01);  break;
-        case 6: Decode(format, opcode, "SAL", 1, 8, opcode[0] & 0b01);  break;
+//      case 6: Decode(format, opcode, "SAL", 1, 8, opcode[0] & 0b01);  break;
         case 7: Decode(format, opcode, "SAR", 1, 8, opcode[0] & 0b01);  break;
         }
         break;
@@ -21,7 +21,7 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         switch (opcode[1] >> 3 & 7) {
         case 4: Decode(format, opcode, "SHL", 1, 0, opcode[0] & 0b01);  break;
         case 5: Decode(format, opcode, "SHR", 1, 0, opcode[0] & 0b01);  break;
-        case 6: Decode(format, opcode, "SAL", 1, 0, opcode[0] & 0b01);  break;
+//      case 6: Decode(format, opcode, "SAL", 1, 0, opcode[0] & 0b01);  break;
         case 7: Decode(format, opcode, "SAR", 1, 0, opcode[0] & 0b01);  break;
         }
         format.operand[1].type = Format::Operand::IMM;
@@ -32,7 +32,7 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
         switch (opcode[1] >> 3 & 7) {
         case 4: Decode(format, opcode, "SHL", 1, 0, opcode[0] & 0b01);  break;
         case 5: Decode(format, opcode, "SHR", 1, 0, opcode[0] & 0b01);  break;
-        case 6: Decode(format, opcode, "SAL", 1, 0, opcode[0] & 0b01);  break;
+//      case 6: Decode(format, opcode, "SAL", 1, 0, opcode[0] & 0b01);  break;
         case 7: Decode(format, opcode, "SAR", 1, 0, opcode[0] & 0b01);  break;
         }
         format.operand[1].flags = Format::Operand::BIT8;
@@ -44,26 +44,54 @@ void x86_instruction::Sxx(Format& format, const uint8_t* opcode)
     switch (opcode[1] >> 3 & 7) {
     case 4:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, DEST << COUNT);
+            uint32_t SIZE = (sizeof(DEST) * 8);
+            uint32_t COUNT = (SRC % 32);
+            if (COUNT == 0 || COUNT > SIZE)
+                return;
+            auto TEMP = DEST << COUNT;
+            CF = (DEST >> (SIZE - COUNT)) & 1;
+            if (COUNT == 1)
+                OF = MSB(TEMP) ^ SMSB(TEMP);
+            UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
         } END_OPERATION;
         break;
     case 5:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, DEST >> COUNT);
+            uint32_t SIZE = (sizeof(DEST) * 8);
+            uint32_t COUNT = (SRC % 32);
+            if (COUNT == 0 || COUNT > SIZE)
+                return;
+            auto TEMP = DEST >> COUNT;
+            CF = (DEST >> (COUNT - 1)) & 1;
+            if (COUNT == 1)
+                OF = MSB(DEST);
+            UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
         } END_OPERATION;
         break;
-    case 6:
-        BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, DEST << COUNT);
-        } END_OPERATION_SIGNED;
-        break;
+//  case 6:
+//      BEGIN_OPERATION() {
+//          uint32_t SIZE = (sizeof(DEST) * 8);
+//          uint32_t COUNT = (SRC % 32);
+//          if (COUNT == 0 || COUNT > SIZE)
+//              return;
+//          auto TEMP = DEST << COUNT;
+//          CF = (DEST >> (SIZE - COUNT)) & 1;
+//          if (COUNT == 1)
+//              OF = 0;
+//          UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
+//      } END_OPERATION_SIGNED;
+//      break;
     case 7:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, DEST >> COUNT);
+            uint32_t SIZE = (sizeof(DEST) * 8);
+            uint32_t COUNT = (SRC % 32);
+            if (COUNT == 0 || COUNT > SIZE)
+                return;
+            auto TEMP = DEST >> COUNT;
+            CF = (DEST >> (COUNT - 1)) & 1;
+            if (COUNT == 1)
+                OF = 0;
+            UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
         } END_OPERATION_SIGNED;
         break;
     }
@@ -91,15 +119,29 @@ void x86_instruction::SHxD(Format& format, const uint8_t* opcode)
     case 0xA4:
     case 0xA5:
         BEGIN_OPERATION() {
-            int COUNT = (SRC2 % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, (DEST << COUNT) | (SRC1 >> (sizeof(DEST) * 8 - COUNT)));
+            uint32_t SIZE = (sizeof(DEST) * 8);
+            uint32_t COUNT = (SRC2 % 32);
+            if (COUNT == 0 || COUNT > SIZE)
+                return;
+            auto TEMP = (DEST << COUNT) | (SRC1 >> (SIZE - COUNT));
+            CF = (DEST >> (SIZE - COUNT)) & 1;
+            if (COUNT == 1)
+                OF = MSB(TEMP) ^ SMSB(TEMP);
+            UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
         } END_OPERATION;
         break;
     case 0xAC:
     case 0xAD:
         BEGIN_OPERATION() {
-            int COUNT = (SRC2 % (sizeof(DEST) * 8));
-            UpdateFlags<_SZ_P_>(x86, DEST, (DEST >> COUNT) | (SRC1 << (sizeof(DEST) * 8 - COUNT)));
+            uint32_t SIZE = (sizeof(DEST) * 8);
+            uint32_t COUNT = (SRC2 % 32);
+            if (COUNT == 0 || COUNT > SIZE)
+                return;
+            auto TEMP = (DEST >> COUNT) | (SRC1 << (SIZE - COUNT));
+            CF = (DEST >> (COUNT - 1)) & 1;
+            if (COUNT == 1)
+                OF = MSB(DEST) ^ SMSB(DEST);
+            UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
         } END_OPERATION;
         break;
     }

@@ -41,14 +41,13 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         break;
     }
 
-#define LSB(v)  ((v                       ) & 1)
-#define MSB(v)  ((v >> (sizeof(v) * 8 - 1)) & 1)
-#define SMSB(v) ((v >> (sizeof(v) * 8 - 2)) & 1)
-
     switch (opcode[1] >> 3 & 7) {
     case 0:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
+            uint32_t SIZE = sizeof(DEST) * 8;
+            uint32_t COUNT = (SRC % SIZE);
+            if (COUNT == 0)
+                return;
             DEST = std::rotl(DEST, COUNT);
             CF = LSB(DEST);
             if (SRC == 1)
@@ -57,7 +56,10 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         break;
     case 1:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
+            uint32_t SIZE = sizeof(DEST) * 8;
+            uint32_t COUNT = (SRC % SIZE);
+            if (COUNT == 0)
+                return;
             DEST = std::rotr(DEST, COUNT);
             CF = MSB(DEST);
             if (SRC == 1)
@@ -66,7 +68,10 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         break;
     case 2:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
+            uint32_t SIZE = sizeof(DEST) * 8;
+            uint32_t COUNT = (SRC % (SIZE + 1));
+            if (COUNT == 0)
+                return;
             while (COUNT) {
                 int TEMP = MSB(DEST);
                 DEST = (DEST << 1) + CF;
@@ -79,13 +84,16 @@ void x86_instruction::Rxx(Format& format, const uint8_t* opcode)
         break;
     case 3:
         BEGIN_OPERATION() {
-            int COUNT = (SRC % (sizeof(DEST) * 8));
+            uint32_t SIZE = sizeof(DEST) * 8;
+            uint32_t COUNT = (SRC % (SIZE + 1));
+            if (COUNT == 0)
+                return;
             if (SRC == 1)
                 OF = MSB(DEST) ^ CF;
             while (COUNT) {
                 auto cf = (DEST & 0) | CF;
                 int TEMP = LSB(DEST);
-                DEST = (DEST >> 1) + (cf << (sizeof(DEST) * 8 - 1));
+                DEST = (DEST >> 1) + (cf << (SIZE - 1));
                 CF = TEMP;
                 COUNT = COUNT - 1;
             }

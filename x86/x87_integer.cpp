@@ -145,10 +145,10 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         switch (RC) {
-        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(SRC));     break;
-        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(SRC));     break;
-        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(SRC));      break;
-        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(SRC));     break;
+        case RoundNearest:  DEST = round(SRC);  break;
+        case RoundDown:     DEST = floor(SRC);  break;
+        case RoundUp:       DEST = ceil(SRC);   break;
+        case RoundChop:     DEST = trunc(SRC);  break;
         }
         C1 = 0;
     } END_OPERATION_RANGE_SIGNED_FLOAT(16, 32);
@@ -171,10 +171,10 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         switch (RC) {
-        case RoundNearest:  DEST = std::remove_reference_t<decltype(DEST)>(round(SRC));     break;
-        case RoundDown:     DEST = std::remove_reference_t<decltype(DEST)>(floor(SRC));     break;
-        case RoundUp:       DEST = std::remove_reference_t<decltype(DEST)>(ceil(SRC));      break;
-        case RoundChop:     DEST = std::remove_reference_t<decltype(DEST)>(trunc(SRC));     break;
+        case RoundNearest:  DEST = round(SRC);  break;
+        case RoundDown:     DEST = floor(SRC);  break;
+        case RoundUp:       DEST = ceil(SRC);   break;
+        case RoundChop:     DEST = trunc(SRC);  break;
         }
         C1 = 0;
         TOP = TOP + 1;

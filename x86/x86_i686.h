@@ -16,6 +16,7 @@ public:
     x86_i686(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i586(step) {}
 
 protected:
+    bool Initialize(allocator_t* allocator, size_t stack) override;
     const void* Register(int type) const override;
     std::string Status() const override;
 
