@@ -1404,7 +1404,7 @@ void sse2_instruction::PSADBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSHUFD", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -1417,7 +1417,7 @@ void sse2_instruction::PSHUFD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFHW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFHW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSHUFHW", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -1430,7 +1430,7 @@ void sse2_instruction::PSHUFHW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFLW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSHUFLW", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
