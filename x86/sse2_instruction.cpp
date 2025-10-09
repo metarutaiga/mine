@@ -1162,7 +1162,7 @@ void sse2_instruction::PCMPGTD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PEXTRW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PEXTRW", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -1173,7 +1173,7 @@ void sse2_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PINSRW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PINSRW", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
     if (format.operand[1].type == Format::Operand::SSE)
         format.operand[1].type = Format::Operand::REG;
 
@@ -1444,9 +1444,7 @@ void sse2_instruction::PSHUFLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSLLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x71:  Decode(format, opcode, "PSLLW", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xF1:  Decode(format, opcode, "PSLLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1466,9 +1464,7 @@ void sse2_instruction::PSLLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSLLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x72:  Decode(format, opcode, "PSLLD", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xF2:  Decode(format, opcode, "PSLLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1484,9 +1480,7 @@ void sse2_instruction::PSLLD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSLLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x73:  Decode(format, opcode, "PSLLQ", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xF3:  Decode(format, opcode, "PSLLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1520,9 +1514,7 @@ void sse2_instruction::PSLLDQ(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRAW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRAW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x71:  Decode(format, opcode, "PSRAW", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xE1:  Decode(format, opcode, "PSRAW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1542,9 +1534,7 @@ void sse2_instruction::PSRAW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRAD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRAD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x72:  Decode(format, opcode, "PSRAD", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xE2:  Decode(format, opcode, "PSRAD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1560,9 +1550,7 @@ void sse2_instruction::PSRAD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x71:  Decode(format, opcode, "PSRLW", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xD1:  Decode(format, opcode, "PSRLW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1582,9 +1570,7 @@ void sse2_instruction::PSRLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x72:  Decode(format, opcode, "PSRLD", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xD2:  Decode(format, opcode, "PSRLD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1600,9 +1586,7 @@ void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSRLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = IMM8(opcode, 3);                               break;
+    case 0x73:  Decode(format, opcode, "PSRLQ", 2, 8, SSE_REGISTER | OPERAND_SIZE);             break;
     case 0xD3:  Decode(format, opcode, "PSRLQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
