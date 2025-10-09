@@ -70,10 +70,15 @@ struct x86_instruction : public x86_format
     static instruction POPF;        // Pop Stack into FLAGS Register
     static instruction PUSH;        // Push Operand onto the Stack
     static instruction PUSHF;       // Push FLAGS Register onto the Stack
-    static instruction Rxx;         // Rotate
+    static instruction RCL;         // Rotate
+    static instruction RCR;         // Rotate
+    static instruction ROL;         // Rotate
+    static instruction ROR;         // Rotate
     static instruction RET;         // Return from Procedure
     static instruction SAHF;        // Store AH into Flags
-    static instruction Sxx;         // Shift Instructions
+    static instruction SHL;         // Shift Instructions
+    static instruction SHR;         // Shift Instructions
+    static instruction SAR;         // Shift Instructions
     static instruction SBB;         // Integer Subtraction with Borrow
     static instruction STC;         // Set Carry Flag
     static instruction STD;         // Set Direction Flag
@@ -122,7 +127,8 @@ struct x86_instruction : public x86_format
     static instruction PUSHAD;      // Push all General Registers
     static instruction PUSHFD;      // Push EFLAGS Register onto the Stack
     static instruction SETcc;       // Byte Set on Condition
-    static instruction SHxD;        // Double Precision Shift
+    static instruction SHLD;        // Double Precision Shift
+    static instruction SHRD;        // Double Precision Shift
 
     // 80486 - 1989
     static instruction BSWAP;       // Byte Swap

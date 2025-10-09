@@ -1,8 +1,9 @@
 //==============================================================================
 // The 8086 Family Users Manual
-// October 1979
+// (Order Number 9800722)
 //
-// Intel Corporation 1978, 1979
+// October 1979
+// (C) Intel Corporation 1978, 1979
 //==============================================================================
 #include <stdarg.h>
 #include "x86_i86.h"
@@ -44,7 +45,7 @@ const x86_instruction::instruction_pointer x86_i86::group[6][8] =
 {        // 0      1     2      3     4     5      6      7
 /* 0 */ { o _    x _   x _    x _   x _   x _    x _    x _    },
 /* 1 */ { o ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
-/* 2 */ { o Rxx  x Rxx x Rxx  x Rxx x Sxx x Sxx  x _    x Sxx  },
+/* 2 */ { o ROL  x ROR x RCL  x RCR x SHL x SHR  x _    x SAR  },
 /* 3 */ { o TEST x _   x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
 /* 4 */ { o INC  x DEC x _    x _   x _   x _    x _    x _    },
 /* 5 */ { o INC  x DEC x CALL x _   x JMP x _    x PUSH x _    },

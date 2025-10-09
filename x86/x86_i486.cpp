@@ -1,7 +1,9 @@
 //==============================================================================
 // i486(TM) MICROPROCESSOR PROGRAMMER'S REFERENCE MANUAL
+// (Order Number 240486)
 //
 // 1990
+// (C) INTEL CORPORATION 1989
 //==============================================================================
 #include "x86_i486.h"
 #include "x86_register.h"
@@ -49,7 +51,7 @@ const x86_instruction::instruction_pointer x86_i486::two[256] =
 /* 7 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 8 */ x Jcc     x Jcc     x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
 /* 9 */ x SETcc   x SETcc   x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
-/* A */ x _       x _       x _     x BT    x SHxD  x SHxD  x _     x _     x _     x _     x _     x BTS   x SHxD  x SHxD  x _     x IMUL
+/* A */ x _       x _       x _     x BT    x SHLD  x SHLD  x _     x _     x _     x _     x _     x BTS   x SHRD  x SHRD  x _     x IMUL
 /* B */ x CMPXCHG x CMPXCHG x _     x BTR   x _     x _     x MOVZX x MOVZX x _     x _     x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
 /* C */ x XADD    x XADD    x _     x _     x _     x _     x _     x _     x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP
 /* D */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _

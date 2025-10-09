@@ -1,7 +1,10 @@
 //==============================================================================
 // Pentium(TM) Processor User's Manual, Volume 3
+// Architecture and Programming Manual
+// (Order Number 241430)
 //
 // 1993
+// (C) INTEL CORPORATION 1993
 //==============================================================================
 #pragma once
 

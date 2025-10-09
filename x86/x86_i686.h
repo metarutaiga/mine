@@ -1,7 +1,9 @@
 //==============================================================================
-// Pentium(TM) Pro Family Developers Manual Volume 3
+// The Intel Architecture Software Developer’s Manual, Volume 2
+// Instruction Set Reference
+// (Order Number 243191)
 //
-// 1996
+// COPYRIGHT (C) INTEL CORPORATION 1999
 //==============================================================================
 #pragma once
 

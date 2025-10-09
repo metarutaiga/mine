@@ -1,7 +1,9 @@
 //==============================================================================
-// IA-32 Intel (R) Architecture Software Developer’s Manual
+// The IA-32 Intel Architecture Software Developer’s Manual, Volumes 2A & 2B
+// Instruction Set Reference
+// (Order Number 253666)
 //
-// 2004
+// Copyright (C) 1997-2004 Intel Corporation
 //==============================================================================
 #pragma once
 

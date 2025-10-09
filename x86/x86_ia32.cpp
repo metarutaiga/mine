@@ -1,7 +1,9 @@
 //==============================================================================
-// IA-32 Intel (R) Architecture Software Developer’s Manual
+// The IA-32 Intel Architecture Software Developer’s Manual, Volumes 2A & 2B
+// Instruction Set Reference
+// (Order Number 253666)
 //
-// 2004
+// Copyright (C) 1997-2004 Intel Corporation
 //==============================================================================
 #include "x86_ia32.h"
 #include "x86_register.h"
@@ -55,7 +57,7 @@ const x86_instruction::instruction_pointer x86_ia32::two[256] =
 /* 7 */ m PSHUFW    x grp12     x grp13     x grp14    m PCMPEQB   m PCMPEQW  m PCMPEQD   m EMMS       x _         x _         x _         x _         x _          x _          m MOVD    m MOVQ
 /* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc       x Jcc      x Jcc       x Jcc        x Jcc       x Jcc       x Jcc       x Jcc       x Jcc        x Jcc        x Jcc     x Jcc
 /* 9 */ x SETcc     x SETcc     x SETcc     x SETcc    x SETcc     x SETcc    x SETcc     x SETcc      x SETcc     x SETcc     x SETcc     x SETcc     x SETcc      x SETcc      x SETcc   x SETcc
-/* A */ x _         x _         x CPUID     x BT       x SHxD      x SHxD     x _         x _          x _         x _         x _         x BTS       x SHxD       x SHxD       x grp15   x IMUL
+/* A */ x _         x _         x CPUID     x BT       x SHLD      x SHLD     x _         x _          x _         x _         x _         x BTS       x SHRD       x SHRD       x grp15   x IMUL
 /* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _         x _        x MOVZX     x MOVZX      x _         x _         x grp8      x BTC       x BSF        x BSR        x MOVSX   x MOVSX
 /* C */ x XADD      x XADD      s CMPPS     x _        m PINSRW    m PEXTRW   s SHUFPS    x grp9       x BSWAP     x BSWAP     x BSWAP     x BSWAP     x BSWAP      x BSWAP      x BSWAP   x BSWAP
 /* D */ x _         m PSRLW     m PSRLD     m PSRLQ    m PADDQ     m PMULLW   x _         m PMOVMSKB   m PSUBUSB   m PSUBUSW   m PMINUB    m PAND      m PADDUSB    m PADDUSW    m PMAXUB  m PANDN
@@ -225,8 +227,8 @@ const x86_instruction::instruction_pointer x86_ia32::group[17][2][8] =
 /*  0 11B */  { X _           x _         x _         x _         x _     x _      x _      x _       }, },
 /*  1 mem */{ { X ADD         x OR        x ADC       x SBB       x AND   x SUB    x XOR    x CMP     },
 /*  1 11B */  { X ADD         x OR        x ADC       x SBB       x AND   x SUB    x XOR    x CMP     }, },
-/*  2 mem */{ { X Rxx         x Rxx       x Rxx       x Rxx       x Sxx   x Sxx    x _      x Sxx     },
-/*  2 11B */  { X Rxx         x Rxx       x Rxx       x Rxx       x Sxx   x Sxx    x _      x Sxx     }, },
+/*  2 mem */{ { X ROL         x ROR       x RCL       x RCR       x SHL   x SHR    x _      x SAR     },
+/*  2 11B */  { X ROL         x ROR       x RCL       x RCR       x SHL   x SHR    x _      x SAR     }, },
 /*  3 mem */{ { X TEST        x _         x NOT       x NEG       x MUL   x IMUL   x DIV    x IDIV    },
 /*  3 11B */  { X TEST        x _         x NOT       x NEG       x MUL   x IMUL   x DIV    x IDIV    }, },
 /*  4 mem */{ { X INC         x DEC       x _         x _         x _     x _      x _      x _       },

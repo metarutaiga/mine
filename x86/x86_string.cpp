@@ -20,36 +20,44 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
 
-    BEGIN_OPERATION() {
-        auto ecx = ECX;
-        auto esi = ESI;
-        auto edi = EDI;
-        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
-        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
-        for (;;) {
-            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (ecx == 0)
-                    break;
+    switch (format.prefix) {
+    case 0xF2:
+    case 0xF3:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto compare = (format.prefix == 0xF2) ? 1 : 0;
+            auto PDEST = &DEST;
+            auto PSRC = &SRC;
+            auto esi = ESI;
+            auto edi = EDI;
+            auto ecx = ECX;
+            while (ecx) {
                 ecx--;
+                auto TEMP = (*PDEST);
+                auto SRC = (*PSRC);
+                UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
+                PSRC += step;
+                PDEST += step;
+                esi += sizeof(DEST) * step;
+                edi += sizeof(DEST) * step;
+                if (ZF == compare)
+                    break;
             }
-            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
+            ESI = esi;
+            EDI = edi;
+            ECX = ecx;
+        } END_OPERATION;
+        break;
+    default:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto TEMP = DEST;
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-            esi += esi_move;
-            edi += edi_move;
-            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (format.prefix == 0xF2 && ZF == 1)
-                    break;
-                if (format.prefix == 0xF3 && ZF == 0)
-                    break;
-                continue;
-            }
-            break;
-        }
-        ECX = ecx;
-        ESI = esi;
-        EDI = edi;
-    } END_OPERATION;
+            ESI += sizeof(DEST) * step;
+            EDI += sizeof(DEST) * step;
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
@@ -68,27 +76,29 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EAX);
     format.operand[1].base = IndexREG(ESI);
 
-    BEGIN_OPERATION() {
-        auto ecx = ECX;
-        auto esi = ESI;
-        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
-        for (;;) {
-            if (format.prefix == 0xF3) {
-                if (ecx == 0)
-                    break;
+    switch (format.prefix) {
+    case 0xF3:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto PSRC = &SRC;
+            auto ecx = ECX;
+            while (ecx) {
                 ecx--;
+                DEST = (*PSRC);
+                PSRC += step;
             }
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
+            ESI += sizeof(DEST) * step * ECX;
+            ECX = 0;
+        } END_OPERATION;
+        break;
+    default:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
             DEST = SRC;
-            esi += esi_move;
-            if (format.prefix == 0xF3) {
-                continue;
-            }
-            break;
-        }
-        ECX = ecx;
-        ESI = esi;
-    } END_OPERATION;
+            ESI += sizeof(DEST) * step;
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
@@ -107,32 +117,33 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
 
-    BEGIN_OPERATION() {
-        auto ecx = ECX;
-        auto esi = ESI;
-        auto edi = EDI;
-        auto esi_move = DF == 0 ? sizeof(SRC) : -sizeof(SRC);
-        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
-        for (;;) {
-            if (format.prefix == 0xF3) {
-                if (ecx == 0)
-                    break;
+    switch (format.prefix) {
+    case 0xF3:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto PDEST = &DEST;
+            auto PSRC = &SRC;
+            auto ecx = ECX;
+            while (ecx) {
                 ecx--;
+                (*PDEST) = (*PSRC);
+                PDEST += step;
+                PSRC += step;
             }
-            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
-            auto SRC = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + esi);
-            TEMP = SRC;
-            esi += esi_move;
-            edi += edi_move;
-            if (format.prefix == 0xF3) {
-                continue;
-            }
-            break;
-        }
-        ECX = ecx;
-        ESI = esi;
-        EDI = edi;
-    } END_OPERATION;
+            ESI += sizeof(DEST) * step * ECX;
+            EDI += sizeof(DEST) * step * ECX;
+            ECX = 0;
+        } END_OPERATION;
+        break;
+    default:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            DEST = SRC;
+            ESI += sizeof(DEST) * step;
+            EDI += sizeof(DEST) * step;
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
@@ -151,31 +162,39 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
 
-    BEGIN_OPERATION() {
-        auto ecx = ECX;
-        auto edi = EDI;
-        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
-        for (;;) {
-            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (ecx == 0)
-                    break;
+    switch (format.prefix) {
+    case 0xF2:
+    case 0xF3:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto compare = (format.prefix == 0xF2) ? 1 : 0;
+            auto SRC = SRC1;
+            auto PDEST = &DEST;
+            auto edi = EDI;
+            auto ecx = ECX;
+            while (ecx) {
                 ecx--;
+                auto TEMP = (*PDEST);
+                UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
+                PDEST += step;
+                edi += sizeof(DEST) * step;
+                if (ZF == compare)
+                    break;
             }
-            auto TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
+            EDI = edi;
+            ECX = ecx;
+        } END_OPERATION;
+        break;
+    default:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto TEMP = DEST;
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-            edi += edi_move;
-            if (format.prefix == 0xF2 || format.prefix == 0xF3) {
-                if (format.prefix == 0xF2 && ZF == 1)
-                    break;
-                if (format.prefix == 0xF3 && ZF == 0)
-                    break;
-                continue;
-            }
-            break;
-        }
-        ECX = ecx;
-        EDI = edi;
-    } END_OPERATION;
+            ESI += sizeof(DEST) * step;
+            EDI += sizeof(DEST) * step;
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------
 void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
@@ -194,26 +213,29 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
 
-    BEGIN_OPERATION() {
-        auto ecx = ECX;
-        auto edi = EDI;
-        auto edi_move = DF == 0 ? sizeof(DEST) : -sizeof(DEST);
-        for (;;) {
-            if (format.prefix == 0xF3) {
-                if (ecx == 0)
-                    break;
+    switch (format.prefix) {
+    case 0xF3:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            auto SRC = SRC1;
+            auto PDEST = &DEST;
+            auto ecx = ECX;
+            while (ecx) {
                 ecx--;
+                (*PDEST) = SRC;
+                PDEST += step;
             }
-            auto& TEMP = *(std::remove_reference_t<decltype(DEST)>*)(x86.memory_address + edi);
-            TEMP = SRC;
-            edi += edi_move;
-            if (format.prefix == 0xF3) {
-                continue;
-            }
-            break;
-        }
-        ECX = ecx;
-        EDI = edi;
-    } END_OPERATION;
+            EDI += sizeof(DEST) * ECX;
+            ECX = 0;
+        } END_OPERATION;
+        break;
+    default:
+        BEGIN_OPERATION() {
+            auto step = (DF == 0) ? 1 : -1;
+            DEST = SRC;
+            EDI += sizeof(DEST) * step;
+        } END_OPERATION;
+        break;
+    }
 }
 //------------------------------------------------------------------------------

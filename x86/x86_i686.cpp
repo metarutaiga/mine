@@ -1,7 +1,9 @@
 //==============================================================================
-// Pentium(TM) Pro Family Developers Manual Volume 3
+// The Intel Architecture Software Developer’s Manual, Volume 2
+// Instruction Set Reference
+// (Order Number 243191)
 //
-// 1996
+// COPYRIGHT (C) INTEL CORPORATION 1999
 //==============================================================================
 #include "x86_i686.h"
 #include "x86_register.h"
@@ -58,7 +60,7 @@ const x86_instruction::instruction_pointer x86_i686::two[256] =
 /* 7 */ m PSHUFW    x grp13     x grp14     x grp15    m PCMPEQB  m PCMPEQW  m PCMPEQD m EMMS     x _         x _         x _         x _        x _         x _        m MOVD    m MOVQ
 /* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc      x Jcc      x Jcc     x Jcc      x Jcc       x Jcc       x Jcc       x Jcc      x Jcc       x Jcc      x Jcc     x Jcc
 /* 9 */ x SETcc     x SETcc     x SETcc     x SETcc    x SETcc    x SETcc    x SETcc   x SETcc    x SETcc     x SETcc     x SETcc     x SETcc    x SETcc     x SETcc    x SETcc   x SETcc
-/* A */ x _         x _         x CPUID     x BT       x SHxD     x SHxD     x _       x _        x _         x _         x _         x BTS      x SHxD      x SHxD     x grp16   x IMUL
+/* A */ x _         x _         x CPUID     x BT       x SHLD     x SHLD     x _       x _        x _         x _         x _         x BTS      x SHRD      x SHRD     x grp16   x IMUL
 /* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _        x _        x MOVZX   x MOVZX    x _         x _         x grp8      x BTC      x BSF       x BSR      x MOVSX   x MOVSX
 /* C */ x XADD      x XADD      s CMPPS     x _        m PINSRW   m PEXTRW   s SHUFPS  x grp9     x BSWAP     x BSWAP     x BSWAP     x BSWAP    x BSWAP     x BSWAP    x BSWAP   x BSWAP
 /* D */ x _         m PSRLW     m PSRLD     m PSRLQ    x _        m PMULLW   x _       m PMOVMSKB m PSUBUSB   m PSUBUSW   m PMINUB    m PAND     m PADDUSB   m PADDUSW  m PMAXUB  m PANDN
@@ -94,7 +96,7 @@ const x86_instruction::instruction_pointer x86_i686::group[18][8] =
 {        // 0             1           2           3           4       5      6       7
 /*  0 */{ X _           x _         x _         x _         x _     x _    x _     x _      },
 /*  1 */{ X ADD         x OR        x ADC       x SBB       x AND   x SUB  x XOR   x CMP    },
-/*  2 */{ X Rxx         x Rxx       x Rxx       x Rxx       x Sxx   x Sxx  x _     x Sxx    },
+/*  2 */{ X ROL         x ROR       x RCL       x RCR       x SHL   x SHR  x _     x SAR    },
 /*  3 */{ X TEST        x _         x NOT       x NEG       x MUL   x IMUL x DIV   x IDIV   },
 /*  4 */{ X INC         x DEC       x _         x _         x _     x _    x _     x _      },
 /*  5 */{ X INC         x DEC       x CALL      x _         x JMP   x _    x PUSH  x _      },

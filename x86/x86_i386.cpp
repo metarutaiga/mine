@@ -1,7 +1,8 @@
 //==============================================================================
 // 80386 Programmer's Reference Manual
-// 1986
+// (Order Number 230985)
 //
+// 1986
 // INTEL CORPORATION 1987
 //==============================================================================
 #include <stdarg.h>
@@ -57,7 +58,7 @@ const x86_instruction::instruction_pointer x86_i386::two[256] =
 /* 7 */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 8 */ x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
 /* 9 */ x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
-/* A */ x _     x _     x _     x BT    x SHxD  x SHxD  x _     x _     x _     x _     x _     x BTS   x SHxD  x SHxD  x _     x IMUL
+/* A */ x _     x _     x _     x BT    x SHLD  x SHLD  x _     x _     x _     x _     x _     x BTS   x SHRD  x SHRD  x _     x IMUL
 /* B */ x _     x _     x _     x BTR   x _     x _     x MOVZX x MOVZX x _     x _     x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
 /* C */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* D */ x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
@@ -71,7 +72,7 @@ const x86_instruction::instruction_pointer x86_i386::group[9][8] =
 {        // 0      1     2      3     4     5      6      7
 /* 0 */ { X _    x _   x _    x _   x _   x _    x _    x _    },
 /* 1 */ { X ADD  x OR  x ADC  x SBB x AND x SUB  x XOR  x CMP  },
-/* 2 */ { X Rxx  x Rxx x Rxx  x Rxx x Sxx x Sxx  x _    x Sxx  },
+/* 2 */ { X ROL  x ROR x RCL  x RCR x SHL x SHR  x _    x SAR  },
 /* 3 */ { X TEST x _   x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
 /* 4 */ { X INC  x DEC x _    x _   x _   x _    x _    x _    },
 /* 5 */ { X INC  x DEC x CALL x _   x JMP x _    x PUSH x _    },
