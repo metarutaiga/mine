@@ -145,13 +145,19 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
         return false;
     Allocator = allocator;
 
-    memory_size = allocator->max_size();
+    auto memory = allocator->max_size();
+    if (memory > 0xFFFF0000) {
+        memory = 0xFFFF0000;
+        allocator->allocate(0x10000, 0xFFFF0000);
+    }
+
+    memory_size = memory;
     stack_size = stack;
     memory_address = (uint8_t*)allocator->allocate(4096, 0);
     stack_address = (uint8_t*)allocator->allocate(stack, memory_size - stack);
 
     EIP = 0;
-    ESP = (uint32_t)memory_size - 16;
+    ESP = (uint32_t)(memory_size - 16);
     EFLAGS = 0b0000001000000010;
 
     FPUControlWord = 0x027F;

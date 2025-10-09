@@ -484,6 +484,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             }, cpu, Logger<SYSTEM>);
             if (image) {
                 auto disassembly = [](const char* file, void* image) {
+                    if (const char* slash = strrchr(file, '/'))
+                        file = slash + 1;
                     auto& disasms = disasmses[file];
                     size_t base = 0;
                     size_t address = 0;
