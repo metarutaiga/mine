@@ -1215,7 +1215,7 @@ int syscall_GetSystemTimeAsFileTime(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-int syscall_GetTickCount()
+uint32_t syscall_GetTickCount()
 {
 #if defined(_WIN32)
     return GetTickCount();
@@ -1223,7 +1223,19 @@ int syscall_GetTickCount()
     struct timespec ts = {};
     clock_gettime(CLOCK_REALTIME, &ts);
 
-    return int(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+    return uint32_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+#endif
+}
+
+uint64_t syscall_GetTickCount64()
+{
+#if defined(_WIN32)
+    return GetTickCount64();
+#else
+    struct timespec ts = {};
+    clock_gettime(CLOCK_REALTIME, &ts);
+
+    return uint64_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
 #endif
 }
 
