@@ -159,6 +159,7 @@ static const struct {
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
+    { "InitOnceExecuteOnce",        INT32(4, false)                                                 },
     { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetHandleCount",             INT32(1, 0)                                                     },

@@ -147,7 +147,24 @@ void x86_instruction::CMC(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::CMOVcc(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMOVcc", 2);
+    switch (opcode[1]) {
+    case 0x40: Decode(format, opcode, "CMOVO",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x41: Decode(format, opcode, "CMOVNO", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x42: Decode(format, opcode, "CMOVC",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x43: Decode(format, opcode, "CMOVNC", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x44: Decode(format, opcode, "CMOVZ",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x45: Decode(format, opcode, "CMOVNZ", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x46: Decode(format, opcode, "CMOVBE", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x47: Decode(format, opcode, "CMOVA",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x48: Decode(format, opcode, "CMOVS",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x49: Decode(format, opcode, "CMOVNS", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4A: Decode(format, opcode, "CMOVPE", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4B: Decode(format, opcode, "CMOVPO", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4C: Decode(format, opcode, "CMOVL",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4D: Decode(format, opcode, "CMOVGE", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4E: Decode(format, opcode, "CMOVLE", 2, 0, OPERAND_SIZE | DIRECTION);    break;
+    case 0x4F: Decode(format, opcode, "CMOVG",  2, 0, OPERAND_SIZE | DIRECTION);    break;
+    }
 
     switch (opcode[1]) {
     case 0x40: BEGIN_OPERATION() { if (((OF)          ) == 1) DEST = SRC; } END_OPERATION;  break;  // CMOVO
