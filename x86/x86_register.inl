@@ -65,10 +65,12 @@ namespace internal { static x86_register x86; };
 template<int F, bool B = false, typename L, typename R, typename X, typename Y>
 inline void x86_register::UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1, Y SRC2)
 {
-    TEMP = (L)TEMP;
-    uint64_t bc = ( TEMP & (~SRC1 | SRC2)) | (~SRC1 & SRC2);
-    uint64_t cc = (~TEMP & ( SRC1 | SRC2)) | ( SRC1 & SRC2);
-    uint64_t pp = __builtin_popcount((uint8_t)TEMP) ^ 1;
+    L temp = (L)TEMP;
+    L src1 = (L)SRC1;
+    L src2 = (L)SRC2;
+    uint64_t bc = ( temp & (~src1 | src2)) | (~src1 & src2);
+    uint64_t cc = (~temp & ( src1 | src2)) | ( src1 & src2);
+    uint64_t pp = __builtin_popcount((uint8_t)temp) ^ 1;
     uint64_t bits = sizeof(L) * 8;
     uint64_t sign = (uint64_t)1 << (bits - 1);
     uint64_t sign2 = (uint64_t)1 << (bits - 2);
@@ -76,9 +78,9 @@ inline void x86_register::UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1
     if (F & _____C) CF = c &               sign ? 1 : 0;
     if (F & ____P_) PF = pp &                 1 ? 1 : 0;
     if (F & ___A__) AF = c &                  8 ? 1 : 0;
-    if (F & __Z___) ZF = TEMP ==              0 ? 1 : 0;
-    if (F & _S____) SF = TEMP &            sign ? 1 : 0;
+    if (F & __Z___) ZF = temp ==              0 ? 1 : 0;
+    if (F & _S____) SF = temp &            sign ? 1 : 0;
     if (F & O_____) OF = (c ^ (c >> 1)) & sign2 ? 1 : 0;
-    DEST = TEMP;
+    DEST = temp;
 }
 //------------------------------------------------------------------------------

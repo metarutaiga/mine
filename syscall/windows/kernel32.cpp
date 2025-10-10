@@ -557,17 +557,45 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
 size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
-    void* pointer = allocator->allocate(stack[3]);
-    if (pointer && (stack[2] & 0x8)) {
-        memset(pointer, 0, stack[3]);
+//  auto hHeap = stack[1];
+    auto dwFlags = stack[2];
+    auto dwBytes = stack[3];
+    void* pointer = allocator->allocate(dwBytes);
+    if (pointer && (dwFlags & 0x8)) {
+        memset(pointer, 0, dwBytes);
     }
     return virtual(size_t, pointer);
 }
 
 bool syscall_HeapFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
-    allocator->deallocate(physical(void*, stack[3]));
+//  auto hHeap = stack[1];
+//  auto dwFlags = stack[2];
+    auto lpMem = physical(void*, stack[3]);
+    allocator->deallocate(lpMem);
     return true;
+}
+
+size_t syscall_HeapReAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+//  auto hHeap = stack[1];
+    auto dwFlags = stack[2];
+    auto lpMem = physical(void*, stack[3]);
+    auto dwBytes = stack[3];
+    auto dwOldBytes = allocator->size(lpMem);
+    if (dwOldBytes >= dwBytes)
+        return virtual(size_t, lpMem);
+    auto lpNewMem = allocator->allocate(dwBytes);
+    if (lpNewMem == nullptr)
+        return 0;
+    if (dwFlags & 0x8) {
+        memset(lpNewMem, 0, dwBytes);
+    }
+    if (lpMem) {
+        memcpy(lpNewMem, lpMem, dwBytes < dwOldBytes ? dwBytes : dwOldBytes);
+        allocator->deallocate(lpMem);
+    }
+    return virtual(size_t, lpNewMem);
 }
 
 // Library

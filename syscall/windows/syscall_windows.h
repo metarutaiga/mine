@@ -67,6 +67,7 @@ size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allo
 // kernel32 - heap
 size_t syscall_HeapAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_HeapFree(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_HeapReAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - library
 int syscall_FreeLibrary(const void* memory, const void* stack);

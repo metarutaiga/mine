@@ -105,6 +105,7 @@ static const struct {
     { "HeapDestroy",                INT32(1, true)                                                  },
     { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
     { "HeapFree",                   INT32(3, syscall_HeapFree(memory, stack, allocator))            },
+    { "HeapReAlloc",                INT32(4, syscall_HeapReAlloc(memory, stack, allocator))         },
     { "HeapSize",                   INT32(3, 0xFFFFFFFF)                                            },
 
     // kernel32 - library
@@ -174,7 +175,7 @@ static const struct {
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
-    { "InitOnceExecuteOnce",        INT32(4, false)                                                 },
+    { "InitOnceExecuteOnce",        INT32(4, true)                                                  },
     { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetHandleCount",             INT32(1, 0)                                                     },
