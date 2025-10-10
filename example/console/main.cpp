@@ -18,11 +18,11 @@ static int vsyslog(const char* format, va_list)
 
 static size_t run_exception(mine* data, size_t index)
 {
-    size_t result = 0;
-    if (result == 0) {
+    size_t result = SIZE_MAX;
+    if (result == SIZE_MAX) {
         result = syscall_windows_execute(data, index);
     }
-    if (result == 0) {
+    if (result == SIZE_MAX) {
         result = syscall_i386_execute(data, index);
     }
     return result;

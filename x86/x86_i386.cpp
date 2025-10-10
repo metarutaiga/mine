@@ -235,7 +235,7 @@ bool x86_i386::Step(int count)
         }
         eip = EIP;
     }
-    return true;
+    return false;
 }
 //------------------------------------------------------------------------------
 bool x86_i386::Jump(size_t address)
