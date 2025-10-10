@@ -197,7 +197,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
     ImGuiViewport* viewport = ImGui::GetWindowViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos + ImVec2((viewport->WorkSize.x - 1600.0f) / 2.0f, (viewport->WorkSize.y - 900.0f) / 2.0f), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(1600.0f, 900.0f), ImGuiCond_Once);
-    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking)) {
+    if (ImGui::Begin("Debugger", &show, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking)) {
 
         static int updateCount = 0;
         static int breakpointData[2] = {};
