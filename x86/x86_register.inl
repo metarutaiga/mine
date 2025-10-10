@@ -65,6 +65,7 @@ namespace internal { static x86_register x86; };
 template<int F, bool B = false, typename L, typename R, typename X, typename Y>
 inline void x86_register::UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1, Y SRC2)
 {
+    TEMP = (L)TEMP;
     uint64_t bc = ( TEMP & (~SRC1 | SRC2)) | (~SRC1 & SRC2);
     uint64_t cc = (~TEMP & ( SRC1 | SRC2)) | ( SRC1 & SRC2);
     uint64_t pp = __builtin_popcount((uint8_t)TEMP) ^ 1;

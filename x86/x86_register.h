@@ -63,6 +63,6 @@ public:
     uint8_t* opcode = nullptr;
 
 protected:
-    template<int F, bool B, typename L, typename R, typename X = int, typename Y = int>
+    template<int F, bool B, typename L, typename R, typename X = R, typename Y = R>
     static void UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());
 };
