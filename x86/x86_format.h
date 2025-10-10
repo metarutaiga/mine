@@ -38,12 +38,13 @@ struct x86_format
 
         const char* instruction = "";
         const char* segment = "";
-        char width = 0;
-        char length = 0;
-        char address = 0;
-        char operand_count = 0;
+        uint8_t width = 0;
+        uint8_t length = 0;
+        uint8_t address = 0;
+        uint8_t operand_count = 0;
         Operand operand[3] = {};
         uint8_t prefix = 0;
+        bool string = false;
 
         void (*operation)(x86_register&, x87_register&, mmx_register&, sse_register&, const Format&, void*, void*, void*) = nullptr;
     };

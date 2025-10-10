@@ -56,6 +56,10 @@ void x86_instruction::REPNE(Format& format, const uint8_t* opcode)
     format.prefix = 0xF2;
 }
 //------------------------------------------------------------------------------
+void x86_instruction::LOCK(Format& format, const uint8_t* opcode)
+{
+}
+//------------------------------------------------------------------------------
 void x86_instruction::WAIT(Format& format, const uint8_t* opcode)
 {
 }

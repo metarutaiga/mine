@@ -74,8 +74,11 @@ size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleFileNameA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleW(const void* memory, const void* stack);
+bool syscall_GetModuleHandleExA(const void* memory, const void* stack);
+bool syscall_GetModuleHandleExW(const void* memory, const void* stack);
 size_t syscall_GetProcAddress(const void* memory, const void* stack);
 size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu);
+size_t syscall_LoadLibraryW(const void* memory, const void* stack, void* cpu);
 
 // kernel32 - memory
 size_t syscall_LocalAlloc(const void* memory, const void* stack, struct allocator_t* allocator);

@@ -111,9 +111,10 @@ size_t syscall_i386_execute(void* data, size_t index)
             printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
         syscall(cpu, memory, stack);
+        return 0;
     }
 
-    return 0;
+    return SIZE_MAX;
 }
 
 size_t syscall_i386_symbol(const char* file, const char* name)

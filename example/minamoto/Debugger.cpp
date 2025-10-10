@@ -133,11 +133,11 @@ static const char* Name(size_t index)
 //------------------------------------------------------------------------------
 static size_t Exception(mine* data, size_t index)
 {
-    size_t result = 0;
-    if (result == 0) {
+    size_t result = SIZE_MAX;
+    if (result == SIZE_MAX) {
         result = syscall_windows_execute(data, index);
     }
-    if (result == 0) {
+    if (result == SIZE_MAX) {
         result = syscall_i386_execute(cpu, index);
     }
     return result;

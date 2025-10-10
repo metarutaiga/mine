@@ -645,11 +645,10 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
     return strlen(lpFilename);
 }
 
-size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
+static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
-    auto lpModuleName = physical(char*, stack[1]);
     if (lpModuleName == nullptr)
         return windows->image;
 
@@ -669,31 +668,48 @@ size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
+size_t syscall_GetModuleHandleA(uint8_t* memory, const uint32_t* stack)
+{
+    auto lpModuleName = physical(char*, stack[1]);
+    return syscall_GetModuleHandle(memory, lpModuleName);
+}
+
 size_t syscall_GetModuleHandleW(uint8_t* memory, const uint32_t* stack)
 {
-    auto* windows = physical(Windows*, TIB_WINDOWS);
+    std::string name;
 
     auto lpModuleName = physical(char16_t*, stack[1]);
-    if (lpModuleName == nullptr)
-        return windows->image;
-
-    std::string path;
-    for (char16_t c; (c = *lpModuleName); lpModuleName++) {
-        path.push_back(c);
-    }
-    auto slash = path.find_last_of("/\\");
-
-    path = path.substr(slash + 1);
-    for (auto& [name, image] : windows->modules) {
-        if (strcasestr(name.c_str(), path.c_str()))
-            return virtual(int, image);
+    if (lpModuleName) {
+        for (char16_t c; (c = *lpModuleName); lpModuleName++) {
+            name.push_back(c);
+        }
     }
 
-    if (strcasestr(path.c_str(), "kernel32.dll")) {
-        return 0xFFFFFFFF;
+    return syscall_GetModuleHandle(memory, name.empty() ? nullptr : name.c_str());
+}
+
+bool syscall_GetModuleHandleExA(uint8_t* memory, const uint32_t* stack)
+{
+    auto lpModuleName = physical(char*, stack[2]);
+    auto phModule = physical(uint32_t*, stack[3]);
+    (*phModule) = uint32_t(syscall_GetModuleHandle(memory, lpModuleName));
+    return (*phModule) != 0;
+}
+
+bool syscall_GetModuleHandleExW(uint8_t* memory, const uint32_t* stack)
+{
+    std::string name;
+
+    auto lpModuleName = physical(char16_t*, stack[2]);
+    if (lpModuleName) {
+        for (char16_t c; (c = *lpModuleName); lpModuleName++) {
+            name.push_back(c);
+        }
     }
 
-    return 0;
+    auto phModule = physical(uint32_t*, stack[3]);
+    (*phModule) = uint32_t(syscall_GetModuleHandle(memory, name.empty() ? nullptr : name.c_str()));
+    return (*phModule) != 0;
 }
 
 size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
@@ -739,16 +755,11 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
     return data.address;
 }
 
-size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x86_i386* cpu)
 {
     auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
-    size_t module = syscall_GetModuleHandleA(memory, stack);
-    if (module)
-        return module;
-
-    auto lpLibFileName = physical(char*, stack[1]);
     std::string path;
     if (lpLibFileName[0] != '/' && lpLibFileName[0] != '\\') {
         path = windows->directory;
@@ -812,6 +823,34 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
     Push32(ret);
 
     return virtual(size_t, image);
+}
+
+size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    size_t module = syscall_GetModuleHandleA(memory, stack);
+    if (module)
+        return module;
+
+    auto lpLibFileName = physical(char*, stack[1]);
+    return syscall_LoadLibrary(memory, lpLibFileName, cpu);
+}
+
+size_t syscall_LoadLibraryW(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    size_t module = syscall_GetModuleHandleA(memory, stack);
+    if (module)
+        return module;
+
+    std::string name;
+
+    auto lpModuleName = physical(char16_t*, stack[1]);
+    if (lpModuleName) {
+        for (char16_t c; (c = *lpModuleName); lpModuleName++) {
+            name.push_back(c);
+        }
+    }
+
+    return syscall_LoadLibrary(memory, name.empty() ? nullptr : name.c_str(), cpu);
 }
 
 // Memory

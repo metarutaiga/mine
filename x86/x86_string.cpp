@@ -19,6 +19,7 @@ void x86_instruction::CMPSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
+    format.string = true;
 
     switch (format.prefix) {
     case 0xF2:
@@ -75,6 +76,7 @@ void x86_instruction::LODSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EAX);
     format.operand[1].base = IndexREG(ESI);
+    format.string = true;
 
     switch (format.prefix) {
     case 0xF3:
@@ -116,6 +118,7 @@ void x86_instruction::MOVSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(ESI);
+    format.string = true;
 
     switch (format.prefix) {
     case 0xF3:
@@ -161,6 +164,7 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::ADR;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
+    format.string = true;
 
     switch (format.prefix) {
     case 0xF2:
@@ -212,6 +216,7 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
     format.operand[1].type = Format::Operand::REG;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
+    format.string = true;
 
     switch (format.prefix) {
     case 0xF3:

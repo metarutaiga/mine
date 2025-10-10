@@ -56,7 +56,6 @@ static const struct {
     // kernel32 - condition variable
     { "InitializeConditionVariable",    INT32(1, 0)                                                 },
     { "SleepConditionVariableCS",       INT32(3, true)                                              },
-    { "SleepConditionVariableSRW",      INT32(4, true)                                              },
     { "WakeAllConditionVariable",       INT32(1, 0)                                                 },
     { "WakeConditionVariable",          INT32(1, 0)                                                 },
 
@@ -64,6 +63,7 @@ static const struct {
     { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
     { "EnterCriticalSection",                   INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
     { "InitializeCriticalSection",              INT32(1, syscall_InitializeCriticalSection(memory, stack, allocator))   },
+    { "InitializeCriticalSectionEx",            INT32(3, syscall_InitializeCriticalSection(memory, stack, allocator))   },
     { "InitializeCriticalSectionAndSpinCount",  INT32(2, syscall_InitializeCriticalSection(memory, stack, allocator))   },
     { "LeaveCriticalSection",                   INT32(1, syscall_LeaveCriticalSection(memory, stack))                   },
     { "TryEnterCriticalSection",                INT32(1, syscall_TryEnterCriticalSection(memory, stack))                },
@@ -114,8 +114,13 @@ static const struct {
     { "GetModuleFileNameA",         INT32(3, syscall_GetModuleFileNameA(memory, stack))             },
     { "GetModuleHandleA",           INT32(1, syscall_GetModuleHandleA(memory, stack))               },
     { "GetModuleHandleW",           INT32(1, syscall_GetModuleHandleW(memory, stack))               },
+    { "GetModuleHandleExA",         INT32(3, syscall_GetModuleHandleExA(memory, stack))             },
+    { "GetModuleHandleExW",         INT32(3, syscall_GetModuleHandleExW(memory, stack))             },
     { "GetProcAddress",             INT32(2, syscall_GetProcAddress(memory, stack))                 },
     { "LoadLibraryA",               INT32(1, syscall_LoadLibraryA(memory, stack, cpu))              },
+    { "LoadLibraryW",               INT32(1, syscall_LoadLibraryW(memory, stack, cpu))              },
+    { "LoadLibraryExA",             INT32(3, syscall_LoadLibraryA(memory, stack, cpu))              },
+    { "LoadLibraryExW",             INT32(3, syscall_LoadLibraryW(memory, stack, cpu))              },
 
     // kernel32 - memory
     { "DecodePointer",              INT32(1, stack[1])                                              },
@@ -129,6 +134,16 @@ static const struct {
 
     // kernel32 - profile
     { "GetProfileIntA",             INT32(3, 0)                                                     },
+
+    // kernel32 - srwlock
+    { "AcquireSRWLockExclusive",    INT32(1, 0)                                                     },
+    { "AcquireSRWLockShared",       INT32(1, 0)                                                     },
+    { "InitializeSRWLock",          INT32(1, 0)                                                     },
+    { "ReleaseSRWLockExclusive",    INT32(1, 0)                                                     },
+    { "ReleaseSRWLockShared",       INT32(1, 0)                                                     },
+    { "SleepConditionVariableSRW",  INT32(4, true)                                                  },
+    { "TryAcquireSRWLockExclusive", INT32(1, true)                                                  },
+    { "TryAcquireSRWLockShared",    INT32(1, true)                                                  },
 
     // kernel32 - string
     { "GetACP",                     INT32(0, 437)                                                   },
@@ -491,7 +506,7 @@ size_t syscall_windows_execute(void* data, size_t index)
         return syscall(cpu, memory, stack) * sizeof(uint32_t);
     }
 
-    return 0;
+    return SIZE_MAX;
 }
 
 size_t syscall_windows_symbol(const char* file, const char* name)

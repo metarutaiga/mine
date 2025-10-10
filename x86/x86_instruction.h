@@ -17,6 +17,7 @@ struct x86_instruction : public x86_format
 
     static instruction REPE;        // Repeat Following String Operation
     static instruction REPNE;       // Repeat Following String Operation
+    static instruction LOCK;        // Assert LOCK# Signal Prefix
     static instruction WAIT;        // Wait until BUSY# Pin is Inactive (HIGH)
 
     static instruction AAA;         // ASCII Adjust after Addition
@@ -57,7 +58,6 @@ struct x86_instruction : public x86_format
     static instruction LAHF;        // Load Flags into AH Register
     static instruction LEA;         // Load Effective Address
 //  static instruction LxS;         // Load Full Pointer
-//  static instruction LOCK;        // Assert LOCK# Signal Prefix
     static instruction LOOP;        // Loop Control with CX Counter
     static instruction MOV;         // Move Data
     static instruction MUL;         // Unsigned Multiplication of AL or AX

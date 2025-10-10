@@ -22,7 +22,12 @@ const char* const x86_format::REG64[8] = { "RAX", "RCX", "RDX", "RBX", "RSP", "R
 void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset, int immediate_size, int flags)
 {
     format.instruction = instruction;
-    format.width = (flags & OPERAND_SIZE) ? format.width : 8;
+    switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
+    default:            format.width = (flags & OPERAND_SIZE) ? format.width : 8;   break;
+    case X87_REGISTER:  format.width = 64;                                          break;
+    case MMX_REGISTER:  format.width = 64;                                          break;
+    case SSE_REGISTER:  format.width = 128;                                         break;
+    }
     format.length = offset;
 
     int MODRM = (flags & DIRECTION) ? 1 : 0;
@@ -232,14 +237,16 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
     };
 
     std::string disasm;
-    switch (format.prefix) {
-    case 0xF2:
-        disasm += "REPNE";
-        disasm += ' ';
-        break;
-    case 0xF3:
-        disasm += "REPE";
-        disasm += ' ';
+    if (format.string) {
+        switch (format.prefix) {
+        case 0xF2:
+            disasm += "REPNE";
+            disasm += ' ';
+            break;
+        case 0xF3:
+            disasm += "REPE";
+            disasm += ' ';
+        }
     }
     disasm += format.instruction;
 
@@ -309,10 +316,13 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             continue;
         case Format::Operand::REG:
             width = format.width;
-            if (operand.flags & Format::Operand::BIT8)  width = 8;
-            if (operand.flags & Format::Operand::BIT16) width = 16;
+            switch (operand.flags & (Format::Operand::BIT8 | Format::Operand::BIT16 | Format::Operand::BIT32)) {
+            case Format::Operand::BIT8:  width = 8;  break;
+            case Format::Operand::BIT16: width = 16; break;
+            case Format::Operand::BIT32: width = 32; break;
+            }
 #if HAVE_X64
-            if (width == 8 && format.address > 32)      width = -8;
+            if (width == 8 && format.address > 32) width = -8;
 #endif
             switch (width) {
             case 8:  disasm += REG8HL[operand.base]; break;
@@ -403,10 +413,13 @@ void x86_format::Fixup(Format& format, x86_register& x86, x87_register& x87, mmx
             break;
         case Format::Operand::REG:
             width = format.width;
-            if (operand.flags & Format::Operand::BIT8)  width = 8;
-            if (operand.flags & Format::Operand::BIT16) width = 16;
+            switch (operand.flags & (Format::Operand::BIT8 | Format::Operand::BIT16 | Format::Operand::BIT32)) {
+            case Format::Operand::BIT8:  width = 8;  break;
+            case Format::Operand::BIT16: width = 16; break;
+            case Format::Operand::BIT32: width = 32; break;
+            }
 #if HAVE_X64
-            if (width == 8 && format.address > 32)      width = -8;
+            if (width == 8 && format.address > 32) width = -8;
 #endif
             if (width == 8 && operand.base >= 4) {
                 operand.memory = &x86.regs[operand.base - 4].h;
