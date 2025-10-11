@@ -14,9 +14,9 @@ extern "C" {
 #define SYMBOL_INDEX 10
 
 #define CALLBACK_ARGUMENT \
-    x86_i386* cpu,          \
     void* memory,           \
-    void* stack
+    void* stack,            \
+    x86_i386* cpu
 
 #define DIV32(value) \
     [](CALLBACK_ARGUMENT) { x86_register& x86 = cpu->x86; \
@@ -110,7 +110,7 @@ size_t syscall_i386_execute(void* data, size_t index)
         if (printf->debugPrintf) {
             printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        syscall(cpu, memory, stack);
+        syscall(memory, stack, cpu);
         return 0;
     }
 

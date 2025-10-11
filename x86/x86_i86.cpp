@@ -86,6 +86,8 @@ bool x86_i86::Step(int count)
     auto ip = IP;
     auto sp = SP;
     while (IP) {
+        timestamp_counter++;
+
         Format format;
         StepInternal(format);
         Fixup(format, x86, x87, mmx, sse);

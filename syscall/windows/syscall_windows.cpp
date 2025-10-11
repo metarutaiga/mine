@@ -24,9 +24,9 @@ extern "C" {
 #define SYMBOL_INDEX 1000
 
 #define CALLBACK_ARGUMENT \
-    x86_i386* cpu,          \
     uint8_t* memory,        \
-    uint32_t* stack
+    uint32_t* stack,        \
+    x86_i386* cpu
 
 #define INT32(count, value) \
     [](CALLBACK_ARGUMENT) -> size_t { x86_register& x86 = cpu->x86; auto* allocator = cpu->Allocator; (void)allocator; \
@@ -60,6 +60,7 @@ static const struct {
     { "WakeConditionVariable",          INT32(1, 0)                                                 },
 
     // kernel32 - critical section
+#if HAVE_MULTITHREADED
     { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
     { "EnterCriticalSection",                   INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
     { "InitializeCriticalSection",              INT32(1, syscall_InitializeCriticalSection(memory, stack, allocator))   },
@@ -67,6 +68,15 @@ static const struct {
     { "InitializeCriticalSectionAndSpinCount",  INT32(2, syscall_InitializeCriticalSection(memory, stack, allocator))   },
     { "LeaveCriticalSection",                   INT32(1, syscall_LeaveCriticalSection(memory, stack))                   },
     { "TryEnterCriticalSection",                INT32(1, syscall_TryEnterCriticalSection(memory, stack))                },
+#else
+    { "DeleteCriticalSection",                  INT32(1, 0)                                         },
+    { "EnterCriticalSection",                   INT32(1, 0)                                         },
+    { "InitializeCriticalSection",              INT32(1, 0)                                         },
+    { "InitializeCriticalSectionEx",            INT32(3, 0)                                         },
+    { "InitializeCriticalSectionAndSpinCount",  INT32(2, 0)                                         },
+    { "LeaveCriticalSection",                   INT32(1, 0)                                         },
+    { "TryEnterCriticalSection",                INT32(1, true)                                      },
+#endif
 
     // kernel32 - directory
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
@@ -504,7 +514,7 @@ size_t syscall_windows_execute(void* data, size_t index)
         if (printf->debugPrintf) {
             printf->debugPrintf("[CALL] %s", syscall_table[index].name);
         }
-        return syscall(cpu, memory, stack) * sizeof(uint32_t);
+        return syscall(memory, stack, cpu) * sizeof(uint32_t);
     }
 
     return SIZE_MAX;

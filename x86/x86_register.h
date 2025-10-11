@@ -62,6 +62,9 @@ public:
     uint8_t* stack_address = nullptr;
     uint8_t* opcode = nullptr;
 
+public:
+    size_t timestamp_counter = 0;
+
 protected:
     template<int F, bool B, typename L, typename R, typename X = R, typename Y = R>
     static void UpdateFlags(x86_register& x86, L& DEST, R TEMP, X SRC1 = X(), Y SRC2 = Y());

@@ -189,6 +189,8 @@ bool x86_i386::Step(int count)
     auto eip = EIP;
     auto esp = ESP;
     while (EIP) {
+        timestamp_counter++;
+
         Format format;
         StepInternal(*this, format);
         Fixup(format, x86, x87, mmx, sse);

@@ -645,8 +645,8 @@ void x86_instruction::RDPMC(Format& format, const uint8_t* opcode)
     format.operand_count = 0;
 
     OPERATION() {
-        EDX = 0;
-        EAX = 0;
+        EDX = uint32_t(x86.timestamp_counter >> 32);
+        EAX = uint32_t(x86.timestamp_counter >>  0);
     };
 }
 //------------------------------------------------------------------------------
@@ -656,8 +656,8 @@ void x86_instruction::RDTSC(Format& format, const uint8_t* opcode)
     format.operand_count = 0;
 
     OPERATION() {
-        EDX = 0;
-        EAX = 0;
+        EDX = uint32_t(x86.timestamp_counter >> 32);
+        EAX = uint32_t(x86.timestamp_counter >>  0);
     };
 }
 //------------------------------------------------------------------------------
