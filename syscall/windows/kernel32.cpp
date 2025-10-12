@@ -608,72 +608,93 @@ int syscall_FreeLibrary(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
+static size_t syscall_GetModuleFileName(uint8_t* memory, void* hModule, char* lpFilename, uint32_t nSize, int nWidth, bool bBase)
 {
     auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
+    const char* found = nullptr;
+    if (hModule == nullptr) {
+        found = windows->imageDirectory;
+    }
+    else {
+        for (auto& [name, image] : windows->modules) {
+            if (image == hModule) {
+                found = name.c_str();
+                break;
+            }
+        }
+    }
+
+    if (found) {
+        if (bBase) {
+            auto* slash = strrchr(found, '/');
+            if (slash == nullptr)
+                slash = strrchr(found, '\\');
+            if (slash) {
+                found = slash + 1;
+            }
+            if (printf->debugPrintf) {
+                printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleBaseName", hModule, found);
+            }
+        }
+        else {
+            if (printf->debugPrintf) {
+                printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleFileName", hModule, found);
+            }
+        }
+        for (size_t i = 0; i < nSize; ++i) {
+            char c = found[i];
+            (*lpFilename++) = c;
+            for (int i = 1; i < nWidth; ++i) {
+                (*lpFilename++) = 0;
+            }
+            if (c == 0) {
+                return i;
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < nWidth; ++i) {
+            (*lpFilename++) = 0;
+        }
+    }
+
+    return 0;
+}
+
+size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
+{
 //  auto hProcess = stack[1];
     auto hModule = physical(void*, stack[2]);
     auto lpBaseName = physical(char*, stack[3]);
     auto nSize = stack[4];
+    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 1, true);
+}
 
-    lpBaseName[0] = 0;
-
-    if (hModule == nullptr) {
-        strncpy(lpBaseName, windows->imageDirectory, nSize);
-    }
-    else {
-        for (auto& [name, image] : windows->modules) {
-            if (image == hModule) {
-                strncpy(lpBaseName, name.c_str(), nSize);
-                break;
-            }
-        }
-    }
-
-    auto* slash = strrchr(lpBaseName, '/');
-    if (slash == nullptr)
-        slash = strrchr(lpBaseName, '\\');
-    if (slash) {
-        strncpy(lpBaseName, slash + 1, nSize);
-    }
-
-    if (printf->debugPrintf) {
-        printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleBaseNameA", stack[1], lpBaseName);
-    }
-
-    return strlen(lpBaseName);
+size_t syscall_GetModuleBaseNameW(uint8_t* memory, const uint32_t* stack)
+{
+//  auto hProcess = stack[1];
+    auto hModule = physical(void*, stack[2]);
+    auto lpBaseName = physical(char*, stack[3]);
+    auto nSize = stack[4];
+    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 2, true);
 }
 
 size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
 {
-    auto* printf = physical(Printf*, offset_printf);
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-
     auto hModule = physical(void*, stack[1]);
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
+    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 1, false);
+}
 
-    lpFilename[0] = 0;
-
-    if (hModule == nullptr) {
-        strncpy(lpFilename, windows->imageDirectory, nSize);
-    }
-    else {
-        for (auto& [name, image] : windows->modules) {
-            if (image == hModule) {
-                strncpy(lpFilename, name.c_str(), nSize);
-                break;
-            }
-        }
-    }
-
-    if (printf->debugPrintf) {
-        printf->debugPrintf("[CALL] %s - %08X %s", "GetModuleFileNameA", stack[1], lpFilename);
-    }
-
-    return strlen(lpFilename);
+size_t syscall_GetModuleFileNameW(uint8_t* memory, const uint32_t* stack)
+{
+    auto hModule = physical(void*, stack[1]);
+    auto lpFilename = physical(char*, stack[2]);
+    auto nSize = stack[3];
+    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 2, false);
 }
 
 static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
@@ -874,9 +895,9 @@ size_t syscall_LoadLibraryW(uint8_t* memory, const uint32_t* stack, x86_i386* cp
 
     std::string name;
 
-    auto lpModuleName = physical(char16_t*, stack[1]);
-    if (lpModuleName) {
-        for (char16_t c; (c = *lpModuleName); lpModuleName++) {
+    auto lpLibFileName = physical(char16_t*, stack[1]);
+    if (lpLibFileName) {
+        for (char16_t c; (c = *lpLibFileName); lpLibFileName++) {
             name.push_back(c);
         }
     }
@@ -1229,6 +1250,29 @@ bool syscall_GetVersionExA(uint8_t* memory, const uint32_t* stack)
     lpVersionInformation->dwBuildNumber = 0;
     lpVersionInformation->dwPlatformId = 1;
     lpVersionInformation->szCSDVersion[0] = 0;
+    return true;
+}
+
+bool syscall_InitOnceExecuteOnce(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
+{
+    auto& x86 = cpu->x86;
+
+    auto ret = Pop32();
+    auto InitOnce = Pop32();
+    auto InitFn = Pop32();
+    auto Parameter = Pop32();
+    auto Context = Pop32();
+
+    Push32(Context);
+    Push32(Parameter);
+    Push32(InitOnce);
+    Push32(ret);
+    Push32(Context);
+    Push32(Parameter);
+    Push32(InitFn);
+    Push32(InitOnce);
+    Push32(InitFn);
+
     return true;
 }
 

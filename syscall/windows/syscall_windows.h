@@ -72,7 +72,9 @@ size_t syscall_HeapReAlloc(const void* memory, const void* stack, struct allocat
 // kernel32 - library
 int syscall_FreeLibrary(const void* memory, const void* stack);
 size_t syscall_GetModuleBaseNameA(const void* memory, const void* stack);
+size_t syscall_GetModuleBaseNameW(const void* memory, const void* stack);
 size_t syscall_GetModuleFileNameA(const void* memory, const void* stack);
+size_t syscall_GetModuleFileNameW(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleA(const void* memory, const void* stack);
 size_t syscall_GetModuleHandleW(const void* memory, const void* stack);
 bool syscall_GetModuleHandleExA(const void* memory, const void* stack);
@@ -108,6 +110,7 @@ int syscall_GetStartupInfoA(const void* memory, const void* stack);
 int syscall_GetStartupInfoW(const void* memory, const void* stack);
 int syscall_GetVersion();
 bool syscall_GetVersionExA(const void* memory, const void* stack);
+bool syscall_InitOnceExecuteOnce(const void* memory, const void* stack, void* cpu);
 int syscall_OutputDebugStringA(const void* memory, const void* stack);
 
 // kernel32 - time
