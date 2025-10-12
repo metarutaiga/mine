@@ -1599,7 +1599,7 @@ void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSRLDQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSRLDQ", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSRLDQ", 2, 8, SSE_REGISTER | OPERAND_SIZE);
 
     BEGIN_OPERATION() {
         auto COUNT = SRC.u8[0];
