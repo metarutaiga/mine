@@ -113,7 +113,6 @@ int syscall_OutputDebugStringA(const void* memory, const void* stack);
 // kernel32 - time
 int syscall_GetSystemTime(const void* memory, const void* stack);
 int syscall_GetSystemTimeAsFileTime(const void* memory, const void* stack);
-uint32_t syscall_GetTickCount();
 uint64_t syscall_GetTickCount64();
 int syscall_QueryPerformanceCounter(const void* memory, const void* stack);
 int syscall_QueryPerformanceFrequency(const void* memory, const void* stack);

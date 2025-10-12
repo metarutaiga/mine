@@ -26,8 +26,9 @@ static char* strcasestr(char const* haystack, char const* needle)
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/dir.h>
-static_assert(true);
 #pragma pack(push, 1)
+typedef uint64_t FILETIME;
+typedef uint64_t LARGE_INTEGER;
 struct OSVERSIONINFOA {
     uint32_t    dwOSVersionInfoSize;
     uint32_t    dwMajorVersion;
@@ -560,11 +561,13 @@ size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocato
 //  auto hHeap = stack[1];
     auto dwFlags = stack[2];
     auto dwBytes = stack[3];
-    void* pointer = allocator->allocate(dwBytes);
-    if (pointer && (dwFlags & 0x8)) {
-        memset(pointer, 0, dwBytes);
+    void* lpMem = allocator->allocate(dwBytes);
+    if (lpMem == nullptr)
+        return 0;
+    if (dwFlags & 0x8) {
+        memset(lpMem, 0, dwBytes);
     }
-    return virtual(size_t, pointer);
+    return virtual(size_t, lpMem);
 }
 
 bool syscall_HeapFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
@@ -1245,12 +1248,10 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 
 int syscall_GetSystemTime(uint8_t* memory, const uint32_t* stack)
 {
-#if defined(_WIN32)
     auto lpSystemTime = physical(SYSTEMTIME*, stack[1]);
+#if defined(_WIN32)
     GetSystemTime(lpSystemTime);
 #else
-    auto lpSystemTime = physical(SYSTEMTIME*, stack[1]);
-
     time_t t = time(nullptr);
     struct tm* tm = gmtime(&t);
 
@@ -1268,30 +1269,16 @@ int syscall_GetSystemTime(uint8_t* memory, const uint32_t* stack)
 
 int syscall_GetSystemTimeAsFileTime(uint8_t* memory, const uint32_t* stack)
 {
-#if defined(_WIN32)
     auto lpSystemTimeAsFileTime = physical(FILETIME*, stack[1]);
+#if defined(_WIN32)
     GetSystemTimeAsFileTime(lpSystemTimeAsFileTime);
 #else
-    auto lpSystemTimeAsFileTime = physical(uint64_t*, stack[1]);
-
     struct timespec ts = {};
     clock_gettime(CLOCK_REALTIME, &ts);
 
     (*lpSystemTimeAsFileTime) = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 #endif
     return 0;
-}
-
-uint32_t syscall_GetTickCount()
-{
-#if defined(_WIN32)
-    return GetTickCount();
-#else
-    struct timespec ts = {};
-    clock_gettime(CLOCK_REALTIME, &ts);
-
-    return uint32_t(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
-#endif
 }
 
 uint64_t syscall_GetTickCount64()
@@ -1308,12 +1295,10 @@ uint64_t syscall_GetTickCount64()
 
 int syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
 {
-#if defined(_WIN32)
     auto lpPerformanceCount = physical(LARGE_INTEGER*, stack[1]);
+#if defined(_WIN32)
     return QueryPerformanceCounter(lpPerformanceCount);
 #else
-    auto lpPerformanceCount = physical(uint64_t*, stack[1]);
-
     struct timespec ts = {};
     clock_gettime(CLOCK_REALTIME, &ts);
 
@@ -1324,12 +1309,10 @@ int syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
 
 int syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 {
-#if defined(_WIN32)
     auto lpFrequency = physical(LARGE_INTEGER*, stack[1]);
+#if defined(_WIN32)
     return QueryPerformanceFrequency(lpFrequency);
 #else
-    auto lpFrequency = physical(uint64_t*, stack[1]);
-
     (*lpFrequency) = 1'000'000'000ull;
     return true;
 #endif

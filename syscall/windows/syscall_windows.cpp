@@ -195,7 +195,7 @@ static const struct {
     // kernel32 - time
     { "GetSystemTime",              INT32(1, syscall_GetSystemTime(memory, stack))                  },
     { "GetSystemTimeAsFileTime",    INT32(1, syscall_GetSystemTimeAsFileTime(memory, stack))        },
-    { "GetTickCount",               INT32(0, syscall_GetTickCount())                                },
+    { "GetTickCount",               INT32(0, syscall_GetTickCount64())                              },
     { "GetTickCount64",             INT32(0, syscall_GetTickCount64())                              },
     { "QueryPerformanceCounter",    INT32(1, syscall_QueryPerformanceCounter(memory, stack))        },
     { "QueryPerformanceFrequency",  INT32(1, syscall_QueryPerformanceFrequency(memory, stack))      },
