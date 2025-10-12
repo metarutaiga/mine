@@ -111,7 +111,6 @@ void x86_i586::StepImplement(x86_i386& x86, Format& format)
     format.length = 1;
     format.address = 32;
     format.operand_count = 2;
-    format.prefix = 0;
 
     auto eip = EIP;
     for (;;) {

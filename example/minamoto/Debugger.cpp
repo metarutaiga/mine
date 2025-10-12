@@ -217,6 +217,17 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static ImGuiID disassemblyDockID;
         std::string file;
 
+        static auto focusDisasm = [](size_t address) {
+            for (auto& [title, disasms] : disasmses) {
+                auto it = disasms.find(address);
+                if (it != disasms.end()) {
+                    disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
+                    disasmFocusTitle = title;
+                    break;
+                }
+            }
+        };
+
         ImGuiID id = ImGui::GetID("Debugger");
 
         if (ImGui::DockBuilderGetNode(id) == nullptr) {
@@ -364,8 +375,13 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 snprintf(temp, 128, "%*s", 8 + 1 + 8 + 28, "");
                 auto pos = ImGui::GetCursorPos();
                 ImGui::Selectable(temp);
-                if (ImGui::IsItemHovered() && text[0]) {
-                    ImGui::SetTooltip("%s", text);
+                if (ImGui::IsItemHovered()) {
+                    if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+                        focusDisasm(*value);
+                    }
+                    if (text[0]) {
+                        ImGui::SetTooltip("%s", text);
+                    }
                 }
                 ImGui::SetCursorPos(pos);
 
@@ -469,7 +485,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             stackIndex = 0;
             stackFocus = -1;
             refresh = true;
-            running = false;
+            running = 0;
 
             cpu = new x86_i386;
             cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
@@ -569,8 +585,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (cpu) {
                 uint32_t begin = 0;
                 for (;;) {
-                    if (cpu->Step(1000) == false) {
-                        running = false;
+                    if (cpu->Step(running == 1 ? 1 : 1000) == false) {
+                        running = 0;
                         break;
                     }
                     if (running == 1)
@@ -590,7 +606,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 refresh = true;
             }
             else {
-                running = false;
+                running = 0;
             }
         }
 
@@ -599,14 +615,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             if (cpu) {
                 status = cpu->Status();
 
-                for (auto& [title, disasms] : disasmses) {
-                    auto it = disasms.find(cpu->Program());
-                    if (it != disasms.end()) {
-                        disasmIndex = disasmFocus = (int)std::distance(disasms.begin(), it);
-                        disasmFocusTitle = title;
-                        break;
-                    }
-                }
+                focusDisasm(cpu->Program());
 
                 auto allocator = cpu->Allocator;
                 size_t memory_size = allocator->max_size();
