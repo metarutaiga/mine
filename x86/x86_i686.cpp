@@ -255,84 +255,112 @@ void x86_i686::TWO(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_i686::grp1(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[1][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp2(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[2][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp3(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[3][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp4(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[4][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp5(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[5][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp6(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[6][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp7(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[7][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp8(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[8][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp9(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[9][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp13(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[13][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp14(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[14][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp15(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[15][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp16(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[16][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i686::grp17(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = (opcode[2] >> 3) & 0b111;
     group[17][nnn](format, opcode);
 }

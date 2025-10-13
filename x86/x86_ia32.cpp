@@ -402,6 +402,8 @@ void x86_ia32::THREE3A(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp1(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[1][mod][nnn] != _) {
@@ -414,6 +416,8 @@ void x86_ia32::grp1(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp2(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[2][mod][nnn] != _) {
@@ -426,6 +430,8 @@ void x86_ia32::grp2(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp3(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[3][mod][nnn] != _) {
@@ -438,6 +444,8 @@ void x86_ia32::grp3(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp4(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[4][mod][nnn] != _) {
@@ -450,6 +458,8 @@ void x86_ia32::grp4(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp5(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = ((opcode[1] >> 3) & 0b111);
     int mod = ((opcode[1] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[5][mod][nnn] != _) {
@@ -462,6 +472,8 @@ void x86_ia32::grp5(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp6(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[6][mod][nnn] != _) {
@@ -474,6 +486,8 @@ void x86_ia32::grp6(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp7(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[7][mod][nnn] != _) {
@@ -486,6 +500,8 @@ void x86_ia32::grp7(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp8(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[8][mod][nnn] != _) {
@@ -498,6 +514,8 @@ void x86_ia32::grp8(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp9(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[9][mod][nnn] != _) {
@@ -510,6 +528,8 @@ void x86_ia32::grp9(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp12(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[12][mod][nnn] != _) {
@@ -522,6 +542,8 @@ void x86_ia32::grp12(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp13(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[13][mod][nnn] != _) {
@@ -534,6 +556,8 @@ void x86_ia32::grp13(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp14(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[14][mod][nnn] != _) {
@@ -546,6 +570,8 @@ void x86_ia32::grp14(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp15(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[15][mod][nnn] != _) {
@@ -558,6 +584,8 @@ void x86_ia32::grp15(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_ia32::grp16(Format& format, const uint8_t* opcode)
 {
+    format.length = 3;
+
     int nnn = ((opcode[2] >> 3) & 0b111);
     int mod = ((opcode[2] >> 6) & 0b11) == 0b11 ? 1 : 0;
     if (format.prefix == 0x66 && group66[16][mod][nnn] != _) {

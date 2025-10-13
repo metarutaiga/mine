@@ -311,30 +311,40 @@ void x86_i86::ESC(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_i86::grp1(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[1][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i86::grp2(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[2][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i86::grp3(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[3][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i86::grp4(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[4][nnn](format, opcode);
 }
 //------------------------------------------------------------------------------
 void x86_i86::grp5(Format& format, const uint8_t* opcode)
 {
+    format.length = 2;
+
     int nnn = (opcode[1] >> 3) & 0b111;
     group[5][nnn](format, opcode);
 }
