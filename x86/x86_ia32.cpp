@@ -33,7 +33,7 @@ const x86_instruction::instruction_pointer x86_ia32::one[256] =
 /* 5 */ x PUSH   x PUSH  x PUSH  x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP    x POP   x POP   x POP
 /* 6 */ x PUSHAD x POPAD x _     x _    x FS    x GS    x OSIZE x ASIZE x PUSH  x IMUL  x PUSH  x IMUL  x _      x _     x _     x _
 /* 7 */ x Jcc    x Jcc   x Jcc   x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc
-/* 8 */ x grp1   x grp1  x _     x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x MOV   x POP
+/* 8 */ x grp1   x grp1  x _     x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV    x LEA   x _     x POP
 /* 9 */ x NOP    x XCHG  x XCHG  x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CBW   x CWD   x _     x WAIT  x PUSHFD x POPFD x SAHF  x LAHF
 /* A */ x MOV    x MOV   x MOV   x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
 /* B */ x MOV    x MOV   x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
@@ -70,8 +70,8 @@ const x86_instruction::instruction_pointer x86_ia32::two[256] =
 const x86_instruction::instruction_pointer x86_ia32::two66[256] =
 {      // 0           1           2           3          4           5          6           7            8           9           A           B           C            D            E         F
 /* 0 */ X _         x _         x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x _          x _       x _
-/* 1 */ s MOVUPD    s MOVUPD    s MOVLPD    s MOVLPD   s UNPCKLPD  s UNPCKHPD s MOVHPD    s MOVHPD     s MOVAPD    s MOVAPD    s CVTPI2PD  s MOVNTPD   s CVTTPD2PI  s CVTPD2PI   s UCOMISD s COMISD
-/* 2 */ x _         x _         x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x _          x _       x _
+/* 1 */ s MOVUPD    s MOVUPD    s MOVLPD    s MOVLPD   s UNPCKLPD  s UNPCKHPD s MOVHPD    s MOVHPD     x _         x _         x _         x _         x _          x _          x _       x _
+/* 2 */ x _         x _         x _         x _        x _         x _        x _         x _          s MOVAPD    s MOVAPD    s CVTPI2PD  s MOVNTPD   s CVTTPD2PI  s CVTPD2PI   s UCOMISD s COMISD
 /* 3 */ x _         x _         x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x _          x _       x _
 /* 4 */ x _         x _         x _         x _        x _         x _        x _         x _          x _         x _         x _         x _         x _          x _          x _       x _
 /* 5 */ s MOVMSKPD  s SQRTPD    x _         x _        s ANDPD     s ANDNPD   s ORPD      s XORPD      s ADDPD     s MULPD     s CVTPD2PS  s CVTPS2DQ  s SUBPD      s MINPD      s DIVPD   s MAXPD

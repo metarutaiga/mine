@@ -25,6 +25,9 @@ size_t syscall_windows_execute(void* data, size_t index);
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
 
+// advapi32 - random
+bool syscall_RtlGenRandom(const void* memory, const void* stack);
+
 // kernel32 - atomic
 uint32_t syscall_InterlockedCompareExchange(const void* memory, const void* stack);
 uint32_t syscall_InterlockedDecrement(const void* memory, const void* stack);
@@ -34,7 +37,7 @@ uint32_t syscall_InterlockedIncrement(const void* memory, const void* stack);
 // kernel32 - critical section
 int syscall_DeleteCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_EnterCriticalSection(const void* memory, const void* stack);
-int syscall_InitializeCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_InitializeCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_LeaveCriticalSection(const void* memory, const void* stack);
 int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
 
@@ -103,6 +106,7 @@ int syscall_WideCharToMultiByte(const void* memory, const void* stack);
 
 // kernel32 - system
 size_t syscall_GetCommandLineA(const void* memory);
+size_t syscall_GetCommandLineW(const void* memory);
 int syscall_GetCurrentProcessId();
 int syscall_GetCurrentThreadId();
 int syscall_GetSystemInfo(const void* memory, const void* stack);
@@ -117,8 +121,8 @@ int syscall_OutputDebugStringA(const void* memory, const void* stack);
 int syscall_GetSystemTime(const void* memory, const void* stack);
 int syscall_GetSystemTimeAsFileTime(const void* memory, const void* stack);
 uint64_t syscall_GetTickCount64();
-int syscall_QueryPerformanceCounter(const void* memory, const void* stack);
-int syscall_QueryPerformanceFrequency(const void* memory, const void* stack);
+bool syscall_QueryPerformanceCounter(const void* memory, const void* stack);
+bool syscall_QueryPerformanceFrequency(const void* memory, const void* stack);
 
 // kernel32 - tls
 uint32_t syscall_TlsAlloc(const void* memory);

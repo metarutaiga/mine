@@ -132,14 +132,14 @@ int syscall_EnterCriticalSection(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-int syscall_InitializeCriticalSection(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_InitializeCriticalSection(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
 
     auto mutex = (CRITICAL_SECTION*)allocator->allocate(sizeof(CRITICAL_SECTION));
     if (mutex == nullptr)
-        return 0;
+        return false;
 
     InitializeCriticalSection(mutex);
 #else
@@ -147,7 +147,7 @@ int syscall_InitializeCriticalSection(uint8_t* memory, const uint32_t* stack, st
 
     auto mutex = (pthread_mutex_t*)allocator->allocate(sizeof(pthread_mutex_t));
     if (mutex == nullptr)
-        return 0;
+        return false;
 
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -155,7 +155,7 @@ int syscall_InitializeCriticalSection(uint8_t* memory, const uint32_t* stack, st
     pthread_mutex_init(mutex, &attr);
 #endif
     (*lpCriticalSection) = mutex;
-    return 0;
+    return true;
 }
 
 int syscall_LeaveCriticalSection(uint8_t* memory, const uint32_t* stack)
@@ -713,7 +713,9 @@ static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
             return virtual(int, image);
     }
 
-    if (strcasestr(path.c_str(), "kernel32.dll")) {
+    if (strcasestr(path.c_str(), "advapi32.dll") ||
+        strcasestr(path.c_str(), "kernel32.dll") ||
+        strcasestr(path.c_str(), "api-ms-win-")) {
         return 0xFFFFFFFF;
     }
 
@@ -889,7 +891,7 @@ size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cp
 
 size_t syscall_LoadLibraryW(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
 {
-    size_t module = syscall_GetModuleHandleA(memory, stack);
+    size_t module = syscall_GetModuleHandleW(memory, stack);
     if (module)
         return module;
 
@@ -1155,7 +1157,13 @@ int syscall_WideCharToMultiByte(uint8_t* memory, const uint32_t* stack)
 size_t syscall_GetCommandLineA(uint8_t* memory)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    return virtual(size_t, windows->commandLine);
+    return virtual(size_t, windows->commandLineA);
+}
+
+size_t syscall_GetCommandLineW(uint8_t* memory)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+    return virtual(size_t, windows->commandLineW);
 }
 
 int syscall_GetCurrentProcessId()
@@ -1337,7 +1345,7 @@ uint64_t syscall_GetTickCount64()
 #endif
 }
 
-int syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
+bool syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
 {
     auto lpPerformanceCount = physical(LARGE_INTEGER*, stack[1]);
 #if defined(_WIN32)
@@ -1351,7 +1359,7 @@ int syscall_QueryPerformanceCounter(uint8_t* memory, const uint32_t* stack)
 #endif
 }
 
-int syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
+bool syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 {
     auto lpFrequency = physical(LARGE_INTEGER*, stack[1]);
 #if defined(_WIN32)

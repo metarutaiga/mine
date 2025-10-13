@@ -16,7 +16,8 @@ struct TIB {
 };
 
 struct Windows {
-    char commandLine[256];
+    char commandLineA[256];
+    char16_t commandLineW[256];
     char directory[260];
     uint32_t image;
     char imageDirectory[260];

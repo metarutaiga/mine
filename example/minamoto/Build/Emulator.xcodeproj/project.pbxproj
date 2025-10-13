@@ -12,6 +12,10 @@
 		D6169D0A2BB17E3100E5490C /* new.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D092BB17E3100E5490C /* new.cpp */; };
 		D6169D0C2BB17E4900E5490C /* ucrt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6169D0B2BB17E4900E5490C /* ucrt.cpp */; };
 		D62FEBF12BE50FF3004E9FDF /* dllmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D62FEBF02BE50FF3004E9FDF /* dllmain.cpp */; };
+		F52869282E9D1D08003CC84C /* advapi32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F52869272E9D1D03003CC84C /* advapi32.cpp */; };
+		F52869292E9D1D08003CC84C /* advapi32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F52869272E9D1D03003CC84C /* advapi32.cpp */; };
+		F528692A2E9D1D08003CC84C /* advapi32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F52869272E9D1D03003CC84C /* advapi32.cpp */; };
+		F528692B2E9D1D08003CC84C /* advapi32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F52869272E9D1D03003CC84C /* advapi32.cpp */; };
 		F53FD15A2D8FF404003E81E1 /* tls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53FD1592D8FF404003E81E1 /* tls.cpp */; };
 		F595EEEE2E65521A000498EB /* Debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6909FB32E1A9D500023F7B5 /* Debugger.cpp */; };
 		F582D68E2E8052B900D70BDC /* x86_atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F582D68D2E8052B200D70BDC /* x86_atomic.cpp */; };
@@ -346,6 +350,7 @@
 		F51AF6632E521AB000E9B209 /* time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = time.cpp; sourceTree = "<group>"; };
 		F51AF6682E521FD800E9B209 /* syscall_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = syscall_internal.h; sourceTree = "<group>"; };
 		F51AF6692E5423FB00E9B209 /* syscall_i386.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = syscall_i386.cpp; sourceTree = "<group>"; };
+		F52869272E9D1D03003CC84C /* advapi32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = advapi32.cpp; sourceTree = "<group>"; };
 		F53FD1592D8FF404003E81E1 /* tls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tls.cpp; path = "../../../../ClangPlatform/windows-msvc/tls.cpp"; sourceTree = SOURCE_ROOT; };
 		F5511FBA2E4B96F20076E961 /* stdio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stdio.cpp; sourceTree = "<group>"; };
 		F5511FBB2E4B96F20076E961 /* simple_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simple_allocator.h; sourceTree = "<group>"; };
@@ -725,6 +730,7 @@
 		F595EFC92E66C197000498EB /* windows */ = {
 			isa = PBXGroup;
 			children = (
+				F52869272E9D1D03003CC84C /* advapi32.cpp */,
 				F595EFCA2E66C1CB000498EB /* kernel32.cpp */,
 				F595EFCB2E66C1CB000498EB /* msvcprt.cpp */,
 				F595EFCD2E66C1CB000498EB /* msvcrt.cpp */,
@@ -898,6 +904,7 @@
 				F595EF7B2E656989000498EB /* x87_floating.cpp in Sources */,
 				F595EF7C2E656989000498EB /* x87_instruction.cpp in Sources */,
 				F595EF7D2E656989000498EB /* x87_integer.cpp in Sources */,
+				F52869292E9D1D08003CC84C /* advapi32.cpp in Sources */,
 				F595EFD42E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD32E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD22E66C1CB000498EB /* msvcrt.cpp in Sources */,
@@ -963,6 +970,7 @@
 				F595EF452E6568F2000498EB /* x87_floating.cpp in Sources */,
 				F595EF462E6568F2000498EB /* x87_instruction.cpp in Sources */,
 				F595EF472E6568F2000498EB /* x87_integer.cpp in Sources */,
+				F528692B2E9D1D08003CC84C /* advapi32.cpp in Sources */,
 				F595EFDA2E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD92E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD82E66C1CB000498EB /* msvcrt.cpp in Sources */,
@@ -1033,6 +1041,7 @@
 				F595EFA42E6569C3000498EB /* x87_floating.cpp in Sources */,
 				F595EFA52E6569C3000498EB /* x87_instruction.cpp in Sources */,
 				F595EFA62E6569C3000498EB /* x87_integer.cpp in Sources */,
+				F528692A2E9D1D08003CC84C /* advapi32.cpp in Sources */,
 				F595EFD72E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD62E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFD52E66C1CB000498EB /* msvcrt.cpp in Sources */,
@@ -1098,6 +1107,7 @@
 				F595EF242E65525E000498EB /* x87_floating.cpp in Sources */,
 				F595EF252E65525E000498EB /* x87_instruction.cpp in Sources */,
 				F595EF282E65525E000498EB /* x87_integer.cpp in Sources */,
+				F52869282E9D1D08003CC84C /* advapi32.cpp in Sources */,
 				F595EFD12E66C1CB000498EB /* kernel32.cpp in Sources */,
 				F595EFD02E66C1CB000498EB /* msvcprt.cpp in Sources */,
 				F595EFCF2E66C1CB000498EB /* msvcrt.cpp in Sources */,

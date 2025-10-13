@@ -59,6 +59,11 @@ static const struct {
     { "WakeAllConditionVariable",       INT32(1, 0)                                                 },
     { "WakeConditionVariable",          INT32(1, 0)                                                 },
 
+    // kernel32 - console
+    { "GetConsoleScreenBufferInfo", INT32(2, false)                                                 },
+    { "GetStdHandle",               INT32(1, 0xFFFFFFFF)                                            },
+    { "SetHandleCount",             INT32(1, 0)                                                     },
+
     // kernel32 - critical section
 #if HAVE_MULTITHREADED
     { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
@@ -71,9 +76,9 @@ static const struct {
 #else
     { "DeleteCriticalSection",                  INT32(1, 0)                                         },
     { "EnterCriticalSection",                   INT32(1, 0)                                         },
-    { "InitializeCriticalSection",              INT32(1, 0)                                         },
-    { "InitializeCriticalSectionEx",            INT32(3, 0)                                         },
-    { "InitializeCriticalSectionAndSpinCount",  INT32(2, 0)                                         },
+    { "InitializeCriticalSection",              INT32(1, true)                                      },
+    { "InitializeCriticalSectionEx",            INT32(3, true)                                      },
+    { "InitializeCriticalSectionAndSpinCount",  INT32(2, true)                                      },
     { "LeaveCriticalSection",                   INT32(1, 0)                                         },
     { "TryEnterCriticalSection",                INT32(1, true)                                      },
 #endif
@@ -91,6 +96,7 @@ static const struct {
 
     // kernel32 - exception
     { "IsDebuggerPresent",          INT32(0, false)                                                 },
+//  { "RaiseException",             INT32(4, 0)                                                     },
     { "RtlUnwind",                  INT32(4, 0)                                                     },
     { "SetUnhandledExceptionFilter",INT32(1, 0)                                                     },
     { "UnhandledExceptionFilter",   INT32(1, 0)                                                     },
@@ -148,6 +154,14 @@ static const struct {
     // kernel32 - profile
     { "GetProfileIntA",             INT32(3, 0)                                                     },
 
+    // kernel32 - slist
+    { "InitializeSListHead",        INT32(1, 0)                                                     },
+    { "InterlockedFlushSList",      INT32(1, 0)                                                     },
+    { "InterlockedPopEntrySList",   INT32(1, 0)                                                     },
+    { "InterlockedPushEntrySList",  INT32(2, 0)                                                     },
+    { "InterlockedPushListSListEx", INT32(4, 0)                                                     },
+    { "QueryDepthSList",            INT32(1, 0)                                                     },
+
     // kernel32 - srwlock
     { "AcquireSRWLockExclusive",    INT32(1, 0)                                                     },
     { "AcquireSRWLockShared",       INT32(1, 0)                                                     },
@@ -176,6 +190,7 @@ static const struct {
     // kernel32 - system
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
     { "GetCommandLineA",            INT32(0, syscall_GetCommandLineA(memory))                       },
+    { "GetCommandLineW",            INT32(0, syscall_GetCommandLineW(memory))                       },
     { "GetCurrentDirectoryA",       INT32(2, syscall_GetCurrentDirectoryA(memory, stack))           },
     { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
@@ -183,14 +198,12 @@ static const struct {
     { "GetLastError",               INT32(0, 0)                                                     },
     { "GetStartupInfoA",            INT32(1, syscall_GetStartupInfoA(memory, stack))                },
     { "GetStartupInfoW",            INT32(1, syscall_GetStartupInfoW(memory, stack))                },
-    { "GetStdHandle",               INT32(1, 0xFFFFFFFF)                                            },
     { "GetSystemInfo",              INT32(1, syscall_GetSystemInfo(memory, stack))                  },
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
     { "InitOnceExecuteOnce",        INT32(4, syscall_InitOnceExecuteOnce(memory, stack, cpu))       },
     { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
-    { "SetHandleCount",             INT32(1, 0)                                                     },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, 0)                                                     },
 
@@ -218,6 +231,9 @@ static const struct {
 //  { "FormatMessageA",             INT32(7, 0)                                                     },
 //  { "RaiseException",             INT32(4, 0)                                                     },
 //  { "WaitForSingleObject",        INT32(2, 0xFFFFFFFF)                                            },
+
+    // advapi32 - random
+    { "SystemFunction036",          INT32(2, syscall_RtlGenRandom(memory, stack))                   },
 
     // advapi32
     { "EventRegister",              INT32(4, 0)                                                     },
@@ -390,7 +406,8 @@ size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
         new (windows) Windows;
     }
     static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
-    static_assert(TIB_WINDOWS + offsetof(Windows, commandLine) == offset_commandLine);
+    static_assert(TIB_WINDOWS + offsetof(Windows, commandLineA) == offset_commandLineA);
+    static_assert(TIB_WINDOWS + offsetof(Windows, commandLineW) == offset_commandLineW);
 
     return 0;
 }

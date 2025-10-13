@@ -8,8 +8,9 @@
 
 #define offset_printf           0x100
 #define offset_file             0x120
-#define offset_commandLine      0x200
-#define offset_directory        0x300
+#define offset_commandLineA     0x200
+#define offset_commandLineW     0x300
+#define offset_directory        0x500
 
 struct Printf {
     int(*printf)(const char*, ...);

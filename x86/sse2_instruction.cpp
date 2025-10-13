@@ -122,7 +122,7 @@ void sse2_instruction::CMPPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::CMPSD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPSD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPSD", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     switch (format.operand[2].displacement) {
     case 0:

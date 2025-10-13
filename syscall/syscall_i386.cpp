@@ -72,11 +72,17 @@ size_t syscall_i386_new(void* data, Syscall* syscall)
     realpath(syscall->path, directory);
 #endif
 
-    auto commandLine = physical(char*, offset_commandLine);
-    commandLine[0] = 0;
+    auto commandLineA = physical(char*, offset_commandLineA);
+    commandLineA[0] = 0;
     for (int i = 0; i < syscall->argc; ++i) {
-        if (i) strncat(commandLine, " ", 256);
-        strncat(commandLine, syscall->argv[i], 256);
+        if (i) strncat(commandLineA, " ", 256);
+        strncat(commandLineA, syscall->argv[i], 256);
+    }
+
+    auto commandLineW = physical(char16_t*, offset_commandLineW);
+    commandLineW[0] = 0;
+    for (int i = 0; i < 256; ++i) {
+        commandLineW[i] = commandLineA[i];
     }
 
     return 0;

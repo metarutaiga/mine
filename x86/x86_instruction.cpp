@@ -406,6 +406,14 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
     case 0x89:
     case 0x8A:
     case 0x8B:  Decode(format, opcode, "MOV", 1, 0, opcode[0] & 0b11);  break;
+    case 0x8C:  Decode(format, opcode, "MOV", 1, 0, opcode[0] & 0b11);
+                format.operand[1].type = Format::Operand::IMM;
+                format.operand[1].displacement = 0;
+                break;
+//  case 0x8E:  Decode(format, opcode, "MOV", 1, 0, opcode[0] & 0b11);
+//              format.operand[0].type = Format::Operand::IMM;
+//              format.operand[0].displacement = 0;
+//              break;
     case 0xA0:
     case 0xA1:  Decode(format, opcode, "MOV", 1, 32, (opcode[0] & 0b01) | INDIRECT);
                 format.operand[1] = format.operand[0];
