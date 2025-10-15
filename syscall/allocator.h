@@ -10,4 +10,5 @@ struct allocator_t
     virtual size_t size(void* pointer) const noexcept = 0;
     virtual void* address() noexcept = 0;
     virtual size_t max_size() const noexcept = 0;
+    virtual size_t peek_size() const noexcept = 0;
 };
