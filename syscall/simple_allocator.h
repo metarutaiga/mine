@@ -9,8 +9,8 @@ struct simple_allocator : public allocator_t {
     enum { HEAD = 0x80, FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
-    size_t allocated = 0;
     size_t peek = 0;
+    size_t used = 0;
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
         if (size == 0)
             size = 1;
@@ -38,8 +38,8 @@ struct simple_allocator : public allocator_t {
             }
             status[pos] = exp | HEAD;
             memset(status.data() + pos + 1, exp, block - 1);
-            allocated += block * MINBLOCK;
-            peek = allocated > peek ? allocated : peek;
+            used += block * MINBLOCK;
+            peek = used > peek ? used : peek;
             return memory.data() + pos * MINBLOCK;
         }
         return nullptr;
@@ -63,7 +63,7 @@ struct simple_allocator : public allocator_t {
                 break;
             (*it) = FREED;
         }
-        allocated -= block * MINBLOCK;
+        used -= block * MINBLOCK;
     }
     size_t size(void* pointer) const noexcept override {
         if (pointer == nullptr)
@@ -94,6 +94,9 @@ struct simple_allocator : public allocator_t {
     }
     size_t peek_size() const noexcept override {
         return peek;
+    }
+    size_t used_size() const noexcept override {
+        return used;
     }
     static simple_allocator* construct(size_t size) {
         simple_allocator* allocator = new simple_allocator;
