@@ -11,7 +11,7 @@ struct SyscallWindows {
     size_t(*symbol)(const char*, const char*, void*);
     void(*debugModule)(const char*, void*);
 
-    void* image;
+    size_t image;
     int argc;
     const char* const* argv;
     int envc;
@@ -20,7 +20,7 @@ struct SyscallWindows {
 
 size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows);
 size_t syscall_windows_delete(void* data);
-void syscall_windows_import(void* data, const char* file, void* image, bool execute);
+void syscall_windows_import(void* data, const char* file, size_t module, bool execute);
 size_t syscall_windows_execute(void* data, size_t index);
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);
@@ -37,7 +37,7 @@ uint32_t syscall_InterlockedIncrement(const void* memory, const void* stack);
 // kernel32 - critical section
 int syscall_DeleteCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_EnterCriticalSection(const void* memory, const void* stack);
-bool syscall_InitializeCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_InitializeCriticalSection(const void* stack, struct allocator_t* allocator);
 int syscall_LeaveCriticalSection(const void* memory, const void* stack);
 int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
 
@@ -48,10 +48,10 @@ bool syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
 // kernel32 - environment
 bool syscall_FreeEnvironmentStringsA(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_FreeEnvironmentStringsW(const void* memory, const void* stack, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentStrings(const void* memory, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentStringsW(const void* memory, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentVariableA(const void* memory, const void* stack, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentVariableW(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentStrings(struct allocator_t* allocator);
+size_t syscall_GetEnvironmentStringsW(struct allocator_t* allocator);
+size_t syscall_GetEnvironmentVariableA(const void* stack, struct allocator_t* allocator);
+size_t syscall_GetEnvironmentVariableW(const void* stack, struct allocator_t* allocator);
 
 // kernel32 - file
 int syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -68,7 +68,7 @@ int syscall_FindNextFileA(const void* memory, const void* stack);
 size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap
-size_t syscall_HeapAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_HeapAlloc(const void* stack, struct allocator_t* allocator);
 bool syscall_HeapFree(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_HeapReAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 
@@ -87,7 +87,7 @@ size_t syscall_LoadLibraryA(const void* memory, const void* stack, void* cpu);
 size_t syscall_LoadLibraryW(const void* memory, const void* stack, void* cpu);
 
 // kernel32 - memory
-size_t syscall_LocalAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_LocalAlloc(const void* stack, struct allocator_t* allocator);
 size_t syscall_LocalFree(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);

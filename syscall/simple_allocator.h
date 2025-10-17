@@ -58,12 +58,18 @@ struct simple_allocator : public allocator_t {
         exp = exp & ~HEAD;
         status[pos] = FREED;
         size_t block = (1 << exp);
-        for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
+        size_t max = pos + block;
+        if (max > status.size())
+            max = status.size();
+        for (auto it = status.data() + pos + 1, end = status.data() + max; it < end; ++it) {
             if ((*it) != exp)
                 break;
             (*it) = FREED;
         }
         used -= block * MINBLOCK;
+    }
+    void* address() noexcept override {
+        return memory.data();
     }
     size_t size(void* pointer) const noexcept override {
         if (pointer == nullptr)
@@ -79,15 +85,15 @@ struct simple_allocator : public allocator_t {
         exp = exp & ~HEAD;
         size_t count = 1;
         size_t block = (1 << exp);
-        for (auto it = status.data() + pos + 1, end = status.data() + pos + block; it < end; ++it) {
+        size_t max = pos + block;
+        if (max > status.size())
+            max = status.size();
+        for (auto it = status.data() + pos + 1, end = status.data() + max; it < end; ++it) {
             if ((*it) != exp)
                 break;
             count++;
         }
         return count * MINBLOCK;
-    }
-    void* address() noexcept override {
-        return memory.data();
     }
     size_t max_size() const noexcept override {
         return memory.size();
@@ -97,6 +103,9 @@ struct simple_allocator : public allocator_t {
     }
     size_t used_size() const noexcept override {
         return used;
+    }
+    void callback(void(*function)(allocator_t*, int, void*), void* data) noexcept override {
+        
     }
     static simple_allocator* construct(size_t size) {
         simple_allocator* allocator = new simple_allocator;

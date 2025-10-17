@@ -88,11 +88,13 @@ size_t syscall_fgets(char* memory, const uint32_t* stack)
     return virtual(size_t, result);
 }
 
-size_t syscall_fopen(char* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_fopen(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto stream = (FILE**)allocator->allocate(sizeof(FILE*));
     if (stream == nullptr)
         return 0;
+    char* memory = (char*)allocator->address();
+
     auto filename = physical(char*, stack[1]);
     auto mode = physical(char*, stack[2]);
 
@@ -353,11 +355,13 @@ int syscall_sscanf(char* memory, const uint32_t* stack)
     return vsscanf(s, format64.c_str(), (va_list)args64.data());
 }
 
-size_t syscall_tmpfile(char* memory, struct allocator_t* allocator)
+size_t syscall_tmpfile(struct allocator_t* allocator)
 {
     auto result = (FILE**)allocator->allocate(sizeof(FILE*));
     if (result == nullptr)
         return 0;
+    char* memory = (char*)allocator->address();
+
     (*result) = tmpfile();
     return virtual(size_t, result);
 }

@@ -31,7 +31,7 @@ size_t syscall_memcpy(char* memory, const uint32_t* stack)
     auto destination = physical(char*, stack[1]);
     auto source = physical(char*, stack[2]);
     auto num = stack[3];
-    memcpy(destination, source, num);
+    memmove(destination, source, num);
     return stack[1];
 }
 

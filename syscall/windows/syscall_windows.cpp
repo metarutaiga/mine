@@ -89,10 +89,10 @@ static const struct {
     // kernel32 - environment
     { "FreeEnvironmentStringsA",    INT32(1, syscall_FreeEnvironmentStringsA(memory, stack, allocator)) },
     { "FreeEnvironmentStringsW",    INT32(1, syscall_FreeEnvironmentStringsW(memory, stack, allocator)) },
-    { "GetEnvironmentStrings",      INT32(0, syscall_GetEnvironmentStrings(memory, allocator))          },
-    { "GetEnvironmentStringsW",     INT32(0, syscall_GetEnvironmentStringsW(memory, allocator))         },
-    { "GetEnvironmentVariableA",    INT32(3, syscall_GetEnvironmentVariableA(memory, stack, allocator)) },
-    { "GetEnvironmentVariableW",    INT32(3, syscall_GetEnvironmentVariableW(memory, stack, allocator)) },
+    { "GetEnvironmentStrings",      INT32(0, syscall_GetEnvironmentStrings(allocator))              },
+    { "GetEnvironmentStringsW",     INT32(0, syscall_GetEnvironmentStringsW(allocator))             },
+    { "GetEnvironmentVariableA",    INT32(3, syscall_GetEnvironmentVariableA(stack, allocator))     },
+    { "GetEnvironmentVariableW",    INT32(3, syscall_GetEnvironmentVariableW(stack, allocator))     },
 
     // kernel32 - exception
     { "IsDebuggerPresent",          INT32(0, false)                                                 },
@@ -119,7 +119,7 @@ static const struct {
     { "GetProcessHeap",             INT32(0, 0xFFFFFFFF)                                            },
     { "HeapCreate",                 INT32(3, 0xFFFFFFFF)                                            },
     { "HeapDestroy",                INT32(1, true)                                                  },
-    { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(memory, stack, allocator))           },
+    { "HeapAlloc",                  INT32(3, syscall_HeapAlloc(stack, allocator))                   },
     { "HeapFree",                   INT32(3, syscall_HeapFree(memory, stack, allocator))            },
     { "HeapReAlloc",                INT32(4, syscall_HeapReAlloc(memory, stack, allocator))         },
     { "HeapSize",                   INT32(3, 0xFFFFFFFF)                                            },
@@ -144,7 +144,7 @@ static const struct {
     // kernel32 - memory
     { "DecodePointer",              INT32(1, stack[1])                                              },
     { "EncodePointer",              INT32(1, stack[1])                                              },
-    { "LocalAlloc",                 INT32(2, syscall_LocalAlloc(memory, stack, allocator))          },
+    { "LocalAlloc",                 INT32(2, syscall_LocalAlloc(stack, allocator))                  },
     { "LocalFree",                  INT32(1, syscall_LocalFree(memory, stack, allocator))           },
     { "VirtualAlloc",               INT32(4, syscall_VirtualAlloc(memory, stack, allocator))        },
     { "VirtualFree",                INT32(3, syscall_VirtualFree(memory, stack, allocator))         },
@@ -378,17 +378,21 @@ size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
     msvcrt->iob[2][0] = 3;
 
     auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * syscall_windows->argc);
+    memory = (uint8_t*)allocator->address();
     for (int i = 0; i < syscall_windows->argc; ++i) {
         size_t length = strlen(syscall_windows->argv[i]);
         auto arg = allocator->allocate(length + 1);
+        memory = (uint8_t*)allocator->address();
         memcpy(arg, syscall_windows->argv[i], length);
         args[i] = virtual(int, arg);
     }
 
     auto envs = (uint32_t*)allocator->allocate(sizeof(uint32_t) * (syscall_windows->envc + 1));
+    memory = (uint8_t*)allocator->address();
     for (int i = 0; i < syscall_windows->envc; ++i) {
         size_t length = strlen(syscall_windows->envp[i]);
         auto env = allocator->allocate(length + 1);
+        memory = (uint8_t*)allocator->address();
         memcpy(env, syscall_windows->envp[i], length);
         envs[i] = virtual(int, env);
     }
@@ -400,7 +404,7 @@ size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
 
     auto* windows = physical(Windows*, TIB_WINDOWS);
     if (windows->image == 0) {
-        windows->image = virtual(uint32_t, syscall_windows->image);
+        windows->image = (uint32_t)syscall_windows->image;
         windows->symbol = syscall_windows->symbol;
         windows->debugModule = syscall_windows->debugModule;
         new (windows) Windows;
@@ -428,72 +432,72 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-void syscall_windows_import(void* data, const char* file, void* image, bool execute)
+void syscall_windows_import(void* data, const char* file, size_t module, bool execute)
 {
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
-    struct ImportData {
-        mine* cpu;
-        Printf* printf;
-        Windows* windows;
-
-        static size_t Import(const char* file, const char* name, void* import_data) {
-            ImportData& data = *(ImportData*)import_data;
-            auto& modules = data.windows->modules;
-            auto it = std::find_if(modules.begin(), modules.end(), [&](auto& pair) {
-                return strcasecmp(pair.first.c_str(), file) == 0;
-            });
-            if (it == modules.end()) {
-                struct stat st;
-                std::string path = data.windows->directory;
-                path += '/';
-                path += file;
-                if (stat(path.c_str(), &st) == 0) {
-                    void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
-                        mine* cpu = (mine*)userdata;
-                        return cpu->Memory(base, size);
-                    }, data.cpu, data.printf->debugPrintf);
-                    if (image) {
-                        size_t offset = modules.size();
-                        modules.emplace_back(file, image);
-                        syscall_windows_import(data.cpu, file, image, false);
-                        it = modules.begin() + offset;
-                    }
+    auto Import = [](const char* file, const char* name, void* import_data) -> size_t {
+        auto* cpu = (mine*)import_data;
+        auto* memory = cpu->Memory();
+        auto* printf = physical(Printf*, offset_printf);
+        auto* windows = physical(Windows*, TIB_WINDOWS);
+        auto* modules = &windows->modules;
+        auto it = std::find_if(modules->begin(), modules->end(), [&](auto& pair) {
+            return strcasecmp(pair.first.c_str(), file) == 0;
+        });
+        if (it == modules->end()) {
+            struct stat st;
+            std::string path = windows->directory;
+            path += '/';
+            path += file;
+            if (stat(path.c_str(), &st) == 0) {
+                void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
+                    mine* cpu = (mine*)userdata;
+                    return cpu->Memory(base, size);
+                }, cpu, printf->debugPrintf);
+                memory = cpu->Memory();
+                printf = physical(Printf*, offset_printf);
+                windows = physical(Windows*, TIB_WINDOWS);
+                modules = &windows->modules;
+                if (image) {
+                    size_t offset = modules->size();
+                    modules->emplace_back(file, virtual(size_t, image));
+                    syscall_windows_import(cpu, file, virtual(size_t, image), false);
+                    it = modules->begin() + offset;
                 }
             }
-            if (it != modules.end()) {
-                struct ExportData {
-                    size_t address;
-                    const char* name;
-                    Printf* printf;
-                } export_data = { .name = name, .printf = data.printf };
-                PE::Exports((*it).second, [](const char* name, size_t address, void* export_data) {
-                    auto& data = *(ExportData*)export_data;
-                    if (strcmp(data.name, name) == 0) {
-                        data.address = address;
-                        if (data.printf->debugPrintf) {
-                            data.printf->debugPrintf("%-12s : [%08zX] %s", "Symbol", address, name);
-                        }
+        }
+        if (it != modules->end()) {
+            struct ExportData {
+                size_t address;
+                const char* name;
+                Printf* printf;
+            } export_data = { .name = name, .printf = printf };
+            PE::Exports(physical(void*, (*it).second), [](const char* name, size_t address, void* export_data) {
+                auto& data = *(ExportData*)export_data;
+                if (strcmp(data.name, name) == 0) {
+                    data.address = address;
+                    if (data.printf->debugPrintf) {
+                        data.printf->debugPrintf("%-12s : [%08zX] %s", "Symbol", address, name);
                     }
-                }, &export_data);
-                return export_data.address;
-            }
-            if (data.windows->symbol == nullptr)
-                return 0;
-            return data.windows->symbol(file, name, nullptr);
-        };
-    } import_data = {
-        .cpu = cpu,
-        .printf = printf,
-        .windows = windows,
+                }
+            }, &export_data);
+            return export_data.address;
+        }
+        if (windows->symbol == nullptr)
+            return 0;
+        return windows->symbol(file, name, nullptr);
     };
 
-    PE::Imports(image, ImportData::Import, &import_data, printf->debugPrintf);
-    if (import_data.windows->debugModule && image) {
-        import_data.windows->debugModule(file, image);
+    PE::Imports(physical(void*, module), Import, cpu, printf->debugPrintf);
+
+    memory = cpu->Memory();
+    windows = physical(Windows*, TIB_WINDOWS);
+    if (windows->debugModule && module) {
+        windows->debugModule(file, physical(void*, module));
     }
 
     if (execute) {
@@ -507,7 +511,7 @@ void syscall_windows_import(void* data, const char* file, void* image, bool exec
         return;
     }
 
-    size_t entry = PE::Entry(image);
+    size_t entry = PE::Entry(physical(void*, module));
     if (entry) {
         auto& x86 = cpu->x86;
         uint32_t ret = Pop32();

@@ -23,34 +23,36 @@ static size_t syscall_basic_string_char_append(size_t thiz, char* memory, struct
     if (other_size == 0)
         return thiz;
 
-    auto& local = *physical(syscall_basic_string<char>*, thiz);
-    size_t size = local.size + other_size;
-    if (size >= sizeof(local.buf)) {
+    auto* local = physical(syscall_basic_string<char>*, thiz);
+    size_t size = local->size + other_size;
+    if (size >= sizeof(local->buf)) {
         char* ptr = nullptr;
-        if (local.res >= size) {
-            ptr = physical(char*, local.ptr);
+        if (local->res >= size) {
+            ptr = physical(char*, local->ptr);
         }
         else {
             ptr = (char*)allocator->allocate(size + 1);
-            if (local.res >= sizeof(local.buf)) {
-                memcpy(ptr, physical(char*, local.ptr), local.size);
-                allocator->deallocate(physical(char*, local.ptr));
+            memory = (char*)allocator->address();
+            local = physical(syscall_basic_string<char>*, thiz);
+            if (local->res >= sizeof(local->buf)) {
+                memcpy(ptr, physical(char*, local->ptr), local->size);
+                allocator->deallocate(physical(char*, local->ptr));
             }
             else {
-                memcpy(ptr, local.buf, local.size);
+                memcpy(ptr, local->buf, local->size);
             }
-            local.ptr = virtual(int, ptr);
-            local.res = uint32_t(allocator->size(ptr)) - 1;
+            local->ptr = virtual(int, ptr);
+            local->res = uint32_t(allocator->size(ptr)) - 1;
         }
-        memcpy(ptr + local.size, other_ptr, other_size);
+        memcpy(ptr + local->size, other_ptr, other_size);
         ptr[size] = 0;
     }
     else {
-        memcpy(local.buf + local.size, other_ptr, other_size);
-        local.buf[size] = 0;
+        memcpy(local->buf + local->size, other_ptr, other_size);
+        local->buf[size] = 0;
     }
-    local.size = uint32_t(size);
-    return thiz;
+    local->size = uint32_t(size);
+    return virtual(size_t, local);
 }
 
 size_t syscall_basic_string_char_constructor(size_t thiz, char* memory)

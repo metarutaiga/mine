@@ -82,10 +82,11 @@ size_t syscall_bsearch(char* memory, const uint32_t* stack)
 size_t syscall_calloc(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto size = stack[1] * stack[2];
-    auto memory = allocator->address();
     auto pointer = allocator->allocate(size);
     if (pointer == nullptr)
         return 0;
+    auto memory = allocator->address();
+
     memset(pointer, 0, size);
     return virtual(size_t, pointer);
 }
@@ -152,10 +153,11 @@ lldiv_t syscall_lldiv(const uint32_t* stack)
 int syscall_malloc(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto size = stack[1];
-    auto memory = allocator->address();
     auto pointer = allocator->allocate(size);
     if (pointer == nullptr)
         return 0;
+    auto memory = allocator->address();
+
     return virtual(int, pointer);
 }
 
@@ -216,7 +218,10 @@ int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
     auto new_pointer = allocator->allocate(new_size);
     if (new_pointer == nullptr)
         return 0;
+    memory = (char*)allocator->address();
+
     if (pointer) {
+        old_pointer = physical(char*, pointer);
         memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
         allocator->deallocate(old_pointer);
     }

@@ -150,6 +150,13 @@ bool x86_i386::Initialize(allocator_t* allocator, size_t stack)
         memory = 0xFFFF0000;
         allocator->allocate(0x10000, 0xFFFF0000);
     }
+    allocator->callback([](allocator_t* allocator, int type, void* data) {
+        auto& x86 = *(x86_i386*)data;
+        x86.memory_size = allocator->max_size();
+//      x86.stack_size = x86.stack_size;
+        x86.memory_address = (uint8_t*)allocator->address();
+        x86.stack_address = (uint8_t*)allocator->address() + ESP;
+    }, this);
 
     memory_size = memory;
     stack_size = stack;

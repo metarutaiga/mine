@@ -132,22 +132,24 @@ int syscall_EnterCriticalSection(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-bool syscall_InitializeCriticalSection(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_InitializeCriticalSection(const uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-
     auto mutex = (CRITICAL_SECTION*)allocator->allocate(sizeof(CRITICAL_SECTION));
     if (mutex == nullptr)
         return false;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
+    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
 
     InitializeCriticalSection(mutex);
 #else
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-
     auto mutex = (pthread_mutex_t*)allocator->allocate(sizeof(pthread_mutex_t));
     if (mutex == nullptr)
         return false;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
+    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
 
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -232,30 +234,46 @@ bool syscall_FreeEnvironmentStringsW(uint8_t* memory, const uint32_t* stack, str
     return true;
 }
 
-size_t syscall_GetEnvironmentStrings(uint8_t* memory, struct allocator_t* allocator)
+size_t syscall_GetEnvironmentStrings(struct allocator_t* allocator)
 {
     char* empty = (char*)allocator->allocate(sizeof(char) * 2);
+    if (empty == nullptr)
+        return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
     empty[0] = 0;
     return virtual(size_t, empty);
 }
 
-size_t syscall_GetEnvironmentStringsW(uint8_t* memory, struct allocator_t* allocator)
+size_t syscall_GetEnvironmentStringsW(struct allocator_t* allocator)
 {
     char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
+    if (empty == nullptr)
+        return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
     empty[0] = 0;
     return virtual(size_t, empty);
 }
 
-size_t syscall_GetEnvironmentVariableA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_GetEnvironmentVariableA(const uint32_t* stack, struct allocator_t* allocator)
 {
     char* empty = (char*)allocator->allocate(sizeof(char) * 2);
+    if (empty == nullptr)
+        return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
     empty[0] = 0;
     return virtual(size_t, empty);
 }
 
-size_t syscall_GetEnvironmentVariableW(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_GetEnvironmentVariableW(const uint32_t* stack, struct allocator_t* allocator)
 {
     char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
+    if (empty == nullptr)
+        return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
     empty[0] = 0;
     return virtual(size_t, empty);
 }
@@ -337,6 +355,7 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
     auto handle = (FILE**)allocator->allocate(sizeof(FILE*));
     if (handle == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
+    memory = (uint8_t*)allocator->address();
 
     (*handle) = fopen(path.c_str(), mode);
     if ((*handle) == nullptr) {
@@ -426,6 +445,7 @@ size_t syscall_MapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allo
     auto map = allocator->allocate(dwNumberOfBytesToMap);
     if (map == nullptr)
         return 0;
+    memory = (uint8_t*)allocator->address();
 
     fseek(file, dwFileOffsetLow, SEEK_SET);
     fread(map, 1, dwNumberOfBytesToMap, file);
@@ -500,6 +520,8 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
     auto handle = (HANDLE*)allocator->allocate(sizeof(HANDLE));
     if (handle == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
+    memory = (uint8_t*)allocator->address();
+
     auto lpFileName = physical(char*, stack[1]);
     auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
     (*handle) = FindFirstFileA(lpFileName, lpFindFileData);
@@ -509,12 +531,13 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
     }
     return virtual(size_t, handle);
 #else
-    auto* printf = physical(Printf*, offset_printf);
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
     if (dir == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
+    memory = (uint8_t*)allocator->address();
+
+    auto* printf = physical(Printf*, offset_printf);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     auto lpFileName = physical(char*, stack[1]);
 
     std::string path;
@@ -556,7 +579,7 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 
 // Heap
 
-size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_HeapAlloc(const uint32_t* stack, struct allocator_t* allocator)
 {
 //  auto hHeap = stack[1];
     auto dwFlags = stack[2];
@@ -564,6 +587,8 @@ size_t syscall_HeapAlloc(uint8_t* memory, const uint32_t* stack, struct allocato
     void* lpMem = allocator->allocate(dwBytes);
     if (lpMem == nullptr)
         return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
     if (dwFlags & 0x8) {
         memset(lpMem, 0, dwBytes);
     }
@@ -584,17 +609,20 @@ size_t syscall_HeapReAlloc(uint8_t* memory, const uint32_t* stack, struct alloca
 //  auto hHeap = stack[1];
     auto dwFlags = stack[2];
     auto lpMem = physical(void*, stack[3]);
-    auto dwBytes = stack[3];
+    auto dwBytes = stack[4];
     auto dwOldBytes = allocator->size(lpMem);
     if (dwOldBytes >= dwBytes)
         return virtual(size_t, lpMem);
     auto lpNewMem = allocator->allocate(dwBytes);
     if (lpNewMem == nullptr)
         return 0;
+    memory = (uint8_t*)allocator->address();
+
     if (dwFlags & 0x8) {
         memset(lpNewMem, 0, dwBytes);
     }
     if (lpMem) {
+        lpMem = physical(void*, stack[3]);
         memcpy(lpNewMem, lpMem, dwBytes < dwOldBytes ? dwBytes : dwOldBytes);
         allocator->deallocate(lpMem);
     }
@@ -608,10 +636,11 @@ int syscall_FreeLibrary(uint8_t* memory, const uint32_t* stack)
     return 0;
 }
 
-static size_t syscall_GetModuleFileName(uint8_t* memory, void* hModule, char* lpFilename, uint32_t nSize, int nWidth, bool bBase)
+static size_t syscall_GetModuleFileName(uint8_t* memory, size_t module, char* lpFilename, uint32_t nSize, int nWidth, bool bBase)
 {
     auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
+    void* hModule = physical(void*, module);
 
     const char* found = nullptr;
     if (hModule == nullptr) {
@@ -619,7 +648,7 @@ static size_t syscall_GetModuleFileName(uint8_t* memory, void* hModule, char* lp
     }
     else {
         for (auto& [name, image] : windows->modules) {
-            if (image == hModule) {
+            if (image == module) {
                 found = name.c_str();
                 break;
             }
@@ -666,7 +695,7 @@ static size_t syscall_GetModuleFileName(uint8_t* memory, void* hModule, char* lp
 size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
 {
 //  auto hProcess = stack[1];
-    auto hModule = physical(void*, stack[2]);
+    auto hModule = stack[2];
     auto lpBaseName = physical(char*, stack[3]);
     auto nSize = stack[4];
     return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 1, true);
@@ -675,7 +704,7 @@ size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
 size_t syscall_GetModuleBaseNameW(uint8_t* memory, const uint32_t* stack)
 {
 //  auto hProcess = stack[1];
-    auto hModule = physical(void*, stack[2]);
+    auto hModule = stack[2];
     auto lpBaseName = physical(char*, stack[3]);
     auto nSize = stack[4];
     return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 2, true);
@@ -683,7 +712,7 @@ size_t syscall_GetModuleBaseNameW(uint8_t* memory, const uint32_t* stack)
 
 size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
 {
-    auto hModule = physical(void*, stack[1]);
+    auto hModule = stack[1];
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
     return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 1, false);
@@ -691,7 +720,7 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
 
 size_t syscall_GetModuleFileNameW(uint8_t* memory, const uint32_t* stack)
 {
-    auto hModule = physical(void*, stack[1]);
+    auto hModule = stack[1];
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
     return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 2, false);
@@ -710,7 +739,7 @@ static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
     path = path.substr(slash + 1);
     for (auto& [name, image] : windows->modules) {
         if (strcasestr(name.c_str(), path.c_str()))
-            return virtual(int, image);
+            return image;
     }
 
     if (strcasestr(path.c_str(), "advapi32.dll") ||
@@ -837,6 +866,10 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     }, cpu, printf->debugPrintf);
     if (image == nullptr)
         return 0;
+    memory = cpu->Memory();
+
+    size_t module = virtual(size_t, image);
+    windows = physical(Windows*, TIB_WINDOWS);
 
     // _DllMainCRTStartup - pre
     auto& x86 = cpu->x86;
@@ -862,21 +895,21 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     ret = Pop32();
     Pop32();
     Push32(ret);
-    Push32(virtual(int, image));
+    Push32(module);
     Push32(0xC3C35858);
     uint32_t eax = ESP;
     Push32(eax);
 
-    void syscall_windows_import(void* data, const char* file, void* image, bool execute);
-    windows->modules.emplace_back(path.c_str(), image);
-    syscall_windows_import(cpu, path.c_str(), image, false);
+    void syscall_windows_import(void* data, const char* file, size_t module, bool execute);
+    windows->modules.emplace_back(path.c_str(), module);
+    syscall_windows_import(cpu, path.c_str(), module, false);
 
     // _DllMainCRTStartup - post
     ret = Pop32();
     Push32(ret);
     Push32(ret);
 
-    return virtual(size_t, image);
+    return module;
 }
 
 size_t syscall_LoadLibraryA(uint8_t* memory, const uint32_t* stack, x86_i386* cpu)
@@ -909,13 +942,17 @@ size_t syscall_LoadLibraryW(uint8_t* memory, const uint32_t* stack, x86_i386* cp
 
 // Memory
 
-size_t syscall_LocalAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_LocalAlloc(const uint32_t* stack, struct allocator_t* allocator)
 {
     auto uFlags = stack[1];
     auto uBytes = stack[2];
 
     void* pointer = allocator->allocate(uBytes);
-    if (pointer && (uFlags & 0x0040)) {
+    if (pointer == nullptr)
+        return 0;
+    uint8_t* memory = (uint8_t*)allocator->address();
+
+    if (uFlags & 0x0040) {
         memset(pointer, 0, uBytes);
     }
 
@@ -931,7 +968,7 @@ size_t syscall_LocalFree(uint8_t* memory, const uint32_t* stack, struct allocato
     return 0;
 }
 
-size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator) __attribute__((optnone))
+size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto lpAddress = physical(void*, stack[1]);
     auto dwSize = stack[2];
@@ -946,9 +983,11 @@ size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct alloc
     }
 
     lpAddress = allocator->allocate(dwSize);
-    if (lpAddress) {
-        memset(lpAddress, 0, dwSize);
-    }
+    if (lpAddress == nullptr)
+        return 0;
+    memory = (uint8_t*)allocator->address();
+
+    memset(lpAddress, 0, dwSize);
 
     return virtual(size_t, lpAddress);
 }

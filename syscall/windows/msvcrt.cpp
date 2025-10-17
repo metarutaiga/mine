@@ -38,7 +38,7 @@ int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* all
 {
     auto pFile = physical(uint32_t*, stack[1]);
     if (pFile) {
-        (*pFile) = uint32_t(syscall_fopen(memory, stack + 1, allocator));
+        (*pFile) = uint32_t(syscall_fopen(stack + 1, allocator));
     }
     if (pFile == nullptr || (*pFile) == 0)
         return -1;
@@ -82,6 +82,8 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     auto new_pointer = allocator->allocate(new_size);
     if (new_pointer == nullptr)
         return 0;
+    memory = (char*)allocator->address();
+
     if (pointer) {
         memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
         allocator->deallocate(old_pointer);
@@ -186,6 +188,7 @@ size_t syscall_strdup(char* memory, const uint32_t* stack, struct allocator_t* a
     auto result = (char*)allocator->allocate(size);
     if (result == nullptr)
         return 0;
+    memory = (char*)allocator->address();
 
     strncpy(result, str, size);
     return virtual(size_t, result);
