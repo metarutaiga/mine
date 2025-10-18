@@ -23,7 +23,6 @@ static char* strcasestr(char const* haystack, char const* needle)
 }
 #else
 #include <fnmatch.h>
-#include <pthread.h>
 #include <unistd.h>
 #include <sys/dir.h>
 #pragma pack(push, 1)
@@ -105,84 +104,6 @@ uint32_t syscall_InterlockedIncrement(uint8_t* memory, const uint32_t* stack)
     return (*Target);
 }
 
-// Critical Section
-
-int syscall_DeleteCriticalSection(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
-{
-#if defined(_WIN32)
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-    DeleteCriticalSection(*lpCriticalSection);
-#else
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-    pthread_mutex_destroy(*lpCriticalSection);
-#endif
-    allocator->deallocate(lpCriticalSection);
-    return 0;
-}
-
-int syscall_EnterCriticalSection(uint8_t* memory, const uint32_t* stack)
-{
-#if defined(_WIN32)
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-    EnterCriticalSection(*lpCriticalSection);
-#else
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-    pthread_mutex_lock(*lpCriticalSection);
-#endif
-    return 0;
-}
-
-bool syscall_InitializeCriticalSection(const uint32_t* stack, struct allocator_t* allocator)
-{
-#if defined(_WIN32)
-    auto mutex = (CRITICAL_SECTION*)allocator->allocate(sizeof(CRITICAL_SECTION));
-    if (mutex == nullptr)
-        return false;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-
-    InitializeCriticalSection(mutex);
-#else
-    auto mutex = (pthread_mutex_t*)allocator->allocate(sizeof(pthread_mutex_t));
-    if (mutex == nullptr)
-        return false;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(mutex, &attr);
-#endif
-    (*lpCriticalSection) = mutex;
-    return true;
-}
-
-int syscall_LeaveCriticalSection(uint8_t* memory, const uint32_t* stack)
-{
-#if defined(_WIN32)
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-    LeaveCriticalSection(*lpCriticalSection);
-#else
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-    pthread_mutex_unlock(*lpCriticalSection);
-#endif
-    return 0;
-}
-
-int syscall_TryEnterCriticalSection(uint8_t* memory, const uint32_t* stack)
-{
-#if defined(_WIN32)
-    auto lpCriticalSection = physical(CRITICAL_SECTION**, stack[1]);
-    return TryEnterCriticalSection(*lpCriticalSection);
-#else
-    auto lpCriticalSection = physical(pthread_mutex_t**, stack[1]);
-    return pthread_mutex_trylock(*lpCriticalSection) ? false : true;
-#endif
-}
-
 // Directory
 
 uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
@@ -198,10 +119,9 @@ uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 
 bool syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 {
-    auto* printf = physical(Printf*, offset_printf);
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-
     char* lpPathName = physical(char*, stack[1]);
+
+    auto* windows = physical(Windows*, TIB_WINDOWS);
     strncpy(windows->directory, lpPathName, 260);
 
 #ifndef _WIN32
@@ -211,6 +131,7 @@ bool syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     }
 #endif
 
+    auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s -> %s", "SetCurrentDirectoryA", windows->directory);
     }
@@ -301,8 +222,6 @@ int syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocator
 
 size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-
     auto lpFileName = physical(char*, stack[1]);
     auto dwDesiredAccess = stack[2];
 //  auto dwShareMode = stack[3];
@@ -313,6 +232,7 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
 
     std::string path;
     if (lpFileName[0] != '/' && lpFileName[0] != '\\') {
+        auto* windows = physical(Windows*, TIB_WINDOWS);
         path = windows->directory;
         path += '\\';
     }
@@ -514,13 +434,13 @@ int syscall_FindNextFileA(uint8_t* memory, const uint32_t* stack)
 #endif
 }
 
-size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_FindFirstFileA(uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto handle = (HANDLE*)allocator->allocate(sizeof(HANDLE));
     if (handle == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
-    memory = (uint8_t*)allocator->address();
+    uint8_t* memory = (uint8_t*)allocator->address();
 
     auto lpFileName = physical(char*, stack[1]);
     auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
@@ -534,14 +454,13 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
     if (dir == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
-    memory = (uint8_t*)allocator->address();
+    uint8_t* memory = (uint8_t*)allocator->address();
 
-    auto* printf = physical(Printf*, offset_printf);
-    auto* windows = physical(Windows*, TIB_WINDOWS);
     auto lpFileName = physical(char*, stack[1]);
 
     std::string path;
     if (lpFileName[0] != '/' && lpFileName[0] != '\\') {
+        auto* windows = physical(Windows*, TIB_WINDOWS);
         path = windows->directory;
         path += '\\';
     }
@@ -554,6 +473,7 @@ size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator
 #endif
     auto slash = path.find_last_of("/\\");
 
+    auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s", "FindFirstFileA", path.c_str());
     }
@@ -698,7 +618,7 @@ size_t syscall_GetModuleBaseNameA(uint8_t* memory, const uint32_t* stack)
     auto hModule = stack[2];
     auto lpBaseName = physical(char*, stack[3]);
     auto nSize = stack[4];
-    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 1, true);
+    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, sizeof(char), true);
 }
 
 size_t syscall_GetModuleBaseNameW(uint8_t* memory, const uint32_t* stack)
@@ -707,7 +627,7 @@ size_t syscall_GetModuleBaseNameW(uint8_t* memory, const uint32_t* stack)
     auto hModule = stack[2];
     auto lpBaseName = physical(char*, stack[3]);
     auto nSize = stack[4];
-    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, 2, true);
+    return syscall_GetModuleFileName(memory, hModule, lpBaseName, nSize, sizeof(char16_t), true);
 }
 
 size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
@@ -715,7 +635,7 @@ size_t syscall_GetModuleFileNameA(uint8_t* memory, const uint32_t* stack)
     auto hModule = stack[1];
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
-    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 1, false);
+    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, sizeof(char), false);
 }
 
 size_t syscall_GetModuleFileNameW(uint8_t* memory, const uint32_t* stack)
@@ -723,7 +643,7 @@ size_t syscall_GetModuleFileNameW(uint8_t* memory, const uint32_t* stack)
     auto hModule = stack[1];
     auto lpFilename = physical(char*, stack[2]);
     auto nSize = stack[3];
-    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, 2, false);
+    return syscall_GetModuleFileName(memory, hModule, lpFilename, nSize, sizeof(char16_t), false);
 }
 
 static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
@@ -797,12 +717,12 @@ bool syscall_GetModuleHandleExW(uint8_t* memory, const uint32_t* stack)
 
 size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
 {
-    auto* printf = physical(Printf*, offset_printf);
-
     if (stack[1] == 0 || stack[2] == 0)
         return 0;
     auto hModule = physical(void*, stack[1]);
     auto lpProcName = physical(char*, stack[2]);
+
+    auto* printf = physical(Printf*, offset_printf);
 
     struct Data {
         size_t address;
@@ -840,11 +760,9 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
 
 static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x86_i386* cpu)
 {
-    auto* printf = physical(Printf*, offset_printf);
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-
     std::string path;
     if (lpLibFileName[0] != '/' && lpLibFileName[0] != '\\') {
+        auto* windows = physical(Windows*, TIB_WINDOWS);
         path = windows->directory;
         path += '\\';
     }
@@ -856,6 +774,7 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     }
 #endif
 
+    auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
     }
@@ -869,7 +788,7 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     memory = cpu->Memory();
 
     size_t module = virtual(size_t, image);
-    windows = physical(Windows*, TIB_WINDOWS);
+    auto* windows = physical(Windows*, TIB_WINDOWS);
 
     // _DllMainCRTStartup - pre
     auto& x86 = cpu->x86;
@@ -1219,7 +1138,7 @@ int syscall_GetCurrentThreadId()
 #if defined(_WIN32)
     return GetCurrentThreadId();
 #else
-    return (int)(size_t)pthread_self();
+    return getpid();
 #endif
 }
 
@@ -1325,9 +1244,9 @@ bool syscall_InitOnceExecuteOnce(uint8_t* memory, const uint32_t* stack, x86_i38
 
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
 {
-    auto* printf = physical(Printf*, offset_printf);
-
     auto lpOutputString = physical(char*, stack[1]);
+
+    auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("%s", lpOutputString);
     }

@@ -85,6 +85,7 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     memory = (char*)allocator->address();
 
     if (pointer) {
+        old_pointer = physical(char*, pointer);
         memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
         allocator->deallocate(old_pointer);
     }
@@ -96,8 +97,6 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
 
 int syscall_splitpath(char* memory, const uint32_t* stack)
 {
-    auto* printf = physical(Printf*, offset_printf);
-
     auto path = physical(char*, stack[1]);
     auto drive = physical(char*, stack[2]);
     auto dir = physical(char*, stack[3]);
@@ -164,6 +163,7 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
         strncpy(ext, path + ranges[2].first, ranges[2].second);
     }
 
+    auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s %s %s %s", "splitpath", drive, dir, fname, ext);
     }

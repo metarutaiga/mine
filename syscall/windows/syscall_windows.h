@@ -34,13 +34,6 @@ uint32_t syscall_InterlockedDecrement(const void* memory, const void* stack);
 uint32_t syscall_InterlockedExchange(const void* memory, const void* stack);
 uint32_t syscall_InterlockedIncrement(const void* memory, const void* stack);
 
-// kernel32 - critical section
-int syscall_DeleteCriticalSection(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_EnterCriticalSection(const void* memory, const void* stack);
-bool syscall_InitializeCriticalSection(const void* stack, struct allocator_t* allocator);
-int syscall_LeaveCriticalSection(const void* memory, const void* stack);
-int syscall_TryEnterCriticalSection(const void* memory, const void* stack);
-
 // kernel32 - directory
 uint32_t syscall_GetCurrentDirectoryA(const void* memory, const void* stack);
 bool syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
@@ -65,7 +58,7 @@ int syscall_UnmapViewOfFile(const void* memory, const void* stack, struct alloca
 // kernel32 - find
 int syscall_FindClose(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_FindNextFileA(const void* memory, const void* stack);
-size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_FindFirstFileA(const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap
 size_t syscall_HeapAlloc(const void* stack, struct allocator_t* allocator);

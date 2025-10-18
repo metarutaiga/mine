@@ -65,15 +65,6 @@ static const struct {
     { "SetHandleCount",             INT32(1, 0)                                                     },
 
     // kernel32 - critical section
-#if HAVE_MULTITHREADED
-    { "DeleteCriticalSection",                  INT32(1, syscall_DeleteCriticalSection(memory, stack, allocator))       },
-    { "EnterCriticalSection",                   INT32(1, syscall_EnterCriticalSection(memory, stack))                   },
-    { "InitializeCriticalSection",              INT32(1, syscall_InitializeCriticalSection(memory, stack, allocator))   },
-    { "InitializeCriticalSectionEx",            INT32(3, syscall_InitializeCriticalSection(memory, stack, allocator))   },
-    { "InitializeCriticalSectionAndSpinCount",  INT32(2, syscall_InitializeCriticalSection(memory, stack, allocator))   },
-    { "LeaveCriticalSection",                   INT32(1, syscall_LeaveCriticalSection(memory, stack))                   },
-    { "TryEnterCriticalSection",                INT32(1, syscall_TryEnterCriticalSection(memory, stack))                },
-#else
     { "DeleteCriticalSection",                  INT32(1, 0)                                         },
     { "EnterCriticalSection",                   INT32(1, 0)                                         },
     { "InitializeCriticalSection",              INT32(1, true)                                      },
@@ -81,7 +72,6 @@ static const struct {
     { "InitializeCriticalSectionAndSpinCount",  INT32(2, true)                                      },
     { "LeaveCriticalSection",                   INT32(1, 0)                                         },
     { "TryEnterCriticalSection",                INT32(1, true)                                      },
-#endif
 
     // kernel32 - directory
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
@@ -112,7 +102,7 @@ static const struct {
 
     // kernel32 - find
     { "FindClose",                  INT32(1, syscall_FindClose(memory, stack, allocator))           },
-    { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(memory, stack, allocator))      },
+    { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(stack, allocator))              },
     { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))                  },
 
     // kernel32 - heap
