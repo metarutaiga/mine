@@ -305,7 +305,6 @@ static const struct {
 //  { "_except_handler3",           INT32(0, 0)                                                     },
 //  { "_invalid_parameter_noinfo",  INT32(0, 0)                                                     },
 //  { "_fileno",                    INT32(0, 0)                                                     },
-//  { "_fpclass",                   INT32(0, 0)                                                     },
 //  { "_get_osfhandle",             INT32(0, 0)                                                     },
 //  { "_purecall",                  INT32(0, 0)                                                     },
 //  { "_XcptFilter",                INT32(0, 0)                                                     },

@@ -284,14 +284,21 @@ int syscall__controlfp_s(char* memory, const uint32_t* stack, x86_i386* cpu)
 int syscall__fpclass(const uint32_t* stack)
 {
     auto x = double(stack[1]);
-    int classify = fpclassify(x);
-    switch (classify) {
-    case FP_NAN:        return 0x0002;
-    case FP_INFINITE:   return signbit(x) ? 0x0004 : 0x0200;
-    case FP_NORMAL:     return signbit(x) ? 0x0008 : 0x0100;
-    case FP_SUBNORMAL:  return signbit(x) ? 0x0010 : 0x0080;
-    case FP_ZERO:       return signbit(x) ? 0x0020 : 0x0040;
-    }
+    auto _FPCLASS_SNAN = 0x0001;
+    auto _FPCLASS_QNAN = 0x0002;
+    auto _FPCLASS_NINF = 0x0004;
+    auto _FPCLASS_NN   = 0x0008;
+    auto _FPCLASS_ND   = 0x0010;
+    auto _FPCLASS_NZ   = 0x0020;
+    auto _FPCLASS_PZ   = 0x0040;
+    auto _FPCLASS_PD   = 0x0080;
+    auto _FPCLASS_PN   = 0x0100;
+    auto _FPCLASS_PINF = 0x0200;
+    if (__builtin_isnan(x))             return __builtin_issignaling(x) ? _FPCLASS_SNAN : _FPCLASS_QNAN;
+    if (__builtin_isinf(x))             return __builtin_signbit(x)     ? _FPCLASS_NINF : _FPCLASS_PINF;
+    if (__builtin_iszero(x))            return __builtin_signbit(x)     ? _FPCLASS_NZ : _FPCLASS_PZ;
+    if (__builtin_isnormal(x))          return __builtin_signbit(x)     ? _FPCLASS_NN : _FPCLASS_PN;
+    if (__builtin_issubnormal(x))       return __builtin_signbit(x)     ? _FPCLASS_ND : _FPCLASS_PD;
     return 0;
 }
 

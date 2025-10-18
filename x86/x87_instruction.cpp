@@ -186,9 +186,14 @@ void x87_instruction::FTST(Format& format, const uint8_t* opcode)
     format.operand[0].base = 0;
 
     BEGIN_OPERATION() {
-        C0 = DEST < 0.0;
+        C0 = 0;
+        C1 = 0;
         C2 = 0;
-        C3 = DEST == 0.0;
+        C3 = 0;
+        if (isunordered(DEST, 0.0)) { C3 = 1; C2 = 1; C0 = 1; }
+        else if (DEST > 0.0)        { C3 = 0; C2 = 0; C0 = 0; }
+        else if (DEST < 0.0)        { C3 = 0; C2 = 0; C0 = 1; }
+        else if (DEST == 0.0)       { C3 = 1; C2 = 0; C0 = 0; }
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
@@ -201,7 +206,7 @@ void x87_instruction::FXAM(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         C0 = 0;
-        C1 = DEST < 0.0;
+        C1 = signbit(DEST);
         C2 = 0;
         C3 = 0;
         switch (fpclassify(DEST)) {
