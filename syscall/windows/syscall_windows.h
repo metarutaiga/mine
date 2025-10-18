@@ -47,17 +47,17 @@ size_t syscall_GetEnvironmentVariableA(const void* stack, struct allocator_t* al
 size_t syscall_GetEnvironmentVariableW(const void* stack, struct allocator_t* allocator);
 
 // kernel32 - file
-int syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_CreateFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_CreateFileMappingA(const void* memory, const void* stack, struct allocator_t* allocator);
 uint32_t syscall_GetFileSize(const void* memory, const void* stack);
 uint32_t syscall_GetFullPathNameA(const void* memory, const void* stack);
 size_t syscall_MapViewOfFile(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_UnmapViewOfFile(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_UnmapViewOfFile(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - find
-int syscall_FindClose(const void* memory, const void* stack, struct allocator_t* allocator);
-int syscall_FindNextFileA(const void* memory, const void* stack);
+bool syscall_FindClose(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_FindNextFileA(const void* memory, const void* stack);
 size_t syscall_FindFirstFileA(const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap

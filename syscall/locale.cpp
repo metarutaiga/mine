@@ -28,7 +28,6 @@ int syscall_setlocale(const char* memory, const uint32_t* stack, struct allocato
     memory = (char*)allocator->address();
 
     strncpy(pointer, result, size);
-
     return virtual(int, pointer);
 }
 

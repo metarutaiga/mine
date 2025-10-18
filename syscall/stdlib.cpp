@@ -211,8 +211,7 @@ int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
     auto pointer = stack[1];
     auto new_size = stack[2];
     auto memory = allocator->address();
-    auto old_pointer = physical(char*, pointer);
-    auto old_size = allocator->size(old_pointer);
+    auto old_size = allocator->size(physical(char*, pointer));
     if (old_size >= new_size)
         return pointer;
     auto new_pointer = allocator->allocate(new_size);
@@ -221,9 +220,8 @@ int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
     memory = (char*)allocator->address();
 
     if (pointer) {
-        old_pointer = physical(char*, pointer);
-        memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
-        allocator->deallocate(old_pointer);
+        memcpy(new_pointer, physical(char*, pointer), new_size < old_size ? new_size : old_size);
+        allocator->deallocate(physical(char*, pointer));
     }
     return virtual(int, new_pointer);
 }

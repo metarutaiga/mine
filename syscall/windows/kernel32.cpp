@@ -135,7 +135,6 @@ bool syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s -> %s", "SetCurrentDirectoryA", windows->directory);
     }
-
     return true;
 }
 
@@ -201,7 +200,7 @@ size_t syscall_GetEnvironmentVariableW(const uint32_t* stack, struct allocator_t
 
 // File
 
-int syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hObject = physical(FILE**, stack[1]);
     if (hObject && *hObject) {
@@ -297,7 +296,6 @@ size_t syscall_CreateFileMappingA(uint8_t* memory, const uint32_t* stack, struct
 //  auto dwMaximumSizeHigh = stack[4];
 //  auto dwMaximumSizeLow = stack[5];
 //  auto lpName = physical(char*, stack[6]);
-
     return virtual(size_t, hFile);
 }
 
@@ -342,7 +340,6 @@ uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
             (*lpFilePart) = virtual(uint32_t, lpBuffer + i + 1);
         }
     }
-
     return nBufferLength;
 }
 
@@ -374,7 +371,7 @@ size_t syscall_MapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allo
     return virtual(size_t, map);
 }
 
-int syscall_UnmapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_UnmapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto lpBaseAddress = physical(void*, stack[1]);
     allocator->deallocate(lpBaseAddress);
@@ -383,22 +380,20 @@ int syscall_UnmapViewOfFile(uint8_t* memory, const uint32_t* stack, struct alloc
 
 // Find
 
-int syscall_FindClose(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_FindClose(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto hFindFile = physical(HANDLE*, stack[1]);
     auto result = FindClose(*hFindFile);
-    allocator->deallocate(hFindFile);
-    return result;
 #else
     auto hFindFile = physical(DIR**, stack[1]);
     auto result = closedir(*hFindFile);
+#endif
     allocator->deallocate(hFindFile);
     return result ? false : true;
-#endif
 }
 
-int syscall_FindNextFileA(uint8_t* memory, const uint32_t* stack)
+bool syscall_FindNextFileA(uint8_t* memory, const uint32_t* stack)
 {
 #if defined(_WIN32)
     auto hFindFile = physical(HANDLE*, stack[1]);
@@ -492,7 +487,6 @@ size_t syscall_FindFirstFileA(uint32_t* stack, struct allocator_t* allocator)
         allocator->deallocate(dir);
         return SYSCALL_INVALID_HANDLE_VALUE;
     }
-
     return virtual(size_t, dir);
 #endif
 }
@@ -528,11 +522,11 @@ size_t syscall_HeapReAlloc(uint8_t* memory, const uint32_t* stack, struct alloca
 {
 //  auto hHeap = stack[1];
     auto dwFlags = stack[2];
-    auto lpMem = physical(void*, stack[3]);
+    auto lpMem = stack[3];
     auto dwBytes = stack[4];
-    auto dwOldBytes = allocator->size(lpMem);
+    auto dwOldBytes = allocator->size(physical(void*, lpMem));
     if (dwOldBytes >= dwBytes)
-        return virtual(size_t, lpMem);
+        return lpMem;
     auto lpNewMem = allocator->allocate(dwBytes);
     if (lpNewMem == nullptr)
         return 0;
@@ -542,9 +536,8 @@ size_t syscall_HeapReAlloc(uint8_t* memory, const uint32_t* stack, struct alloca
         memset(lpNewMem, 0, dwBytes);
     }
     if (lpMem) {
-        lpMem = physical(void*, stack[3]);
-        memcpy(lpNewMem, lpMem, dwBytes < dwOldBytes ? dwBytes : dwOldBytes);
-        allocator->deallocate(lpMem);
+        memcpy(lpNewMem, physical(void*, lpMem), dwBytes < dwOldBytes ? dwBytes : dwOldBytes);
+        allocator->deallocate(physical(void*, lpMem));
     }
     return virtual(size_t, lpNewMem);
 }
@@ -608,7 +601,6 @@ static size_t syscall_GetModuleFileName(uint8_t* memory, size_t module, char* lp
             (*lpFilename++) = 0;
         }
     }
-
     return 0;
 }
 
@@ -667,7 +659,6 @@ static size_t syscall_GetModuleHandle(uint8_t* memory, const char* lpModuleName)
         strcasestr(path.c_str(), "api-ms-win-")) {
         return 0xFFFFFFFF;
     }
-
     return 0;
 }
 
@@ -687,7 +678,6 @@ size_t syscall_GetModuleHandleW(uint8_t* memory, const uint32_t* stack)
             name.push_back(c);
         }
     }
-
     return syscall_GetModuleHandle(memory, name.empty() ? nullptr : name.c_str());
 }
 
@@ -754,7 +744,6 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
             data.printf("%-12s : %s is not found", "Symbol", lpProcName);
         }
     }
-
     return data.address;
 }
 
@@ -855,7 +844,6 @@ size_t syscall_LoadLibraryW(uint8_t* memory, const uint32_t* stack, x86_i386* cp
             name.push_back(c);
         }
     }
-
     return syscall_LoadLibrary(memory, name.empty() ? nullptr : name.c_str(), cpu);
 }
 
@@ -874,16 +862,13 @@ size_t syscall_LocalAlloc(const uint32_t* stack, struct allocator_t* allocator)
     if (uFlags & 0x0040) {
         memset(pointer, 0, uBytes);
     }
-
     return virtual(size_t, pointer);
 }
 
 size_t syscall_LocalFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hMem = physical(void*, stack[1]);
-
     allocator->deallocate(hMem);
-
     return 0;
 }
 
@@ -907,7 +892,6 @@ size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct alloc
     memory = (uint8_t*)allocator->address();
 
     memset(lpAddress, 0, dwSize);
-
     return virtual(size_t, lpAddress);
 }
 
@@ -916,9 +900,7 @@ bool syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocato
     auto lpAddress = physical(void*, stack[1]);
 //  auto dwSize = stack[2];
 //  auto dwFreeType = stack[3];
-
     allocator->deallocate(lpAddress);
-
     return true;
 }
 
@@ -1079,7 +1061,6 @@ int syscall_MultiByteToWideChar(uint8_t* memory, const uint32_t* stack)
         }
         return i;
     }
-
     return 0;
 }
 
@@ -1106,7 +1087,6 @@ int syscall_WideCharToMultiByte(uint8_t* memory, const uint32_t* stack)
         }
         return i;
     }
-
     return 0;
 }
 
@@ -1250,7 +1230,6 @@ int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)
     if (printf->debugPrintf) {
         printf->debugPrintf("%s", lpOutputString);
     }
-
     return 0;
 }
 

@@ -75,8 +75,7 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     auto pointer = stack[1];
     auto new_size = stack[2] * stack[3];
     auto memory = (char*)allocator->address();
-    auto old_pointer = physical(char*, pointer);
-    auto old_size = allocator->size(old_pointer);
+    auto old_size = allocator->size(physical(char*, pointer));
     if (old_size >= new_size)
         return pointer;
     auto new_pointer = allocator->allocate(new_size);
@@ -85,9 +84,8 @@ size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
     memory = (char*)allocator->address();
 
     if (pointer) {
-        old_pointer = physical(char*, pointer);
-        memcpy(new_pointer, old_pointer, new_size < old_size ? new_size : old_size);
-        allocator->deallocate(old_pointer);
+        memcpy(new_pointer, physical(char*, pointer), new_size < old_size ? new_size : old_size);
+        allocator->deallocate(physical(char*, pointer));
     }
     if (new_size > old_size) {
         memset(memory + old_size, 0, new_size - old_size);
@@ -167,7 +165,6 @@ int syscall_splitpath(char* memory, const uint32_t* stack)
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s %s %s %s", "splitpath", drive, dir, fname, ext);
     }
-
     return 0;
 }
 
@@ -182,15 +179,15 @@ size_t syscall_strcat_s(char* memory, const uint32_t* stack)
 
 size_t syscall_strdup(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
-    auto str = physical(char*, stack[1]);
+    auto str = stack[1];
 
-    size_t size = strlen(str) + 1;
+    size_t size = strlen(physical(char*, str)) + 1;
     auto result = (char*)allocator->allocate(size);
     if (result == nullptr)
         return 0;
     memory = (char*)allocator->address();
 
-    strncpy(result, str, size);
+    strncpy(result, physical(char*, str), size);
     return virtual(size_t, result);
 }
 
@@ -317,7 +314,6 @@ int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
             Push32(*function);
         }
     }
-
     return 0;
 }
 

@@ -14,7 +14,6 @@ bool syscall_RtlGenRandom(uint8_t* memory, const uint32_t* stack)
     for (size_t i = 0; i < RandomBufferLength; ++i) {
         RandomBuffer[i] = rand();
     }
-
     return true;
 }
 
