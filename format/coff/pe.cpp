@@ -242,7 +242,7 @@ bool PE::SectionCode(void* image, size_t* base, size_t* address, size_t* size)
     return true;
 }
 
-void PE::Imports(void* image, size_t(*sym)(const char*, const char*, void*), void* import_data, int(*log)(const char*, ...))
+void PE::Imports(void* image, uint8_t*(*mmap)(size_t, size_t, void*), void* mmap_data, size_t(*sym)(const char*, const char*, void*), void* import_data, int(*log)(const char*, ...))
 {
     if (image == nullptr || sym == nullptr)
         return;
@@ -251,19 +251,32 @@ void PE::Imports(void* image, size_t(*sym)(const char*, const char*, void*), voi
         log = dummy_log;
 
     auto image8 = (uint8_t*)image;
-    OptionalHeader& optionalHeader = *(OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
-    if (optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
-        auto* directory = (ImportDirectory*)(image8 + optionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+    OptionalHeader* optionalHeader = (OptionalHeader*)(image8 + sizeof(int32_t) + sizeof(FileHeader));
+    if (optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
+        auto* directory = (ImportDirectory*)(image8 + optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
         while (directory->Name && directory->FirstThunk) {
-            auto file = (const char*)(image8 + directory->Name);
             auto* ints = (uint32_t*)(image8 + directory->OriginalFirstThunk);
             auto* iats = (uint32_t*)(image8 + directory->FirstThunk);
+            auto* file = (const char*)(image8 + directory->Name);
             while (*ints) {
-                auto name = (const char*)(image8 + (*ints)) + 2;
+                auto* name = (const char*)(image8 + (*ints)) + 2;
+
+                uint8_t* pre_memory = mmap ? mmap(0, 0, mmap_data) : nullptr;
                 size_t symbol = sym(file, name, import_data);
+                uint8_t* post_memory = mmap ? mmap(0, 0, mmap_data) : nullptr;
+                if (post_memory != pre_memory) {
+                    image8 = ((uint8_t*)image8 - pre_memory + post_memory);
+                    optionalHeader = (OptionalHeader*)((uint8_t*)optionalHeader - pre_memory + post_memory);
+                    directory = (ImportDirectory*)((uint8_t*)directory - pre_memory + post_memory);
+                    ints = (uint32_t*)((uint8_t*)ints - pre_memory + post_memory);
+                    iats = (uint32_t*)((uint8_t*)iats - pre_memory + post_memory);
+                    file = (char*)((uint8_t*)file - pre_memory + post_memory);
+                    name = (char*)((uint8_t*)name - pre_memory + post_memory);
+                }
+
                 memcpy(iats, &symbol, sizeof(uint32_t));
                 if (symbol == 0) {
-                    log("%-12s : [%08zX] %s.%s is not found", "Symbol", optionalHeader.ImageBase + (uint8_t*)iats - image8, file, name);
+                    log("%-12s : [%08zX] %s.%s is not found", "Symbol", optionalHeader->ImageBase + (uint8_t*)iats - image8, file, name);
                 }
                 ints++;
                 iats++;

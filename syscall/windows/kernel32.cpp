@@ -774,8 +774,9 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     }, cpu, printf->debugPrintf);
     if (image == nullptr)
         return 0;
-    memory = cpu->Memory();
 
+    // MEMORY-SYNC
+    memory = cpu->Memory();
     size_t module = virtual(size_t, image);
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
@@ -808,9 +809,9 @@ static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x8
     uint32_t eax = ESP;
     Push32(eax);
 
-    void syscall_windows_import(void* data, const char* file, size_t module, bool execute);
-    windows->modules.emplace_back(path.c_str(), module);
-    syscall_windows_import(cpu, path.c_str(), module, false);
+    void syscall_windows_import(void* data, const char* file, void* image, bool execute);
+    windows->modules.emplace_back(path, module);
+    syscall_windows_import(cpu, path.c_str(), image, false);
 
     // _DllMainCRTStartup - post
     ret = Pop32();
@@ -874,33 +875,37 @@ size_t syscall_LocalFree(uint8_t* memory, const uint32_t* stack, struct allocato
 
 size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
-    auto lpAddress = physical(void*, stack[1]);
+    auto lpAddress = stack[1];
     auto dwSize = stack[2];
-//  auto flAllocationType = stack[3];
+    auto flAllocationType = stack[3];
 //  auto flProtect = stack[4];
 
-    if (lpAddress) {
-        if (allocator->size(lpAddress) >= dwSize) {
-            return virtual(size_t, lpAddress);
-        }
-        return 0;
+    if (flAllocationType & (0x1000 | 0x2000)) {
+        void* address = allocator->allocate(dwSize, lpAddress ? lpAddress : SIZE_MAX);
+        memory = (uint8_t*)allocator->address();
+        lpAddress = virtual(uint32_t, address);
     }
 
-    lpAddress = allocator->allocate(dwSize);
-    if (lpAddress == nullptr)
+    if (lpAddress == 0)
         return 0;
-    memory = (uint8_t*)allocator->address();
+    if (allocator->size(physical(void*, lpAddress)) < dwSize)
+        return 0;
 
-    memset(lpAddress, 0, dwSize);
-    return virtual(size_t, lpAddress);
+    if (flAllocationType & 0x80000) {
+        memset(physical(void*, lpAddress), 0, dwSize);
+    }
+    return lpAddress;
 }
 
 bool syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto lpAddress = physical(void*, stack[1]);
 //  auto dwSize = stack[2];
-//  auto dwFreeType = stack[3];
-    allocator->deallocate(lpAddress);
+    auto dwFreeType = stack[3];
+
+    if (dwFreeType & 0x4000) {
+        allocator->deallocate(lpAddress);
+    }
     return true;
 }
 
@@ -1312,8 +1317,9 @@ bool syscall_QueryPerformanceFrequency(uint8_t* memory, const uint32_t* stack)
 uint32_t syscall_TlsAlloc(uint8_t* memory)
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    auto index = windows->tlsIndex++;
-    return virtual(uint32_t, &windows->tls[index]);
+    auto& tls = windows->tls[windows->tlsIndex++];
+    tls = 0;
+    return virtual(uint32_t, &tls);
 }
 
 bool syscall_TlsFree(uint8_t* memory, const uint32_t* stack)

@@ -259,11 +259,16 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
         if (disasm.size() > offset)
             disasm += ',';
         disasm += ' ';
+
+        width = format.width;
+        switch (operand.flags & (Format::Operand::BIT8 | Format::Operand::BIT16 | Format::Operand::BIT32)) {
+        case Format::Operand::BIT8:  width = 8;  break;
+        case Format::Operand::BIT16: width = 16; break;
+        case Format::Operand::BIT32: width = 32; break;
+        }
+
         switch (operand.type) {
         case Format::Operand::ADR:
-            width = format.width;
-            if (operand.flags & Format::Operand::BIT8)  width = 8;
-            if (operand.flags & Format::Operand::BIT16) width = 16;
             switch (width) {
             case 8:   disasm += "BYTE PTR";    break;
             case 16:  disasm += "WORD PTR";    break;
@@ -312,15 +317,13 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
             disasm += ']';
             continue;
         case Format::Operand::IMM:
-            disasm += hex(operand.displacement, false);
+            switch (width) {
+            case 8:  disasm += hex(uint8_t(operand.displacement), false);  break;
+            case 16: disasm += hex(uint16_t(operand.displacement), false); break;
+            case 32: disasm += hex(uint32_t(operand.displacement), false); break;
+            }
             continue;
         case Format::Operand::REG:
-            width = format.width;
-            switch (operand.flags & (Format::Operand::BIT8 | Format::Operand::BIT16 | Format::Operand::BIT32)) {
-            case Format::Operand::BIT8:  width = 8;  break;
-            case Format::Operand::BIT16: width = 16; break;
-            case Format::Operand::BIT32: width = 32; break;
-            }
 #if HAVE_X64
             if (width == 8 && format.address > 32) width = -8;
 #endif

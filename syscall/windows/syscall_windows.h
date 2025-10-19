@@ -20,7 +20,7 @@ struct SyscallWindows {
 
 size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows);
 size_t syscall_windows_delete(void* data);
-void syscall_windows_import(void* data, const char* file, size_t module, bool execute);
+void syscall_windows_import(void* data, const char* file, void* image, bool execute);
 size_t syscall_windows_execute(void* data, size_t index);
 size_t syscall_windows_symbol(const char* file, const char* name);
 const char* syscall_windows_name(size_t index);

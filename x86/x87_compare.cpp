@@ -80,6 +80,11 @@ void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
         C0 = DEST < SRC;
         C2 = 0;
         C3 = DEST == SRC;
+        if (IM && isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
     } END_OPERATION_RANGE_FLOAT(32, 64);
 }
 //------------------------------------------------------------------------------
@@ -107,6 +112,11 @@ void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
         C0 = DEST < SRC;
         C2 = 0;
         C3 = DEST == SRC;
+        if (IM && isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
         TOP = TOP + 1;
     } END_OPERATION_RANGE_FLOAT(32, 64);
 }
@@ -123,6 +133,11 @@ void x87_instruction::FCOMPP(Format& format, const uint8_t* opcode)
         C0 = DEST < SRC;
         C2 = 0;
         C3 = DEST == SRC;
+        if (IM && isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
         TOP = TOP + 2;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
@@ -139,6 +154,11 @@ void x87_instruction::FCOMI(Format& format, const uint8_t* opcode)
         CF = DEST < SRC;
         PF = 0;
         ZF = DEST == SRC;
+        if (IM && isunordered(DEST, SRC)) {
+            CF = 1;
+            PF = 1;
+            ZF = 1;
+        }
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
@@ -154,6 +174,11 @@ void x87_instruction::FCOMIP(Format& format, const uint8_t* opcode)
         CF = DEST < SRC;
         PF = 0;
         ZF = DEST == SRC;
+        if (IM && isunordered(DEST, SRC)) {
+            CF = 1;
+            PF = 1;
+            ZF = 1;
+        }
         TOP = TOP + 1;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
@@ -167,9 +192,14 @@ void x87_instruction::FUCOM(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        C0 = isunordered(DEST, SRC) || DEST < SRC;
-        C2 = isunordered(DEST, SRC);
-        C3 = isunordered(DEST, SRC) || DEST == SRC;
+        C0 = DEST < SRC;
+        C2 = 0;
+        C3 = DEST == SRC;
+        if (isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
@@ -182,9 +212,14 @@ void x87_instruction::FUCOMP(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        C0 = isunordered(DEST, SRC) || DEST < SRC;
-        C2 = isunordered(DEST, SRC);
-        C3 = isunordered(DEST, SRC) || DEST == SRC;
+        C0 = DEST < SRC;
+        C2 = 0;
+        C3 = DEST == SRC;
+        if (isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
         TOP = TOP + 1;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
@@ -198,9 +233,14 @@ void x87_instruction::FUCOMPP(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        C0 = isunordered(DEST, SRC) || DEST < SRC;
-        C2 = isunordered(DEST, SRC);
-        C3 = isunordered(DEST, SRC) || DEST == SRC;
+        C0 = DEST < SRC;
+        C2 = 0;
+        C3 = DEST == SRC;
+        if (isunordered(DEST, SRC)) {
+            C0 = 1;
+            C2 = 1;
+            C3 = 1;
+        }
         TOP = TOP + 2;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
@@ -214,9 +254,14 @@ void x87_instruction::FUCOMI(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        CF = isunordered(DEST, SRC) || DEST < SRC;
-        PF = isunordered(DEST, SRC);
-        ZF = isunordered(DEST, SRC) || DEST == SRC;
+        CF = DEST < SRC;
+        PF = 0;
+        ZF = DEST == SRC;
+        if (isunordered(DEST, SRC)) {
+            CF = 1;
+            PF = 1;
+            ZF = 1;
+        }
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }
 //------------------------------------------------------------------------------
@@ -229,9 +274,14 @@ void x87_instruction::FUCOMIP(Format& format, const uint8_t* opcode)
     format.operand[1].base = opcode[1] & 0b111;
 
     BEGIN_OPERATION() {
-        CF = isunordered(DEST, SRC) || DEST < SRC;
-        PF = isunordered(DEST, SRC);
-        ZF = isunordered(DEST, SRC) || DEST == SRC;
+        CF = DEST < SRC;
+        PF = 0;
+        ZF = DEST == SRC;
+        if (isunordered(DEST, SRC)) {
+            CF = 1;
+            PF = 1;
+            ZF = 1;
+        }
         TOP = TOP + 1;
     } END_OPERATION_RANGE_FLOAT(64, 64);
 }

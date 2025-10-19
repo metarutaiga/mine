@@ -1,5 +1,6 @@
 #pragma once
 
+#define IM                      x87.control._IM
 #define PC                      x87.control._PC
 #define RC                      x87.control._RC
 #define C0                      x87.status._C0

@@ -424,6 +424,7 @@
 		F5A7A0882E8FD9C200C7E565 /* x86_ia32.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x86_ia32.cpp; sourceTree = "<group>"; };
 		F5A7A08D2E8FDFF600C7E565 /* sse3_instruction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sse3_instruction.cpp; sourceTree = "<group>"; };
 		F5C2520C2D8D179C005D23CD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		F5C33FF52EA48A41005E2063 /* extend_allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = extend_allocator.h; sourceTree = "<group>"; };
 		F5E5B18E2D6C5FEB008E0D21 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		F5E5B1902D6C5FF7008E0D21 /* imgui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = imgui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5E5B1922D6C612F008E0D21 /* libxxGraphic.macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libxxGraphic.macOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -662,6 +663,7 @@
 				F5511FD42E4F7EF90076E961 /* assert.cpp */,
 				F58028AD2E76725800188C4C /* convert_format.h */,
 				F5511FD92E4F7F660076E961 /* ctype.cpp */,
+				F5C33FF52EA48A41005E2063 /* extend_allocator.h */,
 				F5511FDE2E4F82FC0076E961 /* locale.cpp */,
 				F5511FE32E4F84510076E961 /* math.cpp */,
 				F5511FE82E5025CE0076E961 /* setjmp.cpp */,

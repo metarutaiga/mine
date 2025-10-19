@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "format/coff/pe.h"
-#include "syscall/simple_allocator.h"
+#include "syscall/extend_allocator.h"
 #include "syscall/syscall.h"
 #include "syscall/windows/syscall_windows.h"
 #include "x86/x86_i386.h"
@@ -51,7 +51,7 @@ int main(int argc, const char* argv[])
     static const int stack_size = 65536;
 
     mine* cpu = new x86_i386;
-    cpu->Initialize(simple_allocator<16>::construct(allocator_size), stack_size);
+    cpu->Initialize(extend_allocator<16>::construct(allocator_size), stack_size);
     cpu->Exception = run_exception;
 
     void* image = PE::Load(argv[1], [](size_t base, size_t size, void* userdata) {
@@ -73,7 +73,7 @@ int main(int argc, const char* argv[])
         SyscallWindows syscall_windows = {
             .stack_base = allocator_size,
             .stack_limit = allocator_size - stack_size,
-            .image = image,
+            .image = (size_t)((uint8_t*)image - cpu->Memory()),
             .symbol = get_symbol,
             .argc = argc - 1,
             .argv = argv + 1,

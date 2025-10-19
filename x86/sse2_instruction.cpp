@@ -288,6 +288,7 @@ void sse2_instruction::CVTPD2PS(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTPI2PD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPI2PD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 64;
     if (format.operand[1].type == Format::Operand::SSE)
         format.operand[1].type = Format::Operand::MMX;
 
@@ -334,6 +335,7 @@ void sse2_instruction::CVTPS2DQ(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTPS2PD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPS2PD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 64;
 
     BEGIN_OPERATION() {
         auto TEMP = SRC;
@@ -345,6 +347,7 @@ void sse2_instruction::CVTPS2PD(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSD2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSD2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 32;
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -368,6 +371,7 @@ void sse2_instruction::CVTSD2SI(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSD2SS(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSD2SS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 64;
 
     BEGIN_OPERATION() {
         DEST.f32[0] = SRC.f64[0];
@@ -377,6 +381,7 @@ void sse2_instruction::CVTSD2SS(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSI2SD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSI2SD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 32;
     if (format.operand[1].type == Format::Operand::SSE)
         format.operand[1].type = Format::Operand::REG;
 
@@ -388,6 +393,7 @@ void sse2_instruction::CVTSI2SD(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTSS2SD(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSS2SD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 32;
 
     BEGIN_OPERATION() {
         DEST.f64[0] = SRC.f32[0];
@@ -432,6 +438,7 @@ void sse2_instruction::CVTTPS2DQ(Format& format, const uint8_t* opcode)
 void sse2_instruction::CVTTSD2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTSD2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 32;
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {

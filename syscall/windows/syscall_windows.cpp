@@ -421,21 +421,29 @@ size_t syscall_windows_delete(void* data)
     return 0;
 }
 
-void syscall_windows_import(void* data, const char* file, size_t module, bool execute)
+void syscall_windows_import(void* data, const char* import_file, void* image, bool execute)
 {
+    std::string file = import_file;
+
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
     auto* printf = physical(Printf*, offset_printf);
     auto* windows = physical(Windows*, TIB_WINDOWS);
+    size_t virtual_image = virtual(size_t, image);
 
-    auto Import = [](const char* file, const char* name, void* import_data) -> size_t {
+    auto Import = [](const char* import_file, const char* import_name, void* import_data) -> size_t {
+        std::string file = import_file;
+        std::string name = import_name;
         auto* cpu = (mine*)import_data;
+
+        // MEMORY-SYNC
         auto* memory = cpu->Memory();
         auto* printf = physical(Printf*, offset_printf);
         auto* windows = physical(Windows*, TIB_WINDOWS);
         auto* modules = &windows->modules;
+
         auto it = std::find_if(modules->begin(), modules->end(), [&](auto& pair) {
-            return strcasecmp(pair.first.c_str(), file) == 0;
+            return strcasecmp(pair.first.c_str(), file.c_str()) == 0;
         });
         if (it == modules->end()) {
             struct stat st;
@@ -447,16 +455,25 @@ void syscall_windows_import(void* data, const char* file, size_t module, bool ex
                     mine* cpu = (mine*)userdata;
                     return cpu->Memory(base, size);
                 }, cpu, printf->debugPrintf);
+
+                // MEMORY-SYNC
                 memory = cpu->Memory();
-                printf = physical(Printf*, offset_printf);
                 windows = physical(Windows*, TIB_WINDOWS);
                 modules = &windows->modules;
+
                 if (image) {
                     size_t offset = modules->size();
                     modules->emplace_back(file, virtual(size_t, image));
-                    syscall_windows_import(cpu, file, virtual(size_t, image), false);
+                    syscall_windows_import(cpu, file.c_str(), image, false);
+
+                    // MEMORY-SYNC
+                    memory = cpu->Memory();
+                    windows = physical(Windows*, TIB_WINDOWS);
+                    modules = &windows->modules;
+
                     it = modules->begin() + offset;
                 }
+                printf = physical(Printf*, offset_printf);
             }
         }
         if (it != modules->end()) {
@@ -464,7 +481,7 @@ void syscall_windows_import(void* data, const char* file, size_t module, bool ex
                 size_t address;
                 const char* name;
                 Printf* printf;
-            } export_data = { .name = name, .printf = printf };
+            } export_data = { .name = name.c_str(), .printf = printf };
             PE::Exports(physical(void*, (*it).second), [](const char* name, size_t address, void* export_data) {
                 auto& data = *(ExportData*)export_data;
                 if (strcmp(data.name, name) == 0) {
@@ -478,19 +495,24 @@ void syscall_windows_import(void* data, const char* file, size_t module, bool ex
         }
         if (windows->symbol == nullptr)
             return 0;
-        return windows->symbol(file, name, nullptr);
+        return windows->symbol(file.c_str(), name.c_str(), nullptr);
     };
 
-    PE::Imports(physical(void*, module), Import, cpu, printf->debugPrintf);
+    PE::Imports(image, [](size_t base, size_t size, void* userdata) {
+        mine* cpu = (mine*)userdata;
+        return cpu->Memory(base, size);
+    }, cpu, Import, cpu, printf->debugPrintf);
 
+    // MEMORY-SYNC
     memory = cpu->Memory();
     windows = physical(Windows*, TIB_WINDOWS);
-    if (windows->debugModule && module) {
-        windows->debugModule(file, physical(void*, module));
+    image = physical(void*, virtual_image);
+    if (windows->debugModule && image) {
+        windows->debugModule(file.c_str(), image);
     }
 
     if (execute) {
-        strncpy(windows->imageDirectory, file, sizeof(windows->imageDirectory));
+        strncpy(windows->imageDirectory, file.c_str(), sizeof(windows->imageDirectory));
 #ifndef _WIN32
         for (char& c : windows->imageDirectory) {
             if (c == '/')
@@ -500,7 +522,7 @@ void syscall_windows_import(void* data, const char* file, size_t module, bool ex
         return;
     }
 
-    size_t entry = PE::Entry(physical(void*, module));
+    size_t entry = PE::Entry(image);
     if (entry) {
         auto& x86 = cpu->x86;
         uint32_t ret = Pop32();

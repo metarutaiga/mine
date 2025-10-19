@@ -262,7 +262,7 @@ int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
     auto mask = stack[2];
 
     auto& x87 = cpu->x87;
-    FPUControlWord = (FPUStatusWord & ~mask) | (control & mask);
+    FPUControlWord = (FPUControlWord & ~mask) | (control & mask);
 
     return 0;
 }
@@ -276,7 +276,7 @@ int syscall__controlfp_s(char* memory, const uint32_t* stack, x86_i386* cpu)
     auto& x87 = cpu->x87;
     if (current)
         (*current) = FPUControlWord;
-    FPUControlWord = (FPUStatusWord & ~mask) | (control & mask);
+    FPUControlWord = (FPUControlWord & ~mask) | (control & mask);
 
     return 0;
 }
@@ -294,11 +294,11 @@ int syscall__fpclass(const uint32_t* stack)
     auto _FPCLASS_PD   = 0x0080;
     auto _FPCLASS_PN   = 0x0100;
     auto _FPCLASS_PINF = 0x0200;
-    if (__builtin_isnan(x))             return __builtin_issignaling(x) ? _FPCLASS_SNAN : _FPCLASS_QNAN;
-    if (__builtin_isinf(x))             return __builtin_signbit(x)     ? _FPCLASS_NINF : _FPCLASS_PINF;
-    if (__builtin_iszero(x))            return __builtin_signbit(x)     ? _FPCLASS_NZ : _FPCLASS_PZ;
-    if (__builtin_isnormal(x))          return __builtin_signbit(x)     ? _FPCLASS_NN : _FPCLASS_PN;
-    if (__builtin_issubnormal(x))       return __builtin_signbit(x)     ? _FPCLASS_ND : _FPCLASS_PD;
+    if (__builtin_isnan(x))         return __builtin_issignaling(x) ? _FPCLASS_SNAN : _FPCLASS_QNAN;
+    if (__builtin_isinf(x))         return __builtin_signbit(x)     ? _FPCLASS_NINF : _FPCLASS_PINF;
+    if (__builtin_iszero(x))        return __builtin_signbit(x)     ? _FPCLASS_NZ : _FPCLASS_PZ;
+    if (__builtin_isnormal(x))      return __builtin_signbit(x)     ? _FPCLASS_NN : _FPCLASS_PN;
+    if (__builtin_issubnormal(x))   return __builtin_signbit(x)     ? _FPCLASS_ND : _FPCLASS_PD;
     return 0;
 }
 

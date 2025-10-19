@@ -9,7 +9,7 @@
 #include <IconFontCppHeaders/IconsFontAwesome4.h>
 #include <imgui_club/imgui_memory_editor/imgui_memory_editor.h>
 #include "format/coff/pe.h"
-#include "syscall/simple_allocator.h"
+#include "syscall/extend_allocator.h"
 #include "syscall/syscall.h"
 #include "syscall/windows/syscall_windows.h"
 #include "x86/x86_i386.h"
@@ -212,8 +212,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static bool refresh = false;
         static int running = 0;
         static bool showMemoryEditor = false;
-        static const int allocatorSize = 16777216;
-        static const int stackSize = 65536;
+        static const size_t allocatorSize = 2 * 1024 * 1024;
+        static const size_t stackSize = 1 * 1024 * 1024;
         static ImGuiID disassemblyDockID;
         std::string file;
 
@@ -226,6 +226,9 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     break;
                 }
             }
+        };
+        static auto focusStack = [](size_t address) {
+            stackIndex = stackFocus = (int)((address - (allocatorSize - stackSize)) / sizeof(uint32_t));
         };
 
         ImGuiID id = ImGui::GetID("Debugger");
@@ -291,21 +294,33 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     const char* comment = nullptr;
                     auto comma = disasm.rfind(" ");
                     if (comma != std::string::npos) {
-                        size_t address = strtoll(disasm.c_str() + comma + 2, nullptr, 16);
+                        size_t offset = 1;
+                        if (disasm[comma + 1] == '[')
+                            offset = 2;
+                        size_t address = strtoll(disasm.c_str() + comma + offset, nullptr, 16);
                         if (address) {
-                            auto it = local.disasms.lower_bound(address);
-                            if (it == local.disasms.end() || std::abs(int64_t(address - (*it).first)) > 16)
-                                comment = (char*)cpu->Memory(address);
-                            if (comment && (address + 4) <= allocatorSize) {
-                                uint32_t index = *(uint32_t*)comment;
-                                const char* name = Name(index);
-                                if (name) {
-                                    comment = name;
+                            comment = (char*)cpu->Memory(address);
+                            if (comment) {
+                                auto allocator = cpu->Allocator;
+                                if ((address + 4) <= allocator->max_size()) {
+                                    uint32_t index = *(uint32_t*)comment;
+                                    const char* name = Name(index);
+                                    if (name) {
+                                        comment = name;
+                                    }
+                                }
+                                for (int i = 0; i < 8; ++i) {
+                                    if (comment[i] == 0)
+                                        break;
+                                    if (comment[i] < 0x20 || comment[i] > 0x7E) {
+                                        comment = nullptr;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
-                    if (comment == nullptr || (comment[0] < 0x20 || comment[0] > 0x7E)) {
+                    if (comment == nullptr) {
                         comment = "";
                     }
 
@@ -350,9 +365,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 if (cpu == nullptr)
                     return "";
 
-                auto allocator = cpu->Allocator;
-                size_t memory_size = allocator->max_size();
-                size_t stack = memory_size - stackSize + index * sizeof(uint32_t);
+                size_t stack = allocatorSize - stackSize + index * sizeof(uint32_t);
                 auto* value = (uint32_t*)cpu->Memory(stack);
                 if (value == nullptr)
                     return "";
@@ -488,7 +501,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             running = 0;
 
             cpu = new x86_i386;
-            cpu->Initialize(simple_allocator<16>::construct(allocatorSize), stackSize);
+            cpu->Initialize(extend_allocator<16>::construct(allocatorSize), stackSize);
             cpu->BreakpointDataAddress = breakpointData[0];
             cpu->BreakpointDataValue = breakpointData[1];
             cpu->BreakpointProgram = breakpointProgram;
@@ -563,11 +576,15 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     .stack_limit = allocatorSize - stackSize,
                     .symbol = Symbol,
                     .debugModule = disassembly,
+                    .image = (size_t)((uint8_t*)image - cpu->Memory()),
                     .argc = (int)args.size(),
                     .argv = args.data(),
                 };
                 syscall_windows_new(cpu, &syscallWindows);
                 syscall_windows_import(cpu, "Disassembly", image, true);
+
+                // MEMORY-SYNC
+                image = cpu->Memory() + syscallWindows.image;
 
                 exports.emplace_back("Entry", PE::Entry(image));
                 PE::Exports(image, [](const char* name, size_t address, void* sym_data) {
@@ -616,10 +633,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 status = cpu->Status();
 
                 focusDisasm(cpu->Program());
-
-                auto allocator = cpu->Allocator;
-                size_t memory_size = allocator->max_size();
-                stackIndex = stackFocus = (int)((cpu->Stack() - (memory_size - stackSize)) / sizeof(uint32_t));
+                focusStack(cpu->Stack());
 
                 for (int i = 0; i < 3; ++i) {
                     if (logsUpdated[i]) {

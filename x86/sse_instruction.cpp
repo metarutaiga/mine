@@ -210,9 +210,9 @@ void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTPI2PS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[1].type == Format::Operand::SSE)
-        format.operand[1].type = Format::Operand::MMX;
+    Decode(format, opcode, "CVTPI2PS", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    format.width = 64;
+    format.operand[0].type = Format::Operand::SSE;
 
     BEGIN_OPERATION() {
         DEST.f32[0] = SRC.i32[0];
@@ -222,9 +222,9 @@ void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTSI2SS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[1].type == Format::Operand::SSE)
-        format.operand[1].type = Format::Operand::REG;
+    Decode(format, opcode, "CVTSI2SS", 2, 0, OPERAND_SIZE | DIRECTION);
+    format.width = 32;
+    format.operand[0].type = Format::Operand::SSE;
 
     BEGIN_OPERATION() {
         DEST.f32[0] = SRC.i32[0];
@@ -234,8 +234,8 @@ void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[0].type == Format::Operand::SSE)
-        format.operand[0].type = Format::Operand::MMX;
+    format.width = 64;
+    format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         switch (MXCSR_RC) {
@@ -262,8 +262,8 @@ void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTSS2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[0].type == Format::Operand::SSE)
-        format.operand[0].type = Format::Operand::REG;
+    format.width = 32;
+    format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         switch (MXCSR_RC) {
@@ -286,8 +286,8 @@ void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[0].type == Format::Operand::SSE)
-        format.operand[0].type = Format::Operand::MMX;
+    format.width = 64;
+    format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f32[0];
@@ -298,8 +298,8 @@ void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
 void sse_instruction::CVTTSS2SI(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "CVTTSS2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
-    if (format.operand[0].type == Format::Operand::SSE)
-        format.operand[0].type = Format::Operand::REG;
+    format.width = 32;
+    format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.f32[0];
