@@ -54,6 +54,7 @@ struct x86_instruction : public x86_format
 //  static instruction INT;         // Call to Interrupt Procedure
 //  static instruction IRET;        // Interrupt Return
     static instruction Jcc;         // Jump if Condition is Met
+    static instruction JCXZ;        // Jump if CX Register is 0
     static instruction JMP;         // Jump
     static instruction LAHF;        // Load Flags into AH Register
     static instruction LEA;         // Load Effective Address

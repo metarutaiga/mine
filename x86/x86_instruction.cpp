@@ -255,7 +255,6 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
     case 0x7D:      Decode(format, opcode, "JGE", 1, 8, RELATIVE);  break;
     case 0x7E:      Decode(format, opcode, "JLE", 1, 8, RELATIVE);  break;
     case 0x7F:      Decode(format, opcode, "JG",  1, 8, RELATIVE);  break;
-    case 0xE3:      Decode(format, opcode, (format.address == 16) ? "JCXZ" : "JECXZ", 1, 8, RELATIVE); break;
     case 0x0F:
         switch (opcode[1]) {
         case 0x80:  Decode(format, opcode, "JO",  2, -1, OPERAND_SIZE | RELATIVE);  break;
@@ -296,9 +295,6 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
     case 0x7D:      OPERATION() { if (((SF ^ OF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JGE
     case 0x7E:      OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP += format.operand[0].displacement; };  break;  // JLE
     case 0x7F:      OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP += format.operand[0].displacement; };  break;  // JG
-    case 0xE3:      (format.address == 16) ?
-                    OPERATION() { if (((CX)          ) == 0) EIP += format.operand[0].displacement; } :         // JCXZ
-                    OPERATION() { if (((ECX)         ) == 0) EIP += format.operand[0].displacement; };  break;  // JECXZ
     case 0x0F:
         switch (opcode[1]) {
         case 0x80:  OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO
@@ -320,6 +316,25 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
         }
         break;
     }
+}
+//------------------------------------------------------------------------------
+void x86_instruction::JCXZ(Format& format, const uint8_t* opcode)
+{
+    Decode(format, opcode, "JCXZ", 1, 8, RELATIVE);
+    format.operand[1].type = Format::Operand::REG;
+    format.operand[1].flags = Format::Operand::Flag(Format::Operand::BIT16 | Format::Operand::HIDE);
+    format.operand[1].base = IndexREG(ECX);
+
+    if (format.address == 32) {
+        format.instruction = "JECXZ";
+        format.operand[1].flags = Format::Operand::HIDE;
+    }
+
+    BEGIN_OPERATION() {
+        if (SRC == 0) {
+            EIP = (uint32_t)DEST;
+        }
+    } END_OPERATION;
 }
 //------------------------------------------------------------------------------
 void x86_instruction::JMP(Format& format, const uint8_t* opcode)
