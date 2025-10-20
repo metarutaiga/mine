@@ -19,7 +19,7 @@ const char* const x86_format::REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "
 const char* const x86_format::REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
 const char* const x86_format::REG64[8] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI" };
 //------------------------------------------------------------------------------
-void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset, int immediate_size, int flags)
+void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset, int flags)
 {
     format.instruction = instruction;
     switch (flags & (X87_REGISTER | MMX_REGISTER | SSE_REGISTER)) {
@@ -177,9 +177,14 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
         break;
     }
 
+    int immediate_size = 0;
+    switch (flags & (IMM_SIZE | IMM_8BIT | IMM_32BIT)) {
+    case IMM_SIZE:  immediate_size = format.width;  break;
+    case IMM_8BIT:  immediate_size = 8;             break;
+    case IMM_32BIT: immediate_size = 32;            break;
+    }
+
     if (immediate_size) {
-        if (immediate_size < 0)
-            immediate_size = format.width;
         switch (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
         default:
         case IMMEDIATE: format.operand[OPREG].type = Format::Operand::IMM;  break;

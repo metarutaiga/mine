@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FIADD", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FIADD", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -30,7 +30,7 @@ void x87_instruction::FIADD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FICOM", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FICOM", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -47,7 +47,7 @@ void x87_instruction::FICOM(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FICOMP", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FICOMP", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -65,7 +65,7 @@ void x87_instruction::FICOMP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FIDIV", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FIDIV", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -81,7 +81,7 @@ void x87_instruction::FIDIV(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FIDIVR", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FIDIVR", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -97,7 +97,7 @@ void x87_instruction::FIDIVR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FILD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FILD", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FILD", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:
@@ -119,7 +119,7 @@ void x87_instruction::FILD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FIMUL", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FIMUL", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -135,7 +135,7 @@ void x87_instruction::FIMUL(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FIST(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FIST", 1, 0, X87_REGISTER);
+    Decode(format, opcode, "FIST", 1, X87_REGISTER);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:  format.width = 16;  break;
@@ -156,7 +156,7 @@ void x87_instruction::FIST(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FISTP", 1, 0, X87_REGISTER);
+    Decode(format, opcode, "FISTP", 1, X87_REGISTER);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:
@@ -183,7 +183,7 @@ void x87_instruction::FISTP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FISUB", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FISUB", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;
@@ -199,7 +199,7 @@ void x87_instruction::FISUB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FISUBR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FISUBR", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FISUBR", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xDA:  format.width = 32;  break;
     case 0xDE:  format.width = 16;  break;

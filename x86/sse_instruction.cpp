@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 void sse_instruction::ADDPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ADDPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ADDPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] + SRC.f32[0];
@@ -29,7 +29,7 @@ void sse_instruction::ADDPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::ADDSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ADDSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ADDSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] + SRC.f32[0];
@@ -38,7 +38,7 @@ void sse_instruction::ADDSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::ANDNPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ANDNPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ANDNPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = ~DEST.i32[0] & SRC.i32[0];
@@ -50,7 +50,7 @@ void sse_instruction::ANDNPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::ANDPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ANDPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ANDPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = DEST.i32[0] & SRC.i32[0];
@@ -62,7 +62,7 @@ void sse_instruction::ANDPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPPS", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPPS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     switch (format.operand[2].displacement) {
     case 0:
@@ -134,7 +134,7 @@ void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPSS", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPSS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     switch (format.operand[2].displacement) {
     case 0:
@@ -182,7 +182,7 @@ void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "COMISS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "COMISS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         if (isunordered(DEST.f32[0], SRC.f32[0])) {
@@ -210,7 +210,7 @@ void sse_instruction::COMISS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTPI2PS", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTPI2PS", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
     format.width = 64;
     format.operand[0].type = Format::Operand::SSE;
 
@@ -222,7 +222,7 @@ void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTSI2SS", 2, 0, OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTSI2SS", 2, OPERAND_SIZE | DIRECTION);
     format.width = 32;
     format.operand[0].type = Format::Operand::SSE;
 
@@ -233,7 +233,7 @@ void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTPS2PI", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
     format.width = 64;
     format.operand[0].type = Format::Operand::MMX;
 
@@ -261,7 +261,7 @@ void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTSS2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTSS2SI", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
     format.width = 32;
     format.operand[0].type = Format::Operand::REG;
 
@@ -285,7 +285,7 @@ void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTTPS2PI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTTPS2PI", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
     format.width = 64;
     format.operand[0].type = Format::Operand::MMX;
 
@@ -297,7 +297,7 @@ void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CVTTSS2SI(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CVTTSS2SI", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "CVTTSS2SI", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
     format.width = 32;
     format.operand[0].type = Format::Operand::REG;
 
@@ -308,7 +308,7 @@ void sse_instruction::CVTTSS2SI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::DIVPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "DIVPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "DIVPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] / SRC.f32[0];
@@ -320,7 +320,7 @@ void sse_instruction::DIVPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::DIVSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "DIVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "DIVSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] / SRC.f32[0];
@@ -329,7 +329,7 @@ void sse_instruction::DIVSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::LDMXCSR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "LDMXCSR", 2, 0, OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "LDMXCSR", 2, OPERAND_SIZE | DIRECTION);
     format.operand[0].flags = Format::Operand::HIDE;
 
     BEGIN_OPERATION() {
@@ -339,7 +339,7 @@ void sse_instruction::LDMXCSR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MAXPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MAXPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MAXPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = std::max(DEST.f32[0], SRC.f32[0]);
@@ -351,7 +351,7 @@ void sse_instruction::MAXPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MAXSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MAXSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MAXSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = std::max(DEST.f32[0], SRC.f32[0]);
@@ -360,7 +360,7 @@ void sse_instruction::MAXSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MINPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MINPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MINPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = std::min(DEST.f32[0], SRC.f32[0]);
@@ -372,7 +372,7 @@ void sse_instruction::MINPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MINSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MINSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MINSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = std::min(DEST.f32[0], SRC.f32[0]);
@@ -382,8 +382,8 @@ void sse_instruction::MINSS(Format& format, const uint8_t* opcode)
 void sse_instruction::MOVAPS(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x28:  Decode(format, opcode, "MOVAPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
-    case 0x29:  Decode(format, opcode, "MOVAPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    case 0x28:  Decode(format, opcode, "MOVAPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x29:  Decode(format, opcode, "MOVAPS", 2, SSE_REGISTER | OPERAND_SIZE);                break;
     }
 
     BEGIN_OPERATION() {
@@ -394,8 +394,8 @@ void sse_instruction::MOVAPS(Format& format, const uint8_t* opcode)
 void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x16:  Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
-    case 0x17:  Decode(format, opcode, "MOVHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    case 0x16:  Decode(format, opcode, "MOVHPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x17:  Decode(format, opcode, "MOVHPS", 2, SSE_REGISTER | OPERAND_SIZE);                break;
     }
 
     // Since Katmai B0 Stepping
@@ -420,8 +420,8 @@ void sse_instruction::MOVHPS(Format& format, const uint8_t* opcode)
 void sse_instruction::MOVLPS(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x12:  Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
-    case 0x13:  Decode(format, opcode, "MOVLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    case 0x12:  Decode(format, opcode, "MOVLPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x13:  Decode(format, opcode, "MOVLPS", 2, SSE_REGISTER | OPERAND_SIZE);                break;
     }
 
     // Since Katmai B0 Stepping
@@ -445,7 +445,7 @@ void sse_instruction::MOVLPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVMSKPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVMSKPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVMSKPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -459,7 +459,7 @@ void sse_instruction::MOVMSKPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MOVNTPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVNTPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);
+    Decode(format, opcode, "MOVNTPS", 2, SSE_REGISTER | OPERAND_SIZE);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -469,8 +469,8 @@ void sse_instruction::MOVNTPS(Format& format, const uint8_t* opcode)
 void sse_instruction::MOVSS(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x10:  Decode(format, opcode, "MOVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
-    case 0x11:  Decode(format, opcode, "MOVSS", 2, 0, SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x10:  Decode(format, opcode, "MOVSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
+    case 0x11:  Decode(format, opcode, "MOVSS", 2, SSE_REGISTER | OPERAND_SIZE);             break;
     }
 
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type != Format::Operand::SSE) {
@@ -491,8 +491,8 @@ void sse_instruction::MOVSS(Format& format, const uint8_t* opcode)
 void sse_instruction::MOVUPS(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x10:  Decode(format, opcode, "MOVUPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
-    case 0x11:  Decode(format, opcode, "MOVUPS", 2, 0, SSE_REGISTER | OPERAND_SIZE);                break;
+    case 0x10:  Decode(format, opcode, "MOVUPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);    break;
+    case 0x11:  Decode(format, opcode, "MOVUPS", 2, SSE_REGISTER | OPERAND_SIZE);                break;
     }
 
     BEGIN_OPERATION() {
@@ -502,7 +502,7 @@ void sse_instruction::MOVUPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MULPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MULPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MULPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] * SRC.f32[0];
@@ -514,7 +514,7 @@ void sse_instruction::MULPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::MULSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MULSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MULSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] * SRC.f32[0];
@@ -523,7 +523,7 @@ void sse_instruction::MULSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::ORPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ORPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ORPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = DEST.i32[0] | SRC.i32[0];
@@ -567,7 +567,7 @@ void sse_instruction::PREFETCHNTA(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::RCPPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "RCPPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "RCPPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = 1.0f / SRC.f32[0];
@@ -579,7 +579,7 @@ void sse_instruction::RCPPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::RCPSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "RCPSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "RCPSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = 1.0f / SRC.f32[0];
@@ -588,7 +588,7 @@ void sse_instruction::RCPSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::RSQRTPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "RSQRTPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "RSQRTPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = 1.0f / sqrtf(SRC.f32[0]);
@@ -600,7 +600,7 @@ void sse_instruction::RSQRTPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::RSQRTSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "RSQRTSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "RSQRTSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = 1.0f / sqrtf(SRC.f32[0]);
@@ -618,7 +618,7 @@ void sse_instruction::SFENCE(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SHUFPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SHUFPS", 2, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "SHUFPS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -631,7 +631,7 @@ void sse_instruction::SHUFPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SQRTPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SQRTPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "SQRTPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = sqrtf(SRC.f32[0]);
@@ -643,7 +643,7 @@ void sse_instruction::SQRTPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SQRTSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SQRTSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "SQRTSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = sqrtf(SRC.f32[0]);
@@ -652,7 +652,7 @@ void sse_instruction::SQRTSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::STMXCSR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "STMXCSR", 2, 0, OPERAND_SIZE);
+    Decode(format, opcode, "STMXCSR", 2, OPERAND_SIZE);
     format.operand_count = 1;
 
     BEGIN_OPERATION() {
@@ -662,7 +662,7 @@ void sse_instruction::STMXCSR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SUBPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SUBPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "SUBPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] - SRC.f32[0];
@@ -674,7 +674,7 @@ void sse_instruction::SUBPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SUBSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SUBSS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "SUBSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] - SRC.f32[0];
@@ -683,7 +683,7 @@ void sse_instruction::SUBSS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::UCOMISS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "UCOMISS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "UCOMISS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         if (isunordered(DEST.f32[0], SRC.f32[0])) {
@@ -711,7 +711,7 @@ void sse_instruction::UCOMISS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::UNPCKHPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "UNPCKHPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "UNPCKHPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {
@@ -725,7 +725,7 @@ void sse_instruction::UNPCKHPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::UNPCKLPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "UNPCKLPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "UNPCKLPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {
@@ -739,7 +739,7 @@ void sse_instruction::UNPCKLPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::XORPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "XORPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "XORPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = DEST.i32[0] ^ SRC.i32[0];

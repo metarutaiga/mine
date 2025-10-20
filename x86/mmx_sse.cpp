@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 void mmx_instruction::MASKMOVQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MASKMOVQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MASKMOVQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
     format.operand[2] = format.operand[1];
     format.operand[1] = format.operand[0];
     format.operand[0].type = Format::Operand::ADR;
@@ -30,7 +30,7 @@ void mmx_instruction::MASKMOVQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::MOVNTQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVNTQ", 2, 0, MMX_REGISTER | OPERAND_SIZE);
+    Decode(format, opcode, "MOVNTQ", 2, MMX_REGISTER | OPERAND_SIZE);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -39,7 +39,7 @@ void mmx_instruction::MOVNTQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PAVGB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PAVGB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PAVGB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u8[0] = (DEST.u8[0] + SRC.u8[0]) / 2;
@@ -55,7 +55,7 @@ void mmx_instruction::PAVGB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PAVGW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PAVGW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PAVGW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u16[0] = (DEST.u16[0] + SRC.u16[0]) / 2;
@@ -67,7 +67,7 @@ void mmx_instruction::PAVGW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PEXTRW", 2, 8, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PEXTRW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -78,7 +78,7 @@ void mmx_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PINSRW", 2, 8, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PINSRW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
     if (format.operand[1].type == Format::Operand::MMX)
         format.operand[1].type = Format::Operand::REG;
 
@@ -90,7 +90,7 @@ void mmx_instruction::PINSRW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMAXSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMAXSW", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMAXSW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = std::max(DEST.i16[0], SRC.i16[0]);
@@ -102,7 +102,7 @@ void mmx_instruction::PMAXSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMAXUB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMAXUB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMAXUB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u8[0] = std::max(DEST.u8[0], SRC.u8[0]);
@@ -118,7 +118,7 @@ void mmx_instruction::PMAXUB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMINSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMINSW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMINSW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = std::min(DEST.i16[0], SRC.i16[0]);
@@ -130,7 +130,7 @@ void mmx_instruction::PMINSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMINUB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMINUB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMINUB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u8[0] = std::min(DEST.u8[0], SRC.u8[0]);
@@ -146,7 +146,7 @@ void mmx_instruction::PMINUB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMOVMSKB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMOVMSKB", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMOVMSKB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -164,7 +164,7 @@ void mmx_instruction::PMOVMSKB(Format& format, const uint8_t* opcode)
 //-----------------------------------------------------------------------------
 void mmx_instruction::PMULHUW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMULHUW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMULHUW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u16[0] = (DEST.u16[0] * SRC.u16[0]) >> 16;
@@ -176,7 +176,7 @@ void mmx_instruction::PMULHUW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSADBW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSADBW", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSADBW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u16[0] = 0;
@@ -196,7 +196,7 @@ void mmx_instruction::PSADBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSHUFW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFW", 2, 8, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PSHUFW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];

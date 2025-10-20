@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 void x86_instruction::CMPXCHG(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPXCHG", 2, 0, opcode[1] & 0b01);
+    Decode(format, opcode, "CMPXCHG", 2, opcode[1] & 0b01);
     format.operand_count = 3;
     format.operand[2].type = Format::Operand::REG;
     format.operand[2].flags = Format::Operand::HIDE;
@@ -46,7 +46,7 @@ void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x86_instruction::XADD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "XADD", 2, 0, opcode[1] & 0b01);
+    Decode(format, opcode, "XADD", 2, opcode[1] & 0b01);
 
     BEGIN_OPERATION() {
         auto TEMP = SRC + DEST;

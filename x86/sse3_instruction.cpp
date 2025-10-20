@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 void sse3_instruction::ADDSUBPD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ADDSUBPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ADDSUBPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f64[0] = DEST.f64[0] - SRC.f64[0];
@@ -28,7 +28,7 @@ void sse3_instruction::ADDSUBPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::ADDSUBPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "ADDSUBPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "ADDSUBPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32[0] = DEST.f32[0] - SRC.f32[0];
@@ -40,7 +40,7 @@ void sse3_instruction::ADDSUBPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::FISTTP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FISTTP", 1, 0, X87_REGISTER);
+    Decode(format, opcode, "FISTTP", 1, X87_REGISTER);
     switch (opcode[0]) {
     case 0xDB:  format.width = 32;  break;
     case 0xDF:
@@ -60,7 +60,7 @@ void sse3_instruction::FISTTP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::HADDPD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "HADDPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "HADDPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f64 = {
@@ -72,7 +72,7 @@ void sse3_instruction::HADDPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::HADDPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "HADDPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "HADDPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {
@@ -86,7 +86,7 @@ void sse3_instruction::HADDPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::HSUBPD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "HSUBPD", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "HSUBPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f64 = {
@@ -98,7 +98,7 @@ void sse3_instruction::HSUBPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::HSUBPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "HSUBPS", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "HSUBPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {
@@ -112,7 +112,7 @@ void sse3_instruction::HSUBPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::LDDQU(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "LDDQU", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "LDDQU", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST = SRC;
@@ -130,7 +130,7 @@ void sse3_instruction::MONITOR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::MOVDDUP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVDDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVDDUP", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f64 = {
@@ -142,7 +142,7 @@ void sse3_instruction::MOVDDUP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::MOVSHDUP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVSHDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVSHDUP", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {
@@ -156,7 +156,7 @@ void sse3_instruction::MOVSHDUP(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse3_instruction::MOVSLDUP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "MOVSLDUP", 2, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "MOVSLDUP", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.f32 = {

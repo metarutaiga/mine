@@ -144,7 +144,7 @@ void x87_instruction::FLDPI(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FLDCW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FLDCW", 1, 0, DIRECTION);
+    Decode(format, opcode, "FLDCW", 1, DIRECTION);
     format.width = 16;
     format.operand[0].type = Format::Operand::IMM;
     format.operand[0].flags = Format::Operand::HIDE;

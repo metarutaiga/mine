@@ -8,16 +8,16 @@ void x86_instruction::RCL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "RCL", 1, 8, opcode[0] & 0b01);  break;
+    case 0xC1:  Decode(format, opcode, "RCL", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
     case 0xD0:
     case 0xD1:
-        Decode(format, opcode, "RCL", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "RCL", 1, opcode[0] & 0b01);
         format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
     case 0xD3:
-        Decode(format, opcode, "RCL", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "RCL", 1, opcode[0] & 0b01);
         format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = IndexREG(ECX);
@@ -44,16 +44,16 @@ void x86_instruction::RCR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "RCR", 1, 8, opcode[0] & 0b01);  break;
+    case 0xC1:  Decode(format, opcode, "RCR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
     case 0xD0:
     case 0xD1:
-        Decode(format, opcode, "RCR", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "RCR", 1, opcode[0] & 0b01);
         format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
     case 0xD3:
-        Decode(format, opcode, "RCR", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "RCR", 1, opcode[0] & 0b01);
         format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = IndexREG(ECX);
@@ -81,16 +81,16 @@ void x86_instruction::ROL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "ROL", 1, 8, opcode[0] & 0b01);  break;
+    case 0xC1:  Decode(format, opcode, "ROL", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
     case 0xD0:
     case 0xD1:
-        Decode(format, opcode, "ROL", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "ROL", 1, opcode[0] & 0b01);
         format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
     case 0xD3:
-        Decode(format, opcode, "ROL", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "ROL", 1, opcode[0] & 0b01);
         format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = IndexREG(ECX);
@@ -113,16 +113,16 @@ void x86_instruction::ROR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "ROR", 1, 8, opcode[0] & 0b01);  break;
+    case 0xC1:  Decode(format, opcode, "ROR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
     case 0xD0:
     case 0xD1:
-        Decode(format, opcode, "ROR", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "ROR", 1, opcode[0] & 0b01);
         format.operand[1].type = Format::Operand::IMM;
         format.operand[1].displacement = 1;
         break;
     case 0xD2:
     case 0xD3:
-        Decode(format, opcode, "ROR", 1, 0, opcode[0] & 0b01);
+        Decode(format, opcode, "ROR", 1, opcode[0] & 0b01);
         format.operand[1].flags = Format::Operand::BIT8;
         format.operand[1].type = Format::Operand::REG;
         format.operand[1].base = IndexREG(ECX);

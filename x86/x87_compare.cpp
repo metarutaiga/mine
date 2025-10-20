@@ -58,7 +58,7 @@ void x87_instruction::FCMOVcc(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOM", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FCOM", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;
@@ -90,7 +90,7 @@ void x87_instruction::FCOM(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void x87_instruction::FCOMP(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "FCOMP", 1, 0, DIRECTION | X87_REGISTER);
+    Decode(format, opcode, "FCOMP", 1, DIRECTION | X87_REGISTER);
     switch (opcode[0]) {
     case 0xD8:  format.width = 32;  break;
     case 0xDC:  format.width = 64;  break;

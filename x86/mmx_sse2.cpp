@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 void mmx_instruction::PADDQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PADDQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PADDQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i64[0] = DEST.i64[0] + SRC.i64[0];
@@ -22,7 +22,7 @@ void mmx_instruction::PADDQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMULUDQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMULUDQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMULUDQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u64[0] = DEST.u32[0] * SRC.u32[0];
@@ -31,7 +31,7 @@ void mmx_instruction::PMULUDQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSUBQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSUBQ", 2, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSUBQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i64[0] = DEST.i64[0] - SRC.i64[0];

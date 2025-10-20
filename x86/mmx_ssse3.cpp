@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 void mmx_instruction::PABSB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSB", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i8[0] = abs(SRC.i8[0]);
@@ -29,7 +29,7 @@ void mmx_instruction::PABSB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PABSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = abs(SRC.i16[0]);
@@ -41,7 +41,7 @@ void mmx_instruction::PABSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PABSD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSD", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = abs(SRC.i32[0]);
@@ -51,7 +51,7 @@ void mmx_instruction::PABSD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PALIGNR", 3, 8, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PALIGNR", 3, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         uint8_t COUNT = SRC2.u8[0];
@@ -77,7 +77,7 @@ void mmx_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHADDW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16 = {
@@ -91,7 +91,7 @@ void mmx_instruction::PHADDW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHADDD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDD", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32 = {
@@ -103,7 +103,7 @@ void mmx_instruction::PHADDD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHADDSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDSW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16 = {
@@ -117,7 +117,7 @@ void mmx_instruction::PHADDSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHSUBW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16 = {
@@ -131,7 +131,7 @@ void mmx_instruction::PHSUBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHSUBD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBD", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBD", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32 = {
@@ -143,7 +143,7 @@ void mmx_instruction::PHSUBD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBSW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16 = {
@@ -157,7 +157,7 @@ void mmx_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMADDUBSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMADDUBSW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16 = {
@@ -171,7 +171,7 @@ void mmx_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMULHRSW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMULHRSW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = (DEST.i16[0] * SRC.i16[0]) >> 15;
@@ -183,7 +183,7 @@ void mmx_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSHUFB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSHUFB", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u8[0] = DEST.u8[SRC.u8[0] % 8];
@@ -199,7 +199,7 @@ void mmx_instruction::PSHUFB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSIGNB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGNB", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNB", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
@@ -215,7 +215,7 @@ void mmx_instruction::PSIGNB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSIGNW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGNW", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
@@ -227,7 +227,7 @@ void mmx_instruction::PSIGNW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSIGND(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGND", 3, 0, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGND", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];

@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------------
 void ssse3_instruction::PABSB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSB", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSB", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i8[0] = abs(SRC.i8[0]);
@@ -43,7 +43,7 @@ void ssse3_instruction::PABSB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PABSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = abs(SRC.i16[0]);
@@ -59,7 +59,7 @@ void ssse3_instruction::PABSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PABSD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PABSD", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PABSD", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = abs(SRC.i32[0]);
@@ -71,7 +71,7 @@ void ssse3_instruction::PABSD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PALIGNR", 3, 8, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PALIGNR", 3, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
 
     BEGIN_OPERATION() {
         auto COUNT = SRC2.u8[0];
@@ -97,7 +97,7 @@ void ssse3_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHADDW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = DEST.i16[1] + DEST.i16[0];
@@ -113,7 +113,7 @@ void ssse3_instruction::PHADDW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHADDD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDD", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDD", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = DEST.i32[1] + DEST.i32[0];
@@ -125,7 +125,7 @@ void ssse3_instruction::PHADDD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHADDSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHADDSW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHADDSW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = std::clamp(DEST.i16[1] + DEST.i16[0], INT16_MIN, INT16_MAX);
@@ -141,7 +141,7 @@ void ssse3_instruction::PHADDSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHSUBW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = DEST.i16[1] - DEST.i16[0];
@@ -157,7 +157,7 @@ void ssse3_instruction::PHSUBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHSUBD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBD", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBD", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = DEST.i32[1] - DEST.i32[0];
@@ -169,7 +169,7 @@ void ssse3_instruction::PHSUBD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PHSUBSW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PHSUBSW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = std::clamp(DEST.i16[1] - DEST.i16[0], INT16_MIN, INT16_MAX);
@@ -185,7 +185,7 @@ void ssse3_instruction::PHSUBSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMADDUBSW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMADDUBSW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = std::clamp(DEST.i8[1] * SRC.i8[1] + DEST.i8[0] * SRC.i8[0], INT16_MIN, INT16_MAX);
@@ -201,7 +201,7 @@ void ssse3_instruction::PMADDUBSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PMULHRSW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PMULHRSW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = (DEST.i16[0] * SRC.i16[0]) >> 15;
@@ -217,7 +217,7 @@ void ssse3_instruction::PMULHRSW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PSHUFB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFB", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSHUFB", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.u8[0] = DEST.u8[SRC.u8[0] % 16];
@@ -241,7 +241,7 @@ void ssse3_instruction::PSHUFB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PSIGNB(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGNB", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNB", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
@@ -265,7 +265,7 @@ void ssse3_instruction::PSIGNB(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PSIGNW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGNW", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGNW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
@@ -281,7 +281,7 @@ void ssse3_instruction::PSIGNW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PSIGND(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSIGND", 3, 0, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
+    Decode(format, opcode, "PSIGND", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
         DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];

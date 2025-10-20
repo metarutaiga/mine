@@ -51,18 +51,21 @@ struct x86_format
 
     enum
     {
-        OPERAND_SIZE    = 0b0000001,
-        DIRECTION       = 0b0000010,
-        THREE_OPERAND   = 0b0000100,
-        IMMEDIATE       = 0b0001000,
-        INDIRECT        = 0b0010000,
-        RELATIVE        = 0b0011000,
-        X87_REGISTER    = 0b0100000,
-        MMX_REGISTER    = 0b1000000,
-        SSE_REGISTER    = 0b1100000,
+        OPERAND_SIZE    = 0b000000001,
+        DIRECTION       = 0b000000010,
+        THREE_OPERAND   = 0b000000100,
+        IMMEDIATE       = 0b000001000,
+        INDIRECT        = 0b000010000,
+        RELATIVE        = 0b000011000,
+        X87_REGISTER    = 0b000100000,
+        MMX_REGISTER    = 0b001000000,
+        SSE_REGISTER    = 0b001100000,
+        IMM_SIZE        = 0b010000000,
+        IMM_8BIT        = 0b100000000,
+        IMM_32BIT       = 0b110000000,
     };
 
-    static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int immediate_size = 0, int flags = 0);
+    static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int flags = 0);
     static std::string  Disasm(const Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse);
     static void         Fixup(Format& format, x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse);
 
