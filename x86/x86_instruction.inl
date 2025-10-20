@@ -14,6 +14,10 @@
 #define MSB(v)          (((v) >> (SIZE - 1)) & 1)
 #define SMSB(v)         (((v) >> (SIZE - 2)) & 1)
 //------------------------------------------------------------------------------
+#define Tuple8(h,l)     ((uint16_t(uint8_t(h))  <<  8) | uint8_t(l))
+#define Tuple16(h,l)    ((uint32_t(uint16_t(h)) << 16) | uint16_t(l))
+#define Tuple32(h,l)    ((uint64_t(uint32_t(h)) << 32) | uint32_t(l))
+//------------------------------------------------------------------------------
 #define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
 //------------------------------------------------------------------------------
 template<typename D, typename S>

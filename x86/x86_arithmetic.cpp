@@ -105,21 +105,16 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        uint64_t DEST = 0;
+        const auto& SRC = SRC2;
         switch (sizeof(SRC)) {
-        case sizeof(uint8_t):  DEST = uint8_t(DEST1)  | (uint16_t(uint8_t(DEST2))  << 8);   break;
-        case sizeof(uint16_t): DEST = uint16_t(DEST1) | (uint32_t(uint16_t(DEST2)) << 16);  break;
-        case sizeof(uint32_t): DEST = uint32_t(DEST1) | (uint64_t(uint32_t(DEST2)) << 32);  break;
+        case sizeof(uint8_t):  { auto D = Tuple8(DEST2, DEST1);  DEST1 = uint8_t(D / SRC);  DEST2 = uint8_t(D % SRC);  break; }
+        case sizeof(uint16_t): { auto D = Tuple16(DEST2, DEST1); DEST1 = uint16_t(D / SRC); DEST2 = uint16_t(D % SRC); break; }
+        case sizeof(uint32_t): { auto D = Tuple32(DEST2, DEST1); DEST1 = uint32_t(D / SRC); DEST2 = uint32_t(D % SRC); break; }
 #if HAVE_X64
-        case sizeof(uint64_t): DEST = uint64_t(DEST1) | (uint128_t(uint64_t(DEST2)) << 64); break;
+        case sizeof(uint64_t): { auto D = Tuple64(DEST2, DEST1); DEST1 = uint64_t(D / SRC); DEST2 = uint64_t(D % SRC); break; }
 #endif
         default: break;
         }
-        const auto& SRC = SRC2;
-        auto Q = DEST / SRC;
-        auto R = DEST % SRC;
-        DEST1 = (decltype(DEST1))Q;
-        DEST2 = (decltype(DEST2))R;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -141,21 +136,16 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        int64_t DEST = 0;
+        const auto& SRC = SRC2;
         switch (sizeof(SRC)) {
-        case sizeof(int8_t):  DEST = uint8_t(DEST1)  | (uint16_t(uint8_t(DEST2))  << 8);   break;
-        case sizeof(int16_t): DEST = uint16_t(DEST1) | (uint32_t(uint16_t(DEST2)) << 16);  break;
-        case sizeof(int32_t): DEST = uint32_t(DEST1) | (uint64_t(uint32_t(DEST2)) << 32);  break;
+        case sizeof(int8_t):  { auto D = int16_t(Tuple8(DEST2, DEST1));   DEST1 = int8_t(D / SRC);  DEST2 = int8_t(D % SRC);  break; }
+        case sizeof(int16_t): { auto D = int32_t(Tuple16(DEST2, DEST1));  DEST1 = int16_t(D / SRC); DEST2 = int16_t(D % SRC); break; }
+        case sizeof(int32_t): { auto D = int64_t(Tuple32(DEST2, DEST1));  DEST1 = int32_t(D / SRC); DEST2 = int32_t(D % SRC); break; }
 #if HAVE_X64
-        case sizeof(int64_t): DEST = uint64_t(DEST1) | (uint128_t(uint64_t(DEST2)) << 32); break;
+        case sizeof(int64_t): { auto D = int128_t(Tuple64(DEST2, DEST1)); DEST1 = int64_t(D / SRC); DEST2 = int64_t(D % SRC); break; }
 #endif
         default: break;
         }
-        const auto& SRC = SRC2;
-        auto Q = DEST / SRC;
-        auto R = DEST % SRC;
-        DEST1 = (decltype(DEST1))Q;
-        DEST2 = (decltype(DEST2))R;
     } END_OPERATION_SIGNED;
 }
 //------------------------------------------------------------------------------
