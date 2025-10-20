@@ -26,7 +26,7 @@ void x86_instruction::BSR(Format& format, const uint8_t* opcode)
         ZF = 1;
         if (SRC) {
             ZF = 0;
-            DEST = std::countl_zero(SRC);
+            DEST = sizeof(SRC) * 8 - 1 - std::countl_zero(SRC);
         }
     } END_OPERATION;
 }

@@ -27,12 +27,12 @@ void x86_instruction::SHL(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC % 32);
-        if (COUNT == 0 || COUNT > SIZE)
+        if (COUNT == 0)
             return;
         auto TEMP = DEST << COUNT;
-        CF = (DEST >> (SIZE - COUNT)) & 1;
+        CF = MSB(DEST << (COUNT - 1));
         if (COUNT == 1)
-            OF = MSB(TEMP) ^ SMSB(TEMP);
+            OF = MSB(TEMP) ^ CF;
         UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
     } END_OPERATION;
 }
@@ -60,10 +60,10 @@ void x86_instruction::SHR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC % 32);
-        if (COUNT == 0 || COUNT > SIZE)
+        if (COUNT == 0)
             return;
         auto TEMP = DEST >> COUNT;
-        CF = (DEST >> (COUNT - 1)) & 1;
+        CF = LSB(DEST >> (COUNT - 1));
         if (COUNT == 1)
             OF = MSB(DEST);
         UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
@@ -93,10 +93,10 @@ void x86_instruction::SAR(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC % 32);
-        if (COUNT == 0 || COUNT > SIZE)
+        if (COUNT == 0)
             return;
         auto TEMP = DEST >> COUNT;
-        CF = (DEST >> (COUNT - 1)) & 1;
+        CF = LSB(DEST >> (COUNT - 1));
         if (COUNT == 1)
             OF = 0;
         UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
@@ -119,12 +119,12 @@ void x86_instruction::SHLD(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC2 % 32);
-        if (COUNT == 0 || COUNT > SIZE)
+        if (COUNT == 0)
             return;
         auto TEMP = (DEST << COUNT) | (SRC1 >> (SIZE - COUNT));
-        CF = (DEST >> (SIZE - COUNT)) & 1;
+        CF = MSB(DEST << (COUNT - 1));
         if (COUNT == 1)
-            OF = MSB(TEMP) ^ SMSB(TEMP);
+            OF = MSB(TEMP) ^ CF;
         UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
     } END_OPERATION;
 }
@@ -145,12 +145,12 @@ void x86_instruction::SHRD(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC2 % 32);
-        if (COUNT == 0 || COUNT > SIZE)
+        if (COUNT == 0)
             return;
         auto TEMP = (DEST >> COUNT) | (SRC1 << (SIZE - COUNT));
-        CF = (DEST >> (COUNT - 1)) & 1;
+        CF = LSB(DEST >> (COUNT - 1));
         if (COUNT == 1)
-            OF = MSB(DEST) ^ SMSB(DEST);
+            OF = MSB(DEST);
         UpdateFlags<_SZ_P_>(x86, DEST, TEMP);
     } END_OPERATION;
 }

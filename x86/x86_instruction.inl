@@ -10,9 +10,9 @@
 #define Pop16()         (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint16_t)) - sizeof(uint16_t))                )
 #define Pop32()         (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
 #define Pop64()         (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
-#define LSB(v)          ((v              ) & 1)
-#define MSB(v)          ((v >> (SIZE - 1)) & 1)
-#define SMSB(v)         ((v >> (SIZE - 2)) & 1)
+#define LSB(v)          (((v)              ) & 1)
+#define MSB(v)          (((v) >> (SIZE - 1)) & 1)
+#define SMSB(v)         (((v) >> (SIZE - 2)) & 1)
 //------------------------------------------------------------------------------
 #define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
 //------------------------------------------------------------------------------

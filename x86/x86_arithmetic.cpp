@@ -105,11 +105,21 @@ void x86_instruction::DIV(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
+        uint64_t DEST = 0;
+        switch (sizeof(SRC)) {
+        case sizeof(uint8_t):  DEST = uint8_t(DEST1)  | (uint16_t(uint8_t(DEST2))  << 8);   break;
+        case sizeof(uint16_t): DEST = uint16_t(DEST1) | (uint32_t(uint16_t(DEST2)) << 16);  break;
+        case sizeof(uint32_t): DEST = uint32_t(DEST1) | (uint64_t(uint32_t(DEST2)) << 32);  break;
+#if HAVE_X64
+        case sizeof(uint64_t): DEST = uint64_t(DEST1) | (uint128_t(uint64_t(DEST2)) << 64); break;
+#endif
+        default: break;
+        }
         const auto& SRC = SRC2;
-        auto Q = DEST1 / SRC;
-        auto R = DEST1 % SRC;
-        DEST1 = Q;
-        DEST2 = R;
+        auto Q = DEST / SRC;
+        auto R = DEST % SRC;
+        DEST1 = (decltype(DEST1))Q;
+        DEST2 = (decltype(DEST2))R;
     } END_OPERATION;
 }
 //------------------------------------------------------------------------------
@@ -131,12 +141,21 @@ void x86_instruction::IDIV(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto& DEST1 = (std::make_signed_t<std::remove_reference_t<decltype(DEST)>>&)DEST;
-        const auto& SRC = (std::make_signed_t<std::remove_reference_t<decltype(DEST)>>&)SRC2;
-        auto Q = DEST1 / SRC;
-        auto R = DEST1 % SRC;
-        DEST1 = Q;
-        DEST2 = R;
+        int64_t DEST = 0;
+        switch (sizeof(SRC)) {
+        case sizeof(int8_t):  DEST = uint8_t(DEST1)  | (uint16_t(uint8_t(DEST2))  << 8);   break;
+        case sizeof(int16_t): DEST = uint16_t(DEST1) | (uint32_t(uint16_t(DEST2)) << 16);  break;
+        case sizeof(int32_t): DEST = uint32_t(DEST1) | (uint64_t(uint32_t(DEST2)) << 32);  break;
+#if HAVE_X64
+        case sizeof(int64_t): DEST = uint64_t(DEST1) | (uint128_t(uint64_t(DEST2)) << 32); break;
+#endif
+        default: break;
+        }
+        const auto& SRC = SRC2;
+        auto Q = DEST / SRC;
+        auto R = DEST % SRC;
+        DEST1 = (decltype(DEST1))Q;
+        DEST2 = (decltype(DEST2))R;
     } END_OPERATION_SIGNED;
 }
 //------------------------------------------------------------------------------

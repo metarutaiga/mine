@@ -321,6 +321,7 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
 void x86_instruction::JCXZ(Format& format, const uint8_t* opcode)
 {
     Decode(format, opcode, "JCXZ", 1, 8, RELATIVE);
+    format.width = 32;
     format.operand[1].type = Format::Operand::REG;
     format.operand[1].flags = Format::Operand::Flag(Format::Operand::BIT16 | Format::Operand::HIDE);
     format.operand[1].base = IndexREG(ECX);
@@ -388,27 +389,29 @@ void x86_instruction::LEAVE(Format& format, const uint8_t* opcode)
 void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0xE0:  Decode(format, opcode, "LOOPNZ", 1, 8, OPERAND_SIZE | RELATIVE);    break;
-    case 0xE1:  Decode(format, opcode, "LOOPZ", 1, 8, OPERAND_SIZE | RELATIVE);     break;
-    case 0xE2:  Decode(format, opcode, "LOOP", 1, 8, OPERAND_SIZE | RELATIVE);      break;
+    case 0xE0:  Decode(format, opcode, "LOOPNZ", 1, 8, RELATIVE);   break;
+    case 0xE1:  Decode(format, opcode, "LOOPZ", 1, 8, RELATIVE);    break;
+    case 0xE2:  Decode(format, opcode, "LOOP", 1, 8, RELATIVE);     break;
     }
-    format.operand[0].type = Format::Operand::IMM;
-    format.operand[1].type = Format::Operand::REG;
-    format.operand[0].flags = Format::Operand::HIDE;
-    format.operand[1].flags = Format::Operand::HIDE;
-    format.operand[1].base = IndexREG(ECX);
+    format.width = 32;
+    format.operand_count = 1;
 
     BEGIN_OPERATION() {
-        auto CountReg = SRC;
-        if (CountReg) {
-            SRC = SRC - 1;
+        size_t Count = 0;
+        if (format.address == 16) {
+            Count = CX = CX - 1;
+        }
+        else {
+            Count = ECX = ECX - 1;
+        }
+        if (Count) {
             bool BranchCond = true;
             switch (x86.opcode[0]) {
             case 0xE0:  BranchCond = (ZF == 0); break;
             case 0xE1:  BranchCond = (ZF != 0); break;
             }
             if (BranchCond) {
-                EIP += format.operand[0].displacement;
+                EIP = (uint32_t)DEST;
             }
         }
     } END_OPERATION;
@@ -711,7 +714,7 @@ void x86_instruction::SAHF(Format& format, const uint8_t* opcode)
     format.operand_count = 0;
 
     OPERATION() {
-        FLAGS = AH;
+        FLAGS = (FLAGS & 0xFF00) | AH;
     };
 }
 //------------------------------------------------------------------------------

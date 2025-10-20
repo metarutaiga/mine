@@ -161,7 +161,9 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
     case 32:    format.instruction = "SCASD";   break;
     }
     format.operand[0].type = Format::Operand::ADR;
-    format.operand[1].type = Format::Operand::ADR;
+    format.operand[1].type = Format::Operand::REG;
+    format.operand[0].flags = Format::Operand::HIDE;
+    format.operand[1].flags = Format::Operand::HIDE;
     format.operand[0].base = IndexREG(EDI);
     format.operand[1].base = IndexREG(EAX);
     format.string = true;
@@ -194,7 +196,6 @@ void x86_instruction::SCASx(Format& format, const uint8_t* opcode)
             auto step = (DF == 0) ? 1 : -1;
             auto TEMP = DEST;
             UpdateFlags<OSZAPC, BORROW>(x86, TEMP, TEMP - SRC, TEMP, SRC);
-            ESI += sizeof(DEST) * step;
             EDI += sizeof(DEST) * step;
         } END_OPERATION;
         break;
@@ -230,7 +231,7 @@ void x86_instruction::STOSx(Format& format, const uint8_t* opcode)
                 (*PDEST) = SRC;
                 PDEST += step;
             }
-            EDI += sizeof(DEST) * ECX;
+            EDI += sizeof(DEST) * step * ECX;
             ECX = 0;
         } END_OPERATION;
         break;
