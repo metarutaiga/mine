@@ -32,7 +32,7 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
 
     int MODRM = (flags & DIRECTION) ? 1 : 0;
     int OPREG = (flags & DIRECTION) ? 0 : 1;
-    switch (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
+    switch (flags & (INDIRECT | RELATIVE)) {
     default:
         format.length += 1;
         if (offset) {
@@ -167,7 +167,6 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
             format.operand_count = 3;
         }
         break;
-    case IMMEDIATE:
     case INDIRECT:
     case RELATIVE:
         OPREG = 0;
@@ -177,18 +176,15 @@ void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instr
         break;
     }
 
-    int immediate_size = 0;
-    switch (flags & (IMM_SIZE | IMM_8BIT | IMM_32BIT)) {
-    case IMM_SIZE:  immediate_size = format.width;  break;
-    case IMM_8BIT:  immediate_size = 8;             break;
-    case IMM_32BIT: immediate_size = 32;            break;
-    }
-
-    if (immediate_size) {
-        switch (flags & (IMMEDIATE | INDIRECT | RELATIVE)) {
-        default:
-        case IMMEDIATE: format.operand[OPREG].type = Format::Operand::IMM;  break;
-        case INDIRECT:  format.operand[OPREG].type = Format::Operand::ADR;  break;
+    if (flags & (IMM_SIZE | IMM_8BIT)) {
+        int immediate_size = 0;
+        switch (flags & (IMM_SIZE | IMM_8BIT)) {
+        case IMM_SIZE:  immediate_size = format.width;  break;
+        case IMM_8BIT:  immediate_size = 8;             break;
+        }
+        switch (flags & (INDIRECT | RELATIVE)) {
+        default:        format.operand[OPREG].type = Format::Operand::IMM;  break;
+        case INDIRECT:  format.operand[OPREG].type = Format::Operand::ADR;  immediate_size = format.address;    break;
         case RELATIVE:  format.operand[OPREG].type = Format::Operand::REL;  break;
         }
         switch (immediate_size) {

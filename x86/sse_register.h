@@ -30,6 +30,7 @@ struct sse_register
     };
     union control_t
     {
+        uint16_t w;
         uint32_t d;
         struct
         {
@@ -47,7 +48,7 @@ struct sse_register
             uint32_t _UM:1;     // Underflow Mask
             uint32_t _PM:1;     // Precision Mask
             uint32_t _RC:2;     // Rounding Control
-            uint32_t _FTZ:2;    // Flush to Zero
+            uint32_t _FTZ:1;    // Flush to Zero
         };
     };
     register_t regs[8] = {};

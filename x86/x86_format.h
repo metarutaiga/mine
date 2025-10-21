@@ -54,15 +54,15 @@ struct x86_format
         OPERAND_SIZE    = 0b000000001,
         DIRECTION       = 0b000000010,
         THREE_OPERAND   = 0b000000100,
-        IMMEDIATE       = 0b000001000,
+//      RESERVED_08     = 0b000001000,
         INDIRECT        = 0b000010000,
         RELATIVE        = 0b000011000,
-        X87_REGISTER    = 0b000100000,
-        MMX_REGISTER    = 0b001000000,
-        SSE_REGISTER    = 0b001100000,
-        IMM_SIZE        = 0b010000000,
-        IMM_8BIT        = 0b100000000,
-        IMM_32BIT       = 0b110000000,
+        IMM_SIZE        = 0b000100000,
+        IMM_8BIT        = 0b001000000,
+//      RESERVED_60     = 0b001100000,
+        X87_REGISTER    = 0b010000000,
+        MMX_REGISTER    = 0b100000000,
+        SSE_REGISTER    = 0b110000000,
     };
 
     static void         Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset = 0, int flags = 0);

@@ -188,6 +188,13 @@ std::string x86_i686::Status() const
 {
     std::string output = x86_i486::Status();
 
+    // MXCSR
+    char mxcsr[32];
+    snprintf(mxcsr, 32, "%8s%-8s", "", "MXCSR");
+    output.insert(output.find("CONTROL") + 12, mxcsr);
+    snprintf(mxcsr, 32, "%8s%04X", "", sse.mxcsr.w);
+    output.insert(output.find("STATUS") + 12, mxcsr);
+
     // SSE
     for (int i = 0; i < 8; ++i) {
         char temp[64];
