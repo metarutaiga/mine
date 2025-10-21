@@ -12,10 +12,10 @@ void x86_instruction::ADC(Format& format, const uint8_t* opcode)
     case 0x12:
     case 0x13:  Decode(format, opcode, "ADC", 1, opcode[0] & 0b11);                 break;
     case 0x14:
-    case 0x15:  Decode(format, opcode, "ADC", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x15:  Decode(format, opcode, "ADC", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "ADC", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "ADC", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "ADC", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "ADC", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {
@@ -31,10 +31,10 @@ void x86_instruction::ADD(Format& format, const uint8_t* opcode)
     case 0x02:
     case 0x03:  Decode(format, opcode, "ADD", 1, opcode[0] & 0b11);                 break;
     case 0x04:
-    case 0x05:  Decode(format, opcode, "ADD", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x05:  Decode(format, opcode, "ADD", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "ADD", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "ADD", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "ADD", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "ADD", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {
@@ -50,10 +50,10 @@ void x86_instruction::CMP(Format& format, const uint8_t* opcode)
     case 0x3A:
     case 0x3B:  Decode(format, opcode, "CMP", 1, opcode[0] & 0b11);                 break;
     case 0x3C:
-    case 0x3D:  Decode(format, opcode, "CMP", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x3D:  Decode(format, opcode, "CMP", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "CMP", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "CMP", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "CMP", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "CMP", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {
@@ -159,8 +159,8 @@ void x86_instruction::IMUL(Format& format, const uint8_t* opcode)
         format.operand[1] = format.operand[0];
         format.operand[1].flags = Format::Operand::HIDE;
         break;
-    case 0x69:  Decode(format, opcode, "IMUL", 1, IMM_SIZE | OPERAND_SIZE | DIRECTION | THREE_OPERAND); break;
-    case 0x6B:  Decode(format, opcode, "IMUL", 1, IMM_8BIT | OPERAND_SIZE | DIRECTION | THREE_OPERAND); break;
+    case 0x69:  Decode(format, opcode, "IMUL", 1, OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_SIZE); break;
+    case 0x6B:  Decode(format, opcode, "IMUL", 1, OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT); break;
     case 0xF6:
     case 0xF7:
         Decode(format, opcode, "IMUL", 1, opcode[0] & 0b11);
@@ -290,10 +290,10 @@ void x86_instruction::SBB(Format& format, const uint8_t* opcode)
     case 0x1A:
     case 0x1B:  Decode(format, opcode, "SBB", 1, opcode[0] & 0b11);                 break;
     case 0x1C:
-    case 0x1D:  Decode(format, opcode, "SBB", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x1D:  Decode(format, opcode, "SBB", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "SBB", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "SBB", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "SBB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "SBB", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {
@@ -309,10 +309,10 @@ void x86_instruction::SUB(Format& format, const uint8_t* opcode)
     case 0x2A:
     case 0x2B:  Decode(format, opcode, "SUB", 1, opcode[0] & 0b11);                 break;
     case 0x2C:
-    case 0x2D:  Decode(format, opcode, "SUB", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x2D:  Decode(format, opcode, "SUB", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "SUB", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "SUB", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "SUB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "SUB", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {

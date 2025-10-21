@@ -51,7 +51,7 @@ void mmx_instruction::PABSD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PALIGNR", 3, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PALIGNR", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         uint8_t COUNT = SRC2.u8[0];

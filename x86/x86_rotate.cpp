@@ -8,7 +8,7 @@ void x86_instruction::RCL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "RCL", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "RCL", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "RCL", 1, opcode[0] & 0b01);
@@ -44,7 +44,7 @@ void x86_instruction::RCR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "RCR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "RCR", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "RCR", 1, opcode[0] & 0b01);
@@ -81,7 +81,7 @@ void x86_instruction::ROL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "ROL", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "ROL", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "ROL", 1, opcode[0] & 0b01);
@@ -113,7 +113,7 @@ void x86_instruction::ROR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "ROR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "ROR", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "ROR", 1, opcode[0] & 0b01);

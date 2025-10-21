@@ -8,7 +8,7 @@ void x86_instruction::SHL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "SHL", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "SHL", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "SHL", 1, opcode[0] & 0b01);
@@ -41,7 +41,7 @@ void x86_instruction::SHR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "SHR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "SHR", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "SHR", 1, opcode[0] & 0b01);
@@ -74,7 +74,7 @@ void x86_instruction::SAR(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xC0:
-    case 0xC1:  Decode(format, opcode, "SAR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0xC1:  Decode(format, opcode, "SAR", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     case 0xD0:
     case 0xD1:
         Decode(format, opcode, "SAR", 1, opcode[0] & 0b01);
@@ -91,7 +91,7 @@ void x86_instruction::SAR(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        uint32_t SIZE = (sizeof(DEST) * 8);
+//      uint32_t SIZE = (sizeof(DEST) * 8);
         uint32_t COUNT = (SRC % 32);
         if (COUNT == 0)
             return;
@@ -106,7 +106,7 @@ void x86_instruction::SAR(Format& format, const uint8_t* opcode)
 void x86_instruction::SHLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0xA4:  Decode(format, opcode, "SHLD", 2, IMM_8BIT | OPERAND_SIZE | THREE_OPERAND); break;
+    case 0xA4:  Decode(format, opcode, "SHLD", 2, OPERAND_SIZE | THREE_OPERAND | IMM_8BIT); break;
     case 0xA5:
         Decode(format, opcode, "SHLD", 2, OPERAND_SIZE);
         format.operand_count = 3;
@@ -132,7 +132,7 @@ void x86_instruction::SHLD(Format& format, const uint8_t* opcode)
 void x86_instruction::SHRD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0xAC:  Decode(format, opcode, "SHRD", 2, IMM_8BIT | OPERAND_SIZE | THREE_OPERAND); break;
+    case 0xAC:  Decode(format, opcode, "SHRD", 2, OPERAND_SIZE | THREE_OPERAND | IMM_8BIT); break;
     case 0xAD:
         Decode(format, opcode, "SHRD", 2, OPERAND_SIZE);
         format.operand_count = 3;

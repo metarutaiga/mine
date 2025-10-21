@@ -67,7 +67,7 @@ void mmx_instruction::PAVGW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PEXTRW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PEXTRW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -78,7 +78,7 @@ void mmx_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PINSRW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PINSRW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
     if (format.operand[1].type == Format::Operand::MMX)
         format.operand[1].type = Format::Operand::REG;
 
@@ -196,7 +196,7 @@ void mmx_instruction::PSADBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void mmx_instruction::PSHUFW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PSHUFW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];

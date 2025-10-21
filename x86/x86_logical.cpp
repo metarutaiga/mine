@@ -12,10 +12,10 @@ void x86_instruction::AND(Format& format, const uint8_t* opcode)
     case 0x22:
     case 0x23:  Decode(format, opcode, "AND", 1, opcode[0] & 0b11);                 break;
     case 0x24:
-    case 0x25:  Decode(format, opcode, "AND", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x25:  Decode(format, opcode, "AND", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "AND", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "AND", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "AND", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "AND", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {
@@ -46,10 +46,10 @@ void x86_instruction::OR(Format& format, const uint8_t* opcode)
     case 0x0A:
     case 0x0B:  Decode(format, opcode, "OR", 1, opcode[0] & 0b11);              break;
     case 0x0C:
-    case 0x0D:  Decode(format, opcode, "OR", 0, IMM_SIZE | (opcode[0] & 0b01)); break;
+    case 0x0D:  Decode(format, opcode, "OR", 0, (opcode[0] & 0b01) | IMM_SIZE); break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "OR", 1, IMM_SIZE | (opcode[0] & 0b01)); break;
-    case 0x83:  Decode(format, opcode, "OR", 1, IMM_8BIT | (opcode[0] & 0b01)); break;
+    case 0x81:  Decode(format, opcode, "OR", 1, (opcode[0] & 0b01) | IMM_SIZE); break;
+    case 0x83:  Decode(format, opcode, "OR", 1, (opcode[0] & 0b01) | IMM_8BIT); break;
     }
 
     BEGIN_OPERATION() {
@@ -65,9 +65,9 @@ void x86_instruction::TEST(Format& format, const uint8_t* opcode)
     case 0x84:
     case 0x85:  Decode(format, opcode, "TEST", 1, opcode[0] & 0b01);                break;
     case 0xA8:
-    case 0xA9:  Decode(format, opcode, "TEST", 0, IMM_SIZE | (opcode[0] & 0b01));   break;
+    case 0xA9:  Decode(format, opcode, "TEST", 0, (opcode[0] & 0b01) | IMM_SIZE);   break;
     case 0xF6:
-    case 0xF7:  Decode(format, opcode, "TEST", 1, IMM_SIZE | (opcode[0] & 0b01));   break;
+    case 0xF7:  Decode(format, opcode, "TEST", 1, (opcode[0] & 0b01) | IMM_SIZE);   break;
     }
 
     BEGIN_OPERATION() {
@@ -86,10 +86,10 @@ void x86_instruction::XOR(Format& format, const uint8_t* opcode)
     case 0x32:
     case 0x33:  Decode(format, opcode, "XOR", 1, opcode[0] & 0b11);                 break;
     case 0x34:
-    case 0x35:  Decode(format, opcode, "XOR", 0, IMM_SIZE | (opcode[0] & 0b01));    break;
+    case 0x35:  Decode(format, opcode, "XOR", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "XOR", 1, IMM_SIZE | (opcode[0] & 0b01));    break;
-    case 0x83:  Decode(format, opcode, "XOR", 1, IMM_8BIT | (opcode[0] & 0b01));    break;
+    case 0x81:  Decode(format, opcode, "XOR", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x83:  Decode(format, opcode, "XOR", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
     BEGIN_OPERATION() {

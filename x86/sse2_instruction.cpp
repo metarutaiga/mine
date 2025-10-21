@@ -122,7 +122,7 @@ void sse2_instruction::CMPPD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::CMPSD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPSD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPSD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     switch (format.operand[2].displacement) {
     case 0:
@@ -1169,7 +1169,7 @@ void sse2_instruction::PCMPGTD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PEXTRW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PEXTRW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
@@ -1180,7 +1180,7 @@ void sse2_instruction::PEXTRW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PINSRW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PINSRW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PINSRW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
     if (format.operand[1].type == Format::Operand::SSE)
         format.operand[1].type = Format::Operand::REG;
 
@@ -1411,7 +1411,7 @@ void sse2_instruction::PSADBW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PSHUFD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -1424,7 +1424,7 @@ void sse2_instruction::PSHUFD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFHW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFHW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PSHUFHW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -1437,7 +1437,7 @@ void sse2_instruction::PSHUFHW(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSHUFLW(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSHUFLW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PSHUFLW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
@@ -1451,7 +1451,7 @@ void sse2_instruction::PSHUFLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSLLW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSLLW", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF1:  Decode(format, opcode, "PSLLW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1471,7 +1471,7 @@ void sse2_instruction::PSLLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSLLD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSLLD", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF2:  Decode(format, opcode, "PSLLD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1487,7 +1487,7 @@ void sse2_instruction::PSLLD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSLLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSLLQ", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x73:  Decode(format, opcode, "PSLLQ", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF3:  Decode(format, opcode, "PSLLQ", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1521,7 +1521,7 @@ void sse2_instruction::PSLLDQ(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRAW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRAW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSRAW", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xE1:  Decode(format, opcode, "PSRAW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1541,7 +1541,7 @@ void sse2_instruction::PSRAW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRAD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRAD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSRAD", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xE2:  Decode(format, opcode, "PSRAD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1557,7 +1557,7 @@ void sse2_instruction::PSRAD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRLW", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSRLW", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD1:  Decode(format, opcode, "PSRLW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1577,7 +1577,7 @@ void sse2_instruction::PSRLW(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRLD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSRLD", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD2:  Decode(format, opcode, "PSRLD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1593,7 +1593,7 @@ void sse2_instruction::PSRLD(Format& format, const uint8_t* opcode)
 void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSRLQ", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);             break;
+    case 0x73:  Decode(format, opcode, "PSRLQ", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD3:  Decode(format, opcode, "PSRLQ", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -1606,7 +1606,7 @@ void sse2_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::PSRLDQ(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PSRLDQ", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE);
+    Decode(format, opcode, "PSRLDQ", 2, SSE_REGISTER | OPERAND_SIZE | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto COUNT = SRC.u8[0];
@@ -1920,7 +1920,7 @@ void sse2_instruction::PXOR(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::SHUFPD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SHUFPD", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "SHUFPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];

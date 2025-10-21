@@ -62,7 +62,7 @@ void sse_instruction::ANDPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPPS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     switch (format.operand[2].displacement) {
     case 0:
@@ -134,7 +134,7 @@ void sse_instruction::CMPPS(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::CMPSS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPSS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     switch (format.operand[2].displacement) {
     case 0:
@@ -618,7 +618,7 @@ void sse_instruction::SFENCE(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse_instruction::SHUFPS(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "SHUFPS", 2, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "SHUFPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];

@@ -348,7 +348,7 @@ void mmx_instruction::POR(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSLLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSLLW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSLLW", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF1:  Decode(format, opcode, "PSLLW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -364,7 +364,7 @@ void mmx_instruction::PSLLW(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSLLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSLLD", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSLLD", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF2:  Decode(format, opcode, "PSLLD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -378,7 +378,7 @@ void mmx_instruction::PSLLD(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSLLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSLLQ", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x73:  Decode(format, opcode, "PSLLQ", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xF3:  Decode(format, opcode, "PSLLQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -391,7 +391,7 @@ void mmx_instruction::PSLLQ(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSRAW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRAW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSRAW", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xE1:  Decode(format, opcode, "PSRAW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -407,7 +407,7 @@ void mmx_instruction::PSRAW(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSRAD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRAD", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSRAD", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xE2:  Decode(format, opcode, "PSRAD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -421,7 +421,7 @@ void mmx_instruction::PSRAD(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSRLW(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x71:  Decode(format, opcode, "PSRLW", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x71:  Decode(format, opcode, "PSRLW", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD1:  Decode(format, opcode, "PSRLW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -437,7 +437,7 @@ void mmx_instruction::PSRLW(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSRLD(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x72:  Decode(format, opcode, "PSRLD", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x72:  Decode(format, opcode, "PSRLD", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD2:  Decode(format, opcode, "PSRLD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 
@@ -451,7 +451,7 @@ void mmx_instruction::PSRLD(Format& format, const uint8_t* opcode)
 void mmx_instruction::PSRLQ(Format& format, const uint8_t* opcode)
 {
     switch (opcode[1]) {
-    case 0x73:  Decode(format, opcode, "PSRLQ", 2, IMM_8BIT | MMX_REGISTER | OPERAND_SIZE);             break;
+    case 0x73:  Decode(format, opcode, "PSRLQ", 2, MMX_REGISTER | OPERAND_SIZE | IMM_8BIT);  break;
     case 0xD3:  Decode(format, opcode, "PSRLQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION); break;
     }
 

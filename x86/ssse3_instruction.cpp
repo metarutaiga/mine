@@ -71,7 +71,7 @@ void ssse3_instruction::PABSD(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void ssse3_instruction::PALIGNR(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "PALIGNR", 3, IMM_8BIT | SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "PALIGNR", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     BEGIN_OPERATION() {
         auto COUNT = SRC2.u8[0];
