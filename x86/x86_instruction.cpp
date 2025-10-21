@@ -279,40 +279,40 @@ void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
     format.operand_count = 1;
 
     switch (opcode[0]) {
-    case 0x70:      OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO
-    case 0x71:      OPERATION() { if (((OF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNO
-    case 0x72:      OPERATION() { if (((CF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JC
-    case 0x73:      OPERATION() { if (((CF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNC
-    case 0x74:      OPERATION() { if (((ZF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JZ
-    case 0x75:      OPERATION() { if (((ZF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNZ
-    case 0x76:      OPERATION() { if (((CF | ZF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JBE
-    case 0x77:      OPERATION() { if (((CF | ZF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JA
-    case 0x78:      OPERATION() { if (((SF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JS
-    case 0x79:      OPERATION() { if (((SF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNS
-    case 0x7A:      OPERATION() { if (((PF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JPE
-    case 0x7B:      OPERATION() { if (((PF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JPO
-    case 0x7C:      OPERATION() { if (((SF ^ OF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JL
-    case 0x7D:      OPERATION() { if (((SF ^ OF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JGE
-    case 0x7E:      OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP += format.operand[0].displacement; };  break;  // JLE
-    case 0x7F:      OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP += format.operand[0].displacement; };  break;  // JG
+    case 0x70:      OPERATION() { if (((OF)          ) == 1) EIP = format.operand[0].address; };    break;  // JO
+    case 0x71:      OPERATION() { if (((OF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNO
+    case 0x72:      OPERATION() { if (((CF)          ) == 1) EIP = format.operand[0].address; };    break;  // JC
+    case 0x73:      OPERATION() { if (((CF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNC
+    case 0x74:      OPERATION() { if (((ZF)          ) == 1) EIP = format.operand[0].address; };    break;  // JZ
+    case 0x75:      OPERATION() { if (((ZF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNZ
+    case 0x76:      OPERATION() { if (((CF | ZF)     ) == 1) EIP = format.operand[0].address; };    break;  // JBE
+    case 0x77:      OPERATION() { if (((CF | ZF)     ) == 0) EIP = format.operand[0].address; };    break;  // JA
+    case 0x78:      OPERATION() { if (((SF)          ) == 1) EIP = format.operand[0].address; };    break;  // JS
+    case 0x79:      OPERATION() { if (((SF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNS
+    case 0x7A:      OPERATION() { if (((PF)          ) == 1) EIP = format.operand[0].address; };    break;  // JPE
+    case 0x7B:      OPERATION() { if (((PF)          ) == 0) EIP = format.operand[0].address; };    break;  // JPO
+    case 0x7C:      OPERATION() { if (((SF ^ OF)     ) == 1) EIP = format.operand[0].address; };    break;  // JL
+    case 0x7D:      OPERATION() { if (((SF ^ OF)     ) == 0) EIP = format.operand[0].address; };    break;  // JGE
+    case 0x7E:      OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP = format.operand[0].address; };    break;  // JLE
+    case 0x7F:      OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP = format.operand[0].address; };    break;  // JG
     case 0x0F:
         switch (opcode[1]) {
-        case 0x80:  OPERATION() { if (((OF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JO
-        case 0x81:  OPERATION() { if (((OF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNO
-        case 0x82:  OPERATION() { if (((CF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JC
-        case 0x83:  OPERATION() { if (((CF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNC
-        case 0x84:  OPERATION() { if (((ZF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JZ
-        case 0x85:  OPERATION() { if (((ZF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNZ
-        case 0x86:  OPERATION() { if (((CF | ZF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JBE
-        case 0x87:  OPERATION() { if (((CF | ZF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JA
-        case 0x88:  OPERATION() { if (((SF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JS
-        case 0x89:  OPERATION() { if (((SF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JNS
-        case 0x8A:  OPERATION() { if (((PF)          ) == 1) EIP += format.operand[0].displacement; };  break;  // JPE
-        case 0x8B:  OPERATION() { if (((PF)          ) == 0) EIP += format.operand[0].displacement; };  break;  // JPO
-        case 0x8C:  OPERATION() { if (((SF ^ OF)     ) == 1) EIP += format.operand[0].displacement; };  break;  // JL
-        case 0x8D:  OPERATION() { if (((SF ^ OF)     ) == 0) EIP += format.operand[0].displacement; };  break;  // JGE
-        case 0x8E:  OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP += format.operand[0].displacement; };  break;  // JLE
-        case 0x8F:  OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP += format.operand[0].displacement; };  break;  // JG
+        case 0x80:  OPERATION() { if (((OF)          ) == 1) EIP = format.operand[0].address; };    break;  // JO
+        case 0x81:  OPERATION() { if (((OF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNO
+        case 0x82:  OPERATION() { if (((CF)          ) == 1) EIP = format.operand[0].address; };    break;  // JC
+        case 0x83:  OPERATION() { if (((CF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNC
+        case 0x84:  OPERATION() { if (((ZF)          ) == 1) EIP = format.operand[0].address; };    break;  // JZ
+        case 0x85:  OPERATION() { if (((ZF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNZ
+        case 0x86:  OPERATION() { if (((CF | ZF)     ) == 1) EIP = format.operand[0].address; };    break;  // JBE
+        case 0x87:  OPERATION() { if (((CF | ZF)     ) == 0) EIP = format.operand[0].address; };    break;  // JA
+        case 0x88:  OPERATION() { if (((SF)          ) == 1) EIP = format.operand[0].address; };    break;  // JS
+        case 0x89:  OPERATION() { if (((SF)          ) == 0) EIP = format.operand[0].address; };    break;  // JNS
+        case 0x8A:  OPERATION() { if (((PF)          ) == 1) EIP = format.operand[0].address; };    break;  // JPE
+        case 0x8B:  OPERATION() { if (((PF)          ) == 0) EIP = format.operand[0].address; };    break;  // JPO
+        case 0x8C:  OPERATION() { if (((SF ^ OF)     ) == 1) EIP = format.operand[0].address; };    break;  // JL
+        case 0x8D:  OPERATION() { if (((SF ^ OF)     ) == 0) EIP = format.operand[0].address; };    break;  // JGE
+        case 0x8E:  OPERATION() { if (((SF ^ OF) | ZF) == 1) EIP = format.operand[0].address; };    break;  // JLE
+        case 0x8F:  OPERATION() { if (((SF ^ OF) | ZF) == 0) EIP = format.operand[0].address; };    break;  // JG
         }
         break;
     }
