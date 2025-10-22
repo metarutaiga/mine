@@ -86,14 +86,6 @@ size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct alloca
 bool syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - string
-int syscall_GetLocalInfoA(const void* memory, const void* stack);
-int syscall_GetLocalInfoW(const void* memory, const void* stack);
-bool syscall_GetStringTypeA(const void* memory, const void* stack);
-bool syscall_GetStringTypeW(const void* memory, const void* stack);
-int syscall_LCMapStringA(const void* memory, const void* stack);
-int syscall_LCMapStringW(const void* memory, const void* stack);
-int syscall_LCMapStringEx(const void* memory, const void* stack);
-int syscall_LCMapStringExW(const void* memory, const void* stack);
 int syscall_MultiByteToWideChar(const void* memory, const void* stack);
 int syscall_WideCharToMultiByte(const void* memory, const void* stack);
 
@@ -164,6 +156,7 @@ int syscall__CIsin(void* cpu);
 int syscall__CIsqrt(void* cpu);
 int syscall__controlfp(const void* stack, void* cpu);
 int syscall__controlfp_s(const void* memory, const void* stack, void* cpu);
+int syscall__clearfp(void* cpu);
 int syscall__fpclass(const void* stack);
 int64_t syscall__ftol(void* cpu);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);

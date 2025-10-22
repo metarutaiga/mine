@@ -262,23 +262,33 @@ int syscall__controlfp(const uint32_t* stack, x86_i386* cpu)
     auto mask = stack[2];
 
     auto& x87 = cpu->x87;
+    int old = FPUControlWord;
     FPUControlWord = (FPUControlWord & ~mask) | (control & mask);
 
-    return 0;
+    return old;
 }
 
 int syscall__controlfp_s(char* memory, const uint32_t* stack, x86_i386* cpu)
 {
-    auto current = physical(int*, stack[1]);
-    auto control = stack[2];
+    auto oldControl = physical(int*, stack[1]);
+    auto newControl = stack[2];
     auto mask = stack[3];
 
     auto& x87 = cpu->x87;
-    if (current)
-        (*current) = FPUControlWord;
-    FPUControlWord = (FPUControlWord & ~mask) | (control & mask);
+    if (oldControl) {
+        (*oldControl) = FPUControlWord;
+    }
+    FPUControlWord = (FPUControlWord & ~mask) | (newControl & mask);
 
     return 0;
+}
+
+int syscall__clearfp(x86_i386* cpu)
+{
+    auto& x87 = cpu->x87;
+    int old = FPUStatusWord;
+    FPUStatusWord = (FPUStatusWord & ~0x8001F);
+    return old;
 }
 
 int syscall__fpclass(const uint32_t* stack)

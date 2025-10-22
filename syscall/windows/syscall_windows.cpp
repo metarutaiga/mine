@@ -74,6 +74,7 @@ static const struct {
     { "TryEnterCriticalSection",                INT32(1, true)                                      },
 
     // kernel32 - directory
+    { "GetCurrentDirectoryA",       INT32(2, syscall_GetCurrentDirectoryA(memory, stack))           },
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
 
     // kernel32 - environment
@@ -165,15 +166,15 @@ static const struct {
     // kernel32 - string
     { "GetACP",                     INT32(0, 437)                                                   },
     { "GetCPInfo",                  INT32(2, true)                                                  },
-    { "GetLocaleInfoA",             INT32(4, syscall_GetLocalInfoA(memory, stack))                  },
-    { "GetLocaleInfoW",             INT32(4, syscall_GetLocalInfoW(memory, stack))                  },
-    { "GetStringTypeA",             INT32(4, syscall_GetStringTypeA(memory, stack))                 },
-    { "GetStringTypeW",             INT32(4, syscall_GetStringTypeW(memory, stack))                 },
+    { "GetLocaleInfoA",             INT32(4, 0)                                                     },
+    { "GetLocaleInfoW",             INT32(4, 0)                                                     },
+    { "GetStringTypeA",             INT32(4, 0)                                                     },
+    { "GetStringTypeW",             INT32(4, 0)                                                     },
     { "IsValidCodePage",            INT32(1, true)                                                  },
-    { "LCMapStringA",               INT32(6, syscall_LCMapStringA(memory, stack))                   },
-    { "LCMapStringW",               INT32(6, syscall_LCMapStringW(memory, stack))                   },
-    { "LCMapStringEx",              INT32(9, syscall_LCMapStringEx(memory, stack))                  },
-    { "LCMapStringExW",             INT32(9, syscall_LCMapStringExW(memory, stack))                 },
+    { "LCMapStringA",               INT32(6, 0)                                                     },
+    { "LCMapStringW",               INT32(6, 0)                                                     },
+    { "LCMapStringEx",              INT32(9, 0)                                                     },
+    { "LCMapStringExW",             INT32(9, 0)                                                     },
     { "MultiByteToWideChar",        INT32(6, syscall_MultiByteToWideChar(memory, stack))            },
     { "WideCharToMultiByte",        INT32(8, syscall_WideCharToMultiByte(memory, stack))            },
 
@@ -181,7 +182,6 @@ static const struct {
     { "ExitProcess",                INT32(1, syscall_exit(stack))                                   },
     { "GetCommandLineA",            INT32(0, syscall_GetCommandLineA(memory))                       },
     { "GetCommandLineW",            INT32(0, syscall_GetCommandLineW(memory))                       },
-    { "GetCurrentDirectoryA",       INT32(2, syscall_GetCurrentDirectoryA(memory, stack))           },
     { "GetCurrentProcess",          INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentProcessId",        INT32(0, syscall_GetCurrentProcessId())                         },
     { "GetCurrentThreadId",         INT32(0, syscall_GetCurrentThreadId())                          },
@@ -195,7 +195,7 @@ static const struct {
     { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetLastError",               INT32(1, 0)                                                     },
-    { "TerminateProcess",           INT32(2, 0)                                                     },
+    { "TerminateProcess",           INT32(2, syscall_exit(stack + 1))                               },
 
     // kernel32 - time
     { "GetSystemTime",              INT32(1, syscall_GetSystemTime(memory, stack))                  },
@@ -214,13 +214,6 @@ static const struct {
     { "TlsFree",                    INT32(1, syscall_TlsFree(memory, stack))                        },
     { "TlsGetValue",                INT32(1, syscall_TlsGetValue(memory, stack))                    },
     { "TlsSetValue",                INT32(2, syscall_TlsSetValue(memory, stack))                    },
-
-    // kernel32 - unimplemented
-//  { "CreateProcessA",             INT32(10, false)                                                },
-//  { "DeleteFileA",                INT32(1, true)                                                  },
-//  { "FormatMessageA",             INT32(7, 0)                                                     },
-//  { "RaiseException",             INT32(4, 0)                                                     },
-//  { "WaitForSingleObject",        INT32(2, 0xFFFFFFFF)                                            },
 
     // advapi32 - random
     { "SystemFunction036",          INT32(2, syscall_RtlGenRandom(memory, stack))                   },
@@ -256,7 +249,7 @@ static const struct {
     { "_controlfp",                 INT32(0, syscall__controlfp(stack, cpu))                        },
     { "_controlfp_s",               INT32(0, syscall__controlfp_s(memory, stack, cpu))              },
     { "_crt_debugger_hook",         INT32(0, 0)                                                     },
-    { "_clearfp",                   INT32(0, 0)                                                     },
+    { "_clearfp",                   INT32(0, syscall__clearfp(cpu))                                 },
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
     { "_decode_pointer",            INT32(0, stack[1])                                              },
     { "_encode_pointer",            INT32(0, stack[1])                                              },
@@ -297,27 +290,6 @@ static const struct {
 //  { "_isnan",                     INT32(0, syscall_isnan(stack))                                  },
 //  { "_snprintf",                  INT32(0, syscall_snprintf(memory, stack))                       },
 //  { "_vsnprintf",                 INT32(0, syscall_vsnprintf(memory, stack))                      },
-
-    // msvcrt - unimplemented
-//  { "_amsg_exit",                 INT32(0, 0)                                                     },
-//  { "_CIfmod",                    INT32(0, 0)                                                     },
-//  { "_CxxThrowException",         INT32(0, 0)                                                     },
-//  { "_except_handler3",           INT32(0, 0)                                                     },
-//  { "_invalid_parameter_noinfo",  INT32(0, 0)                                                     },
-//  { "_fileno",                    INT32(0, 0)                                                     },
-//  { "_get_osfhandle",             INT32(0, 0)                                                     },
-//  { "_purecall",                  INT32(0, 0)                                                     },
-//  { "_XcptFilter",                INT32(0, 0)                                                     },
-//  { "__CppXcptFilter",            INT32(0, 0)                                                     },
-//  { "__CxxFrameHandler",          INT32(0, 0)                                                     },
-//  { "__security_error_handler",   INT32(0, 0)                                                     },
-//  { "__setusermatherr",           INT32(0, 0)                                                     },
-//  { "?terminate@@YAXXZ",          INT32(0, 0)                                                     },
-//  { "?_Nomemory@std@@YAXXZ",      INT32(0, 0)                                                     },
-//  { "??0exception@@QAE@XZ",       INT32(0, 0)                                                     },
-//  { "??1exception@@UAE@XZ",       INT32(0, 0)                                                     },
-//  { "??0exception@@QAE@ABV0@@Z",  INT32(0, 0)                                                     },
-//  { "??1type_info@@UAE@XZ",       INT32(0, 0)                                                     },
 
     // ucrt
     { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack))        },
