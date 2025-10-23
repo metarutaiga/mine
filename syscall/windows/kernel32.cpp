@@ -283,7 +283,7 @@ uint32_t syscall_GetFileSize(uint8_t* memory, const uint32_t* stack)
     auto file = (*hFile);
     long pos = ftell(file);
     fseek(file, 0, SEEK_END);
-    long size = ftell(file);
+    uint64_t size = ftell(file);
     fseek(file, pos, SEEK_SET);
 
     if (lpFileSizeHigh) {
@@ -881,6 +881,38 @@ bool syscall_VirtualFree(uint8_t* memory, const uint32_t* stack, struct allocato
 
     if (dwFreeType & 0x4000) {
         allocator->deallocate(lpAddress);
+    }
+    return true;
+}
+
+bool syscall_ReadProcessMemory(uint8_t* memory, const uint32_t* stack)
+{
+//  auto hProcess = stack[1];
+    auto lpBaseAddress = physical(void*, stack[2]);
+    auto lpBuffer = physical(void*, stack[3]);
+    auto nSize = stack[4];
+    auto lpNumberOfBytesRead = physical(uint32_t*, stack[5]);
+
+    memmove(lpBuffer, lpBaseAddress, nSize);
+
+    if (lpNumberOfBytesRead) {
+        (*lpNumberOfBytesRead) = nSize;
+    }
+    return true;
+}
+
+bool syscall_WriteProcessMemory(uint8_t* memory, const uint32_t* stack)
+{
+//  auto hProcess = stack[1];
+    auto lpBaseAddress = physical(void*, stack[2]);
+    auto lpBuffer = physical(void*, stack[3]);
+    auto nSize = stack[4];
+    auto lpNumberOfBytesWritten = physical(uint32_t*, stack[5]);
+
+    memmove(lpBaseAddress, lpBuffer, nSize);
+
+    if (lpNumberOfBytesWritten) {
+        (*lpNumberOfBytesWritten) = nSize;
     }
     return true;
 }

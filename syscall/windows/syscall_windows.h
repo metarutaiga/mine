@@ -78,6 +78,8 @@ size_t syscall_LocalAlloc(const void* stack, struct allocator_t* allocator);
 size_t syscall_LocalFree(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_VirtualAlloc(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_VirtualFree(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_ReadProcessMemory(const void* memory, const void* stack);
+bool syscall_WriteProcessMemory(const void* memory, const void* stack);
 
 // kernel32 - string
 int syscall_MultiByteToWideChar(const void* memory, const void* stack);

@@ -63,11 +63,16 @@ static int dummy_log(const char*, ...)
     return 0;
 }
 
-static char* asctime_from_32bit(time_t t, char* buffer)
+static char* asctime_from_32bit(time_t t, char* buffer, size_t buffer_size)
 {
     struct tm tm;
+#if defined(_WIN32)
+    gmtime_s(&tm, &t);
+    asctime_s(buffer, buffer_size, &tm);
+#else
     gmtime_r(&t, &tm);
     asctime_r(&tm, buffer);
+#endif
     size_t length = strlen(buffer);
     if (length) {
         buffer[length - 1] = 0;
@@ -126,7 +131,7 @@ void* PE::Load(const char* path, uint8_t*(*mmap)(size_t, size_t, void*), void* m
         log("%-12s : %s", "file", name);
         log("%-12s : %s", "f_magic", GetMagic(fileHeader.f_magic));
         log("%-12s : %d", "f_nscns", fileHeader.f_nscns);
-        log("%-12s : %s", "f_timdat", asctime_from_32bit(fileHeader.f_timdat, timestamp));
+        log("%-12s : %s", "f_timdat", asctime_from_32bit(fileHeader.f_timdat, timestamp, sizeof(timestamp)));
         log("%-12s : 0x%08x", "f_symptr", fileHeader.f_symptr);
         log("%-12s : %d", "f_nsyms", fileHeader.f_nsyms);
         log("%-12s : %d", "f_opthdr", fileHeader.f_opthdr);

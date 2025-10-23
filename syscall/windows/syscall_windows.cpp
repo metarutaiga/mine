@@ -54,10 +54,10 @@ static const struct {
     { "InterlockedIncrement",       INT32(1, syscall_InterlockedIncrement(memory, stack))           },
 
     // kernel32 - condition variable
-    { "InitializeConditionVariable",    INT32(1, 0)                                                 },
-    { "SleepConditionVariableCS",       INT32(3, true)                                              },
-    { "WakeAllConditionVariable",       INT32(1, 0)                                                 },
-    { "WakeConditionVariable",          INT32(1, 0)                                                 },
+    { "InitializeConditionVariable",INT32(1, 0)                                                     },
+    { "SleepConditionVariableCS",   INT32(3, true)                                                  },
+    { "WakeAllConditionVariable",   INT32(1, 0)                                                     },
+    { "WakeConditionVariable",      INT32(1, 0)                                                     },
 
     // kernel32 - console
     { "GetConsoleScreenBufferInfo", INT32(2, false)                                                 },
@@ -142,7 +142,8 @@ static const struct {
     { "VirtualAlloc",               INT32(4, syscall_VirtualAlloc(memory, stack, allocator))        },
     { "VirtualFree",                INT32(3, syscall_VirtualFree(memory, stack, allocator))         },
     { "VirtualProtect",             INT32(4, true)                                                  },
-    { "WriteProcessMemory",         INT32(5, syscall_memcpy(memory, stack + 1))                     },
+    { "ReadProcessMemory",          INT32(5, syscall_ReadProcessMemory(memory, stack))              },
+    { "WriteProcessMemory",         INT32(5, syscall_WriteProcessMemory(memory, stack))             },
 
     // kernel32 - profile
     { "GetProfileIntA",             INT32(3, 0)                                                     },
