@@ -418,12 +418,12 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         if (ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             const char* icon_fa_forward_stop = running ? ICON_FA_STOP "##200" : ICON_FA_FORWARD;
             const char* icon_fa_play_stop = running ? ICON_FA_STOP "##201" : ICON_FA_PLAY;
-//          if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();                  } ImGui::SameLine();
-            if (ImGui::Button(icon_fa_forward_stop)){ running = running ? false : 2;                        } ImGui::SameLine();
-            if (ImGui::Button(icon_fa_play_stop))   { running = running ? false : 1;                        } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(htonl('OVER'));    } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(htonl('INTO'));    } ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(htonl('OUT '));    } ImGui::SameLine();
+//          if (ImGui::Button(ICON_FA_FORWARD))     { refresh = true; if (cpu) cpu->Run();                              } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_forward_stop)){ running = running ? false : 2;                                    } ImGui::SameLine();
+            if (ImGui::Button(icon_fa_play_stop))   { running = running ? false : 1;                                    } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_RIGHT)) { refresh = true; if (cpu) cpu->Step(__builtin_bswap32('OVER'));    } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_DOWN))  { refresh = true; if (cpu) cpu->Step(__builtin_bswap32('INTO'));    } ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_ARROW_UP))    { refresh = true; if (cpu) cpu->Step(__builtin_bswap32('OUT '));    } ImGui::SameLine();
             ImGui::Checkbox("Memory", &showMemoryEditor);
             ImGui::InputTextEx("Argument", nullptr, arguments);
             ImGui::Separator();
