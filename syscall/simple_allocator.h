@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <bit>
 #include <vector>
 #include "allocator.h"
@@ -9,6 +10,7 @@ struct simple_allocator : public allocator_t {
     enum { HEAD = 0x80, FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
+    std::array<size_t, 32> blocks;
     size_t peek = 0;
     size_t used = 0;
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
@@ -22,8 +24,11 @@ struct simple_allocator : public allocator_t {
         size_t next_block = power_block;
         if (next_block > 1048576 / MINBLOCK)
             next_block = 1048576 / MINBLOCK;
-        if (hint == SIZE_MAX)
-            hint = power_block * MINBLOCK;
+        if (hint == SIZE_MAX) {
+            hint = blocks[exp] * MINBLOCK;
+            if (hint == 0)
+                hint = power_block * MINBLOCK;
+        }
         size_t pos = hint / MINBLOCK;
         for (size_t next = pos + block, end = status.size(); next <= end; next = pos + block) {
             for (size_t i = pos; i < next; ++i) {
@@ -38,7 +43,8 @@ struct simple_allocator : public allocator_t {
             }
             status[pos] = exp | HEAD;
             memset(status.data() + pos + 1, exp, block - 1);
-            used += block * MINBLOCK;
+            blocks[exp] = next;
+            used += block;
             peek = used > peek ? used : peek;
             return memory.data() + pos * MINBLOCK;
         }
@@ -66,7 +72,8 @@ struct simple_allocator : public allocator_t {
                 break;
             (*it) = FREED;
         }
-        used -= block * MINBLOCK;
+        blocks[exp] = blocks[exp] < pos ? blocks[exp] : pos;
+        used -= block;
     }
     void* address() noexcept override {
         return memory.data();
@@ -99,10 +106,10 @@ struct simple_allocator : public allocator_t {
         return memory.size();
     }
     size_t peek_size() const noexcept override {
-        return peek;
+        return peek * MINBLOCK;
     }
     size_t used_size() const noexcept override {
-        return used;
+        return used * MINBLOCK;
     }
     void callback(void(*function)(allocator_t*, int, void*), void* data) noexcept override {
         

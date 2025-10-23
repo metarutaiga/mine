@@ -403,7 +403,7 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
 
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
-    auto* printf = physical(Printf*, offset_printf);
+    auto* printf = physical(Printf*, offset_printf)->debugPrintf;
     auto* windows = physical(Windows*, TIB_WINDOWS);
     size_t virtual_image = virtual(size_t, image);
 
@@ -414,7 +414,7 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
 
         // MEMORY-SYNC
         auto* memory = cpu->Memory();
-        auto* printf = physical(Printf*, offset_printf);
+        auto* printf = physical(Printf*, offset_printf)->debugPrintf;
         auto* windows = physical(Windows*, TIB_WINDOWS);
         auto* modules = &windows->modules;
 
@@ -430,7 +430,7 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
                 void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
                     mine* cpu = (mine*)userdata;
                     return cpu->Memory(base, size);
-                }, cpu, printf->debugPrintf);
+                }, cpu, printf);
 
                 // MEMORY-SYNC
                 memory = cpu->Memory();
@@ -449,21 +449,20 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
 
                     it = modules->begin() + offset;
                 }
-                printf = physical(Printf*, offset_printf);
             }
         }
         if (it != modules->end()) {
             struct ExportData {
                 size_t address;
                 const char* name;
-                Printf* printf;
+                int(*printf)(const char*, ...);
             } export_data = { .name = name.c_str(), .printf = printf };
             PE::Exports(physical(void*, (*it).second), [](const char* name, size_t address, void* export_data) {
                 auto& data = *(ExportData*)export_data;
                 if (strcmp(data.name, name) == 0) {
                     data.address = address;
-                    if (data.printf->debugPrintf) {
-                        data.printf->debugPrintf("%-12s : [%08zX] %s", "Symbol", address, name);
+                    if (data.printf) {
+                        data.printf("%-12s : [%08zX] %s", "Symbol", address, name);
                     }
                 }
             }, &export_data);
@@ -477,7 +476,7 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
     PE::Imports(image, [](size_t base, size_t size, void* userdata) {
         mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
-    }, cpu, Import, cpu, printf->debugPrintf);
+    }, cpu, Import, cpu, printf);
 
     // MEMORY-SYNC
     memory = cpu->Memory();
