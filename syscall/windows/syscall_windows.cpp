@@ -75,15 +75,17 @@ static const struct {
 
     // kernel32 - directory
     { "GetCurrentDirectoryA",       INT32(2, syscall_GetCurrentDirectoryA(memory, stack))           },
+    { "GetCurrentDirectoryW",       INT32(2, syscall_GetCurrentDirectoryW(memory, stack))           },
     { "SetCurrentDirectoryA",       INT32(1, syscall_SetCurrentDirectoryA(memory, stack))           },
+    { "SetCurrentDirectoryW",       INT32(1, syscall_SetCurrentDirectoryW(memory, stack))           },
 
     // kernel32 - environment
-    { "FreeEnvironmentStringsA",    INT32(1, syscall_FreeEnvironmentStringsA(memory, stack, allocator)) },
-    { "FreeEnvironmentStringsW",    INT32(1, syscall_FreeEnvironmentStringsW(memory, stack, allocator)) },
-    { "GetEnvironmentStrings",      INT32(0, syscall_GetEnvironmentStrings(allocator))              },
-    { "GetEnvironmentStringsW",     INT32(0, syscall_GetEnvironmentStringsW(allocator))             },
-    { "GetEnvironmentVariableA",    INT32(3, syscall_GetEnvironmentVariableA(stack, allocator))     },
-    { "GetEnvironmentVariableW",    INT32(3, syscall_GetEnvironmentVariableW(stack, allocator))     },
+    { "FreeEnvironmentStringsA",    INT32(1, 0)                                                     },
+    { "FreeEnvironmentStringsW",    INT32(1, 0)                                                     },
+    { "GetEnvironmentStrings",      INT32(0, offset_empty)                                          },
+    { "GetEnvironmentStringsW",     INT32(0, offset_empty)                                          },
+    { "GetEnvironmentVariableA",    INT32(3, offset_empty)                                          },
+    { "GetEnvironmentVariableW",    INT32(3, offset_empty)                                          },
 
     // kernel32 - exception
     { "IsDebuggerPresent",          INT32(0, false)                                                 },
@@ -370,9 +372,10 @@ size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
         windows->debugModule = syscall_windows->debugModule;
         new (windows) Windows;
     }
-    static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
     static_assert(TIB_WINDOWS + offsetof(Windows, commandLineA) == offset_commandLineA);
     static_assert(TIB_WINDOWS + offsetof(Windows, commandLineW) == offset_commandLineW);
+    static_assert(TIB_WINDOWS + offsetof(Windows, directory) == offset_directory);
+    static_assert(TIB_WINDOWS + offsetof(Windows, empty) == offset_empty);
 
     return 0;
 }

@@ -106,96 +106,70 @@ uint32_t syscall_InterlockedIncrement(uint8_t* memory, const uint32_t* stack)
 
 // Directory
 
+static uint32_t syscall_GetCurrentDirectory(uint8_t* memory, uint32_t nBufferLength, char* lpBuffer, int nWidth)
+{
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
+    for (uint32_t i = 0; i < nBufferLength; ++i) {
+        char c = windows->directory[i];
+        (*lpBuffer++) = c;
+        for (int i = 1; i < nWidth; ++i) {
+            (*lpBuffer++) = 0;
+        }
+        if (c == 0) {
+            return i;
+        }
+    }
+
+    return nBufferLength;
+}
+
 uint32_t syscall_GetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 {
     auto nBufferLength = stack[1];
     auto lpBuffer = physical(char*, stack[2]);
+    return syscall_GetCurrentDirectory(memory, nBufferLength, lpBuffer, sizeof(char));
+}
 
+uint32_t syscall_GetCurrentDirectoryW(uint8_t* memory, const uint32_t* stack)
+{
+    auto nBufferLength = stack[1];
+    auto lpBuffer = physical(char*, stack[2]);
+    return syscall_GetCurrentDirectory(memory, nBufferLength, lpBuffer, sizeof(char16_t));
+}
+
+static bool syscall_SetCurrentDirectory(uint8_t* memory, char* lpPathName, int nWidth)
+{
     auto* windows = physical(Windows*, TIB_WINDOWS);
-    strncpy(lpBuffer, windows->directory, nBufferLength);
 
-    return uint32_t(strlen(lpBuffer));
+    for (int i = 0; i < 260; ++i) {
+        char c = lpPathName[i * nWidth];
+#ifndef _WIN32
+        if (c == '/')
+            c = '\\';
+#endif
+        windows->directory[i] = c;
+        if (c == 0)
+            break;
+    }
+
+    auto* printf = physical(Printf*, offset_printf);
+    if (printf->debugPrintf) {
+        printf->debugPrintf("[CALL] %s -> %s", "SetCurrentDirectory", windows->directory);
+    }
+    return true;
 }
 
 bool syscall_SetCurrentDirectoryA(uint8_t* memory, const uint32_t* stack)
 {
     char* lpPathName = physical(char*, stack[1]);
-
-    auto* windows = physical(Windows*, TIB_WINDOWS);
-    strncpy(windows->directory, lpPathName, 260);
-
-#ifndef _WIN32
-    for (char& c : windows->directory) {
-        if (c == '/')
-            c = '\\';
-    }
-#endif
-
-    auto* printf = physical(Printf*, offset_printf);
-    if (printf->debugPrintf) {
-        printf->debugPrintf("[CALL] %s -> %s", "SetCurrentDirectoryA", windows->directory);
-    }
-    return true;
+    return syscall_SetCurrentDirectory(memory, lpPathName, sizeof(char));
 }
 
-// Environment
-
-bool syscall_FreeEnvironmentStringsA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+bool syscall_SetCurrentDirectoryW(uint8_t* memory, const uint32_t* stack)
 {
-    auto penv = physical(char*, stack[1]);
-    allocator->deallocate(penv);
-    return true;
-}
-
-bool syscall_FreeEnvironmentStringsW(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
-{
-    auto penv = physical(char16_t*, stack[1]);
-    allocator->deallocate(penv);
-    return true;
-}
-
-size_t syscall_GetEnvironmentStrings(struct allocator_t* allocator)
-{
-    char* empty = (char*)allocator->allocate(sizeof(char) * 2);
-    if (empty == nullptr)
-        return 0;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    empty[0] = 0;
-    return virtual(size_t, empty);
-}
-
-size_t syscall_GetEnvironmentStringsW(struct allocator_t* allocator)
-{
-    char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
-    if (empty == nullptr)
-        return 0;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    empty[0] = 0;
-    return virtual(size_t, empty);
-}
-
-size_t syscall_GetEnvironmentVariableA(const uint32_t* stack, struct allocator_t* allocator)
-{
-    char* empty = (char*)allocator->allocate(sizeof(char) * 2);
-    if (empty == nullptr)
-        return 0;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    empty[0] = 0;
-    return virtual(size_t, empty);
-}
-
-size_t syscall_GetEnvironmentVariableW(const uint32_t* stack, struct allocator_t* allocator)
-{
-    char16_t* empty = (char16_t*)allocator->allocate(sizeof(char16_t) * 2);
-    if (empty == nullptr)
-        return 0;
-    uint8_t* memory = (uint8_t*)allocator->address();
-
-    empty[0] = 0;
-    return virtual(size_t, empty);
+    char* lpPathName = physical(char*, stack[1]);
+    return syscall_SetCurrentDirectory(memory, lpPathName, sizeof(char16_t));
 }
 
 // File
@@ -206,6 +180,7 @@ bool syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocato
     if (hObject && *hObject) {
         fclose(*hObject);
 
+        // FILE-RECORD
         auto& record = *physical(std::vector<FILE*>*, offset_file);
         for (FILE*& file : record) {
             if (file == (*hObject)) {
@@ -282,6 +257,7 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
         return SYSCALL_INVALID_HANDLE_VALUE;
     }
 
+    // FILE-RECORD
     auto& record = *physical(std::vector<FILE*>*, offset_file);
     record.push_back(*handle);
 
@@ -310,9 +286,9 @@ uint32_t syscall_GetFileSize(uint8_t* memory, const uint32_t* stack)
     long size = ftell(file);
     fseek(file, pos, SEEK_SET);
 
-    if (lpFileSizeHigh)
+    if (lpFileSizeHigh) {
         (*lpFileSizeHigh) = uint32_t(size >> 32);
-
+    }
     return uint32_t(size);
 }
 

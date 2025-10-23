@@ -11,6 +11,7 @@
 #define offset_commandLineA     0x200
 #define offset_commandLineW     0x300
 #define offset_directory        0x500
+#define offset_empty            0x708
 
 struct Printf {
     int(*printf)(const char*, ...);

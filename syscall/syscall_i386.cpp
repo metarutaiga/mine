@@ -93,6 +93,7 @@ size_t syscall_i386_delete(void* data)
     auto* cpu = (x86_i386*)data;
     auto* memory = cpu->Memory();
 
+    // FILE-RECORD
     auto& record = *physical(std::vector<FILE*>*, offset_file);
     for (FILE*& file : record) {
         fclose(file);

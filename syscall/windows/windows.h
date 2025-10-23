@@ -19,8 +19,9 @@ struct Windows {
     char commandLineA[256];
     char16_t commandLineW[256];
     char directory[260];
-    uint32_t image;
     char imageDirectory[260];
+    char empty[8];
+    uint32_t image;
     std::vector<std::pair<std::string, uint32_t>> modules;
     uint32_t tls[64];
     uint32_t tlsIndex;
@@ -29,14 +30,14 @@ struct Windows {
 };
 
 struct SystemInfo {
-    uint32_t    dwOemId;
-    uint32_t    dwPageSize;
-    uint32_t    lpMinimumApplicationAddress;
-    uint32_t    lpMaximumApplicationAddress;
-    uint32_t    dwActiveProcessorMask;
-    uint32_t    dwNumberOfProcessors;
-    uint32_t    dwProcessorType;
-    uint32_t    dwAllocationGranularity;
-    uint16_t    wProcessorLevel;
-    uint16_t    wProcessorRevision;
+    uint32_t dwOemId;
+    uint32_t dwPageSize;
+    uint32_t lpMinimumApplicationAddress;
+    uint32_t lpMaximumApplicationAddress;
+    uint32_t dwActiveProcessorMask;
+    uint32_t dwNumberOfProcessors;
+    uint32_t dwProcessorType;
+    uint32_t dwAllocationGranularity;
+    uint16_t wProcessorLevel;
+    uint16_t wProcessorRevision;
 };

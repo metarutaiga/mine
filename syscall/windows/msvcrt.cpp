@@ -37,10 +37,10 @@ size_t syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
 int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pFile = physical(uint32_t*, stack[1]);
-    if (pFile) {
-        (*pFile) = uint32_t(syscall_fopen(stack + 1, allocator));
-    }
-    if (pFile == nullptr || (*pFile) == 0)
+    if (pFile == nullptr)
+        return -1;
+    (*pFile) = uint32_t(syscall_fopen(stack + 1, allocator));
+    if ((*pFile) == 0)
         return -1;
     return 0;
 }
@@ -50,7 +50,7 @@ size_t syscall_memcpy_s(char* memory, const uint32_t* stack)
     auto destination = physical(char*, stack[1]);
     auto source = physical(char*, stack[3]);
     auto num = stack[4];
-    memcpy(destination, source, num);
+    memmove(destination, source, num);
     return 0;
 }
 
@@ -306,9 +306,9 @@ int syscall__fpclass(const uint32_t* stack)
     auto _FPCLASS_PINF = 0x0200;
     if (__builtin_isnan(x))         return __builtin_issignaling(x) ? _FPCLASS_SNAN : _FPCLASS_QNAN;
     if (__builtin_isinf(x))         return __builtin_signbit(x)     ? _FPCLASS_NINF : _FPCLASS_PINF;
-    if (__builtin_iszero(x))        return __builtin_signbit(x)     ? _FPCLASS_NZ : _FPCLASS_PZ;
-    if (__builtin_isnormal(x))      return __builtin_signbit(x)     ? _FPCLASS_NN : _FPCLASS_PN;
-    if (__builtin_issubnormal(x))   return __builtin_signbit(x)     ? _FPCLASS_ND : _FPCLASS_PD;
+    if (__builtin_iszero(x))        return __builtin_signbit(x)     ? _FPCLASS_NZ   : _FPCLASS_PZ;
+    if (__builtin_isnormal(x))      return __builtin_signbit(x)     ? _FPCLASS_NN   : _FPCLASS_PN;
+    if (__builtin_issubnormal(x))   return __builtin_signbit(x)     ? _FPCLASS_ND   : _FPCLASS_PD;
     return 0;
 }
 

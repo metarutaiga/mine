@@ -36,15 +36,9 @@ uint32_t syscall_InterlockedIncrement(const void* memory, const void* stack);
 
 // kernel32 - directory
 uint32_t syscall_GetCurrentDirectoryA(const void* memory, const void* stack);
+uint32_t syscall_GetCurrentDirectoryW(const void* memory, const void* stack);
 bool syscall_SetCurrentDirectoryA(const void* memory, const void* stack);
-
-// kernel32 - environment
-bool syscall_FreeEnvironmentStringsA(const void* memory, const void* stack, struct allocator_t* allocator);
-bool syscall_FreeEnvironmentStringsW(const void* memory, const void* stack, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentStrings(struct allocator_t* allocator);
-size_t syscall_GetEnvironmentStringsW(struct allocator_t* allocator);
-size_t syscall_GetEnvironmentVariableA(const void* stack, struct allocator_t* allocator);
-size_t syscall_GetEnvironmentVariableW(const void* stack, struct allocator_t* allocator);
+bool syscall_SetCurrentDirectoryW(const void* memory, const void* stack);
 
 // kernel32 - file
 bool syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);

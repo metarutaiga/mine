@@ -25,6 +25,7 @@ int syscall_fclose(char* memory, const uint32_t* stack, struct allocator_t* allo
     auto stream = physical(FILE**, stack[1]);
     auto result = fclose(*stream);
 
+    // FILE-RECORD
     auto& record = *physical(std::vector<FILE*>*, offset_file);
     for (FILE*& file : record) {
         if (file == (*stream)) {
@@ -121,6 +122,7 @@ size_t syscall_fopen(const uint32_t* stack, struct allocator_t* allocator)
         return 0;
     }
 
+    // FILE-RECORD
     auto& record = *physical(std::vector<FILE*>*, offset_file);
     record.push_back(*stream);
 
