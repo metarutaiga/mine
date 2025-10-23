@@ -79,8 +79,8 @@ bool x86_i86::Initialize(allocator_t* allocator, size_t stack)
 //------------------------------------------------------------------------------
 bool x86_i86::Step(int count)
 {
-    auto& mmx = *(mmx_register*)Register('mmx ');
-    auto& sse = *(sse_register*)Register('sse ');
+    auto& mmx = *(mmx_register*)Register(htonl('immx'));
+    auto& sse = *(sse_register*)Register(htonl('isse'));
 
     auto ip_over = IP;
     auto ip = IP;
@@ -112,13 +112,13 @@ bool x86_i86::Step(int count)
                 return false;
         }
         switch (count) {
-        case 'INTO':
+        case htonl('INTO'):
             return true;
-        case 'OVER':
+        case htonl('OVER'):
             if (SP >= sp || IP - ip_over < 16)
                 return true;
             break;
-        case 'OUT ':
+        case htonl('OUT '):
             if (strcmp(format.instruction, "RET") == 0)
                 return true;
             break;
@@ -144,9 +144,9 @@ bool x86_i86::Jump(size_t address)
 const void* x86_i86::Register(int type) const
 {
     switch (type) {
-    case 'x86 ':
+    case htonl('ix86'):
         return &x86;
-    case 'x87 ':
+    case htonl('ix87'):
         return &x87;
     }
     return nullptr;
@@ -246,8 +246,8 @@ std::string x86_i86::Disassemble(int count) const
     x86.memory_address = memory_address;
 
     auto& x87 = x86.x87;
-    auto& mmx = *(mmx_register*)x86.Register('mmx ');
-    auto& sse = *(sse_register*)x86.Register('sse ');
+    auto& mmx = *(mmx_register*)x86.Register(htonl('immx'));
+    auto& sse = *(sse_register*)x86.Register(htonl('isse'));
 
     for (int i = 0; i < count; ++i) {
         char temp[64];

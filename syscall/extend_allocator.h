@@ -16,7 +16,7 @@ struct extend_allocator : public simple_allocator<MINBLOCK> {
             this->memory.resize(this->memory.size() * 2, 0);
             this->status.resize(this->status.size() * 2, this->FREED);
             if (callback_function) {
-                callback_function(this, 'SYNC', callback_data);
+                callback_function(this, htonl('SYNC'), callback_data);
             }
         }
         return nullptr;

@@ -172,13 +172,13 @@ bool x86_i686::Initialize(allocator_t* allocator, size_t stack)
 const void* x86_i686::Register(int type) const
 {
     switch (type) {
-    case 'x86 ':
+    case htonl('ix86'):
         return &x86;
-    case 'x87 ':
+    case htonl('ix87'):
         return &x87;
-    case 'mmx ':
+    case htonl('immx'):
         return &mmx;
-    case 'sse ':
+    case htonl('isse'):
         return &sse;
     }
     return nullptr;

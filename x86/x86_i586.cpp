@@ -95,11 +95,11 @@ const x86_instruction::instruction_pointer x86_i586::groupA[4][8] =
 const void* x86_i586::Register(int type) const
 {
     switch (type) {
-    case 'x86 ':
+    case htonl('ix86'):
         return &x86;
-    case 'x87 ':
+    case htonl('ix87'):
         return &x87;
-    case 'mmx ':
+    case htonl('immx'):
         return &mmx;
     }
     return nullptr;

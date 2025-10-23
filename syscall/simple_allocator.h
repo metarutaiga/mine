@@ -10,7 +10,7 @@ struct simple_allocator : public allocator_t {
     enum { HEAD = 0x80, FREED = 0xFF };
     std::vector<uint8_t> memory;
     std::vector<uint8_t> status;
-    std::array<size_t, 32> blocks;
+    std::array<size_t, sizeof(size_t) * 8> hints;
     size_t peek = 0;
     size_t used = 0;
     void* allocate(size_t size, size_t hint = SIZE_MAX) noexcept override {
@@ -25,7 +25,7 @@ struct simple_allocator : public allocator_t {
         if (next_block > 1048576 / MINBLOCK)
             next_block = 1048576 / MINBLOCK;
         if (hint == SIZE_MAX) {
-            hint = blocks[exp] * MINBLOCK;
+            hint = hints[exp] * MINBLOCK;
             if (hint == 0)
                 hint = power_block * MINBLOCK;
         }
@@ -43,7 +43,7 @@ struct simple_allocator : public allocator_t {
             }
             status[pos] = exp | HEAD;
             memset(status.data() + pos + 1, exp, block - 1);
-            blocks[exp] = next;
+            hints[exp] = next;
             used += block;
             peek = used > peek ? used : peek;
             return memory.data() + pos * MINBLOCK;
@@ -72,7 +72,7 @@ struct simple_allocator : public allocator_t {
                 break;
             (*it) = FREED;
         }
-        blocks[exp] = blocks[exp] < pos ? blocks[exp] : pos;
+        hints[exp] = hints[exp] < pos ? hints[exp] : pos;
         used -= block;
     }
     void* address() noexcept override {
