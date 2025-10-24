@@ -342,6 +342,7 @@ void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
     case 0xE9:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_SIZE);               break;
+    case 0xEA:  Decode(format, opcode, "JMP", 3, OPERAND_SIZE | RELATIVE | IMM_SIZE);               break;
     case 0xEB:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_8BIT);               break;
     case 0xFF:
         switch (opcode[1] & 0b00111000) {
@@ -424,14 +425,10 @@ void x86_instruction::MOV(Format& format, const uint8_t* opcode)
     case 0x89:
     case 0x8A:
     case 0x8B:  Decode(format, opcode, "MOV", 1, opcode[0] & 0b11);         break;
-    case 0x8C:  Decode(format, opcode, "MOV", 1, opcode[0] & 0b11);
-                format.operand[1].type = Format::Operand::IMM;
-                format.operand[1].displacement = 0;
-                break;
-//  case 0x8E:  Decode(format, opcode, "MOV", 1, opcode[0] & 0b11);
-//              format.operand[0].type = Format::Operand::IMM;
-//              format.operand[0].displacement = 0;
-//              break;
+    case 0x8C:  Decode(format, opcode, "MOV", 1, (opcode[0] & 0b11) | OPERAND_SIZE);
+                format.operand[1].type = Format::Operand::SEG;              break;
+    case 0x8E:  Decode(format, opcode, "MOV", 1, (opcode[0] & 0b11) | OPERAND_SIZE);
+                format.operand[0].type = Format::Operand::SEG;              break;
     case 0xA0:
     case 0xA1:  Decode(format, opcode, "MOV", 1, (opcode[0] & 0b01) | INDIRECT | IMM_SIZE);
                 format.operand[1] = format.operand[0];
@@ -512,6 +509,24 @@ void x86_instruction::NOP(Format& format, const uint8_t* opcode)
 void x86_instruction::POP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
+    case 0x07:
+//  case 0x0F:
+    case 0x17:
+    case 0x1F:
+    case 0x0F:  format.instruction = "POP";
+                format.operand[0].type = Format::Operand::SEG;
+                switch (opcode[0]) {
+                case 0x07:  format.operand[0].base = IndexES;   break;
+//              case 0x0F:  format.operand[0].base = IndexCS;   break;
+                case 0x17:  format.operand[0].base = IndexSS;   break;
+                case 0x1F:  format.operand[0].base = IndexDS;   break;
+                case 0x0F:  switch (opcode[1]) {
+                            case 0xA1:  format.operand[0].base = IndexFS;   break;
+                            case 0xA9:  format.operand[0].base = IndexGS;   break;
+                            }
+                            break;
+                }
+                break;
     case 0x58:
     case 0x59:
     case 0x5A:
@@ -588,6 +603,24 @@ void x86_instruction::POPFD(Format& format, const uint8_t* opcode)
 void x86_instruction::PUSH(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
+    case 0x06:
+    case 0x0E:
+    case 0x16:
+    case 0x1E:
+    case 0x0F:  format.instruction = "PUSH";
+                format.operand[0].type = Format::Operand::SEG;
+                switch (opcode[0]) {
+                case 0x06:  format.operand[0].base = IndexES;   break;
+                case 0x0E:  format.operand[0].base = IndexCS;   break;
+                case 0x16:  format.operand[0].base = IndexSS;   break;
+                case 0x1E:  format.operand[0].base = IndexDS;   break;
+                case 0x0F:  switch (opcode[1]) {
+                            case 0xA0:  format.operand[0].base = IndexFS;   break;
+                            case 0xA8:  format.operand[0].base = IndexGS;   break;
+                            }
+                            break;
+                }
+                break;
     case 0x50:
     case 0x51:
     case 0x52:

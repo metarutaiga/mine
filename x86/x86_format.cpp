@@ -18,6 +18,7 @@ const char* const x86_format::REG8[8] = { "AL", "CL", "DL", "BL", "SPL", "BPL", 
 const char* const x86_format::REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
 const char* const x86_format::REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
 const char* const x86_format::REG64[8] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI" };
+const char* const x86_format::SEG[8] = { "ES", "CS", "SS", "DS", "FS", "GS", "??", "??" };
 //------------------------------------------------------------------------------
 void x86_format::Decode(Format& format, const uint8_t* opcode, const char* instruction, int offset, int flags)
 {
@@ -268,6 +269,20 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
         }
 
         switch (operand.type) {
+        case Format::Operand::IMM:
+            switch (width) {
+            case 8:  disasm += hex(uint8_t(operand.displacement), false);  break;
+            case 16: disasm += hex(uint16_t(operand.displacement), false); break;
+            case 32: disasm += hex(uint32_t(operand.displacement), false); break;
+            }
+            continue;
+        case Format::Operand::REL:
+#if HAVE_X64
+            disasm += hex(x86.ip.q + operand.displacement, false);
+#else
+            disasm += hex(x86.ip.d + operand.displacement, false);
+#endif
+            continue;
         case Format::Operand::ADR:
             switch (width) {
             case 8:   disasm += "BYTE PTR";    break;
@@ -316,13 +331,6 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
                 disasm += '0';
             disasm += ']';
             continue;
-        case Format::Operand::IMM:
-            switch (width) {
-            case 8:  disasm += hex(uint8_t(operand.displacement), false);  break;
-            case 16: disasm += hex(uint16_t(operand.displacement), false); break;
-            case 32: disasm += hex(uint32_t(operand.displacement), false); break;
-            }
-            continue;
         case Format::Operand::REG:
 #if HAVE_X64
             if (width == 8 && format.address > 32) width = -8;
@@ -339,12 +347,8 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
 #endif
             }
             continue;
-        case Format::Operand::REL:
-#if HAVE_X64
-            disasm += hex(x86.ip.q + operand.displacement, false);
-#else
-            disasm += hex(x86.ip.d + operand.displacement, false);
-#endif
+        case Format::Operand::SEG:
+            disasm += SEG[operand.base];
             continue;
         case Format::Operand::X87:
             if (operand.base >= 0) {
@@ -430,6 +434,9 @@ void x86_format::Fixup(Format& format, x86_register& x86, x87_register& x87, mmx
                 break;
             }
             operand.memory = &x86.regs[operand.base].l;
+            break;
+        case Format::Operand::SEG:
+            operand.memory = (uint8_t*)&operand.address;
             break;
         case Format::Operand::X87:
             operand.memory = (uint8_t*)&ST(operand.base);

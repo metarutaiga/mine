@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 
+#define HAVE_BCD 0
 #define HAVE_X64 0
 
 struct x86_register;
@@ -16,7 +17,7 @@ struct x86_format
     {
         struct Operand
         {
-            enum Type { IMM, REL, ADR, REG, X87, MMX, SSE };
+            enum Type { IMM, REL, ADR, REG, SEG, X87, MMX, SSE };
             Type type;
 
             enum Flag : int8_t { NONE = 0, BIT8 = 1, BIT16 = 2, BIT32 = 3, HIDE = 4 };
@@ -77,4 +78,5 @@ struct x86_format
     static const char* const REG16[8];
     static const char* const REG32[8];
     static const char* const REG64[8];
+    static const char* const SEG[8];
 };

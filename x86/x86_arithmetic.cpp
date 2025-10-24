@@ -14,7 +14,8 @@ void x86_instruction::ADC(Format& format, const uint8_t* opcode)
     case 0x14:
     case 0x15:  Decode(format, opcode, "ADC", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "ADC", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x81:
+    case 0x82:  Decode(format, opcode, "ADC", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x83:  Decode(format, opcode, "ADC", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
@@ -33,7 +34,8 @@ void x86_instruction::ADD(Format& format, const uint8_t* opcode)
     case 0x04:
     case 0x05:  Decode(format, opcode, "ADD", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "ADD", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x81:
+    case 0x82:  Decode(format, opcode, "ADD", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x83:  Decode(format, opcode, "ADD", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
@@ -52,7 +54,8 @@ void x86_instruction::CMP(Format& format, const uint8_t* opcode)
     case 0x3C:
     case 0x3D:  Decode(format, opcode, "CMP", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "CMP", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x81:
+    case 0x82:  Decode(format, opcode, "CMP", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x83:  Decode(format, opcode, "CMP", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
@@ -292,7 +295,8 @@ void x86_instruction::SBB(Format& format, const uint8_t* opcode)
     case 0x1C:
     case 0x1D:  Decode(format, opcode, "SBB", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "SBB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x81:
+    case 0x82:  Decode(format, opcode, "SBB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x83:  Decode(format, opcode, "SBB", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 
@@ -311,7 +315,8 @@ void x86_instruction::SUB(Format& format, const uint8_t* opcode)
     case 0x2C:
     case 0x2D:  Decode(format, opcode, "SUB", 0, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x80:
-    case 0x81:  Decode(format, opcode, "SUB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
+    case 0x81:
+    case 0x82:  Decode(format, opcode, "SUB", 1, (opcode[0] & 0b01) | IMM_SIZE);    break;
     case 0x83:  Decode(format, opcode, "SUB", 1, (opcode[0] & 0b01) | IMM_8BIT);    break;
     }
 

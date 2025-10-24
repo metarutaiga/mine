@@ -312,7 +312,11 @@ __declspec(dllexport) void mov()
             "mov ecx, 0x11223344\n"
             "mov byte ptr [ecx*4+edx+0x55667788], 0x11\n"
             "mov word ptr [ecx*4+edx+0x55667788], 0x1122\n"
-            "mov dword ptr [ecx*4+edx+0x55667788], 0x11223344\n");
+            "mov dword ptr [ecx*4+edx+0x55667788], 0x11223344\n"
+            "mov es, cx\n"
+            "mov cs, edx\n"
+            "mov cx, ss\n"
+            "mov edx, ds\n");
 }
 
 __declspec(dllexport) void movsb_movsw_movsd()

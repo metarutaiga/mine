@@ -67,3 +67,31 @@ static auto specialize(auto lambda) {
 #define END_OPERATION_SIGNED END_OPERATION_RANGE_SIGNED(8, 32)
 #endif
 //------------------------------------------------------------------------------
+#if HAVE_BCD == 0
+#define AAA _
+#define AAD _
+#define AAM _
+#define AAS _
+#define DAA _
+#define DAS _
+#endif
+//------------------------------------------------------------------------------
+#define BOUND _
+#define ARPL _
+#define INS _
+#define OUTS _
+#define MOVB _
+#define CALLF _
+#define LDS _
+#define LES _
+#define RETF _
+#define INT3 _
+#define INT _
+#define INTO _
+#define IRET _
+#define IN _
+#define OUT _
+#define HLT _
+#define CLI _
+#define STI _
+//------------------------------------------------------------------------------

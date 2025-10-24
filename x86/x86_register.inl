@@ -49,6 +49,12 @@
 namespace internal { static x86_register x86; };
 //------------------------------------------------------------------------------
 #define IndexREG(reg)   ((int)((& internal :: reg - & internal :: EAX) / (& internal :: ECX - & internal :: EAX)))
+#define IndexES         0
+#define IndexCS         1
+#define IndexSS         2
+#define IndexDS         3
+#define IndexFS         4
+#define IndexGS         5
 //------------------------------------------------------------------------------
 #define _____C  0b000001
 #define ____P_  0b000010

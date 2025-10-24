@@ -3,6 +3,8 @@
 #include "x86_instruction.h"
 #include "x86_instruction.inl"
 
+#if HAVE_BCD
+
 //------------------------------------------------------------------------------
 void x86_instruction::AAA(Format& format, const uint8_t* opcode)
 {
@@ -116,3 +118,5 @@ void x86_instruction::DAS(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
+
+#endif
