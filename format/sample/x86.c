@@ -392,7 +392,8 @@ __declspec(dllexport) void pop()
             "pop word ptr [ecx*4+edx+0x55667788]\n"
             "pop dword ptr [ecx*4+edx+0x55667788]\n"
             "pop cx\n"
-            "pop ecx\n");
+            "pop ecx\n"
+            "pop ss\n");
 }
 
 __declspec(dllexport) void popa_popf()
@@ -408,6 +409,7 @@ __declspec(dllexport) void push()
             "push dword ptr [ecx*4+edx+0x55667788]\n"
             "push cx\n"
             "push ecx\n"
+            "push ss\n"
             "push 0x11\n"
             "push 0x11223344\n");
 }

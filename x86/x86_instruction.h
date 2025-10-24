@@ -51,7 +51,7 @@ struct x86_instruction : public x86_format
     static instruction IMUL;        // Signed Multiply
 //  static instruction IN;          // Input from Port
     static instruction INC;         // Increment by 1
-//  static instruction INT;         // Call to Interrupt Procedure
+    static instruction INT;         // Call to Interrupt Procedure
 //  static instruction IRET;        // Interrupt Return
     static instruction Jcc;         // Jump if Condition is Met
     static instruction JCXZ;        // Jump if CX Register is 0

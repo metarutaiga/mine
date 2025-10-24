@@ -236,6 +236,31 @@ void x86_instruction::ENTER(Format& format, const uint8_t* opcode)
     };
 }
 //------------------------------------------------------------------------------
+void x86_instruction::INT(Format& format, const uint8_t* opcode)
+{
+    switch (opcode[0]) {
+    case 0xCC:
+        format.instruction = "INT";
+        format.operand_count = 1;
+        format.operand[0].type = Format::Operand::IMM;
+        format.operand[0].displacement = 3;
+        break;
+    case 0xCD:
+        format.instruction = "INT";
+        format.length = 2;
+        format.operand_count = 1;
+        format.operand[0].type = Format::Operand::IMM;
+        format.operand[0].displacement = IMM8(opcode, 1);
+        break;
+    case 0xCE:
+        format.instruction = "INTO";
+        format.operand_count = 0;
+        break;
+    }
+
+    OPERATION() {};
+}
+//------------------------------------------------------------------------------
 void x86_instruction::Jcc(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {

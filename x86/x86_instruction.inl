@@ -85,9 +85,6 @@ static auto specialize(auto lambda) {
 #define LDS _
 #define LES _
 #define RETF _
-#define INT3 _
-#define INT _
-#define INTO _
 #define IRET _
 #define IN _
 #define OUT _

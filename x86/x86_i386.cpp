@@ -38,7 +38,7 @@ const x86_instruction::instruction_pointer x86_i386::one[256] =
 /* 9 */ x NOP    x XCHG  x XCHG  x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CBW   x CWD   x CALLF x WAIT  x PUSHFD x POPFD x SAHF  x LAHF
 /* A */ x MOV    x MOV   x MOV   x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx  x LODSx x SCASx x SCASx
 /* B */ x MOV    x MOV   x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
-/* C */ x grp2   x grp2  x RET   x RET  x LES   x LDS   x MOV   x MOV   x ENTER x LEAVE x RETF  x RETF  x INT3   x INT   x INTO  x IRET
+/* C */ x grp2   x grp2  x RET   x RET  x LES   x LDS   x MOV   x MOV   x ENTER x LEAVE x RETF  x RETF  x INT    x INT   x INT   x IRET
 /* D */ x grp2   x grp2  x grp2  x grp2 x AAM   x AAD   x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
 /* E */ x LOOP   x LOOP  x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMP   x JMP   x IN     x IN    x OUT   x OUT
 /* F */ x LOCK   x _     x REPNE x REPE x HLT   x CMC   x grp3  x grp3  x CLC   x STC   x CLI   x STI   x CLD    x STD   x grp4  x grp5
