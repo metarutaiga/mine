@@ -15,6 +15,9 @@ public:
     x86_ia32(void(*step)(x86_i386&, Format&) = StepImplement) : x86_i686(step) {}
 
 protected:
+    bool Initialize(allocator_t* allocator, size_t stack) override;
+
+protected:
     static void StepImplement(x86_i386& x86, Format& format);
 
 protected:

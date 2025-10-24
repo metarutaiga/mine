@@ -53,4 +53,5 @@ struct sse_register
     };
     register_t regs[8] = {};
     control_t mxcsr = {};
+    uint8_t version = 0;
 };

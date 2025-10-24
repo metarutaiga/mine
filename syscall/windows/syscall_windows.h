@@ -96,6 +96,7 @@ int syscall_GetStartupInfoW(const void* memory, const void* stack);
 int syscall_GetVersion();
 bool syscall_GetVersionExA(const void* memory, const void* stack);
 bool syscall_InitOnceExecuteOnce(const void* memory, const void* stack, void* cpu);
+bool syscall_IsProcessorFeaturePresent(const void* stack, void* cpu);
 int syscall_OutputDebugStringA(const void* memory, const void* stack);
 
 // kernel32 - time

@@ -195,7 +195,7 @@ static const struct {
     { "GetVersion",                 INT32(0, syscall_GetVersion())                                  },
     { "GetVersionExA",              INT32(1, syscall_GetVersionExA(memory, stack))                  },
     { "InitOnceExecuteOnce",        INT32(4, syscall_InitOnceExecuteOnce(memory, stack, cpu))       },
-    { "IsProcessorFeaturePresent",  INT32(1, false)                                                 },
+    { "IsProcessorFeaturePresent",  INT32(1, syscall_IsProcessorFeaturePresent(stack, cpu))         },
     { "OutputDebugStringA",         INT32(1, syscall_OutputDebugStringA(memory, stack))             },
     { "SetLastError",               INT32(1, 0)                                                     },
     { "TerminateProcess",           INT32(2, syscall_exit(stack + 1))                               },

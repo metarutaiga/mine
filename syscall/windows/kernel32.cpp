@@ -8,6 +8,8 @@
 #include "../../x86/x86_i386.h"
 #include "../../x86/x86_register.inl"
 #include "../../x86/x86_instruction.inl"
+#include "../../x86/mmx_register.h"
+#include "../../x86/sse_register.h"
 #include "windows.h"
 
 #if defined(_WIN32)
@@ -1099,6 +1101,30 @@ bool syscall_InitOnceExecuteOnce(uint8_t* memory, const uint32_t* stack, x86_i38
     Push32(InitFn);
 
     return true;
+}
+
+bool syscall_IsProcessorFeaturePresent(const uint32_t* stack, x86_i386* cpu)
+{
+    auto* mmx = (mmx_register*)cpu->Register(__builtin_bswap32('immx'));
+    auto* sse = (sse_register*)cpu->Register(__builtin_bswap32('isse'));
+
+    switch (stack[1]) {
+    case 2:     return mmx != nullptr;              // PF_COMPARE_EXCHANGE_DOUBLE
+    case 3:     return mmx != nullptr;              // PF_MMX_INSTRUCTIONS_AVAILABLE
+    case 6:     return sse != nullptr;              // PF_XMMI_INSTRUCTIONS_AVAILABLE
+    case 8:     return mmx != nullptr;              // PF_RDTSC_INSTRUCTION_AVAILABLE
+    case 10:    return sse && sse->version >= 0x20; // PF_XMMI64_INSTRUCTIONS_AVAILABLE
+    case 13:    return sse && sse->version >= 0x30; // PF_SSE3_INSTRUCTIONS_AVAILABLE
+    case 14:    return false;                       // PF_COMPARE_EXCHANGE128
+    case 15:    return false;                       // PF_COMPARE64_EXCHANGE128
+    case 36:    return sse && sse->version >= 0x31; // PF_SSSE3_INSTRUCTIONS_AVAILABLE
+    case 37:    return sse && sse->version >= 0x41; // PF_SSE4_1_INSTRUCTIONS_AVAILABLE
+    case 38:    return sse && sse->version >= 0x42; // PF_SSE4_2_INSTRUCTIONS_AVAILABLE
+    case 39:    return false;                       // PF_AVX_INSTRUCTIONS_AVAILABLE
+    case 40:    return false;                       // PF_AVX2_INSTRUCTIONS_AVAILABLE
+    case 41:    return false;                       // PF_AVX512F_INSTRUCTIONS_AVAILABLE
+    }
+    return false;
 }
 
 int syscall_OutputDebugStringA(uint8_t* memory, const uint32_t* stack)

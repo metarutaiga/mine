@@ -164,7 +164,8 @@ bool x86_i686::Initialize(allocator_t* allocator, size_t stack)
     if (x86_i586::Initialize(allocator, stack) == false)
         return false;
 
-    MXCSR = 0x1F80;
+    sse.mxcsr.w = 0x1F80;
+    sse.version = 0x10;
 
     return true;
 }

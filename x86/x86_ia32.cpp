@@ -318,6 +318,16 @@ const x86_instruction::instruction_pointer x86_ia32::escMOD[8][8] =
 #undef S
 #undef s
 //------------------------------------------------------------------------------
+bool x86_ia32::Initialize(allocator_t* allocator, size_t stack)
+{
+    if (x86_i686::Initialize(allocator, stack) == false)
+        return false;
+
+    sse.version = 0x31;
+
+    return true;
+}
+//------------------------------------------------------------------------------
 void x86_ia32::StepImplement(x86_i386& x86, Format& format)
 {
     format.width = 32;
