@@ -271,9 +271,11 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
         switch (operand.type) {
         case Format::Operand::IMM:
             switch (width) {
-            case 8:  disasm += hex(uint8_t(operand.displacement), false);  break;
-            case 16: disasm += hex(uint16_t(operand.displacement), false); break;
-            case 32: disasm += hex(uint32_t(operand.displacement), false); break;
+            case 8:   disasm += hex(uint8_t(operand.displacement), false);  break;
+            case 16:  disasm += hex(uint16_t(operand.displacement), false); break;
+            case 32:
+            case 64:
+            case 128: disasm += hex(uint32_t(operand.displacement), false); break;
             }
             continue;
         case Format::Operand::REL:

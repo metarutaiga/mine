@@ -66,7 +66,7 @@ void sse2_instruction::CLFLUSH(Format& format, const uint8_t* opcode)
 //------------------------------------------------------------------------------
 void sse2_instruction::CMPPD(Format& format, const uint8_t* opcode)
 {
-    Decode(format, opcode, "CMPPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND);
+    Decode(format, opcode, "CMPPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION | THREE_OPERAND | IMM_8BIT);
 
     switch (format.operand[2].displacement) {
     case 0:
