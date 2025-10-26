@@ -198,7 +198,7 @@ int syscall_malloc(const void* stack, struct allocator_t* allocator);
 int syscall_mblen(const void* memory, const void* stack);
 size_t syscall_mbstowcs(const void* memory, const void* stack);
 int syscall_mbtowc(const void* memory, const void* stack);
-int syscall_qsort(const void* memory, const void* stack);
+int syscall_qsort(const void* memory, const void* stack, void* cpu);
 int syscall_quick_exit(const void* stack);
 int syscall_rand();
 int syscall_realloc(const void* stack, struct allocator_t* allocator);

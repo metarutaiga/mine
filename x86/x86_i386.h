@@ -27,6 +27,7 @@ public:
     bool Initialize(allocator_t* allocator, size_t stack) override;
     bool Step(int count) override;
     bool Jump(size_t address) override;
+    size_t Call(int count, size_t address, size_t size, ...) override;
     const void* Register(int type) const override;
     uint8_t* Memory(size_t base = 0, size_t size = 0) const override;
     size_t Stack() const override;

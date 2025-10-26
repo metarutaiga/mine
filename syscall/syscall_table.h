@@ -178,7 +178,7 @@ static const struct {
     { "mblen",          INT32(syscall_mblen(memory, stack))             },
     { "mbstowcs",       INT32(syscall_mbstowcs(memory, stack))          },
     { "mbtowc",         INT32(syscall_mbtowc(memory, stack))            },
-    { "qsort",          INT32(syscall_qsort(memory, stack))             },
+    { "qsort",          INT32(syscall_qsort(memory, stack, cpu))        },
     { "quick_exit",     INT32(syscall_quick_exit(stack))                },
     { "rand",           INT32(syscall_rand())                           },
     { "realloc",        INT32(syscall_realloc(stack, allocator))        },

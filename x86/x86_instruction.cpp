@@ -523,8 +523,8 @@ void x86_instruction::MOVZX(Format& format, const uint8_t* opcode)
 void x86_instruction::NOP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0x90:  Decode(format, opcode, "NOP");                          break;
-    case 0x0F:  Decode(format, opcode, "NOP", 2, opcode[1] & 0b11);  break;
+    case 0x90:  Decode(format, opcode, "NOP");                      break;
+    case 0x0F:  Decode(format, opcode, "NOP", 2, opcode[1] & 0b11); break;
     }
     format.operand_count = 0;
 
@@ -561,8 +561,8 @@ void x86_instruction::POP(Format& format, const uint8_t* opcode)
     case 0x5E:
     case 0x5F:  Decode(format, opcode, "POP", 0, OPERAND_SIZE);
                 format.operand[0].type = Format::Operand::REG;
-                format.operand[0].base = opcode[0] & 0b111;         break;
-    case 0x8F:  Decode(format, opcode, "POP", 1, OPERAND_SIZE);  break;
+                format.operand[0].base = opcode[0] & 0b111;     break;
+    case 0x8F:  Decode(format, opcode, "POP", 1, OPERAND_SIZE); break;
     }
     format.operand_count = 1;
 

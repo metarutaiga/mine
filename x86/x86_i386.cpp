@@ -255,6 +255,34 @@ bool x86_i386::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
+size_t x86_i386::Call(int count, size_t address, size_t size, ...)
+{
+    auto eip = EIP;
+
+    for (size_t i = 0; i < size; ++i) {
+        Push32(0);
+    }
+
+    auto stack = (uint32_t*)(memory_address + ESP);
+    va_list args;
+    va_start(args, size);
+    for (size_t i = 0; i < size; ++i) {
+        stack[i] = (uint32_t)va_arg(args, size_t);
+    }
+    va_end(args);
+
+    Push32(0);
+    EIP = (uint32_t)address;
+    Step(count);
+
+    for (size_t i = 0; i < size; ++i) {
+        Pop32();
+    }
+
+    EIP = eip;
+    return EAX;
+}
+//------------------------------------------------------------------------------
 const void* x86_i386::Register(int type) const
 {
     switch (type) {

@@ -141,6 +141,34 @@ bool x86_i86::Jump(size_t address)
     return true;
 }
 //------------------------------------------------------------------------------
+size_t x86_i86::Call(int count, size_t address, size_t size, ...)
+{
+    auto ip = IP;
+
+    for (size_t i = 0; i < size; ++i) {
+        Push16(0);
+    }
+
+    auto stack = (uint16_t*)(memory_address + SP);
+    va_list args;
+    va_start(args, size);
+    for (size_t i = 0; i < size; ++i) {
+        stack[i] = (uint16_t)va_arg(args, size_t);
+    }
+    va_end(args);
+
+    Push16(0);
+    IP = (uint16_t)address;
+    Step(count);
+
+    for (size_t i = 0; i < size; ++i) {
+        Pop16();
+    }
+
+    IP = ip;
+    return AX;
+}
+//------------------------------------------------------------------------------
 const void* x86_i86::Register(int type) const
 {
     switch (type) {

@@ -4,6 +4,7 @@
 #include <string.h>
 #include "allocator.h"
 #include "syscall_internal.h"
+#include "../mine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,13 +185,20 @@ int syscall_mbtowc(char* memory, const uint32_t* stack)
     return mbtowc(pwc, pmb, max);
 }
 
-int syscall_qsort(char* memory, const uint32_t* stack)
+int syscall_qsort(char* memory, const uint32_t* stack, mine* cpu)
 {
     auto base = physical(void*, stack[1]);
     auto num = stack[2];
     auto size = stack[3];
-    auto compar = physical(int(*)(const void*, const void*), stack[4]);
-    qsort(base, num, size, compar);
+//  auto compar = physical(int(*)(const void*, const void*), stack[4]);
+
+    qsort_r(base, num, size, cpu, [](void* c, const void* a, const void* b) -> int {
+        auto cpu = (mine*)c;
+        auto memory = cpu->Memory();
+        auto stack = (uint32_t*)(memory + cpu->Stack());
+        auto compar = stack[4];
+        return (int)cpu->Call(10000, compar, 2, virtual(uint32_t, a), virtual(uint32_t, b));
+    });
     return 0;
 }
 
