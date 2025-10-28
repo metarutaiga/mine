@@ -243,55 +243,76 @@ int syscall_srand(const uint32_t* stack)
 
 double syscall_strtod(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
-    return strtod(str, endptr);
+    auto endptr = physical(uint32_t*, stack[2]);
+    auto result = strtod(str, &end);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 float syscall_strtof(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
-    return strtof(str, endptr);
+    auto endptr = physical(uint32_t*, stack[2]);
+    auto result = strtof(str, &end);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 long syscall_strtol(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
+    auto endptr = physical(uint32_t*, stack[2]);
     auto base = stack[3];
-    return strtol(str, endptr, base);
+    auto result = strtol(str, &end, base);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 long double syscall_strtold(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
-    return strtold(str, endptr);
+    auto endptr = physical(uint32_t*, stack[2]);
+    auto result = strtold(str, &end);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 long long syscall_strtoll(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
+    auto endptr = physical(uint32_t*, stack[2]);
     auto base = stack[3];
-    return strtoll(str, endptr, base);
+    auto result = strtoll(str, &end, base);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 unsigned long syscall_strtoul(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
+    auto endptr = physical(uint32_t*, stack[2]);
     auto base = stack[3];
-    return strtoul(str, endptr, base);
+    auto result = strtoul(str, &end, base);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 unsigned long long syscall_strtoull(char* memory, const uint32_t* stack)
 {
+    char* end = nullptr;
     auto str = physical(char*, stack[1]);
-    auto endptr = physical(char**, stack[2]);
+    auto endptr = physical(uint32_t*, stack[2]);
     auto base = stack[3];
-    return strtoull(str, endptr, base);
+    auto result = strtoull(str, &end, base);
+    if (endptr) (*endptr) = virtual(uint32_t, end);
+    return result;
 }
 
 int syscall_system(char* memory, const uint32_t* stack)

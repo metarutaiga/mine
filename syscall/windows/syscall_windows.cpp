@@ -297,6 +297,9 @@ static const struct {
     // ucrt
     { "__stdio_common_vfprintf",    INT32(0, syscall___stdio_common_vfprintf(memory, stack))        },
     { "__stdio_common_vsprintf",    INT32(0, syscall___stdio_common_vsprintf(memory, stack))        },
+    { "_execute_onexit_table",      INT32(0, 0)                                                     },
+    { "_initialize_onexit_table",   INT32(0, 0)                                                     },
+    { "_register_onexit_function",  INT32(0, 0)                                                     },
 
     // user32
     { "MessageBoxA",                INT32(4, syscall_puts(memory, stack + 1))                       },
