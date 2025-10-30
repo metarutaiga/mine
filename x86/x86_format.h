@@ -4,6 +4,10 @@
 #include <string>
 
 #define HAVE_BCD 0
+#define HAVE_FAR 0
+#define HAVE_INOUT 0
+#define HAVE_INTERRUPT 0
+#define HAVE_SEGMENT 0
 #define HAVE_X64 0
 
 struct x86_register;

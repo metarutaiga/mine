@@ -33,30 +33,30 @@ const x86_instruction::instruction_pointer x86_i486::one[256] =
 /* B */ x MOV    x MOV   x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x grp2   x grp2  x RET   x RET  x LES   x LDS   x MOV   x MOV   x ENTER x LEAVE x RETF  x RETF  x INT    x INT   x INT   x IRET
 /* D */ x grp2   x grp2  x grp2  x grp2 x AAM   x AAD   x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
-/* E */ x LOOP   x LOOP  x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMP   x JMP   x IN     x IN    x OUT   x OUT
+/* E */ x LOOP   x LOOP  x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMPF  x JMP   x IN     x IN    x OUT   x OUT
 /* F */ x LOCK   x _     x REPNE x REPE x HLT   x CMC   x grp3  x grp3  x CLC   x STC   x CLI   x STI   x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
 // Two-Byte Opcode Map
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i486::two[256] =
-{      // 0         1         2       3       4       5       6       7       8       9       A       B       C       D       E       F
-/* 0 */ X grp6    x grp7    x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 1 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 2 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 3 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 4 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 5 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 6 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 7 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* 8 */ x Jcc     x Jcc     x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
-/* 9 */ x SETcc   x SETcc   x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
-/* A */ x _       x _       x _     x BT    x SHLD  x SHLD  x _     x _     x _     x _     x _     x BTS   x SHRD  x SHRD  x _     x IMUL
-/* B */ x CMPXCHG x CMPXCHG x _     x BTR   x _     x _     x MOVZX x MOVZX x _     x _     x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
-/* C */ x XADD    x XADD    x _     x _     x _     x _     x _     x _     x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP
-/* D */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* E */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
-/* F */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
+{      // 0         1         2       3       4       5       6       7       8       9        A       B       C       D       E       F
+/* 0 */ X grp6    x grp7    x LAR   x LSL   x _     x _     x CLTS  x _     x INVD  x WBINVD x _     x _     x _     x _     x _     x _
+/* 1 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 2 */ x MOV     x MOV     x MOV   x MOV   x MOV   x _     x MOV   x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 3 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 4 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 5 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 6 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 7 */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* 8 */ x Jcc     x Jcc     x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc    x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
+/* 9 */ x SETcc   x SETcc   x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc  x SETcc x SETcc x SETcc x SETcc x SETcc x SETcc
+/* A */ x PUSH    x POP     x _     x BT    x SHLD  x SHLD  x _     x _     x PUSH  x POP    x _     x BTS   x SHRD  x SHRD  x _     x IMUL
+/* B */ x CMPXCHG x CMPXCHG x LSS   x BTR   x LFS   x LGS   x MOVZX x MOVZX x _     x _      x grp8  x BTC   x BSF   x BSR   x MOVSX x MOVSX
+/* C */ x XADD    x XADD    x _     x _     x _     x _     x _     x _     x BSWAP x BSWAP  x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP x BSWAP
+/* D */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* E */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
+/* F */ x _       x _       x _     x _     x _     x _     x _     x _     x _     x _      x _     x _     x _     x _     x _     x _
 };
 //------------------------------------------------------------------------------
 #undef X

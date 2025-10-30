@@ -29,13 +29,13 @@ const x86_instruction::instruction_pointer x86_i86::one[256] =
 /* 5 */ x PUSH  x PUSH x PUSH  x PUSH x PUSH  x PUSH  x PUSH  x PUSH  x POP   x POP   x POP   x POP   x POP   x POP   x POP   x POP
 /* 6 */ x _     x _    x _     x _    x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _     x _
 /* 7 */ x Jcc   x Jcc  x Jcc   x Jcc  x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc   x Jcc
-/* 8 */ x grp1  x grp1 x grp1  x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV   x LEA   x _     x POP
+/* 8 */ x grp1  x grp1 x grp1  x grp1 x TEST  x TEST  x XCHG  x XCHG  x MOV   x MOV   x MOV   x MOV   x MOV   x LEA   x MOV   x POP
 /* 9 */ x XCHG  x XCHG x XCHG  x XCHG x XCHG  x XCHG  x XCHG  x XCHG  x CBW   x CWD   x CALL  x WAIT  x PUSHF x POPF  x SAHF  x LAHF
 /* A */ x MOV   x MOV  x MOV   x MOV  x MOVSx x MOVSx x CMPSx x CMPSx x TEST  x TEST  x STOSx x STOSx x LODSx x LODSx x SCASx x SCASx
 /* B */ x MOV   x MOV  x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV
 /* C */ x _     x _    x RET   x RET  x LES   x LDS   x MOV   x MOV   x _     x _     x RETF  x RETF  x INT   x INT   x INT   x IRET
 /* D */ x grp2  x grp2 x grp2  x grp2 x AAM   x AAD   x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC   x ESC   x ESC   x ESC
-/* E */ x LOOP  x LOOP x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMP   x JMP   x IN    x IN    x OUT   x OUT
+/* E */ x LOOP  x LOOP x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMPF  x JMP   x IN    x IN    x OUT   x OUT
 /* F */ x LOCK  x _    x REPNE x REPE x HLT   x CMC   x grp3  x grp3  x CLC   x STC   x CLI   x STI   x CLD   x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------

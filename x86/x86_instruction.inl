@@ -76,19 +76,60 @@ static auto specialize(auto lambda) {
 #define DAS _
 #endif
 //------------------------------------------------------------------------------
-#define BOUND _
-#define ARPL _
-#define INS _
-#define OUTS _
-#define MOVB _
+#if HAVE_FAR == 0
 #define CALLF _
+#define JMPF _
+#define RETF _
+#endif
+//------------------------------------------------------------------------------
+#if HAVE_INOUT == 0
+#define IN _
+#define INS _
+#define OUT _
+#define OUTS _
+#endif
+//------------------------------------------------------------------------------
+#if HAVE_INTERRUPT == 0
+#define CLI _
+#define IRET _
+#define STI _
+#endif
+//------------------------------------------------------------------------------
+#if HAVE_SEGMENT == 0
 #define LDS _
 #define LES _
-#define RETF _
-#define IRET _
-#define IN _
-#define OUT _
+#define LSS _
+#define LFS _
+#define LGS _
+#endif
+//------------------------------------------------------------------------------
+#define ARPL _
+#define BOUND _
+#define CLTS _
+#define FXRSTOR _
+#define FXSAVE _
 #define HLT _
-#define CLI _
-#define STI _
+#define INVD _
+#define INVLPG _
+#define LAR _
+#define LGDT _
+#define LIDT _
+#define LLDT _
+#define LMSW _
+#define LSL _
+#define LTR _
+#define MOVB _
+#define RSM _
+#define RDMSR _
+#define SGDT _
+#define SIDT _
+#define SLDT _
+#define SMSW _
+#define STR _
+#define SYSENTER _
+#define SYSEXIT _
+#define VERR _
+#define VERW _
+#define WBINVD _
+#define WRMSR _
 //------------------------------------------------------------------------------

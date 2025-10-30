@@ -37,7 +37,7 @@ const x86_instruction::instruction_pointer x86_i586::one[256] =
 /* B */ x MOV    x MOV   x MOV   x MOV  x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV   x MOV    x MOV   x MOV   x MOV
 /* C */ x grp2   x grp2  x RET   x RET  x LES   x LDS   x MOV   x MOV   x ENTER x LEAVE x RETF  x RETF  x INT    x INT   x INT   x IRET
 /* D */ x grp2   x grp2  x grp2  x grp2 x AAM   x AAD   x _     x XLAT  x ESC   x ESC   x ESC   x ESC   x ESC    x ESC   x ESC   x ESC
-/* E */ x LOOP   x LOOP  x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMP   x JMP   x IN     x IN    x OUT   x OUT
+/* E */ x LOOP   x LOOP  x LOOP  x JCXZ x IN    x IN    x OUT   x OUT   x CALL  x JMP   x JMPF  x JMP   x IN     x IN    x OUT   x OUT
 /* F */ x LOCK   x _     x REPNE x REPE x HLT   x CMC   x grp3  x grp3  x CLC   x STC   x CLI   x STI   x CLD    x STD   x grp4  x grp5
 };
 //------------------------------------------------------------------------------
@@ -45,18 +45,18 @@ const x86_instruction::instruction_pointer x86_i586::one[256] =
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i586::two[256] =
 {      // 0           1           2           3          4         5         6         7          8           9           A           B          C         D         E       F
-/* 0 */ X grp6      x grp7      x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
+/* 0 */ X grp6      x grp7      x LAR       x LSL      x _       x _       x CLTS    x _        x INVD      x WBINVD    x _         x _        x _       x _       x _     x _
 /* 1 */ x _         x _         x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
-/* 2 */ x _         x _         x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
-/* 3 */ x _         x RDTSC     x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
+/* 2 */ x MOV       x MOV       x MOV       x MOV      x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
+/* 3 */ x WRMSR     x RDTSC     x RDMSR     x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
 /* 4 */ x _         x _         x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
 /* 5 */ x _         x _         x _         x _        x _       x _       x _       x _        x _         x _         x _         x _        x _       x _       x _     x _
 /* 6 */ m PUNPCKLBW m PUNPCKLWD m PUNPCKLDQ m PACKSSWB m PCMPGTB m PCMPGTW m PCMPGTD m PACKUSWB m PUNPCKHBW m PUNPCKHWD m PUNPCKHDQ m PACKSSDW x _       x _       m MOVD  m MOVQ
 /* 7 */ x _         x grpA1     x grpA2     x grpA3    m PCMPEQB m PCMPEQW m PCMPEQD m EMMS     x _         x _         x _         x _        x _       x _       m MOVD  m MOVQ
 /* 8 */ x Jcc       x Jcc       x Jcc       x Jcc      x Jcc     x Jcc     x Jcc     x Jcc      x Jcc       x Jcc       x Jcc       x Jcc      x Jcc     x Jcc     x Jcc   x Jcc
 /* 9 */ x SETcc     x SETcc     x SETcc     x SETcc    x SETcc   x SETcc   x SETcc   x SETcc    x SETcc     x SETcc     x SETcc     x SETcc    x SETcc   x SETcc   x SETcc x SETcc
-/* A */ x _         x _         x CPUID     x BT       x SHLD    x SHLD    x _       x _        x _         x _         x _         x BTS      x SHRD    x SHRD    x _     x IMUL
-/* B */ x CMPXCHG   x CMPXCHG   x _         x BTR      x _       x _       x MOVZX   x MOVZX    x _         x _         x grp8      x BTC      x BSF     x BSR     x MOVSX x MOVSX
+/* A */ x PUSH      x POP       x CPUID     x BT       x SHLD    x SHLD    x _       x _        x PUSH      x POP       x RSM       x BTS      x SHRD    x SHRD    x _     x IMUL
+/* B */ x CMPXCHG   x CMPXCHG   x LSS       x BTR      x LFS     x LGS     x MOVZX   x MOVZX    x _         x _         x grp8      x BTC      x BSF     x BSR     x MOVSX x MOVSX
 /* C */ x XADD      x XADD      x _         x _        x _       x _       x _       x grp9     x BSWAP     x BSWAP     x BSWAP     x BSWAP    x BSWAP   x BSWAP   x BSWAP x BSWAP
 /* D */ x _         m PSRLW     m PSRLD     m PSRLQ    x _       m PMULLW  x _       x _        m PSUBUSB   m PSUBUSW   x _         m PAND     m PADDUSB m PADDUSW x _     m PANDN
 /* E */ x _         m PSRAW     m PSRAD     x _        x _       m PMULHW  x _       x _        m PSUBSB    m PSUBSW    x _         m POR      m PADDSB  m PADDSW  x _     m PXOR
@@ -66,17 +66,17 @@ const x86_instruction::instruction_pointer x86_i586::two[256] =
 // Opcodes determined by bits 5,4,3 of modR/M byte
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i586::group[10][8] =
-{        // 0      1           2      3     4     5      6      7
-/* 0 */ { X _    x _         x _    x _   x _   x _    x _    x _    },
-/* 1 */ { X ADD  x OR        x ADC  x SBB x AND x SUB  x XOR  x CMP  },
-/* 2 */ { X ROL  x ROR       x RCL  x RCR x SHL x SHR  x _    x SAR  },
-/* 3 */ { X TEST x _         x NOT  x NEG x MUL x IMUL x DIV  x IDIV },
-/* 4 */ { X INC  x DEC       x _    x _   x _   x _    x _    x _    },
-/* 5 */ { X INC  x DEC       x CALL x _   x JMP x _    x PUSH x _    },
-/* 6 */ { X _    x _         x _    x _   x _   x _    x _    x _    },
-/* 7 */ { X _    x _         x _    x _   x _   x _    x _    x _    },
-/* 8 */ { X _    x _         x _    x _   x BT  x BTS  x BTR  x BTC  },
-/* 9 */ { X _    x CMPXCHG8B x _    x _   x _   x _    x _    x _    },
+{        // 0      1           2      3       4      5      6      7
+/* 0 */ { X _    x _         x _    x _     x _    x _    x _    x _      },
+/* 1 */ { X ADD  x OR        x ADC  x SBB   x AND  x SUB  x XOR  x CMP    },
+/* 2 */ { X ROL  x ROR       x RCL  x RCR   x SHL  x SHR  x _    x SAR    },
+/* 3 */ { X TEST x _         x NOT  x NEG   x MUL  x IMUL x DIV  x IDIV   },
+/* 4 */ { X INC  x DEC       x _    x _     x _    x _    x _    x _      },
+/* 5 */ { X INC  x DEC       x CALL x CALLF x JMP  x JMPF x PUSH x _      },
+/* 6 */ { X SLDT x STR       x LLDT x LTR   x VERR x VERW x _    x _      },
+/* 7 */ { X SGDT x SIDT      x LGDT x LIDT  x SMSW x _    x LMSW x INVLPG },
+/* 8 */ { X _    x _         x _    x _     x BT   x BTS  x BTR  x BTC    },
+/* 9 */ { X _    x CMPXCHG8B x _    x _     x _    x _    x _    x _      },
 };
 //------------------------------------------------------------------------------
 const x86_instruction::instruction_pointer x86_i586::groupA[4][8] =

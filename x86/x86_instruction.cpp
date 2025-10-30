@@ -81,12 +81,8 @@ void x86_instruction::BSWAP(Format& format, const uint8_t* opcode)
 void x86_instruction::CALL(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0xE8:  Decode(format, opcode, "CALL", 1, OPERAND_SIZE | RELATIVE | IMM_SIZE);              break;
-    case 0xFF:
-        switch (opcode[1] & 0b00111000) {
-        case 0b00010000:    Decode(format, opcode, "CALL", 1, OPERAND_SIZE);                        break;
-//      case 0b00011000:    Decode(format, opcode, "CALL", 2, OPERAND_SIZE | INDIRECT | IMM_SIZE);  break;
-        }
+    case 0xE8:  Decode(format, opcode, "CALL", 1, OPERAND_SIZE | RELATIVE | IMM_SIZE);  break;
+    case 0xFF:  Decode(format, opcode, "CALL", 1, OPERAND_SIZE);                        break;
     }
     format.operand_count = 1;
 
@@ -366,14 +362,10 @@ void x86_instruction::JCXZ(Format& format, const uint8_t* opcode)
 void x86_instruction::JMP(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
-    case 0xE9:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_SIZE);               break;
-    case 0xEA:  Decode(format, opcode, "JMP", 3, OPERAND_SIZE | RELATIVE | IMM_SIZE);               break;
-    case 0xEB:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_8BIT);               break;
-    case 0xFF:
-        switch (opcode[1] & 0b00111000) {
-        case 0b00100000:    Decode(format, opcode, "JMP", 1, OPERAND_SIZE);                         break;
-//      case 0b00101000:    Decode(format, opcode, "JMP", 2, OPERAND_SIZE | INDIRECT | IMM_SIZE);   break;
-        }
+    case 0xE9:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_SIZE);   break;
+    case 0xEA:  Decode(format, opcode, "JMP", 3, OPERAND_SIZE | RELATIVE | IMM_SIZE);   break;
+    case 0xEB:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE | RELATIVE | IMM_8BIT);   break;
+    case 0xFF:  Decode(format, opcode, "JMP", 1, OPERAND_SIZE);                         break;
     }
     format.operand_count = 1;
 
@@ -446,6 +438,20 @@ void x86_instruction::LOOP(Format& format, const uint8_t* opcode)
 void x86_instruction::MOV(Format& format, const uint8_t* opcode)
 {
     switch (opcode[0]) {
+    case 0x0F:
+        switch (opcode[1]) {
+        case 0x20:
+        case 0x21:
+        case 0x22:
+        case 0x23:
+        case 0x24:
+        case 0x26:
+            format.instruction = "MOV";
+            format.length = 3;
+            format.operand_count = 0;
+            break;
+        }
+        break;
     case 0x88:
     case 0x89:
     case 0x8A:

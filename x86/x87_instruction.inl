@@ -37,3 +37,16 @@
             format.operation = specialize<int64_t, double>(operation); \
     }
 //------------------------------------------------------------------------------
+#if HAVE_BCD == 0
+#define FBLD _
+#define FBSTP _
+#endif
+//------------------------------------------------------------------------------
+#define FFREE _
+#define FINIT _
+#define FLDENV _
+#define FNOP _
+#define FRSTOR _
+#define FSAVE _
+#define FSTENV _
+//------------------------------------------------------------------------------
