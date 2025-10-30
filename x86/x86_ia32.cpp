@@ -51,7 +51,7 @@ const x86_instruction::instruction_pointer x86_ia32::two[256] =
 /* 0 */ X grp6      x grp7      x LAR       x LSL      x _         x _        x CLTS      x _          x INVD      x WBINVD    x _         x _         x _          x NOP        x _       x _
 /* 1 */ s MOVUPS    s MOVUPS    s MOVLPS    s MOVLPS   s UNPCKLPS  s UNPCKHPS s MOVHPS    s MOVHPS     x grp16     x _         x _         x _         x _          x _          x _       x NOP
 /* 2 */ x MOV       x MOV       x MOV       x MOV      x _         x _        x _         x _          s MOVAPS    s MOVAPS    s CVTPI2PS  s MOVNTPS   s CVTTPS2PI  s CVTPS2PI   s UCOMISS s COMISS
-/* 3 */ x WRMSR     x RDTSC     x RDMSR     x RDPMC    x SYSENTER  x SYSEXIT  x _         x _          x THREE38   x _         x THREE3A   x _         x _          x _          x _       x _
+/* 3 */ x WRMSR     x RDTSC     x RDMSR     x RDPMC    x SYSENTER  x SYSEXIT  x _         x _          x THREE     x _         x THREE     x _         x _          x _          x _       x _
 /* 4 */ x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc   x CMOVcc    x CMOVcc     x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc    x CMOVcc     x CMOVcc     x CMOVcc  x CMOVcc
 /* 5 */ s MOVMSKPS  s SQRTPS    s RSQRTPS   s RCPPS    s ANDPS     s ANDNPS   s ORPS      s XORPS      s ADDPS     s MULPS     s CVTPS2PD  s CVTDQ2PS  s SUBPS      s MINPS      s DIVPS   s MAXPS
 /* 6 */ m PUNPCKLBW m PUNPCKLWD m PUNPCKLDQ m PACKSSWB m PCMPGTB   m PCMPGTW  m PCMPGTD   m PACKUSWB   m PUNPCKHBW m PUNPCKHWD m PUNPCKHDQ m PACKSSDW  x _          x _          m MOVD    m MOVQ
@@ -387,25 +387,24 @@ void x86_ia32::TWO(Format& format, const uint8_t* opcode)
     }
 }
 //------------------------------------------------------------------------------
-void x86_ia32::THREE38(Format& format, const uint8_t* opcode)
+void x86_ia32::THREE(Format& format, const uint8_t* opcode)
 {
     format.length = 3;
-    if (format.prefix == 0x66 && three6638[opcode[2]] != _) {
-        three6638[opcode[2]](format, opcode);
+    if (opcode[1] == 0x38) {
+        if (format.prefix == 0x66 && three6638[opcode[2]] != _) {
+            three6638[opcode[2]](format, opcode);
+        }
+        else {
+            three38[opcode[2]](format, opcode);
+        }
     }
-    else {
-        three38[opcode[2]](format, opcode);
-    }
-}
-//------------------------------------------------------------------------------
-void x86_ia32::THREE3A(Format& format, const uint8_t* opcode)
-{
-    format.length = 3;
-    if (format.prefix == 0x66 && three663A[opcode[2]] != _) {
-        three663A[opcode[2]](format, opcode);
-    }
-    else {
-        three3A[opcode[2]](format, opcode);
+    else if (opcode[1] == 0x3A) {
+        if (format.prefix == 0x66 && three663A[opcode[2]] != _) {
+            three663A[opcode[2]](format, opcode);
+        }
+        else {
+            three3A[opcode[2]](format, opcode);
+        }
     }
 }
 //------------------------------------------------------------------------------

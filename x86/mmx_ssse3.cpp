@@ -202,14 +202,7 @@ void mmx_instruction::PSIGNB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGNB", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
-        DEST.i8[1] = SRC.i8[1] <= 0 ? SRC.i8[1] < 0 ? -DEST.i8[1] : 0 : DEST.i8[1];
-        DEST.i8[2] = SRC.i8[2] <= 0 ? SRC.i8[2] < 0 ? -DEST.i8[2] : 0 : DEST.i8[2];
-        DEST.i8[3] = SRC.i8[3] <= 0 ? SRC.i8[3] < 0 ? -DEST.i8[3] : 0 : DEST.i8[3];
-        DEST.i8[4] = SRC.i8[4] <= 0 ? SRC.i8[4] < 0 ? -DEST.i8[4] : 0 : DEST.i8[4];
-        DEST.i8[5] = SRC.i8[5] <= 0 ? SRC.i8[5] < 0 ? -DEST.i8[5] : 0 : DEST.i8[5];
-        DEST.i8[6] = SRC.i8[6] <= 0 ? SRC.i8[6] < 0 ? -DEST.i8[6] : 0 : DEST.i8[6];
-        DEST.i8[7] = SRC.i8[7] <= 0 ? SRC.i8[7] < 0 ? -DEST.i8[7] : 0 : DEST.i8[7];
+        DEST.i8 = CopySign(DEST.i8, SRC.i8);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -218,10 +211,7 @@ void mmx_instruction::PSIGNW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGNW", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
-        DEST.i16[1] = SRC.i16[1] <= 0 ? SRC.i16[1] < 0 ? -DEST.i16[1] : 0 : DEST.i16[1];
-        DEST.i16[2] = SRC.i16[2] <= 0 ? SRC.i16[2] < 0 ? -DEST.i16[2] : 0 : DEST.i16[2];
-        DEST.i16[3] = SRC.i16[3] <= 0 ? SRC.i16[3] < 0 ? -DEST.i16[3] : 0 : DEST.i16[3];
+        DEST.i16 = CopySign(DEST.i16, SRC.i16);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -230,8 +220,7 @@ void mmx_instruction::PSIGND(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGND", 3, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];
-        DEST.i32[1] = SRC.i32[1] <= 0 ? SRC.i32[1] < 0 ? -DEST.i32[1] : 0 : DEST.i32[1];
+        DEST.i32 = CopySign(DEST.i32, SRC.i32);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

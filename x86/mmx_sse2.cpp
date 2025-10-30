@@ -16,7 +16,7 @@ void mmx_instruction::PADDQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0] + SRC.i64[0];
+        DEST.i64 = DEST.i64 + SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ void mmx_instruction::PSUBQ(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBQ", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0] - SRC.i64[0];
+        DEST.i64 = DEST.i64 - SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

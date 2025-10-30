@@ -244,22 +244,7 @@ void ssse3_instruction::PSIGNB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGNB", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = SRC.i8[0] <= 0 ? SRC.i8[0] < 0 ? -DEST.i8[0] : 0 : DEST.i8[0];
-        DEST.i8[1] = SRC.i8[1] <= 0 ? SRC.i8[1] < 0 ? -DEST.i8[1] : 0 : DEST.i8[1];
-        DEST.i8[2] = SRC.i8[2] <= 0 ? SRC.i8[2] < 0 ? -DEST.i8[2] : 0 : DEST.i8[2];
-        DEST.i8[3] = SRC.i8[3] <= 0 ? SRC.i8[3] < 0 ? -DEST.i8[3] : 0 : DEST.i8[3];
-        DEST.i8[4] = SRC.i8[4] <= 0 ? SRC.i8[4] < 0 ? -DEST.i8[4] : 0 : DEST.i8[4];
-        DEST.i8[5] = SRC.i8[5] <= 0 ? SRC.i8[5] < 0 ? -DEST.i8[5] : 0 : DEST.i8[5];
-        DEST.i8[6] = SRC.i8[6] <= 0 ? SRC.i8[6] < 0 ? -DEST.i8[6] : 0 : DEST.i8[6];
-        DEST.i8[7] = SRC.i8[7] <= 0 ? SRC.i8[7] < 0 ? -DEST.i8[7] : 0 : DEST.i8[7];
-        DEST.i8[8] = SRC.i8[8] <= 0 ? SRC.i8[8] < 0 ? -DEST.i8[8] : 0 : DEST.i8[8];
-        DEST.i8[9] = SRC.i8[9] <= 0 ? SRC.i8[9] < 0 ? -DEST.i8[9] : 0 : DEST.i8[9];
-        DEST.i8[10] = SRC.i8[10] <= 0 ? SRC.i8[10] < 0 ? -DEST.i8[10] : 0 : DEST.i8[10];
-        DEST.i8[11] = SRC.i8[11] <= 0 ? SRC.i8[11] < 0 ? -DEST.i8[11] : 0 : DEST.i8[11];
-        DEST.i8[12] = SRC.i8[12] <= 0 ? SRC.i8[12] < 0 ? -DEST.i8[12] : 0 : DEST.i8[12];
-        DEST.i8[13] = SRC.i8[13] <= 0 ? SRC.i8[13] < 0 ? -DEST.i8[13] : 0 : DEST.i8[13];
-        DEST.i8[14] = SRC.i8[14] <= 0 ? SRC.i8[14] < 0 ? -DEST.i8[14] : 0 : DEST.i8[14];
-        DEST.i8[15] = SRC.i8[15] <= 0 ? SRC.i8[15] < 0 ? -DEST.i8[15] : 0 : DEST.i8[15];
+        DEST.i8 = CopySign(DEST.i8, SRC.i8);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -268,14 +253,7 @@ void ssse3_instruction::PSIGNW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGNW", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = SRC.i16[0] <= 0 ? SRC.i16[0] < 0 ? -DEST.i16[0] : 0 : DEST.i16[0];
-        DEST.i16[1] = SRC.i16[1] <= 0 ? SRC.i16[1] < 0 ? -DEST.i16[1] : 0 : DEST.i16[1];
-        DEST.i16[2] = SRC.i16[2] <= 0 ? SRC.i16[2] < 0 ? -DEST.i16[2] : 0 : DEST.i16[2];
-        DEST.i16[3] = SRC.i16[3] <= 0 ? SRC.i16[3] < 0 ? -DEST.i16[3] : 0 : DEST.i16[3];
-        DEST.i16[4] = SRC.i16[4] <= 0 ? SRC.i16[4] < 0 ? -DEST.i16[4] : 0 : DEST.i16[4];
-        DEST.i16[5] = SRC.i16[5] <= 0 ? SRC.i16[5] < 0 ? -DEST.i16[5] : 0 : DEST.i16[5];
-        DEST.i16[6] = SRC.i16[6] <= 0 ? SRC.i16[6] < 0 ? -DEST.i16[6] : 0 : DEST.i16[6];
-        DEST.i16[7] = SRC.i16[7] <= 0 ? SRC.i16[7] < 0 ? -DEST.i16[7] : 0 : DEST.i16[7];
+        DEST.i16 = CopySign(DEST.i16, SRC.i16);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -284,10 +262,7 @@ void ssse3_instruction::PSIGND(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSIGND", 3, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.i32[0] <= 0 ? SRC.i32[0] < 0 ? -DEST.i32[0] : 0 : DEST.i32[0];
-        DEST.i32[1] = SRC.i32[1] <= 0 ? SRC.i32[1] < 0 ? -DEST.i32[1] : 0 : DEST.i32[1];
-        DEST.i32[2] = SRC.i32[2] <= 0 ? SRC.i32[2] < 0 ? -DEST.i32[2] : 0 : DEST.i32[2];
-        DEST.i32[3] = SRC.i32[3] <= 0 ? SRC.i32[3] < 0 ? -DEST.i32[3] : 0 : DEST.i32[3];
+        DEST.i32 = CopySign(DEST.i32, SRC.i32);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------

@@ -93,10 +93,7 @@ void mmx_instruction::PMAXSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMAXSW", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::max(DEST.i16[0], SRC.i16[0]);
-        DEST.i16[1] = std::max(DEST.i16[1], SRC.i16[1]);
-        DEST.i16[2] = std::max(DEST.i16[2], SRC.i16[2]);
-        DEST.i16[3] = std::max(DEST.i16[3], SRC.i16[3]);
+        DEST.i16 = Max(DEST.i16, SRC.i16);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -105,14 +102,7 @@ void mmx_instruction::PMAXUB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMAXUB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u8[0] = std::max(DEST.u8[0], SRC.u8[0]);
-        DEST.u8[1] = std::max(DEST.u8[1], SRC.u8[1]);
-        DEST.u8[2] = std::max(DEST.u8[2], SRC.u8[2]);
-        DEST.u8[3] = std::max(DEST.u8[3], SRC.u8[3]);
-        DEST.u8[4] = std::max(DEST.u8[4], SRC.u8[4]);
-        DEST.u8[5] = std::max(DEST.u8[5], SRC.u8[5]);
-        DEST.u8[6] = std::max(DEST.u8[6], SRC.u8[6]);
-        DEST.u8[7] = std::max(DEST.u8[7], SRC.u8[7]);
+        DEST.u8 = Max(DEST.u8, SRC.u8);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -121,10 +111,7 @@ void mmx_instruction::PMINSW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMINSW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = std::min(DEST.i16[0], SRC.i16[0]);
-        DEST.i16[1] = std::min(DEST.i16[1], SRC.i16[1]);
-        DEST.i16[2] = std::min(DEST.i16[2], SRC.i16[2]);
-        DEST.i16[3] = std::min(DEST.i16[3], SRC.i16[3]);
+        DEST.i16 = Min(DEST.i16, SRC.i16);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -133,14 +120,7 @@ void mmx_instruction::PMINUB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMINUB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u8[0] = std::min(DEST.u8[0], SRC.u8[0]);
-        DEST.u8[1] = std::min(DEST.u8[1], SRC.u8[1]);
-        DEST.u8[2] = std::min(DEST.u8[2], SRC.u8[2]);
-        DEST.u8[3] = std::min(DEST.u8[3], SRC.u8[3]);
-        DEST.u8[4] = std::min(DEST.u8[4], SRC.u8[4]);
-        DEST.u8[5] = std::min(DEST.u8[5], SRC.u8[5]);
-        DEST.u8[6] = std::min(DEST.u8[6], SRC.u8[6]);
-        DEST.u8[7] = std::min(DEST.u8[7], SRC.u8[7]);
+        DEST.u8 = Min(DEST.u8, SRC.u8);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

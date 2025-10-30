@@ -117,14 +117,7 @@ void mmx_instruction::PADDB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = DEST.i8[0] + SRC.i8[0];
-        DEST.i8[1] = DEST.i8[1] + SRC.i8[1];
-        DEST.i8[2] = DEST.i8[2] + SRC.i8[2];
-        DEST.i8[3] = DEST.i8[3] + SRC.i8[3];
-        DEST.i8[4] = DEST.i8[4] + SRC.i8[4];
-        DEST.i8[5] = DEST.i8[5] + SRC.i8[5];
-        DEST.i8[6] = DEST.i8[6] + SRC.i8[6];
-        DEST.i8[7] = DEST.i8[7] + SRC.i8[7];
+        DEST.i8 = DEST.i8 + SRC.i8;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -133,10 +126,7 @@ void mmx_instruction::PADDW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[0] + SRC.i16[0];
-        DEST.i16[1] = DEST.i16[1] + SRC.i16[1];
-        DEST.i16[2] = DEST.i16[2] + SRC.i16[2];
-        DEST.i16[3] = DEST.i16[3] + SRC.i16[3];
+        DEST.i16 = DEST.i16 + SRC.i16;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -145,8 +135,7 @@ void mmx_instruction::PADDD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PADDD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[0] + SRC.i32[0];
-        DEST.i32[1] = DEST.i32[1] + SRC.i32[1];
+        DEST.i32 = DEST.i32 + SRC.i32;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -211,7 +200,7 @@ void mmx_instruction::PAND(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PAND", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0] & SRC.i64[0];
+        DEST.i64 = DEST.i64 & SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -220,7 +209,7 @@ void mmx_instruction::PANDN(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PANDN", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = ~DEST.i64[0] & SRC.i64[0];
+        DEST.i64 = ~DEST.i64 & SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -229,14 +218,7 @@ void mmx_instruction::PCMPEQB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (DEST.i8[0] == SRC.i8[0]) ? -1 : 0;
-        DEST.i8[1] = (DEST.i8[1] == SRC.i8[1]) ? -1 : 0;
-        DEST.i8[2] = (DEST.i8[2] == SRC.i8[2]) ? -1 : 0;
-        DEST.i8[3] = (DEST.i8[3] == SRC.i8[3]) ? -1 : 0;
-        DEST.i8[4] = (DEST.i8[4] == SRC.i8[4]) ? -1 : 0;
-        DEST.i8[5] = (DEST.i8[5] == SRC.i8[5]) ? -1 : 0;
-        DEST.i8[6] = (DEST.i8[6] == SRC.i8[6]) ? -1 : 0;
-        DEST.i8[7] = (DEST.i8[7] == SRC.i8[7]) ? -1 : 0;
+        DEST.i8 = (DEST.i8 == SRC.i8);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -245,10 +227,7 @@ void mmx_instruction::PCMPEQW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = (DEST.i16[0] == SRC.i16[0]) ? -1 : 0;
-        DEST.i16[1] = (DEST.i16[1] == SRC.i16[1]) ? -1 : 0;
-        DEST.i16[2] = (DEST.i16[2] == SRC.i16[2]) ? -1 : 0;
-        DEST.i16[3] = (DEST.i16[3] == SRC.i16[3]) ? -1 : 0;
+        DEST.i16 = (DEST.i16 == SRC.i16);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -257,8 +236,7 @@ void mmx_instruction::PCMPEQD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPEQD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = (DEST.i32[0] == SRC.i32[0]) ? -1 : 0;
-        DEST.i32[1] = (DEST.i32[1] == SRC.i32[1]) ? -1 : 0;
+        DEST.i32 = (DEST.i32 == SRC.i32);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -267,14 +245,7 @@ void mmx_instruction::PCMPGTB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = (DEST.i8[0] > SRC.i8[0]) ? -1 : 0;
-        DEST.i8[1] = (DEST.i8[1] > SRC.i8[1]) ? -1 : 0;
-        DEST.i8[2] = (DEST.i8[2] > SRC.i8[2]) ? -1 : 0;
-        DEST.i8[3] = (DEST.i8[3] > SRC.i8[3]) ? -1 : 0;
-        DEST.i8[4] = (DEST.i8[4] > SRC.i8[4]) ? -1 : 0;
-        DEST.i8[5] = (DEST.i8[5] > SRC.i8[5]) ? -1 : 0;
-        DEST.i8[6] = (DEST.i8[6] > SRC.i8[6]) ? -1 : 0;
-        DEST.i8[7] = (DEST.i8[7] > SRC.i8[7]) ? -1 : 0;
+        DEST.i8 = (DEST.i8 > SRC.i8);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -283,10 +254,7 @@ void mmx_instruction::PCMPGTW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = (DEST.i16[0] > SRC.i16[0]) ? -1 : 0;
-        DEST.i16[1] = (DEST.i16[1] > SRC.i16[1]) ? -1 : 0;
-        DEST.i16[2] = (DEST.i16[2] > SRC.i16[2]) ? -1 : 0;
-        DEST.i16[3] = (DEST.i16[3] > SRC.i16[3]) ? -1 : 0;
+        DEST.i16 = (DEST.i16 > SRC.i16);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -295,8 +263,7 @@ void mmx_instruction::PCMPGTD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PCMPGTD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = (DEST.i32[0] > SRC.i32[0]) ? -1 : 0;
-        DEST.i32[1] = (DEST.i32[1] > SRC.i32[1]) ? -1 : 0;
+        DEST.i32 = (DEST.i32 > SRC.i32);
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -329,10 +296,7 @@ void mmx_instruction::PMULLW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMULLW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[0] * SRC.i16[0];
-        DEST.i16[1] = DEST.i16[1] * SRC.i16[1];
-        DEST.i16[2] = DEST.i16[2] * SRC.i16[2];
-        DEST.i16[3] = DEST.i16[3] * SRC.i16[3];
+        DEST.i16 = DEST.i16 * SRC.i16;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -341,7 +305,7 @@ void mmx_instruction::POR(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "POR", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0] | SRC.i64[0];
+        DEST.i64 = DEST.i64 | SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -353,11 +317,7 @@ void mmx_instruction::PSLLW(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.i16[0] = COUNT < 16 ? DEST.i16[0] << COUNT : 0;
-        DEST.i16[1] = COUNT < 16 ? DEST.i16[1] << COUNT : 0;
-        DEST.i16[2] = COUNT < 16 ? DEST.i16[2] << COUNT : 0;
-        DEST.i16[3] = COUNT < 16 ? DEST.i16[3] << COUNT : 0;
+        DEST.i16 = DEST.i16 << SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -369,9 +329,7 @@ void mmx_instruction::PSLLD(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.i32[0] = COUNT < 32 ? DEST.i32[0] << COUNT : 0;
-        DEST.i32[1] = COUNT < 32 ? DEST.i32[1] << COUNT : 0;
+        DEST.i32 = DEST.i32 << SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -383,8 +341,7 @@ void mmx_instruction::PSLLQ(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.i64[0] = COUNT < 64 ? DEST.i64[0] << COUNT : 0;
+        DEST.i64 = DEST.i64 << SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -396,11 +353,7 @@ void mmx_instruction::PSRAW(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.i16[0] = COUNT < 16 ? DEST.i16[0] >> COUNT : 0;
-        DEST.i16[1] = COUNT < 16 ? DEST.i16[1] >> COUNT : 0;
-        DEST.i16[2] = COUNT < 16 ? DEST.i16[2] >> COUNT : 0;
-        DEST.i16[3] = COUNT < 16 ? DEST.i16[3] >> COUNT : 0;
+        DEST.i16 = DEST.i16 >> SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -412,9 +365,7 @@ void mmx_instruction::PSRAD(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.i32[0] = COUNT < 32 ? DEST.i32[0] >> COUNT : 0;
-        DEST.i32[1] = COUNT < 32 ? DEST.i32[1] >> COUNT : 0;
+        DEST.i32 = DEST.i32 >> SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -426,11 +377,7 @@ void mmx_instruction::PSRLW(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.u16[0] = COUNT < 16 ? DEST.u16[0] >> COUNT : 0;
-        DEST.u16[1] = COUNT < 16 ? DEST.u16[1] >> COUNT : 0;
-        DEST.u16[2] = COUNT < 16 ? DEST.u16[2] >> COUNT : 0;
-        DEST.u16[3] = COUNT < 16 ? DEST.u16[3] >> COUNT : 0;
+        DEST.u16 = DEST.u16 >> SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -442,9 +389,7 @@ void mmx_instruction::PSRLD(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.u32[0] = COUNT < 32 ? DEST.u32[0] >> COUNT : 0;
-        DEST.u32[1] = COUNT < 32 ? DEST.u32[1] >> COUNT : 0;
+        DEST.u32 = DEST.u32 >> SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -456,8 +401,7 @@ void mmx_instruction::PSRLQ(Format& format, const uint8_t* opcode)
     }
 
     BEGIN_OPERATION() {
-        auto COUNT = SRC.u8[0];
-        DEST.u64[0] = COUNT < 64 ? DEST.u64[0] >> COUNT : 0;
+        DEST.u64 = DEST.u64 >> SRC.u8[0];
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -466,14 +410,7 @@ void mmx_instruction::PSUBB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i8[0] = DEST.i8[0] - SRC.i8[0];
-        DEST.i8[1] = DEST.i8[1] - SRC.i8[1];
-        DEST.i8[2] = DEST.i8[2] - SRC.i8[2];
-        DEST.i8[3] = DEST.i8[3] - SRC.i8[3];
-        DEST.i8[4] = DEST.i8[4] - SRC.i8[4];
-        DEST.i8[5] = DEST.i8[5] - SRC.i8[5];
-        DEST.i8[6] = DEST.i8[6] - SRC.i8[6];
-        DEST.i8[7] = DEST.i8[7] - SRC.i8[7];
+        DEST.i8 = DEST.i8 - SRC.i8;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -482,10 +419,7 @@ void mmx_instruction::PSUBW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i16[0] = DEST.i16[0] - SRC.i16[0];
-        DEST.i16[1] = DEST.i16[1] - SRC.i16[1];
-        DEST.i16[2] = DEST.i16[2] - SRC.i16[2];
-        DEST.i16[3] = DEST.i16[3] - SRC.i16[3];
+        DEST.i16 = DEST.i16 - SRC.i16;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -494,8 +428,7 @@ void mmx_instruction::PSUBD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSUBD", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = DEST.i32[0] - SRC.i32[0];
-        DEST.i32[1] = DEST.i32[1] - SRC.i32[1];
+        DEST.i32 = DEST.i32 - SRC.i32;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -648,7 +581,7 @@ void mmx_instruction::PXOR(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PXOR", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.i64[0] = DEST.i64[0] ^ SRC.i64[0];
+        DEST.i64 = DEST.i64 ^ SRC.i64;
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

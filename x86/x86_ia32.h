@@ -23,8 +23,7 @@ protected:
 protected:
     static instruction ESC;
     static instruction TWO;
-    static instruction THREE38;
-    static instruction THREE3A;
+    static instruction THREE;
 
     static instruction grp1;
     static instruction grp2;

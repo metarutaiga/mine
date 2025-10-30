@@ -18,6 +18,10 @@
 #define Tuple16(h,l)    ((uint32_t(uint16_t(h)) << 16) | uint16_t(l))
 #define Tuple32(h,l)    ((uint64_t(uint32_t(h)) << 32) | uint32_t(l))
 //------------------------------------------------------------------------------
+#define CopySign(x, y)  (y < 0 ? -x : x)
+#define Max(x,y)        (x > y ? x : y)
+#define Min(x,y)        (x < y ? x : y)
+//------------------------------------------------------------------------------
 #define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
 //------------------------------------------------------------------------------
 template<typename D, typename S>
