@@ -211,7 +211,7 @@ std::string x86_format::Disasm(const Format& format, x86_register& x86, x87_regi
         char temp[64];
         if (sign) {
 #if HAVE_X64
-            auto value = uint64_t(std::abs(int64_t(imm)));
+            auto value = uint64_t(abs(int64_t(imm)));
             if (value > 0x9FFFFFFF)  snprintf(temp, 64, "%s%0*llX", imm < 0 ? "-" : "", 16, value);
 #else
             auto value = uint64_t(abs(int32_t(imm)));

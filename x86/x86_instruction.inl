@@ -1,26 +1,31 @@
 #pragma once
 
 //------------------------------------------------------------------------------
-#define IMM8(m,i)       (*(int8_t*)(m+i))
-#define IMM16(m,i)      (*(int16_t*)(m+i))
-#define IMM32(m,i)      (*(int32_t*)(m+i))
-#define Push16(reg)     (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint16_t))                   ) = (uint16_t)reg)
-#define Push32(reg)     (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint32_t))                   ) = (uint32_t)reg)
-#define Push64(reg)     (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint64_t))                   ) = (uint64_t)reg)
-#define Pop16()         (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint16_t)) - sizeof(uint16_t))                )
-#define Pop32()         (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
-#define Pop64()         (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
-#define LSB(v)          (((v)              ) & 1)
-#define MSB(v)          (((v) >> (SIZE - 1)) & 1)
-#define SMSB(v)         (((v) >> (SIZE - 2)) & 1)
+#define IMM8(m,i)           (*(int8_t*)(m+i))
+#define IMM16(m,i)          (*(int16_t*)(m+i))
+#define IMM32(m,i)          (*(int32_t*)(m+i))
+#define Push16(reg)         (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint16_t))                   ) = (uint16_t)reg)
+#define Push32(reg)         (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint32_t))                   ) = (uint32_t)reg)
+#define Push64(reg)         (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q -= sizeof(uint64_t))                   ) = (uint64_t)reg)
+#define Pop16()             (*(uint16_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint16_t)) - sizeof(uint16_t))                )
+#define Pop32()             (*(uint32_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint32_t)) - sizeof(uint32_t))                )
+#define Pop64()             (*(uint64_t*)(x86.stack_address = x86.memory_address + (x86.regs[4].q += sizeof(uint64_t)) - sizeof(uint64_t))                )
+#define LSB(v)              (((v)              ) & 1)
+#define MSB(v)              (((v) >> (SIZE - 1)) & 1)
+#define SMSB(v)             (((v) >> (SIZE - 2)) & 1)
 //------------------------------------------------------------------------------
-#define Tuple8(h,l)     ((uint16_t(uint8_t(h))  <<  8) | uint8_t(l))
-#define Tuple16(h,l)    ((uint32_t(uint16_t(h)) << 16) | uint16_t(l))
-#define Tuple32(h,l)    ((uint64_t(uint32_t(h)) << 32) | uint32_t(l))
+#define Tuple8(h,l)         ((uint16_t(uint8_t(h))  <<  8) | uint8_t(l))
+#define Tuple16(h,l)        ((uint32_t(uint16_t(h)) << 16) | uint16_t(l))
+#define Tuple32(h,l)        ((uint64_t(uint32_t(h)) << 32) | uint32_t(l))
 //------------------------------------------------------------------------------
-#define CopySign(x, y)  (y < 0 ? -x : x)
-#define Max(x,y)        (x > y ? x : y)
-#define Min(x,y)        (x < y ? x : y)
+#define Abs                 __builtin_elementwise_abs
+#define CopySign(x, y)      (y < 0 ? -x : x)
+#define Max                 __builtin_elementwise_max
+#define Min                 __builtin_elementwise_min
+#define Saturate(x, a, b)   __builtin_elementwise_min(__builtin_elementwise_max(x, a), b)
+#define SaturateAdd         __builtin_elementwise_add_sat
+#define SaturateSub         __builtin_elementwise_sub_sat
+#define Sqrt                __builtin_elementwise_sqrt
 //------------------------------------------------------------------------------
 #define REGISTER_ARGS   x86_register& x86, x87_register& x87, mmx_register& mmx, sse_register& sse
 //------------------------------------------------------------------------------

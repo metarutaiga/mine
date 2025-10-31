@@ -132,9 +132,11 @@ void sse_instruction::CVTPI2PS(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::SSE;
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = SRC.i32[0];
-        DEST.f32[1] = SRC.i32[1];
-    } END_OPERATION_SSE;
+        DEST.f32 = {
+            float(SRC.i32[0]),
+            float(SRC.i32[1]),
+        };
+    } END_OPERATION_SSE_MMX;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::CVTSI2SS(Format& format, const uint8_t* opcode)
@@ -157,23 +159,31 @@ void sse_instruction::CVTPS2PI(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         switch (MXCSR_RC) {
         case RoundNearest:
-            DEST.i32[0] = roundf(SRC.f32[0]);
-            DEST.i32[1] = roundf(SRC.f32[1]);
+            DEST.i32 = {
+                int32_t(roundf(SRC.f32[0])),
+                int32_t(roundf(SRC.f32[1])),
+            };
             break;
         case RoundDown:
-            DEST.i32[0] = floorf(SRC.f32[0]);
-            DEST.i32[1] = floorf(SRC.f32[1]);
+            DEST.i32 = {
+                int32_t(floorf(SRC.f32[0])),
+                int32_t(floorf(SRC.f32[1])),
+            };
             break;
         case RoundUp:
-            DEST.i32[0] = ceilf(SRC.f32[0]);
-            DEST.i32[1] = ceilf(SRC.f32[1]);
+            DEST.i32 = {
+                int32_t(ceilf(SRC.f32[0])),
+                int32_t(ceilf(SRC.f32[1])),
+            };
             break;
         case RoundChop:
-            DEST.i32[0] = truncf(SRC.f32[0]);
-            DEST.i32[1] = truncf(SRC.f32[1]);
+            DEST.i32 = {
+                int32_t(truncf(SRC.f32[0])),
+                int32_t(truncf(SRC.f32[1])),
+            };
             break;
         }
-    } END_OPERATION_SSE;
+    } END_OPERATION_MMX_SSE;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
@@ -207,9 +217,11 @@ void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::MMX;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f32[0];
-        DEST.i32[1] = SRC.f32[1];
-    } END_OPERATION_SSE;
+        DEST.i32 = {
+            int32_t(SRC.f32[0]),
+            int32_t(SRC.f32[1]),
+        };
+    } END_OPERATION_MMX_SSE;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::CVTTSS2SI(Format& format, const uint8_t* opcode)
@@ -383,10 +395,7 @@ void sse_instruction::MOVSS(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::SSE && format.operand[1].type != Format::Operand::SSE) {
         BEGIN_OPERATION() {
-            DEST.f32[0] = SRC.f32[0];
-            DEST.f32[1] = 0;
-            DEST.f32[2] = 0;
-            DEST.f32[3] = 0;
+            DEST.f32 = { SRC.f32[0] };
         } END_OPERATION_SSE;
     }
     else {
@@ -490,11 +499,7 @@ void sse_instruction::RSQRTPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "RSQRTPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = sqrtf(SRC.f32[0]);
-        DEST.f32[1] = sqrtf(SRC.f32[1]);
-        DEST.f32[2] = sqrtf(SRC.f32[2]);
-        DEST.f32[3] = sqrtf(SRC.f32[3]);
-        DEST.f32 = 1.0f / SRC.f32;
+        DEST.f32 = 1.0f / Sqrt(SRC.f32);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -503,8 +508,7 @@ void sse_instruction::RSQRTSS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "RSQRTSS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = sqrtf(SRC.f32[0]);
-        DEST.f32[0] = 1.0f / SRC.f32[0];
+        DEST.f32[0] = 1.0f / sqrtf(SRC.f32[0]);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -523,10 +527,12 @@ void sse_instruction::SHUFPS(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
-        DEST.f32[0] = SRC.f32[(SEL >> 0) & 0x3];
-        DEST.f32[1] = SRC.f32[(SEL >> 2) & 0x3];
-        DEST.f32[2] = SRC.f32[(SEL >> 4) & 0x3];
-        DEST.f32[3] = SRC.f32[(SEL >> 6) & 0x3];
+        DEST.f32 = {
+            SRC.f32[(SEL >> 0) & 0x3],
+            SRC.f32[(SEL >> 2) & 0x3],
+            SRC.f32[(SEL >> 4) & 0x3],
+            SRC.f32[(SEL >> 6) & 0x3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -535,10 +541,7 @@ void sse_instruction::SQRTPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "SQRTPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = sqrtf(SRC.f32[0]);
-        DEST.f32[1] = sqrtf(SRC.f32[1]);
-        DEST.f32[2] = sqrtf(SRC.f32[2]);
-        DEST.f32[3] = sqrtf(SRC.f32[3]);
+        DEST.f32 = Sqrt(SRC.f32);
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------

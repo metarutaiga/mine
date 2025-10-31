@@ -42,14 +42,16 @@ void mmx_instruction::PAVGB(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PAVGB", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u8[0] = (DEST.u8[0] + SRC.u8[0]) / 2;
-        DEST.u8[1] = (DEST.u8[1] + SRC.u8[1]) / 2;
-        DEST.u8[2] = (DEST.u8[2] + SRC.u8[2]) / 2;
-        DEST.u8[3] = (DEST.u8[3] + SRC.u8[3]) / 2;
-        DEST.u8[4] = (DEST.u8[4] + SRC.u8[4]) / 2;
-        DEST.u8[5] = (DEST.u8[5] + SRC.u8[5]) / 2;
-        DEST.u8[6] = (DEST.u8[6] + SRC.u8[6]) / 2;
-        DEST.u8[7] = (DEST.u8[7] + SRC.u8[7]) / 2;
+        DEST.u8 = {
+            uint8_t((DEST.u8[0] + SRC.u8[0]) / 2),
+            uint8_t((DEST.u8[1] + SRC.u8[1]) / 2),
+            uint8_t((DEST.u8[2] + SRC.u8[2]) / 2),
+            uint8_t((DEST.u8[3] + SRC.u8[3]) / 2),
+            uint8_t((DEST.u8[4] + SRC.u8[4]) / 2),
+            uint8_t((DEST.u8[5] + SRC.u8[5]) / 2),
+            uint8_t((DEST.u8[6] + SRC.u8[6]) / 2),
+            uint8_t((DEST.u8[7] + SRC.u8[7]) / 2),
+        };
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -58,10 +60,12 @@ void mmx_instruction::PAVGW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PAVGW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u16[0] = (DEST.u16[0] + SRC.u16[0]) / 2;
-        DEST.u16[1] = (DEST.u16[1] + SRC.u16[1]) / 2;
-        DEST.u16[2] = (DEST.u16[2] + SRC.u16[2]) / 2;
-        DEST.u16[3] = (DEST.u16[3] + SRC.u16[3]) / 2;
+        DEST.u16 = {
+            uint16_t((DEST.u16[0] + SRC.u16[0]) / 2),
+            uint16_t((DEST.u16[1] + SRC.u16[1]) / 2),
+            uint16_t((DEST.u16[2] + SRC.u16[2]) / 2),
+            uint16_t((DEST.u16[3] + SRC.u16[3]) / 2),
+        };
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -147,10 +151,12 @@ void mmx_instruction::PMULHUW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PMULHUW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u16[0] = (DEST.u16[0] * SRC.u16[0]) >> 16;
-        DEST.u16[1] = (DEST.u16[1] * SRC.u16[1]) >> 16;
-        DEST.u16[2] = (DEST.u16[2] * SRC.u16[2]) >> 16;
-        DEST.u16[3] = (DEST.u16[3] * SRC.u16[3]) >> 16;
+        DEST.u16 = {
+            uint16_t((DEST.u16[0] * SRC.u16[0]) >> 16),
+            uint16_t((DEST.u16[1] * SRC.u16[1]) >> 16),
+            uint16_t((DEST.u16[2] * SRC.u16[2]) >> 16),
+            uint16_t((DEST.u16[3] * SRC.u16[3]) >> 16),
+        };
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -159,18 +165,19 @@ void mmx_instruction::PSADBW(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "PSADBW", 2, MMX_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.u16[0] = 0;
-        DEST.u16[0] += abs(DEST.u8[0] - SRC.u8[0]);
-        DEST.u16[0] += abs(DEST.u8[1] - SRC.u8[1]);
-        DEST.u16[0] += abs(DEST.u8[2] - SRC.u8[2]);
-        DEST.u16[0] += abs(DEST.u8[3] - SRC.u8[3]);
-        DEST.u16[0] += abs(DEST.u8[4] - SRC.u8[4]);
-        DEST.u16[0] += abs(DEST.u8[5] - SRC.u8[5]);
-        DEST.u16[0] += abs(DEST.u8[6] - SRC.u8[6]);
-        DEST.u16[0] += abs(DEST.u8[7] - SRC.u8[7]);
-        DEST.u16[1] = 0;
-        DEST.u16[2] = 0;
-        DEST.u16[3] = 0;
+        DEST.u16 = {
+            uint16_t(abs(DEST.u8[0] - SRC.u8[0]) +
+                     abs(DEST.u8[1] - SRC.u8[1]) +
+                     abs(DEST.u8[2] - SRC.u8[2]) +
+                     abs(DEST.u8[3] - SRC.u8[3]) +
+                     abs(DEST.u8[4] - SRC.u8[4]) +
+                     abs(DEST.u8[5] - SRC.u8[5]) +
+                     abs(DEST.u8[6] - SRC.u8[6]) +
+                     abs(DEST.u8[7] - SRC.u8[7])),
+            0,
+            0,
+            0,
+        };
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------
@@ -180,10 +187,12 @@ void mmx_instruction::PSHUFW(Format& format, const uint8_t* opcode)
 
     BEGIN_OPERATION() {
         auto SEL = SRC2.u8[0];
-        DEST.i16[0] = SRC.i16[(SEL >> 0) & 0x3];
-        DEST.i16[1] = SRC.i16[(SEL >> 2) & 0x3];
-        DEST.i16[2] = SRC.i16[(SEL >> 4) & 0x3];
-        DEST.i16[3] = SRC.i16[(SEL >> 6) & 0x3];
+        DEST.i16 = {
+            SRC.i16[(SEL >> 0) & 0x3],
+            SRC.i16[(SEL >> 2) & 0x3],
+            SRC.i16[(SEL >> 4) & 0x3],
+            SRC.i16[(SEL >> 6) & 0x3],
+        };
     } END_OPERATION_MMX;
 }
 //------------------------------------------------------------------------------

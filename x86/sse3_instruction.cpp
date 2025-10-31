@@ -21,8 +21,10 @@ void sse3_instruction::ADDSUBPD(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "ADDSUBPD", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = DEST.f64[0] - SRC.f64[0];
-        DEST.f64[1] = DEST.f64[1] + SRC.f64[1];
+        DEST.f64 = {
+            DEST.f64[0] - SRC.f64[0],
+            DEST.f64[1] + SRC.f64[1],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
@@ -31,10 +33,12 @@ void sse3_instruction::ADDSUBPS(Format& format, const uint8_t* opcode)
     Decode(format, opcode, "ADDSUBPS", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
 
     BEGIN_OPERATION() {
-        DEST.f32[0] = DEST.f32[0] - SRC.f32[0];
-        DEST.f32[1] = DEST.f32[1] + SRC.f32[1];
-        DEST.f32[2] = DEST.f32[2] - SRC.f32[2];
-        DEST.f32[3] = DEST.f32[3] + SRC.f32[3];
+        DEST.f32 = {
+            DEST.f32[0] - SRC.f32[0],
+            DEST.f32[1] + SRC.f32[1],
+            DEST.f32[2] - SRC.f32[2],
+            DEST.f32[3] + SRC.f32[3],
+        };
     } END_OPERATION_SSE;
 }
 //------------------------------------------------------------------------------
