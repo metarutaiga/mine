@@ -317,19 +317,19 @@ void sse2_instruction::CVTSD2SI(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         switch (MXCSR_RC) {
         case RoundNearest:
-            DEST.i32[0] = round(SRC.f64[0]);
+            DEST.d = round(SRC.f64[0]);
             break;
         case RoundDown:
-            DEST.i32[0] = floor(SRC.f64[0]);
+            DEST.d = floor(SRC.f64[0]);
             break;
         case RoundUp:
-            DEST.i32[0] = ceil(SRC.f64[0]);
+            DEST.d = ceil(SRC.f64[0]);
             break;
         case RoundChop:
-            DEST.i32[0] = trunc(SRC.f64[0]);
+            DEST.d = trunc(SRC.f64[0]);
             break;
         }
-    } END_OPERATION_SSE;
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTSD2SS(Format& format, const uint8_t* opcode)
@@ -350,8 +350,8 @@ void sse2_instruction::CVTSI2SD(Format& format, const uint8_t* opcode)
         format.operand[1].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.f64[0] = SRC.i32[0];
-    } END_OPERATION_SSE;
+        DEST.f64[0] = SRC.d;
+    } END_OPERATION_SSE_REG;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::CVTSS2SD(Format& format, const uint8_t* opcode)
@@ -410,8 +410,8 @@ void sse2_instruction::CVTTSD2SI(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f64[0];
-    } END_OPERATION_SSE;
+        DEST.d = SRC.f64[0];
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::DIVPD(Format& format, const uint8_t* opcode)
@@ -530,13 +530,13 @@ void sse2_instruction::MOVD(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::SSE) {
         BEGIN_OPERATION() {
-            DEST.u32 = { SRC.u32[0] };
-        } END_OPERATION_SSE;
+            DEST.u32 = { SRC.d };
+        } END_OPERATION_SSE_REG;
     }
     else {
         BEGIN_OPERATION() {
-            DEST.u32[0] = SRC.u32[0];
-        } END_OPERATION_SSE;
+            DEST.d = SRC.u32[0];
+        } END_OPERATION_REG_SSE;
     }
 }
 //------------------------------------------------------------------------------
@@ -611,10 +611,10 @@ void sse2_instruction::MOVMSKPD(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = 0;
-        DEST.i32[0] |= SRC.i64[0] & 0x8000000000000000ull ? 1 : 0;
-        DEST.i32[0] |= SRC.i64[1] & 0x8000000000000000ull ? 2 : 0;
-    } END_OPERATION_SSE;
+        DEST.d = 0;
+        DEST.d |= SRC.i64[0] & 0x8000000000000000ull ? 1 : 0;
+        DEST.d |= SRC.i64[1] & 0x8000000000000000ull ? 2 : 0;
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse2_instruction::MOVNTDQ(Format& format, const uint8_t* opcode)
@@ -651,24 +651,24 @@ void sse2_instruction::MOVQ(Format& format, const uint8_t* opcode)
     case 0x7E:
         Decode(format, opcode, "MOVQ", 2, SSE_REGISTER | OPERAND_SIZE | DIRECTION);
         if (format.operand[1].type == Format::Operand::SSE)
-            format.operand[1].type = Format::Operand::REG;
+            format.operand[1].type = Format::Operand::MMX;
         break;
     case 0xD6:
         Decode(format, opcode, "MOVQ", 2, SSE_REGISTER | OPERAND_SIZE);
         if (format.operand[0].type == Format::Operand::SSE)
-            format.operand[0].type = Format::Operand::REG;
+            format.operand[0].type = Format::Operand::MMX;
         break;
     }
 
     if (format.operand[0].type == Format::Operand::SSE) {
         BEGIN_OPERATION() {
             DEST.u64 = { SRC.u64[0] };
-        } END_OPERATION_SSE;
+        } END_OPERATION_SSE_MMX;
     }
     else {
         BEGIN_OPERATION() {
             DEST.u64[0] = SRC.u64[0];
-        } END_OPERATION_SSE;
+        } END_OPERATION_MMX_SSE;
     }
 }
 //------------------------------------------------------------------------------

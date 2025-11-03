@@ -14,7 +14,9 @@
 //
 //------------------------------------------------------------------------------
 const char* const x86_format::REG8HL[8] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
+#if HAVE_X64
 const char* const x86_format::REG8[8] = { "AL", "CL", "DL", "BL", "SPL", "BPL", "SIL", "DIL" };
+#endif
 const char* const x86_format::REG16[8] = { "AX", "CX", "DX", "BX", "SP", "BP", "SI", "DI" };
 const char* const x86_format::REG32[8] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI" };
 const char* const x86_format::REG64[8] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI" };

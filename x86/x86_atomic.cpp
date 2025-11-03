@@ -32,9 +32,9 @@ void x86_instruction::CMPXCHG8B(Format& format, const uint8_t* opcode)
 
     OPERATION() {
         auto& DEST = *(uint64_t*)format.operand[0].memory;
-        if ((uint64_t(EDX) << 32 | EAX) == DEST) {
+        if (Tuple32(EDX, EAX) == DEST) {
             ZF = 1;
-            DEST = (uint64_t(ECX) << 32 | EBX);
+            DEST = Tuple32(ECX, EBX);
         }
         else {
             ZF = 0;

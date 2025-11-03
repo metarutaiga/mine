@@ -195,19 +195,19 @@ void sse_instruction::CVTSS2SI(Format& format, const uint8_t* opcode)
     BEGIN_OPERATION() {
         switch (MXCSR_RC) {
         case RoundNearest:
-            DEST.i32[0] = roundf(SRC.f32[0]);
+            DEST.d = roundf(SRC.f32[0]);
             break;
         case RoundDown:
-            DEST.i32[0] = floorf(SRC.f32[0]);
+            DEST.d = floorf(SRC.f32[0]);
             break;
         case RoundUp:
-            DEST.i32[0] = ceilf(SRC.f32[0]);
+            DEST.d = ceilf(SRC.f32[0]);
             break;
         case RoundChop:
-            DEST.i32[0] = truncf(SRC.f32[0]);
+            DEST.d = truncf(SRC.f32[0]);
             break;
         }
-    } END_OPERATION_SSE;
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::CVTTPS2PI(Format& format, const uint8_t* opcode)
@@ -231,8 +231,8 @@ void sse_instruction::CVTTSS2SI(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = SRC.f32[0];
-    } END_OPERATION_SSE;
+        DEST.d = SRC.f32[0];
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::DIVPS(Format& format, const uint8_t* opcode)
@@ -369,12 +369,12 @@ void sse_instruction::MOVMSKPS(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.i32[0] = 0;
-        DEST.i32[0] |= SRC.i32[0] & 0x80000000 ? 1 : 0;
-        DEST.i32[0] |= SRC.i32[1] & 0x80000000 ? 2 : 0;
-        DEST.i32[0] |= SRC.i32[2] & 0x80000000 ? 4 : 0;
-        DEST.i32[0] |= SRC.i32[3] & 0x80000000 ? 8 : 0;
-    } END_OPERATION_SSE;
+        DEST.d = 0;
+        DEST.d |= SRC.i32[0] & 0x80000000 ? 1 : 0;
+        DEST.d |= SRC.i32[1] & 0x80000000 ? 2 : 0;
+        DEST.d |= SRC.i32[2] & 0x80000000 ? 4 : 0;
+        DEST.d |= SRC.i32[3] & 0x80000000 ? 8 : 0;
+    } END_OPERATION_REG_SSE;
 }
 //------------------------------------------------------------------------------
 void sse_instruction::MOVNTPS(Format& format, const uint8_t* opcode)

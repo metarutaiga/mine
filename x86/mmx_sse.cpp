@@ -134,16 +134,16 @@ void mmx_instruction::PMOVMSKB(Format& format, const uint8_t* opcode)
     format.operand[0].type = Format::Operand::REG;
 
     BEGIN_OPERATION() {
-        DEST.u32[0] = 0;
-        DEST.u32[0] |= SRC.u8[0] & 0x80 ? 0x01 : 0;
-        DEST.u32[0] |= SRC.u8[1] & 0x80 ? 0x02 : 0;
-        DEST.u32[0] |= SRC.u8[2] & 0x80 ? 0x04 : 0;
-        DEST.u32[0] |= SRC.u8[3] & 0x80 ? 0x08 : 0;
-        DEST.u32[0] |= SRC.u8[4] & 0x80 ? 0x10 : 0;
-        DEST.u32[0] |= SRC.u8[5] & 0x80 ? 0x20 : 0;
-        DEST.u32[0] |= SRC.u8[6] & 0x80 ? 0x40 : 0;
-        DEST.u32[0] |= SRC.u8[7] & 0x80 ? 0x80 : 0;
-    } END_OPERATION_MMX;
+        DEST.d = 0;
+        DEST.d |= SRC.u8[0] & 0x80 ? 0x01 : 0;
+        DEST.d |= SRC.u8[1] & 0x80 ? 0x02 : 0;
+        DEST.d |= SRC.u8[2] & 0x80 ? 0x04 : 0;
+        DEST.d |= SRC.u8[3] & 0x80 ? 0x08 : 0;
+        DEST.d |= SRC.u8[4] & 0x80 ? 0x10 : 0;
+        DEST.d |= SRC.u8[5] & 0x80 ? 0x20 : 0;
+        DEST.d |= SRC.u8[6] & 0x80 ? 0x40 : 0;
+        DEST.d |= SRC.u8[7] & 0x80 ? 0x80 : 0;
+    } END_OPERATION_REG_MMX;
 }
 //-----------------------------------------------------------------------------
 void mmx_instruction::PMULHUW(Format& format, const uint8_t* opcode)

@@ -39,13 +39,13 @@ void mmx_instruction::MOVD(Format& format, const uint8_t* opcode)
 
     if (format.operand[0].type == Format::Operand::MMX) {
         BEGIN_OPERATION() {
-            DEST.u32 = { SRC.u32[0] };
-        } END_OPERATION_MMX;
+            DEST.u32 = { SRC.d };
+        } END_OPERATION_MMX_REG;
     }
     else {
         BEGIN_OPERATION() {
-            DEST.u32[0] = SRC.u32[0];
-        } END_OPERATION_MMX;
+            DEST.d = SRC.u32[0];
+        } END_OPERATION_REG_MMX;
     }
 }
 //------------------------------------------------------------------------------

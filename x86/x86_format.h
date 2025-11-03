@@ -78,7 +78,9 @@ struct x86_format
     typedef void (*instruction_pointer)(Format&, const uint8_t*);
 
     static const char* const REG8HL[8];
+#if HAVE_X64
     static const char* const REG8[8];
+#endif
     static const char* const REG16[8];
     static const char* const REG32[8];
     static const char* const REG64[8];
