@@ -372,7 +372,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 const char* text = nullptr;
                 if (*value) {
                     text = (char*)cpu->Memory(*value);
-                    if (text) {
+                    if (text && ((size_t)text & 0x3) == 0) {
                         uint32_t index = *(uint32_t*)text;
                         const char* name = Name(index);
                         if (name) {

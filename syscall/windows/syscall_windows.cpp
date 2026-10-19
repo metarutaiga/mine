@@ -97,9 +97,13 @@ static const struct {
     // kernel32 - file
     { "CloseHandle",                INT32(1, syscall_CloseHandle(memory, stack, allocator))         },
     { "CreateFileA",                INT32(7, syscall_CreateFileA(memory, stack, allocator))         },
+    { "CreateFileW",                INT32(7, syscall_CreateFileW(memory, stack, allocator))         },
     { "CreateFileMappingA",         INT32(6, syscall_CreateFileMappingA(memory, stack, allocator))  },
     { "GetFileSize",                INT32(2, syscall_GetFileSize(memory, stack))                    },
     { "GetFullPathNameA",           INT32(4, syscall_GetFullPathNameA(memory, stack))               },
+    { "GetFullPathNameW",           INT32(4, syscall_GetFullPathNameW(memory, stack))               },
+    { "ReadFile",                   INT32(5, syscall_ReadFile(memory, stack, allocator))            },
+    { "WriteFile",                  INT32(5, syscall_WriteFile(memory, stack, allocator))           },
     { "MapViewOfFile",              INT32(5, syscall_MapViewOfFile(memory, stack, allocator))       },
     { "UnmapViewOfFile",            INT32(1, syscall_UnmapViewOfFile(memory, stack, allocator))     },
 
@@ -267,6 +271,7 @@ static const struct {
     { "_initterm_e",                INT32(0, syscall__initterm(memory, stack, cpu))                 },
     { "_lock",                      INT32(0, 0)                                                     },
     { "_malloc_crt",                INT32(0, syscall_malloc(stack, allocator))                      },
+    { "_mbstrlen",                  INT32(0, syscall_strlen(memory, stack))                         },
     { "_msize",                     INT32(0, syscall_msize(stack, allocator))                       },
     { "_onexit",                    INT32(0, 0)                                                     },
     { "_setjmp3",                   INT32(0, syscall_setjmp(memory, stack, cpu))                    },
@@ -274,7 +279,9 @@ static const struct {
     { "_strdup",                    INT32(0, syscall_strdup(memory, stack, allocator))              },
     { "_stricmp",                   INT32(0, syscall_stricmp(memory, stack))                        },
     { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                       },
+    { "_vsnwprintf",                INT32(0, syscall__vsnwprintf(memory, stack))                    },
     { "_unlock",                    INT32(0, 0)                                                     },
+    { "_wfopen",                    INT32(0, syscall__wfopen(stack, allocator))                     },
     { "__acrt_iob_func",            INT32(0, syscall___acrt_iob_func(memory, stack))                },
     { "__dllonexit",                INT32(0, 0)                                                     },
     { "__getmainargs",              INT32(0, syscall___getmainargs(memory, stack, allocator))       },
@@ -425,33 +432,54 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
             return strcasecmp(pair.first.c_str(), file.c_str()) == 0;
         });
         if (it == modules->end()) {
-            struct stat st;
-            std::string path = windows->directory;
-            path += '/';
-            path += file;
-            if (stat(path.c_str(), &st) == 0) {
-                void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
+            std::string path;
+
+            void* image = nullptr;
+            for (size_t i = 0; i < 2; ++i) {
+                switch (i) {
+                case 0: {
+                    auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+                    auto* argv = physical(uint32_t*, msvcrt->argv);
+                    path = physical(char*, argv[0]);
+                    path.resize(path.rfind('/') + 1);
+                    break;
+                }
+                case 1:
+                    path = windows->directory;
+                    break;
+                }
+                path += '/';
+                path += file;
+
+                struct stat st;
+                if (stat(path.c_str(), &st) != 0)
+                    continue;
+
+                image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
                     mine* cpu = (mine*)userdata;
                     return cpu->Memory(base, size);
                 }, cpu, printf);
+                if (image)
+                    break;
+            }
+
+            if (image) {
 
                 // MEMORY-SYNC
                 memory = cpu->Memory();
                 windows = physical(Windows*, TIB_WINDOWS);
                 modules = &windows->modules;
 
-                if (image) {
-                    size_t offset = modules->size();
-                    modules->emplace_back(file, virtual(size_t, image));
-                    syscall_windows_import(cpu, file.c_str(), image, false);
+                size_t offset = modules->size();
+                modules->emplace_back(file, virtual(size_t, image));
+                syscall_windows_import(cpu, file.c_str(), image, false);
 
-                    // MEMORY-SYNC
-                    memory = cpu->Memory();
-                    windows = physical(Windows*, TIB_WINDOWS);
-                    modules = &windows->modules;
+                // MEMORY-SYNC
+                memory = cpu->Memory();
+                windows = physical(Windows*, TIB_WINDOWS);
+                modules = &windows->modules;
 
-                    it = modules->begin() + offset;
-                }
+                it = modules->begin() + offset;
             }
         }
         if (it != modules->end()) {
@@ -493,8 +521,9 @@ void syscall_windows_import(void* data, const char* import_file, void* image, bo
         strncpy(windows->imageDirectory, file.c_str(), sizeof(windows->imageDirectory));
 #ifndef _WIN32
         for (char& c : windows->imageDirectory) {
-            if (c == '/')
+            if (c == '/') {
                 c = '\\';
+            }
         }
 #endif
         return;

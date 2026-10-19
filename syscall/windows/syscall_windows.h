@@ -43,9 +43,13 @@ bool syscall_SetCurrentDirectoryW(const void* memory, const void* stack);
 // kernel32 - file
 bool syscall_CloseHandle(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_CreateFileA(const void* memory, const void* stack, struct allocator_t* allocator);
+size_t syscall_CreateFileW(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_CreateFileMappingA(const void* memory, const void* stack, struct allocator_t* allocator);
 uint32_t syscall_GetFileSize(const void* memory, const void* stack);
 uint32_t syscall_GetFullPathNameA(const void* memory, const void* stack);
+uint32_t syscall_GetFullPathNameW(const void* memory, const void* stack);
+bool syscall_ReadFile(const void* memory, const void* stack, struct allocator_t* allocator);
+bool syscall_WriteFile(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_MapViewOfFile(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_UnmapViewOfFile(const void* memory, const void* stack, struct allocator_t* allocator);
 
@@ -157,6 +161,8 @@ int syscall__clearfp(void* cpu);
 int syscall__fpclass(const void* stack);
 int64_t syscall__ftol(void* cpu);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);
+int syscall__vsnwprintf(void* memory, const void* stack);
+size_t syscall__wfopen(const void* stack, struct allocator_t* allocator);
 size_t syscall___acrt_iob_func(const void* memory, const void* stack);
 int syscall___getmainargs(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall___iob_func(const void* memory);

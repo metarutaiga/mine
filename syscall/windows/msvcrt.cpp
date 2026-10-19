@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <utility>
+#include <vector>
 #include "../allocator.h"
+#include "../convert_format.h"
 #include "../syscall.h"
 #include "../syscall_internal.h"
 #include "../../x86/x86_i386.h"
@@ -332,6 +334,73 @@ int syscall__initterm(char* memory, const uint32_t* stack, x86_i386* cpu)
         }
     }
     return 0;
+}
+
+int syscall__vsnwprintf(char* memory, const uint32_t* stack)
+{
+    auto buffer = physical(char16_t*, stack[1]);
+    auto length = stack[2];
+    auto format = physical(char16_t*, stack[3]);
+    auto args = physical(va_list, stack[4]);
+    std::wstring format64;
+    for (char16_t c; (c = (*format)); format++) {
+        format64.push_back(c);
+    }
+    auto args64 = syscall_convert_format_argument(format64, memory, args, false);
+    std::wstring temp(length, 0);
+    int result = vswprintf(temp.data(), length, format64.c_str(), (va_list)args64.data());
+    for (int i = 0; i <= result; ++i) {
+        wchar_t c = temp[i];
+        buffer[i] = c;
+    }
+    return result;
+}
+
+size_t syscall__wfopen(const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto stream = (FILE**)allocator->allocate(sizeof(FILE*));
+    if (stream == nullptr)
+        return 0;
+    char* memory = (char*)allocator->address();
+
+    auto filename = physical(char16_t*, stack[1]);
+    auto mode = physical(char*, stack[2]);
+
+    char fullpath[260];
+    if (filename[0] != '/' && filename[0] != '\\') {
+        auto directory = physical(char*, offset_directory);
+        strncpy(fullpath, directory, 260);
+        strncat(fullpath, "/", 260);
+    }
+    else {
+        fullpath[0] = 0;
+    }
+    for (size_t i = strlen(fullpath), j = 0; i < 260; ++i, ++j) {
+        char c = filename[j];
+        fullpath[i] = c;
+        if (c == 0) {
+            break;
+        }
+    }
+#ifndef _WIN32
+    for (char& c : fullpath) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+#endif
+
+    (*stream) = fopen(fullpath, mode);
+    if ((*stream) == nullptr) {
+        allocator->deallocate(stream);
+        return 0;
+    }
+
+    // FILE-RECORD
+    auto& record = *physical(std::vector<FILE*>*, offset_file);
+    record.push_back(*stream);
+
+    return virtual(size_t, stream);
 }
 
 size_t syscall___acrt_iob_func(char* memory, const uint32_t* stack)

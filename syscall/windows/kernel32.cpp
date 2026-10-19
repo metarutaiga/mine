@@ -10,6 +10,7 @@
 #include "../../x86/x86_instruction.inl"
 #include "../../x86/mmx_register.h"
 #include "../../x86/sse_register.h"
+#include "msvcrt.h"
 #include "windows.h"
 
 #if defined(_WIN32)
@@ -112,12 +113,13 @@ static uint32_t syscall_GetCurrentDirectory(uint8_t* memory, uint32_t nBufferLen
 {
     auto* windows = physical(Windows*, TIB_WINDOWS);
 
+    if (lpBuffer == nullptr) {
+        return uint32_t(strlen(windows->directory) + 1);
+    }
+
     for (uint32_t i = 0; i < nBufferLength; ++i) {
-        char c = windows->directory[i];
-        (*lpBuffer++) = c;
-        for (int i = 1; i < nWidth; ++i) {
-            (*lpBuffer++) = 0;
-        }
+        int c = windows->directory[i];
+        memcpy(&lpBuffer[i * nWidth], &c, nWidth);
         if (c == 0) {
             return i;
         }
@@ -147,12 +149,14 @@ static bool syscall_SetCurrentDirectory(uint8_t* memory, char* lpPathName, int n
     for (int i = 0; i < 260; ++i) {
         char c = lpPathName[i * nWidth];
 #ifndef _WIN32
-        if (c == '/')
+        if (c == '/') {
             c = '\\';
+        }
 #endif
         windows->directory[i] = c;
-        if (c == 0)
+        if (c == 0) {
             break;
+        }
     }
 
     auto* printf = physical(Printf*, offset_printf);
@@ -196,7 +200,7 @@ bool syscall_CloseHandle(uint8_t* memory, const uint32_t* stack, struct allocato
     return true;
 }
 
-size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+static size_t syscall_CreateFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator, int nWidth)
 {
     auto lpFileName = physical(char*, stack[1]);
     auto dwDesiredAccess = stack[2];
@@ -212,18 +216,25 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
         path = windows->directory;
         path += '\\';
     }
-    path += lpFileName;
+    for (size_t i = 0; i < 260; ++i) {
+        char c = lpFileName[i * nWidth];
+        path += c;
+        if (c == 0) {
+            break;
+        }
+    }
 #ifndef _WIN32
     for (char& c : path) {
-        if (c == '\\')
+        if (c == '\\') {
             c = '/';
+        }
     }
 #endif
 
     struct stat st;
     const char* mode = nullptr;
     switch (dwDesiredAccess & 0xC0000000) {
-    default:                        return SYSCALL_INVALID_HANDLE_VALUE;
+    case 0x00000000: mode = "rb";   break;
     case 0x40000000: mode = "wb";   break;
     case 0x80000000: mode = "rb";   break;
     case 0xC0000000: mode = "wb+";  break;
@@ -266,6 +277,16 @@ size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct alloca
     return virtual(size_t, handle);
 }
 
+size_t syscall_CreateFileA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    return syscall_CreateFile(memory, stack, allocator, sizeof(char));
+}
+
+size_t syscall_CreateFileW(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    return syscall_CreateFile(memory, stack, allocator, sizeof(char16_t));
+}
+
 size_t syscall_CreateFileMappingA(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto hFile = physical(FILE**, stack[1]);
@@ -294,31 +315,95 @@ uint32_t syscall_GetFileSize(uint8_t* memory, const uint32_t* stack)
     return uint32_t(size);
 }
 
-uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
+static uint32_t syscall_GetFullPathName(uint8_t* memory, const uint32_t* stack, int nWidth)
 {
     auto lpFileName = physical(char*, stack[1]);
     auto nBufferLength = stack[2];
     auto lpBuffer = physical(char*, stack[3]);
     auto lpFilePart = physical(uint32_t*, stack[4]);
 
+    auto* windows = physical(Windows*, TIB_WINDOWS);
+
     if (lpBuffer == nullptr) {
-        return uint32_t(strlen(lpFileName) + 1);
+        uint32_t length = 0;
+        if (lpFileName[0] != '/' && lpFileName[0] != '\\')
+            length = uint32_t(strlen(windows->directory) + 1);
+        if (nWidth == 16)
+            return uint32_t(length + std::char_traits<char16_t>::length((char16_t*)lpFileName) + 1);
+        return uint32_t(length + std::char_traits<char>::length(lpFileName) + 1);
     }
 
     if (lpFilePart) {
         (*lpFilePart) = virtual(uint32_t, lpBuffer);
     }
 
-    for (uint32_t i = 0; i < nBufferLength; ++i) {
-        char c = lpFileName[i];
-        lpBuffer[i] = c;
-        if (c == 0)
+    uint32_t length = 0;
+    if (lpFileName[0] != '/' && lpFileName[0] != '\\') {
+        for (uint32_t i = 0; i < 260; ++i) {
+            int c = windows->directory[i];
+            memcpy(&lpBuffer[i * nWidth], &c, nWidth);
+            if (c == 0) {
+                c = '/';
+                memcpy(&lpBuffer[i * nWidth], &c, nWidth);
+                length = i + 1;
+                break;
+            }
+        }
+    }
+
+    for (uint32_t i = length, j = 0; i < nBufferLength; ++i, ++j) {
+        int c = lpFileName[j * nWidth];
+        memcpy(&lpBuffer[i * nWidth], &c, nWidth);
+        if (c == 0) {
             return i;
+        }
         if ((c == '/' || c == '\\') && lpFilePart) {
-            (*lpFilePart) = virtual(uint32_t, lpBuffer + i + 1);
+            (*lpFilePart) = virtual(uint32_t, &lpBuffer[i * nWidth + 1]);
         }
     }
     return nBufferLength;
+}
+
+uint32_t syscall_GetFullPathNameA(uint8_t* memory, const uint32_t* stack)
+{
+    return syscall_GetFullPathName(memory, stack, sizeof(char));
+}
+
+uint32_t syscall_GetFullPathNameW(uint8_t* memory, const uint32_t* stack)
+{
+    return syscall_GetFullPathName(memory, stack, sizeof(char16_t));
+}
+
+bool syscall_ReadFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto hFile = physical(FILE**, stack[1]);
+    auto lpBuffer = physical(void*, stack[2]);
+    auto nNumberOfBytesToRead = stack[3];
+    auto lpNumberOfBytesRead = physical(uint32_t*, stack[4]);
+//  auto lpOverlapped = physical(uint32_t*, stack[5]);
+
+    size_t result = fread(lpBuffer, 1, nNumberOfBytesToRead, *hFile);
+    if (lpNumberOfBytesRead) {
+        (*lpNumberOfBytesRead) = (uint32_t)result;
+    }
+
+    return true;
+}
+
+bool syscall_WriteFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
+{
+    auto hFile = physical(FILE**, stack[1]);
+    auto lpBuffer = physical(void*, stack[2]);
+    auto nNumberOfBytesToWrite = stack[3];
+    auto lpNumberOfBytesWritten = physical(uint32_t*, stack[4]);
+//  auto lpOverlapped = physical(uint32_t*, stack[5]);
+
+    size_t result = fwrite(lpBuffer, 1, nNumberOfBytesToWrite, *hFile);
+    if (lpNumberOfBytesWritten) {
+        (*lpNumberOfBytesWritten) = (uint32_t)result;
+    }
+
+    return true;
 }
 
 size_t syscall_MapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allocator_t* allocator)
@@ -440,8 +525,9 @@ size_t syscall_FindFirstFileA(uint32_t* stack, struct allocator_t* allocator)
     path += lpFileName;
 #ifndef _WIN32
     for (char& c : path) {
-        if (c == '\\')
+        if (c == '\\') {
             c = '/';
+        }
     }
 #endif
     auto slash = path.find_last_of("/\\");
@@ -564,20 +650,15 @@ static size_t syscall_GetModuleFileName(uint8_t* memory, size_t module, char* lp
             }
         }
         for (size_t i = 0; i < nSize; ++i) {
-            char c = found[i];
-            (*lpFilename++) = c;
-            for (int i = 1; i < nWidth; ++i) {
-                (*lpFilename++) = 0;
-            }
+            int c = found[i];
+            memcpy(&lpFilename[i * nWidth], &c, nWidth);
             if (c == 0) {
                 return i;
             }
         }
     }
     else {
-        for (int i = 0; i < nWidth; ++i) {
-            (*lpFilename++) = 0;
-        }
+        memset(lpFilename, 0, nWidth);
     }
     return 0;
 }
@@ -725,31 +806,54 @@ size_t syscall_GetProcAddress(uint8_t* memory, const uint32_t* stack)
     return data.address;
 }
 
+extern "C" int printf(const char*, ...);
+
 static size_t syscall_LoadLibrary(uint8_t* memory, const char* lpLibFileName, x86_i386* cpu)
 {
-    std::string path;
-    if (lpLibFileName[0] != '/' && lpLibFileName[0] != '\\') {
-        auto* windows = physical(Windows*, TIB_WINDOWS);
-        path = windows->directory;
-        path += '\\';
-    }
-    path += lpLibFileName;
-#ifndef _WIN32
-    for (char& c : path) {
-        if (c == '\\')
-            c = '/';
-    }
-#endif
-
     auto* printf = physical(Printf*, offset_printf);
     if (printf->debugPrintf) {
         printf->debugPrintf("[CALL] %s - %s", "LoadLibraryA", lpLibFileName);
     }
 
-    void* image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
-        mine* cpu = (mine*)userdata;
-        return cpu->Memory(base, size);
-    }, cpu, printf->debugPrintf);
+    void* image = nullptr;
+    std::string path;
+    for (size_t i = 0; i < 2; ++i) {
+        switch (i) {
+        case 0: {
+            auto* msvcrt = physical(MSVCRT*, TIB_MSVCRT);
+            auto* argv = physical(uint32_t*, msvcrt->argv);
+            path = physical(char*, argv[0]);
+            path.resize(path.rfind('/') + 1);
+            break;
+        }
+        case 1:
+            if (lpLibFileName[0] != '/' && lpLibFileName[0] != '\\') {
+                auto* windows = physical(Windows*, TIB_WINDOWS);
+                path = windows->directory;
+                path += '\\';
+            }
+            break;
+        }
+        path += lpLibFileName;
+#ifndef _WIN32
+        for (char& c : path) {
+            if (c == '\\') {
+                c = '/';
+            }
+        }
+#endif
+
+        struct stat st;
+        if (stat(path.c_str(), &st) != 0)
+            continue;
+
+        image = PE::Load(path.c_str(), [](size_t base, size_t size, void* userdata) {
+            mine* cpu = (mine*)userdata;
+            return cpu->Memory(base, size);
+        }, cpu, printf->debugPrintf);
+        if (image)
+            break;
+    }
     if (image == nullptr)
         return 0;
 

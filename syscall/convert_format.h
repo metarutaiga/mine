@@ -19,7 +19,7 @@ std::basic_string<C> syscall_convert_format_specifier(const C* format)
 }
 
 template<class C>
-std::vector<uint64_t> syscall_convert_format_argument(const C* format, const void* memory, const void* stack, bool scan)
+std::vector<uint64_t> syscall_convert_format_argument(std::basic_string<C>& format, const void* memory, const void* stack, bool scan)
 {
     auto args = (const uint32_t*)stack;
     size_t args_index = 0;
@@ -67,6 +67,8 @@ std::vector<uint64_t> syscall_convert_format_argument(const C* format, const voi
                 output.push_back((uint64_t)args[args_index++]);
                 output.back() |= (uint64_t)args[args_index++] << 32;
                 break;
+            case 'S':
+                format[j] = 's';
             case 's':
                 output.push_back((uint64_t)memory + args[args_index++]);
                 break;
