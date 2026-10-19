@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "syscall_internal.h"
 
 #ifdef __cplusplus

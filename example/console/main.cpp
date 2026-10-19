@@ -73,8 +73,8 @@ int main(int argc, const char* argv[])
         SyscallWindows syscall_windows = {
             .stack_base = allocator_size,
             .stack_limit = allocator_size - stack_size,
-            .image = (size_t)((uint8_t*)image - cpu->Memory()),
             .symbol = get_symbol,
+            .image = (size_t)((uint8_t*)image - cpu->Memory()),
             .argc = argc - 1,
             .argv = argv + 1,
         };

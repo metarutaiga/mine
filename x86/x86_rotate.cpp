@@ -1,3 +1,4 @@
+#include <bit>
 #include "x86_register.h"
 #include "x86_register.inl"
 #include "x86_instruction.h"

@@ -22,7 +22,7 @@
 #define CopySign(x, y)      (y < 0 ? -x : x)
 #define Max                 __builtin_elementwise_max
 #define Min                 __builtin_elementwise_min
-#define Saturate(x, a, b)   __builtin_elementwise_min(__builtin_elementwise_max(x, a), b)
+#define Saturate(x, a, b)   __builtin_elementwise_min(__builtin_elementwise_max(x, (typename std::remove_reference<decltype(x)>::type)(a)), (typename std::remove_reference<decltype(x)>::type)(b))
 #define SaturateAdd         __builtin_elementwise_add_sat
 #define SaturateSub         __builtin_elementwise_sub_sat
 #define Sqrt                __builtin_elementwise_sqrt
