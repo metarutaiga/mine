@@ -1,18 +1,34 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
 #include "format/coff/pe.h"
 #include "syscall/extend_allocator.h"
 #include "syscall/syscall.h"
 #include "syscall/windows/syscall_windows.h"
-#include "x86/x86_i386.h"
+#include "x86/x86_ia32.h"
+
+#define DEBUG 0
 
 static int syslog(const char* format, ...)
 {
+#if DEBUG
+    va_list va;
+    va_start(va, format);
+    int length = vprintf(format, va);
+    va_end(va);
+    printf("\n");
+    return length;
+#endif
     return 0;
 }
 
-static int vsyslog(const char* format, va_list)
+static int vsyslog(const char* format, va_list va)
 {
+#if DEBUG
+    int length = vprintf(format, va);
+    printf("\n");
+    return length;
+#endif
     return 0;
 }
 
@@ -47,10 +63,10 @@ int main(int argc, const char* argv[])
         return 0;
     }
 
-    static const int allocator_size = 16777216;
-    static const int stack_size = 65536;
+    static const int allocator_size = 2 * 1024 * 1024;
+    static const int stack_size = 1 * 1024 * 1024;
 
-    mine* cpu = new x86_i386;
+    mine* cpu = new x86_ia32;
     cpu->Initialize(extend_allocator<16>::construct(allocator_size), stack_size);
     cpu->Exception = run_exception;
 
@@ -80,6 +96,9 @@ int main(int argc, const char* argv[])
         };
         syscall_windows_new(cpu, &syscall_windows);
         syscall_windows_import(cpu, "main", image, true);
+
+        // MEMORY-SYNC
+        image = cpu->Memory() + syscall_windows.image;
 
         size_t entry = PE::Entry(image);
         if (entry) {
