@@ -61,6 +61,8 @@ size_t syscall_i386_new(void* data, Syscall* syscall)
     auto printf = physical(Printf*, offset_printf);
     printf->printf = syscall->printf;
     printf->vprintf = syscall->vprintf;
+    printf->errPrintf = syscall->errPrintf;
+    printf->errVprintf = syscall->errVprintf;
     printf->debugPrintf = syscall->debugPrintf;
     printf->debugVprintf = syscall->debugVprintf;
 

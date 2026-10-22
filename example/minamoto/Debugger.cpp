@@ -22,8 +22,8 @@
 static mine* cpu;
 static std::string arguments;
 static std::string status;
-static std::vector<std::string> logs[3];
-static bool logsUpdated[3];
+static std::vector<std::string> logs[4];
+static bool logsUpdated[4];
 static std::map<std::string, std::map<size_t, std::string>> disasmses;
 static int exportIndex;
 static std::vector<std::pair<std::string, size_t>> exports;
@@ -31,8 +31,9 @@ static std::vector<std::pair<std::string, size_t>> exports;
 static std::vector<std::pair<std::string, std::string>> samples;
 //------------------------------------------------------------------------------
 #define CONSOLE 0
-#define SYSTEM  1
-#define CALL    2
+#define ERROR   1
+#define SYSTEM  2
+#define CALL    3
 //------------------------------------------------------------------------------
 template<int INDEX>
 static int LoggerV(const char* format, va_list va)
@@ -56,7 +57,7 @@ static int LoggerV(const char* format, va_list va)
     vsnprintf(log.data() + offset, length, format, va);
     log.pop_back();
 
-    if (index == CONSOLE) {
+    if (index == CONSOLE || index == ERROR) {
 
         // Tab
         for (size_t i = offset, j = 0; i < log.size(); ++i, ++j) {
@@ -184,6 +185,7 @@ void Debugger::Shutdown()
     logs[0].clear();
     logs[1].clear();
     logs[2].clear();
+    logs[3].clear();
     disasmses = std::map<std::string, std::map<size_t, std::string>>();
     samples = std::vector<std::pair<std::string, std::string>>();
 }
@@ -249,6 +251,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             ImGui::DockBuilderDockWindow("Export", rightTop);
             ImGui::DockBuilderDockWindow("Menu", rightBottom);
             ImGui::DockBuilderDockWindow("Console", bottomRight);
+            ImGui::DockBuilderDockWindow("Error", bottomRight);
             ImGui::DockBuilderDockWindow("System", bottomLeft);
             ImGui::DockBuilderDockWindow("Call", bottomLeft);
             ImGui::DockBuilderFinish(id);
@@ -456,7 +459,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             logsFocus[0] = -1;
         }
         ImGui::End();
-        if (ImGui::Begin("System", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+        if (ImGui::Begin("Error", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
             ImGui::ListBox("##101", &logsIndex[1], &logsFocus[1], [](void* user_data, int index) {
                 auto* logs = (std::string*)user_data;
@@ -465,13 +468,22 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             logsFocus[1] = -1;
         }
         ImGui::End();
-        if (ImGui::Begin("Call", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+        if (ImGui::Begin("System", nullptr, ImGuiWindowFlags_NoScrollbar)) {
             ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
             ImGui::ListBox("##102", &logsIndex[2], &logsFocus[2], [](void* user_data, int index) {
                 auto* logs = (std::string*)user_data;
                 return logs[index].c_str();
             }, logs[2].data(), (int)logs[2].size());
             logsFocus[2] = -1;
+        }
+        ImGui::End();
+        if (ImGui::Begin("Call", nullptr, ImGuiWindowFlags_NoScrollbar)) {
+            ImGui::SetNextWindowSize(ImGui::GetContentRegionAvail());
+            ImGui::ListBox("##103", &logsIndex[3], &logsFocus[3], [](void* user_data, int index) {
+                auto* logs = (std::string*)user_data;
+                return logs[index].c_str();
+            }, logs[3].data(), (int)logs[3].size());
+            logsFocus[3] = -1;
         }
         ImGui::End();
 
@@ -483,6 +495,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             logs[0].clear();
             logs[1].clear();
             logs[2].clear();
+            logs[3].clear();
             disasmses.clear();
             disasmses["Disassembly"];
             exportIndex = 0;
@@ -490,9 +503,11 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
             logsIndex[0] = 0;
             logsIndex[1] = 0;
             logsIndex[2] = 0;
+            logsIndex[3] = 0;
             logsFocus[0] = -1;
             logsFocus[1] = -1;
             logsFocus[2] = -1;
+            logsFocus[3] = -1;
             disasmIndex = 0;
             disasmFocus = -1;
             stackIndex = 0;
@@ -566,6 +581,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                     .argv = args.data(),
                     .printf = Logger<CONSOLE>,
                     .vprintf = LoggerV<CONSOLE>,
+                    .errPrintf = Logger<ERROR>,
+                    .errVprintf = LoggerV<ERROR>,
                     .debugPrintf = Logger<SYSTEM>,
                     .debugVprintf = LoggerV<SYSTEM>,
                 };
@@ -635,7 +652,7 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
                 focusDisasm(cpu->Program());
                 focusStack(cpu->Stack());
 
-                for (int i = 0; i < 3; ++i) {
+                for (int i = 0; i < 4; ++i) {
                     if (logsUpdated[i]) {
                         logsUpdated[i] = false;
                         logsFocus[i] = (int)logs[i].size() - 1;

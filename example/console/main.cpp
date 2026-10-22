@@ -9,7 +9,21 @@
 
 #define DEBUG 0
 
-static int syslog(const char* format, ...)
+static int errlog(const char* format, ...)
+{
+    va_list va;
+    va_start(va, format);
+    int length = vfprintf(stderr, format, va);
+    va_end(va);
+    return length;
+}
+
+static int verrlog(const char* format, va_list va)
+{
+    return vfprintf(stderr, format, va);
+}
+
+static int debuglog(const char* format, ...)
 {
 #if DEBUG
     va_list va;
@@ -22,7 +36,7 @@ static int syslog(const char* format, ...)
     return 0;
 }
 
-static int vsyslog(const char* format, va_list va)
+static int vdebuglog(const char* format, va_list va)
 {
 #if DEBUG
     int length = vprintf(format, va);
@@ -73,7 +87,7 @@ int main(int argc, const char* argv[])
     void* image = PE::Load(argv[1], [](size_t base, size_t size, void* userdata) {
         mine* cpu = (mine*)userdata;
         return cpu->Memory(base, size);
-    }, cpu, syslog);
+    }, cpu, debuglog);
     if (image) {
         Syscall syscall = {
             .path = ".",
@@ -81,8 +95,10 @@ int main(int argc, const char* argv[])
             .argv = argv + 1,
             .printf = printf,
             .vprintf = vprintf,
-            .debugPrintf = syslog,
-            .debugVprintf = vsyslog,
+            .errPrintf = errlog,
+            .errVprintf = verrlog,
+            .debugPrintf = debuglog,
+            .debugVprintf = vdebuglog,
         };
         syscall_i386_new(cpu, &syscall);
 

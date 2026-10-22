@@ -22,6 +22,8 @@ static FILE** syscall_convert_file_stream(FILE** stream)
             stream = &stdout;
         if (*stream == (FILE*)3)
             stream = &stderr;
+        if (*stream == (FILE*)0x45ECDFB6)
+            stream = &stderr;
     }
     return stream;
 }
@@ -67,14 +69,13 @@ int syscall_ferror(char* memory, const uint32_t* stack)
 int syscall_fflush(char* memory, const uint32_t* stack)
 {
     auto stream = syscall_convert_file_stream(physical(FILE**, stack[1]));
-    switch ((size_t)(*stream)) {
-    case 0x0:
-    case 0x1:
-    case 0x2:
-    case 0x3:   return 0;
-    default:    return fflush(*stream);
-    }
-    return 0;
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return 0;
+    if ((*stream) == stderr)
+        return 0;
+    return fflush(*stream);
 }
 
 int syscall_fgetc(char* memory, const uint32_t* stack)
@@ -151,15 +152,13 @@ int syscall_fprintf(char* memory, const uint32_t* stack)
     auto args = stack + 3;
     auto format64 = syscall_convert_format_specifier(format);
     auto args64 = syscall_convert_format_argument(format64, memory, args, false);
-    switch ((size_t)(*stream)) {
-    case 0x0:
-    case 0x1:   return 0;
-    case 0x45ECDFB6:
-    case 0x2:
-    case 0x3:   return printf->vprintf(format64.c_str(), (va_list)args64.data());
-    default:    return fprintf(*stream, format64.c_str(), (va_list)args64.data());
-    }
-    return 0;
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return printf->vprintf(format64.c_str(), (va_list)args64.data());
+    if ((*stream) == stderr)
+        return printf->errVprintf(format64.c_str(), (va_list)args64.data());
+    return vfprintf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_fputc(char* memory, const uint32_t* stack)
@@ -404,14 +403,13 @@ int syscall_vfprintf(char* memory, const uint32_t* stack)
     auto args = physical(va_list, stack[3]);
     auto format64 = syscall_convert_format_specifier(format);
     auto args64 = syscall_convert_format_argument(format64, memory, args, false);
-    switch ((size_t)(*stream)) {
-    case 0x0:
-    case 0x1:   return 0;
-    case 0x2:
-    case 0x3:   return printf->vprintf(format64.c_str(), (va_list)args64.data());
-    default:    return vfprintf(*stream, format64.c_str(), (va_list)args64.data());
-    }
-    return 0;
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return printf->vprintf(format64.c_str(), (va_list)args64.data());
+    if ((*stream) == stderr)
+        return printf->errVprintf(format64.c_str(), (va_list)args64.data());
+    return vfprintf(*stream, format64.c_str(), (va_list)args64.data());
 }
 
 int syscall_vfscanf(char* memory, const uint32_t* stack)

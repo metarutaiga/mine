@@ -15,6 +15,8 @@ struct Syscall {
 
     int(*printf)(const char*, ...);
     int(*vprintf)(const char*, va_list);
+    int(*errPrintf)(const char*, ...);
+    int(*errVprintf)(const char*, va_list);
     int(*debugPrintf)(const char*, ...);
     int(*debugVprintf)(const char*, va_list);
 };
