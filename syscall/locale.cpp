@@ -26,6 +26,8 @@ int syscall_setlocale(const char* memory, const uint32_t* stack, struct allocato
     auto pointer = (char*)allocator->allocate(size);
     if (pointer == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     memory = (char*)allocator->address();
 
     strncpy(pointer, result, size);

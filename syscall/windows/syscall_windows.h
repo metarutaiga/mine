@@ -56,7 +56,7 @@ bool syscall_UnmapViewOfFile(const void* memory, const void* stack, struct alloc
 // kernel32 - find
 bool syscall_FindClose(const void* memory, const void* stack, struct allocator_t* allocator);
 bool syscall_FindNextFileA(const void* memory, const void* stack);
-size_t syscall_FindFirstFileA(const void* stack, struct allocator_t* allocator);
+size_t syscall_FindFirstFileA(const void* memory, const void* stack, struct allocator_t* allocator);
 
 // kernel32 - heap
 size_t syscall_HeapAlloc(const void* stack, struct allocator_t* allocator);
@@ -137,12 +137,12 @@ bool syscall_basic_string_char_eq_cstr(const void* memory, const void* stack);
 bool syscall_basic_string_char_neq_cstr(const void* memory, const void* stack);
 
 // msvcrt
-size_t syscall_expand(const void* stack, struct allocator_t* allocator);
+size_t syscall_expand(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_fopen_s(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall_memcpy_s(const void* memory, const void* stack);
 size_t syscall_memmove_s(const void* memory, const void* stack);
 size_t syscall_msize(const void* stack, struct allocator_t* allocator);
-size_t syscall_recalloc(const void* stack, struct allocator_t* allocator);
+size_t syscall_recalloc(const void* memory, const void* stack, struct allocator_t* allocator);
 int syscall_splitpath(const void* memory, const void* stack);
 size_t syscall_strcat_s(const void* memory, const void* stack);
 size_t syscall_strdup(const void* memory, const void* stack, struct allocator_t* allocator);
@@ -162,7 +162,7 @@ int syscall__fpclass(const void* stack);
 int64_t syscall__ftol(void* cpu);
 int syscall__initterm(const void* memory, const void* stack, void* cpu);
 int syscall__vsnwprintf(void* memory, const void* stack);
-size_t syscall__wfopen(const void* stack, struct allocator_t* allocator);
+size_t syscall__wfopen(void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall___acrt_iob_func(const void* memory, const void* stack);
 int syscall___getmainargs(const void* memory, const void* stack, struct allocator_t* allocator);
 size_t syscall___iob_func(const void* memory);

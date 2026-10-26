@@ -24,11 +24,10 @@
 extern "C" {
 #endif
 
-size_t syscall_expand(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_expand(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto new_size = stack[2];
-    auto memory = (char*)allocator->address();
     auto old_pointer = physical(char*, pointer);
     auto old_size = allocator->size(old_pointer);
     if (old_size >= new_size)
@@ -41,9 +40,17 @@ int syscall_fopen_s(char* memory, const uint32_t* stack, struct allocator_t* all
     auto pFile = physical(uint32_t*, stack[1]);
     if (pFile == nullptr)
         return -1;
-    (*pFile) = uint32_t(syscall_fopen(stack + 1, allocator));
-    if ((*pFile) == 0)
+    uint32_t file = uint32_t(syscall_fopen(memory, stack + 1, allocator));
+    if (file == 0)
         return -1;
+
+    // MEMORY-SYNC
+    char* address = (char*)allocator->address();
+    stack = (uint32_t*)((char*)stack + (address - memory));
+    memory = address;
+
+    pFile = physical(uint32_t*, stack[1]);
+    (*pFile) = file;
     return 0;
 }
 
@@ -72,25 +79,28 @@ size_t syscall_msize(const uint32_t* stack, struct allocator_t* allocator)
     return allocator->size(physical(char*, pointer));
 }
 
-size_t syscall_recalloc(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_recalloc(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto new_size = stack[2] * stack[3];
-    auto memory = (char*)allocator->address();
     auto old_size = allocator->size(physical(char*, pointer));
     if (old_size >= new_size)
         return pointer;
-    auto new_pointer = allocator->allocate(new_size);
+    auto new_pointer = (char*)allocator->allocate(new_size);
     if (new_pointer == nullptr)
         return 0;
-    memory = (char*)allocator->address();
+
+    // MEMORY-SYNC
+    char* address = (char*)allocator->address();
+    stack = (uint32_t*)((char*)stack + (address - memory));
+    memory = address;
 
     if (pointer) {
         memcpy(new_pointer, physical(char*, pointer), new_size < old_size ? new_size : old_size);
         allocator->deallocate(physical(char*, pointer));
     }
     if (new_size > old_size) {
-        memset(memory + old_size, 0, new_size - old_size);
+        memset(new_pointer + old_size, 0, new_size - old_size);
     }
     return virtual(size_t, new_pointer);
 }
@@ -187,6 +197,8 @@ size_t syscall_strdup(char* memory, const uint32_t* stack, struct allocator_t* a
     auto result = (char*)allocator->allocate(size);
     if (result == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     memory = (char*)allocator->address();
 
     strncpy(result, physical(char*, str), size);
@@ -356,12 +368,16 @@ int syscall__vsnwprintf(char* memory, const uint32_t* stack)
     return result;
 }
 
-size_t syscall__wfopen(const uint32_t* stack, struct allocator_t* allocator)
+size_t syscall__wfopen(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto stream = (FILE**)allocator->allocate(sizeof(FILE*));
     if (stream == nullptr)
         return 0;
-    char* memory = (char*)allocator->address();
+
+    // MEMORY-SYNC
+    char* address = (char*)allocator->address();
+    stack = (uint32_t*)((char*)stack + (address - memory));
+    memory = address;
 
     auto filename = physical(char16_t*, stack[1]);
     auto mode = physical(char*, stack[2]);

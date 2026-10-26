@@ -33,7 +33,10 @@ static size_t syscall_basic_string_char_append(size_t thiz, char* memory, struct
         else {
             size_t other = virtual(size_t, other_ptr);
             ptr = (char*)allocator->allocate(size + 1);
+
+            // MEMORY-SYNC
             memory = (char*)allocator->address();
+
             local = physical(syscall_basic_string<char>*, thiz);
             other_ptr = physical(char*, other);
             if (local->res >= sizeof(local->buf)) {

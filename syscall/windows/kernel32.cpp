@@ -262,6 +262,8 @@ static size_t syscall_CreateFile(uint8_t* memory, const uint32_t* stack, struct 
     auto handle = (FILE**)allocator->allocate(sizeof(FILE*));
     if (handle == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
+
+    // MEMORY-SYNC
     memory = (uint8_t*)allocator->address();
 
     (*handle) = fopen(path.c_str(), mode);
@@ -425,6 +427,8 @@ size_t syscall_MapViewOfFile(uint8_t* memory, const uint32_t* stack, struct allo
     auto map = allocator->allocate(dwNumberOfBytesToMap);
     if (map == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     memory = (uint8_t*)allocator->address();
 
     fseek(file, dwFileOffsetLow, SEEK_SET);
@@ -492,13 +496,17 @@ bool syscall_FindNextFileA(uint8_t* memory, const uint32_t* stack)
 #endif
 }
 
-size_t syscall_FindFirstFileA(uint32_t* stack, struct allocator_t* allocator)
+size_t syscall_FindFirstFileA(uint8_t* memory, uint32_t* stack, struct allocator_t* allocator)
 {
 #if defined(_WIN32)
     auto handle = (HANDLE*)allocator->allocate(sizeof(HANDLE));
     if (handle == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
-    uint8_t* memory = (uint8_t*)allocator->address();
+
+    // MEMORY-SYNC
+    uint8_t* address = (uint8_t*)allocator->address();
+    stack = (uint32_t*)((uint8_t*)stack + (address - memory));
+    memory = address;
 
     auto lpFileName = physical(char*, stack[1]);
     auto lpFindFileData = physical(WIN32_FIND_DATAA*, stack[2]);
@@ -512,7 +520,11 @@ size_t syscall_FindFirstFileA(uint32_t* stack, struct allocator_t* allocator)
     auto dir = (DIR**)allocator->allocate(sizeof(DIR*) + sizeof(char) * 120);
     if (dir == nullptr)
         return SYSCALL_INVALID_HANDLE_VALUE;
-    uint8_t* memory = (uint8_t*)allocator->address();
+
+    // MEMORY-SYNC
+    uint8_t* address = (uint8_t*)allocator->address();
+    stack = (uint32_t*)((uint8_t*)stack + (address - memory));
+    memory = address;
 
     auto lpFileName = physical(char*, stack[1]);
 
@@ -565,6 +577,8 @@ size_t syscall_HeapAlloc(const uint32_t* stack, struct allocator_t* allocator)
     void* lpMem = allocator->allocate(dwBytes);
     if (lpMem == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     uint8_t* memory = (uint8_t*)allocator->address();
 
     if (dwFlags & 0x8) {
@@ -594,6 +608,8 @@ size_t syscall_HeapReAlloc(uint8_t* memory, const uint32_t* stack, struct alloca
     auto lpNewMem = allocator->allocate(dwBytes);
     if (lpNewMem == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     memory = (uint8_t*)allocator->address();
 
     if (dwFlags & 0x8) {
@@ -940,6 +956,8 @@ size_t syscall_LocalAlloc(const uint32_t* stack, struct allocator_t* allocator)
     void* pointer = allocator->allocate(uBytes);
     if (pointer == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     uint8_t* memory = (uint8_t*)allocator->address();
 
     if (uFlags & 0x0040) {
@@ -963,9 +981,12 @@ size_t syscall_VirtualAlloc(uint8_t* memory, const uint32_t* stack, struct alloc
 //  auto flProtect = stack[4];
 
     if (flAllocationType & (0x1000 | 0x2000)) {
-        void* address = allocator->allocate(dwSize, lpAddress ? lpAddress : SIZE_MAX);
+        void* allocate = allocator->allocate(dwSize, lpAddress ? lpAddress : SIZE_MAX);
+
+        // MEMORY-SYNC
         memory = (uint8_t*)allocator->address();
-        lpAddress = virtual(uint32_t, address);
+
+        lpAddress = virtual(uint32_t, allocate);
     }
 
     if (lpAddress == 0)

@@ -109,7 +109,7 @@ static const struct {
 
     // kernel32 - find
     { "FindClose",                  INT32(1, syscall_FindClose(memory, stack, allocator))           },
-    { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(stack, allocator))              },
+    { "FindFirstFileA",             INT32(2, syscall_FindFirstFileA(memory, stack, allocator))      },
     { "FindNextFileA",              INT32(2, syscall_FindNextFileA(memory, stack))                  },
 
     // kernel32 - heap
@@ -242,7 +242,7 @@ static const struct {
     { "fopen_s",                    INT32(0, syscall_fopen_s(memory, stack, allocator))             },
     { "memcpy_s",                   INT32(0, syscall_memcpy_s(memory, stack))                       },
     { "memmove_s",                  INT32(0, syscall_memmove_s(memory, stack))                      },
-    { "recalloc",                   INT32(0, syscall_recalloc(stack, allocator))                    },
+    { "recalloc",                   INT32(0, syscall_recalloc(memory, stack, allocator))            },
     { "strcat_s",                   INT32(0, syscall_strcat_s(memory, stack))                       },
     { "_callnewh",                  INT32(0, 1)                                                     },
     { "_cexit",                     INT32(0, syscall_exit(stack))                                   },
@@ -260,7 +260,7 @@ static const struct {
     { "_c_exit",                    INT32(0, syscall_exit(stack))                                   },
     { "_decode_pointer",            INT32(0, stack[1])                                              },
     { "_encode_pointer",            INT32(0, stack[1])                                              },
-    { "_expand",                    INT32(0, syscall_expand(stack, allocator))                      },
+    { "_expand",                    INT32(0, syscall_expand(memory, stack, allocator))              },
     { "_finite",                    INT32(0, syscall_isfinite(stack))                               },
     { "_flushall",                  INT32(0, 0)                                                     },
     { "_fpclass",                   INT32(0, syscall__fpclass(stack))                               },
@@ -281,7 +281,7 @@ static const struct {
     { "_strnicmp",                  INT32(0, syscall_strnicmp(memory, stack))                       },
     { "_vsnwprintf",                INT32(0, syscall__vsnwprintf(memory, stack))                    },
     { "_unlock",                    INT32(0, 0)                                                     },
-    { "_wfopen",                    INT32(0, syscall__wfopen(stack, allocator))                     },
+    { "_wfopen",                    INT32(0, syscall__wfopen(memory, stack, allocator))             },
     { "__acrt_iob_func",            INT32(0, syscall___acrt_iob_func(memory, stack))                },
     { "__dllonexit",                INT32(0, 0)                                                     },
     { "__getmainargs",              INT32(0, syscall___getmainargs(memory, stack, allocator))       },
@@ -352,21 +352,33 @@ size_t syscall_windows_new(void* data, SyscallWindows* syscall_windows)
     msvcrt->iob[2][0] = 3;
 
     auto args = (uint32_t*)allocator->allocate(sizeof(uint32_t) * syscall_windows->argc);
+
+    // MEMORY-SYNC
     memory = (uint8_t*)allocator->address();
+
     for (int i = 0; i < syscall_windows->argc; ++i) {
         size_t length = strlen(syscall_windows->argv[i]);
         auto arg = allocator->allocate(length + 1);
+
+        // MEMORY-SYNC
         memory = (uint8_t*)allocator->address();
+
         memcpy(arg, syscall_windows->argv[i], length);
         args[i] = virtual(int, arg);
     }
 
     auto envs = (uint32_t*)allocator->allocate(sizeof(uint32_t) * (syscall_windows->envc + 1));
+
+    // MEMORY-SYNC
     memory = (uint8_t*)allocator->address();
+
     for (int i = 0; i < syscall_windows->envc; ++i) {
         size_t length = strlen(syscall_windows->envp[i]);
         auto env = allocator->allocate(length + 1);
+
+        // MEMORY-SYNC
         memory = (uint8_t*)allocator->address();
+
         memcpy(env, syscall_windows->envp[i], length);
         envs[i] = virtual(int, env);
     }

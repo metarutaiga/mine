@@ -86,7 +86,9 @@ size_t syscall_calloc(const uint32_t* stack, struct allocator_t* allocator)
     auto pointer = allocator->allocate(size);
     if (pointer == nullptr)
         return 0;
-    auto memory = allocator->address();
+
+    // MEMORY-SYNC
+    char* memory = (char*)allocator->address();
 
     memset(pointer, 0, size);
     return virtual(size_t, pointer);
@@ -157,7 +159,9 @@ int syscall_malloc(const uint32_t* stack, struct allocator_t* allocator)
     auto pointer = allocator->allocate(size);
     if (pointer == nullptr)
         return 0;
-    auto memory = allocator->address();
+
+    // MEMORY-SYNC
+    char* memory = (char*)allocator->address();
 
     return virtual(int, pointer);
 }
@@ -214,17 +218,18 @@ int syscall_rand()
     return rand();
 }
 
-int syscall_realloc(const uint32_t* stack, struct allocator_t* allocator)
+int syscall_realloc(char* memory, const uint32_t* stack, struct allocator_t* allocator)
 {
     auto pointer = stack[1];
     auto new_size = stack[2];
-    auto memory = allocator->address();
     auto old_size = allocator->size(physical(char*, pointer));
     if (old_size >= new_size)
         return pointer;
     auto new_pointer = allocator->allocate(new_size);
     if (new_pointer == nullptr)
         return 0;
+
+    // MEMORY-SYNC
     memory = (char*)allocator->address();
 
     if (pointer) {
