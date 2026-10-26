@@ -204,8 +204,8 @@ bool Debugger::Update(const UpdateData& updateData, bool& show)
         static int updateCount = 0;
         static int breakpointData[2] = {};
         static int breakpointProgram = 0;
-        static int logsIndex[3] = {};
-        static int logsFocus[3] = { -1, -1, -1 };
+        static int logsIndex[4] = {};
+        static int logsFocus[4] = { -1, -1, -1, -1 };
         static int disasmIndex = 0;
         static int disasmFocus = -1;
         static std::string disasmFocusTitle;

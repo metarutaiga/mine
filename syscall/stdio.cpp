@@ -167,15 +167,29 @@ int syscall_fprintf(char* memory, const uint32_t* stack)
 
 int syscall_fputc(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto character = stack[1];
     auto stream = syscall_convert_file_stream(physical(FILE**, stack[2]));
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return printf->printf("%c", character);
+    if ((*stream) == stderr)
+        return printf->errPrintf("%c", character);
     return fputc(character, *stream);
 }
 
 int syscall_fputs(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto str = physical(char*, stack[1]);
     auto stream = syscall_convert_file_stream(physical(FILE**, stack[2]));
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return printf->printf("%s", str);
+    if ((*stream) == stderr)
+        return printf->errPrintf("%s", str);
     return fputs(str, *stream);
 }
 
@@ -278,8 +292,15 @@ int syscall_printf(char* memory, const uint32_t* stack)
 
 int syscall_putc(char* memory, const uint32_t* stack)
 {
+    auto printf = physical(Printf*, offset_printf);
     auto character = stack[1];
     auto stream = syscall_convert_file_stream(physical(FILE**, stack[2]));
+    if ((*stream) == stdin)
+        return 0;
+    if ((*stream) == stdout)
+        return printf->printf("%c", character);
+    if ((*stream) == stderr)
+        return printf->errPrintf("%c", character);
     return putc(character, *stream);
 }
 
